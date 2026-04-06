@@ -1,0 +1,3225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Ventas Samu — v2.3</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zxing-js/0.21.3/umd/index.min.js" defer></script>
+<style>
+/* ─── TOKENS ─── */
+:root{
+  --bg:#080808;--sf:#111;--sf2:#191919;--sf3:#222;
+  --bd:#2a2a2a;--bd2:#3a3a3a;
+  --accent:#E8FF3B;--adim:rgba(232,255,59,.1);--aglow:rgba(232,255,59,.22);
+  --red:#FF4444;--rdim:rgba(255,68,68,.1);
+  --blue:#4D9FFF;--bdim2:rgba(77,159,255,.1);
+  --orange:#FF8C42;--odim:rgba(255,140,66,.1);
+  --green:#3BFF8A;--gdim:rgba(59,255,138,.1);
+  --purple:#B47FFF;--pdim:rgba(180,127,255,.1);
+  --text:#F2F2F2;--muted:#666;--muted2:#3e3e3e;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;display:flex;flex-direction:column;align-items:center;}
+
+/* ─── LAYOUT ─── */
+.proto-banner{width:100%;max-width:430px;background:var(--adim);border-bottom:1px solid rgba(232,255,59,.15);padding:8px 16px;display:flex;align-items:center;gap:8px;font-size:10px;color:var(--accent);font-weight:600;letter-spacing:.8px;flex-shrink:0;}
+.proto-banner span{color:var(--muted);font-weight:400;font-size:10px;}
+.device{width:100%;max-width:430px;flex:1;display:flex;flex-direction:column;position:relative;}
+
+/* ─── TOPBAR ─── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 10px;background:rgba(8,8,8,.97);backdrop-filter:blur(18px);border-bottom:1px solid var(--bd);flex-shrink:0;z-index:200;}
+.logo{font-family:'Archivo Black',sans-serif;font-size:18px;letter-spacing:-.5px;}
+.logo span{color:var(--accent);}
+.topbar-r{display:flex;align-items:center;gap:9px;}
+.local-pill{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:4px 9px;font-size:10px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;transition:border-color .2s;}
+.local-pill:hover{border-color:var(--bd2);}
+.local-pill .ldot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+.icon-btn{width:32px;height:32px;background:var(--sf);border:1px solid var(--bd);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;position:relative;transition:border-color .2s;}
+.icon-btn:hover{border-color:var(--bd2);}
+.badge-dot{width:7px;height:7px;background:var(--red);border-radius:50%;position:absolute;top:4px;right:4px;border:1.5px solid var(--bg);}
+.avatar-btn{width:32px;height:32px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:12px;color:var(--bg);cursor:pointer;}
+
+/* ─── SCREENS ─── */
+.main{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:80px;}
+.screen{display:none;padding:0 15px;animation:fu .18s ease both;}
+.screen.active{display:block;}
+@keyframes fu{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+/* ─── TYPOGRAPHY ─── */
+.ptitle{font-family:'Archivo Black',sans-serif;font-size:21px;letter-spacing:-.5px;padding:16px 0 3px;}
+.psub{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5;}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;margin-top:2px;}
+.sec-title{font-family:'Archivo Black',sans-serif;font-size:14px;letter-spacing:-.2px;}
+.sec-link{font-size:11px;color:var(--accent);cursor:pointer;font-weight:600;}
+.mono-lbl{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;}
+.divider{height:1px;background:var(--bd);margin:4px 0 16px;}
+
+/* ─── CARDS ─── */
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:15px;padding:16px;margin-bottom:11px;}
+.card.a{background:var(--adim);border-color:rgba(232,255,59,.18);}
+.card.r{background:var(--rdim);border-color:rgba(255,68,68,.18);}
+.card.b{background:var(--bdim2);border-color:rgba(77,159,255,.18);}
+.card.g{background:var(--gdim);border-color:rgba(59,255,138,.18);}
+
+/* ─── HERO ─── */
+.hero{background:var(--accent);border-radius:19px;padding:20px;margin:11px 0 13px;position:relative;overflow:hidden;cursor:pointer;}
+.hero::after{content:'$';position:absolute;right:-4px;bottom:-22px;font-family:'Archivo Black',sans-serif;font-size:120px;color:rgba(0,0,0,.05);line-height:1;pointer-events:none;}
+.hero-lbl{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(0,0,0,.4);margin-bottom:4px;}
+.hero-amt{font-family:'Archivo Black',sans-serif;font-size:38px;color:#080808;line-height:1;letter-spacing:-1.5px;}
+.hero-sub{font-size:11px;color:rgba(0,0,0,.4);margin-top:9px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.hero-badge{background:rgba(0,0,0,.1);border-radius:20px;padding:3px 9px;font-size:11px;font-weight:700;color:#080808;}
+.hero-tap{font-size:10px;color:rgba(0,0,0,.3);margin-top:6px;}
+
+/* ─── STAT GRID ─── */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px;}
+.scard{background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:13px;cursor:pointer;transition:border-color .15s;}
+.scard:hover{border-color:var(--bd2);}
+.scard .si{font-size:17px;margin-bottom:7px;display:block;}
+.scard .sv{font-family:'Archivo Black',sans-serif;font-size:18px;letter-spacing:-.5px;line-height:1;margin-bottom:3px;}
+.scard .sl{font-size:10px;color:var(--muted);}
+.scard.a{background:var(--adim);border-color:rgba(232,255,59,.18);}
+.scard.a .sv{color:var(--accent);}
+.scard.r{background:var(--rdim);border-color:rgba(255,68,68,.18);}
+.scard.r .sv{color:var(--red);}
+.scard.b{background:var(--bdim2);border-color:rgba(77,159,255,.18);}
+.scard.b .sv{color:var(--blue);}
+.scard.g{background:var(--gdim);border-color:rgba(59,255,138,.18);}
+.scard.g .sv{color:var(--green);}
+
+/* ─── ALERT ─── */
+.alert{border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;cursor:pointer;}
+.alert.red{background:var(--rdim);border:1px solid rgba(255,68,68,.2);}
+.alert.orange{background:var(--odim);border:1px solid rgba(255,140,66,.2);}
+.alert.yellow{background:var(--adim);border:1px solid rgba(232,255,59,.15);}
+.alert-icon{font-size:16px;flex-shrink:0;}
+.alert-body{flex:1;min-width:0;}
+.alert-name{font-size:12px;font-weight:600;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.alert-detail{font-size:10px;color:var(--muted);}
+.alert-stock{font-family:'DM Mono',monospace;font-size:12px;font-weight:600;flex-shrink:0;}
+.alert.red .alert-stock{color:var(--red);}
+.alert.orange .alert-stock{color:var(--orange);}
+.alert.yellow .alert-stock{color:var(--accent);}
+
+/* ─── SALE ITEM ─── */
+.sale{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin-bottom:7px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:border-color .15s;}
+.sale:hover{border-color:var(--bd2);}
+.sale-thumb{width:40px;height:40px;background:var(--sf2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.sale-info{flex:1;min-width:0;}
+.sale-name{font-size:12px;font-weight:600;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sale-meta{font-size:10px;color:var(--muted);}
+.sale-r{text-align:right;flex-shrink:0;}
+.sale-amt{font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);font-weight:500;margin-bottom:2px;}
+.sale-ch{font-size:9px;color:var(--muted);background:var(--sf2);border-radius:4px;padding:2px 6px;display:inline-block;}
+.sale-profit{font-size:10px;color:var(--green);}
+
+/* ─── CHART ─── */
+.chart-box{background:var(--sf);border:1px solid var(--bd);border-radius:15px;padding:16px;margin-bottom:11px;}
+.chart-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
+.chart-title{font-size:11px;color:var(--muted);margin-bottom:3px;}
+.chart-val{font-family:'Archivo Black',sans-serif;font-size:22px;letter-spacing:-.5px;color:var(--accent);}
+.chart-delta{font-family:'DM Mono',monospace;font-size:12px;}
+.chart-delta.up{color:var(--green);}
+.chart-delta.dn{color:var(--red);}
+.bars{display:flex;align-items:flex-end;gap:4px;}
+.bcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.b{width:100%;border-radius:4px 4px 0 0;min-height:4px;transition:height .3s ease;}
+.b.cur{background:var(--accent);}
+.b.pst{background:var(--sf3);}
+.b.l2{background:rgba(59,255,138,.4);}
+.blbl{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted2);}
+.chart-legend{display:flex;gap:14px;margin-top:10px;font-size:10px;color:var(--muted);}
+.legend-dot{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:4px;}
+
+/* ─── TOP ROWS ─── */
+.trow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd);}
+.trow:last-child{border-bottom:none;}
+.trank{font-family:'Archivo Black',sans-serif;font-size:15px;color:var(--muted2);width:20px;text-align:center;flex-shrink:0;}
+.trank.f{color:var(--accent);}
+.tinfo{flex:1;min-width:0;}
+.tname{font-size:12px;font-weight:600;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tunits{font-size:10px;color:var(--muted);}
+.tamt{text-align:right;flex-shrink:0;}
+.trev{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);margin-bottom:1px;}
+.tmrg{font-size:10px;color:var(--muted);}
+
+/* ─── PROGRESS BAR ─── */
+.prow{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--bd);}
+.prow:last-child{border-bottom:none;}
+.pkey{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);width:34px;flex-shrink:0;}
+.pbar-wrap{flex:1;height:5px;background:var(--sf3);border-radius:3px;overflow:hidden;}
+.pbar{height:100%;border-radius:3px;}
+.pval{font-family:'DM Mono',monospace;font-size:10px;text-align:right;flex-shrink:0;min-width:70px;}
+
+/* ─── SEARCH ─── */
+.search-row{display:flex;gap:7px;margin:12px 0;}
+.srch{flex:1;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:9px 13px;color:var(--text);font-family:'Archivo',sans-serif;font-size:12px;outline:none;transition:border-color .15s;}
+.srch::placeholder{color:var(--muted2);}
+.srch:focus{border-color:rgba(232,255,59,.35);}
+.filter-btn{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:9px 12px;color:var(--muted);font-size:14px;cursor:pointer;transition:border-color .15s;}
+.filter-btn:hover{border-color:var(--bd2);}
+
+/* ─── CHIPS ─── */
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:3px;margin-bottom:13px;scrollbar-width:none;}
+.chips::-webkit-scrollbar{display:none;}
+.chip{background:var(--sf);border:1px solid var(--bd);border-radius:18px;padding:5px 12px;font-size:11px;color:var(--muted);cursor:pointer;white-space:nowrap;font-weight:500;transition:all .15s;}
+.chip:hover{border-color:var(--bd2);}
+.chip.on{background:var(--adim);border-color:rgba(232,255,59,.3);color:var(--accent);}
+
+/* ─── PRODUCT CARD ─── */
+.pcard{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:9px;cursor:pointer;transition:border-color .15s;}
+.pcard:hover{border-color:var(--bd2);}
+.pcard.warn{border-color:rgba(255,68,68,.25);background:rgba(255,68,68,.03);}
+.pcard.caution{border-color:rgba(255,140,66,.25);}
+.ptop{display:flex;align-items:flex-start;gap:10px;margin-bottom:11px;}
+.pemoji{width:44px;height:44px;background:var(--sf2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0;}
+.pinfo{flex:1;min-width:0;}
+.pbrand{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;}
+.pname{font-size:13px;font-weight:600;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pcode{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);}
+.pprice{text-align:right;}
+.psell{font-family:'Archivo Black',sans-serif;font-size:14px;letter-spacing:-.3px;}
+.pcost{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px;}
+.pmargin{font-size:9px;color:var(--green);margin-top:1px;}
+.vrow{display:flex;gap:5px;flex-wrap:wrap;}
+.vp{background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:3px 8px;font-size:10px;font-family:'DM Mono',monospace;display:flex;align-items:center;gap:3px;}
+.vp.ok .vs{color:var(--accent);}
+.vp.lo{border-color:rgba(255,68,68,.3);}
+.vp.lo .vs{color:var(--red);}
+.vp.out{opacity:.35;}
+
+/* ─── FORM ─── */
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:11px;}
+.field label{font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.3px;text-transform:uppercase;}
+.fwrap{position:relative;display:flex;align-items:center;}
+.fpfx{position:absolute;left:11px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);pointer-events:none;z-index:1;}
+.field input,.field select,.field textarea{width:100%;background:var(--sf2);border:1px solid var(--bd);border-radius:9px;padding:10px 12px;color:var(--text);font-family:'Archivo',sans-serif;font-size:13px;outline:none;transition:border-color .15s;-webkit-appearance:none;}
+.field input.pfx{padding-left:24px;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:rgba(232,255,59,.4);}
+.field input::placeholder{color:var(--muted2);}
+.field select option{background:var(--sf2);}
+.field textarea{resize:none;min-height:68px;line-height:1.5;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+
+/* ─── STEPS ─── */
+.steps{display:flex;align-items:center;gap:6px;margin-bottom:20px;}
+.sdot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;font-family:'DM Mono',monospace;border:1.5px solid var(--bd);color:var(--muted);flex-shrink:0;transition:all .2s;}
+.sdot.on{background:var(--accent);border-color:var(--accent);color:var(--bg);}
+.sdot.dn{background:var(--adim);border-color:rgba(232,255,59,.3);color:var(--accent);}
+.sline{flex:1;height:1px;background:var(--bd);transition:background .2s;}
+.sline.dn{background:rgba(232,255,59,.3);}
+
+/* ─── SUMMARY ─── */
+.sum-card{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:13px;}
+.srow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--bd);font-size:12px;}
+.srow:last-child{border-bottom:none;}
+.srow.tot{padding-top:10px;font-weight:600;font-size:13px;}
+.sk{color:var(--muted);}
+.sv{font-family:'DM Mono',monospace;font-weight:500;}
+.sv.g{color:var(--accent);}
+.sv.r{color:var(--red);}
+.sv.b{color:var(--blue);}
+
+/* ─── OPTION CARDS ─── */
+.opt{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin-bottom:7px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .15s;}
+.opt:hover{border-color:var(--bd2);}
+.opt.sel{border-color:var(--accent);background:var(--adim);}
+.oico{font-size:21px;flex-shrink:0;}
+.oinfo{flex:1;min-width:0;}
+.oname{font-size:13px;font-weight:600;margin-bottom:1px;}
+.osub{font-size:11px;color:var(--muted);}
+.oprice{font-family:'Archivo Black',sans-serif;font-size:13px;color:var(--accent);flex-shrink:0;}
+.ochk{width:19px;height:19px;border-radius:50%;border:1.5px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;transition:all .15s;}
+.opt.sel .ochk{background:var(--accent);border-color:var(--accent);color:var(--bg);}
+
+/* ─── PERIOD BUTTONS ─── */
+.periods{display:flex;gap:5px;margin:12px 0 14px;background:var(--sf);border:1px solid var(--bd);border-radius:11px;padding:3px;}
+.pb{flex:1;text-align:center;padding:7px 4px;border-radius:8px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;}
+.pb.on{background:var(--accent);color:var(--bg);}
+
+/* ─── FAB ROW ─── */
+.fabs{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px;}
+.fab{background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:15px;display:flex;flex-direction:column;align-items:flex-start;gap:7px;cursor:pointer;transition:all .15s;}
+.fab:hover{border-color:var(--bd2);}
+.fab.p{background:var(--accent);border-color:var(--accent);}
+.fab .fi{font-size:22px;}
+.fab .fl{font-family:'Archivo Black',sans-serif;font-size:13px;letter-spacing:-.2px;}
+.fab .fs{font-size:10px;opacity:.6;}
+.fab.p .fl,.fab.p .fs{color:var(--bg);}
+
+/* ─── USER CARD ─── */
+.ucard{background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:14px;margin-bottom:9px;display:flex;align-items:center;gap:12px;}
+.uavatar{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:15px;flex-shrink:0;}
+.uinfo{flex:1;}
+.uname{font-size:13px;font-weight:600;margin-bottom:2px;}
+.umeta{font-size:10px;color:var(--muted);}
+.role{font-size:9px;padding:3px 9px;border-radius:18px;font-weight:700;font-family:'DM Mono',monospace;letter-spacing:.5px;}
+.role.owner{background:var(--adim);color:var(--accent);border:1px solid rgba(232,255,59,.2);}
+.role.admin{background:var(--bdim2);color:var(--blue);border:1px solid rgba(77,159,255,.2);}
+.role.seller{background:var(--sf2);color:var(--muted);border:1px solid var(--bd);}
+
+/* ─── COMPRA CARD ─── */
+.ccard{background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:14px;margin-bottom:9px;cursor:pointer;transition:border-color .15s;}
+.ccard:hover{border-color:var(--bd2);}
+.ccard-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:9px;}
+.corigen{font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;}
+.cdesc{font-size:12px;font-weight:600;margin-bottom:2px;}
+.cdate{font-size:10px;color:var(--muted);}
+.ctotal{text-align:right;}
+.cmonto{font-family:'Archivo Black',sans-serif;font-size:15px;letter-spacing:-.3px;}
+.cuds{font-size:10px;color:var(--muted);margin-top:1px;}
+.croi{font-size:10px;color:var(--green);margin-top:1px;}
+.ctags{display:flex;gap:5px;flex-wrap:wrap;}
+.ctag{font-size:9px;padding:2px 7px;border-radius:5px;font-family:'DM Mono',monospace;}
+.t-jp{background:rgba(255,140,66,.12);color:var(--orange);border:1px solid rgba(255,140,66,.2);}
+.t-local{background:var(--bdim2);color:var(--blue);border:1px solid rgba(77,159,255,.2);}
+.t-l1{background:var(--adim);color:var(--accent);border:1px solid rgba(232,255,59,.2);}
+.t-l2{background:var(--gdim);color:var(--green);border:1px solid rgba(59,255,138,.2);}
+
+/* ─── LOCAL COMPARE ─── */
+.lcmp{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:11px;}
+.lcard{background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:14px;}
+.lcard.l1{border-top:2px solid var(--accent);}
+.lcard.l2{border-top:2px solid var(--green);}
+.lname{font-size:10px;font-weight:600;margin-bottom:9px;display:flex;align-items:center;gap:5px;}
+.ldot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.ldot.l1{background:var(--accent);}
+.ldot.l2{background:var(--green);}
+.lval{font-family:'Archivo Black',sans-serif;font-size:19px;letter-spacing:-.5px;margin-bottom:2px;}
+.lsub{font-size:9px;color:var(--muted);}
+
+/* ─── TRANSFER ─── */
+.tcard{background:var(--sf2);border:1px solid var(--bd);border-radius:11px;padding:13px;display:flex;align-items:center;gap:9px;margin-bottom:7px;}
+.tcard-info{flex:1;min-width:0;}
+.tcard-name{font-size:12px;font-weight:600;margin-bottom:1px;}
+.tcard-detail{font-size:10px;color:var(--muted);}
+.tcard-date{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);flex-shrink:0;}
+
+/* ─── TOGGLE ─── */
+.tgl-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--bd);}
+.tgl-row:last-child{border-bottom:none;}
+.tgl-lbl{font-size:13px;font-weight:500;}
+.tgl-sub{font-size:10px;color:var(--muted);margin-top:2px;}
+.tgl{position:relative;width:36px;height:20px;flex-shrink:0;}
+.tgl input{opacity:0;width:0;height:0;}
+.tgl-sl{position:absolute;inset:0;background:var(--bd2);border-radius:20px;cursor:pointer;transition:.2s;}
+.tgl-sl::before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:var(--muted);border-radius:50%;transition:.2s;}
+.tgl input:checked+.tgl-sl{background:rgba(232,255,59,.2);}
+.tgl input:checked+.tgl-sl::before{transform:translateX(16px);background:var(--accent);}
+
+/* ─── PERMISSION TABLE ─── */
+.perm-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:4px;}
+.perm-table th{font-size:9px;color:var(--muted);font-weight:600;letter-spacing:.5px;text-transform:uppercase;padding:6px 4px;text-align:center;border-bottom:1px solid var(--bd);}
+.perm-table th:first-child{text-align:left;padding-left:0;}
+.perm-table td{padding:9px 4px;text-align:center;border-bottom:1px solid var(--bd);}
+.perm-table td:first-child{text-align:left;font-size:12px;font-weight:500;padding-left:0;}
+.perm-table tr:last-child td{border-bottom:none;}
+.check{color:var(--accent);font-size:13px;}
+.cross{color:var(--muted2);font-size:13px;}
+
+/* ─── NOTIF ─── */
+.nitem{display:flex;align-items:flex-start;gap:11px;padding:12px 0;border-bottom:1px solid var(--bd);}
+.nitem:last-child{border-bottom:none;}
+.nico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.ntext{flex:1;}
+.ntitle{font-size:12px;font-weight:600;margin-bottom:2px;}
+.ndesc{font-size:10px;color:var(--muted);line-height:1.5;}
+.ntime{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);flex-shrink:0;}
+.unread{width:7px;height:7px;background:var(--accent);border-radius:50%;flex-shrink:0;margin-top:4px;}
+
+/* ─── DATE LABEL ─── */
+.date-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;margin:5px 0 9px;padding:0;}
+.date-lbl.cur{color:var(--accent);}
+.date-lbl.pst{color:var(--muted);}
+
+/* ─── BUTTONS ─── */
+.btn{width:100%;background:var(--accent);border:none;border-radius:12px;padding:14px;font-family:'Archivo Black',sans-serif;font-size:14px;color:var(--bg);cursor:pointer;transition:opacity .15s,transform .1s;margin-top:5px;letter-spacing:.2px;}
+.btn:hover{opacity:.92;}
+.btn:active{transform:scale(.98);}
+.btn.sec{background:var(--sf);border:1px solid var(--bd);color:var(--text);font-family:'Archivo',sans-serif;font-weight:600;font-size:13px;}
+.btn.sec:hover{border-color:var(--bd2);}
+.btn.danger{background:var(--rdim);border:1px solid rgba(255,68,68,.25);color:var(--red);font-family:'Archivo',sans-serif;font-weight:600;font-size:13px;}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+
+/* ─── EMPTY STATE ─── */
+.empty{text-align:center;padding:40px 20px;}
+.empty-icon{font-size:48px;margin-bottom:12px;opacity:.5;}
+.empty-title{font-family:'Archivo Black',sans-serif;font-size:16px;margin-bottom:6px;color:var(--muted);}
+.empty-sub{font-size:12px;color:var(--muted2);}
+
+/* ─── CONFIRM SCREEN ─── */
+.confirm-center{text-align:center;padding:30px 0 20px;}
+.confirm-icon{font-size:56px;margin-bottom:12px;}
+.confirm-title{font-family:'Archivo Black',sans-serif;font-size:21px;margin-bottom:6px;letter-spacing:-.5px;}
+.confirm-sub{font-size:12px;color:var(--muted);margin-bottom:20px;}
+
+/* ─── BOTTOM NAV ─── */
+.bottom-nav{position:sticky;bottom:0;width:100%;background:rgba(8,8,8,.97);backdrop-filter:blur(20px);border-top:1px solid var(--bd);display:flex;align-items:center;padding:6px 6px 14px;z-index:200;flex-shrink:0;}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;cursor:pointer;border-radius:9px;transition:background .15s;}
+.ni:hover{background:var(--sf);}
+.ni .nico2{font-size:18px;line-height:1;}
+.ni .nlbl{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:.3px;text-transform:uppercase;}
+.ni.on .nlbl{color:var(--accent);}
+.nav-fab-wrap{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;margin:0 3px;padding-top:2px;}
+.nav-fab{width:46px;height:46px;background:var(--accent);border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 16px var(--aglow);color:var(--bg);font-weight:900;transition:transform .15s,box-shadow .15s;}
+.nav-fab-wrap:hover .nav-fab{transform:scale(1.06);box-shadow:0 6px 20px var(--aglow);}
+.nav-fab-lbl{font-size:9px;font-weight:700;color:var(--accent);letter-spacing:.3px;text-transform:uppercase;}
+
+/* ─── MISC ─── */
+.spacer{height:24px;}
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:20px;padding:3px 9px;font-size:10px;font-weight:600;}
+.pill.g{background:var(--gdim);color:var(--green);border:1px solid rgba(59,255,138,.2);}
+.pill.r{background:var(--rdim);color:var(--red);border:1px solid rgba(255,68,68,.2);}
+.pill.a{background:var(--adim);color:var(--accent);border:1px solid rgba(232,255,59,.2);}
+.pill.b2{background:var(--bdim2);color:var(--blue);border:1px solid rgba(77,159,255,.2);}
+
+/* ─── SKU / ETIQUETAS ─── */
+.sku-card{background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:14px;margin-bottom:9px;cursor:pointer;transition:border-color .15s;}
+.sku-card:hover{border-color:var(--bd2);}
+.sku-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.sku-info{flex:1;min-width:0;}
+.sku-code{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);font-weight:600;letter-spacing:.5px;margin-bottom:3px;}
+.sku-name{font-size:13px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sku-meta{font-size:10px;color:var(--muted);}
+.sku-actions{display:flex;gap:6px;flex-shrink:0;}
+.sku-btn{background:var(--sf2);border:1px solid var(--bd);border-radius:7px;padding:5px 9px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.sku-btn:hover{border-color:var(--bd2);color:var(--text);}
+.sku-btn.print{background:var(--adim);border-color:rgba(232,255,59,.25);color:var(--accent);}
+.sku-btn.print:hover{background:rgba(232,255,59,.18);}
+.sku-barcode-row{display:flex;align-items:center;gap:8px;background:var(--sf2);border-radius:8px;padding:8px 10px;overflow:hidden;}
+.sku-barcode-row canvas{display:block;flex:1;min-width:0;max-width:100%;height:auto;}
+.sku-price-tag{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);flex-shrink:0;white-space:nowrap;font-weight:600;}
+
+/* modal etiqueta */
+.label-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;}
+.label-modal{background:var(--sf);border:1px solid var(--bd2);border-radius:18px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto;}
+.label-modal-hdr{padding:18px 18px 0;display:flex;align-items:center;justify-content:space-between;}
+.label-modal-hdr h2{font-family:'Archivo Black',sans-serif;font-size:17px;letter-spacing:-.3px;}
+.modal-close{width:28px;height:28px;background:var(--sf2);border:1px solid var(--bd);border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;flex-shrink:0;}
+.label-preview-wrap{margin:14px 18px;background:#fff;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px;min-height:100px;overflow:hidden;}
+.label-preview-inner{display:flex;flex-direction:column;align-items:center;gap:4px;font-family:Arial,sans-serif;width:100%;}
+.label-preview-inner canvas{max-width:100%;height:auto;display:block;}
+.label-preview-name{font-size:10px;font-weight:700;color:#111;text-align:center;max-width:200px;line-height:1.2;}
+.label-preview-sku{font-size:8px;color:#555;font-family:'Courier New',monospace;letter-spacing:.5px;}
+.label-preview-price{font-size:14px;font-weight:900;color:#111;margin-top:2px;}
+.label-modal-body{padding:0 18px 18px;}
+.size-opts{display:flex;gap:6px;margin-bottom:4px;}
+.size-opt{flex:1;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:8px 4px;text-align:center;cursor:pointer;transition:all .15s;}
+.size-opt.on{background:var(--adim);border-color:rgba(232,255,59,.3);}
+.size-opt .so-size{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);font-weight:600;margin-bottom:2px;}
+.size-opt .so-name{font-size:9px;color:var(--muted);}
+.qty-row{display:flex;align-items:center;gap:10px;background:var(--sf2);border:1px solid var(--bd);border-radius:9px;padding:10px 14px;margin-bottom:12px;}
+.qty-row label{font-size:12px;font-weight:600;flex:1;}
+.qty-ctrl{display:flex;align-items:center;gap:8px;}
+.qty-ctrl button{width:28px;height:28px;background:var(--sf);border:1px solid var(--bd);border-radius:7px;color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:600;line-height:1;}
+.qty-ctrl span{font-family:'DM Mono',monospace;font-size:14px;font-weight:600;min-width:20px;text-align:center;}
+
+/* scan venta */
+.scan-area{background:var(--sf);border:2px dashed var(--bd2);border-radius:13px;padding:18px;text-align:center;margin-bottom:14px;transition:border-color .2s;}
+.scan-area.active-scan{border-color:var(--accent);background:var(--adim);}
+.scan-icon{font-size:36px;margin-bottom:8px;}
+.scan-input{width:100%;background:transparent;border:none;outline:none;font-family:'DM Mono',monospace;font-size:16px;color:var(--accent);text-align:center;letter-spacing:2px;}
+.scan-input::placeholder{color:var(--muted2);font-size:13px;letter-spacing:0;}
+.scan-result{background:var(--gdim);border:1px solid rgba(59,255,138,.2);border-radius:11px;padding:13px;margin-bottom:12px;display:none;}
+.scan-result.show{display:block;}
+.scan-res-name{font-size:14px;font-weight:600;margin-bottom:3px;}
+.scan-res-meta{font-size:11px;color:var(--muted);}
+
+/* ─── ESCÁNER CENTRAL ─── */
+.scan-fab{position:relative;}
+.scan-fab .nav-fab-scan{width:54px;height:54px;background:var(--accent);border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:26px;cursor:pointer;margin:0 2px;box-shadow:0 4px 18px var(--aglow);transition:transform .15s,box-shadow .15s;}
+.scan-fab .nav-fab-scan:hover{transform:scale(1.07);box-shadow:0 6px 22px var(--aglow);}
+.scan-fab .nav-fab-scan.on{background:#fff;}
+
+/* visor cámara full */
+.scanner-cam-wrap{border-radius:16px;overflow:hidden;background:#000;position:relative;width:100%;aspect-ratio:4/3;margin-bottom:14px;}
+.scanner-cam-wrap video{width:100%;height:100%;object-fit:cover;display:block;}
+.scanner-cam-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.scanner-cam-frame{width:72%;aspect-ratio:3/1;border:2px solid var(--accent);border-radius:8px;box-shadow:0 0 0 9999px rgba(0,0,0,.5);}
+.scanner-cam-hint{position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:11px;color:rgba(255,255,255,.55);letter-spacing:.4px;}
+.scanner-cam-dot{position:absolute;top:11px;right:11px;width:9px;height:9px;border-radius:50%;background:var(--red);}
+.scanner-cam-dot.live{background:var(--green);animation:pulse-dot .9s ease-in-out infinite;}
+.scanner-flash{position:absolute;inset:0;border-radius:16px;background:rgba(232,255,59,.22);opacity:0;pointer-events:none;transition:opacity .12s;}
+.scanner-flash.show{opacity:1;}
+
+/* producto encontrado card */
+.scan-found-card{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:12px;display:none;}
+.scan-found-card.show{display:block;}
+.scan-found-top{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.scan-found-icon{font-size:32px;flex-shrink:0;}
+.scan-found-info{flex:1;min-width:0;}
+.scan-found-name{font-size:14px;font-weight:700;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.scan-found-sku{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);margin-bottom:2px;}
+.scan-found-meta{font-size:11px;color:var(--muted);}
+.scan-found-stock{font-family:'DM Mono',monospace;font-size:22px;font-weight:700;flex-shrink:0;text-align:right;}
+
+/* grilla de acciones */
+.action-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:8px;}
+.action-btn{background:var(--sf2);border:1px solid var(--bd);border-radius:12px;padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:all .15s;}
+.action-btn:hover{border-color:var(--bd2);background:var(--sf);}
+.action-btn .ab-icon{font-size:22px;}
+.action-btn .ab-lbl{font-size:10px;font-weight:700;text-align:center;color:var(--muted);line-height:1.2;}
+.action-btn.venta{border-color:rgba(232,255,59,.3);background:var(--adim);}
+.action-btn.venta .ab-lbl{color:var(--accent);}
+.action-btn.ingreso{border-color:rgba(59,255,138,.2);background:var(--gdim);}
+.action-btn.ingreso .ab-lbl{color:var(--green);}
+.action-btn.devol{border-color:rgba(255,140,66,.2);background:var(--odim);}
+.action-btn.devol .ab-lbl{color:var(--orange);}
+.action-btn.ajuste{border-color:rgba(77,159,255,.2);background:var(--bdim2);}
+.action-btn.ajuste .ab-lbl{color:var(--blue);}
+.action-btn.precio{border-color:rgba(180,127,255,.2);background:var(--pdim);}
+.action-btn.precio .ab-lbl{color:var(--purple);}
+.action-btn.transfer{border-color:rgba(255,68,68,.15);background:var(--rdim);}
+.action-btn.transfer .ab-lbl{color:var(--red);}
+.action-btn.disabled{opacity:.35;pointer-events:none;}
+
+/* panel de acción expandido */
+.action-panel{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:10px;display:none;}
+.action-panel.show{display:block;}
+.action-panel-title{font-family:'Archivo Black',sans-serif;font-size:14px;letter-spacing:-.2px;margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+
+/* scanner input manual */
+.scan-manual-row{display:flex;gap:7px;margin-bottom:10px;}
+.scan-manual-input{flex:1;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:10px 13px;font-family:'DM Mono',monospace;font-size:14px;color:var(--accent);outline:none;letter-spacing:1px;}
+.scan-manual-input::placeholder{color:var(--muted2);font-size:12px;letter-spacing:0;}
+.scan-manual-input:focus{border-color:rgba(232,255,59,.4);}
+
+/* ─── PRINT STYLES ─── */
+@media print {
+  body > *:not(.print-labels){ display:none !important; }
+  .print-labels{ display:block !important; }
+  @page{ margin:4mm; }
+}
+.print-labels{display:none;}
+.print-sheet{display:flex;flex-wrap:wrap;gap:4px;padding:4px;}
+.print-label{background:#fff;border:1px solid #ddd;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px;font-family:Arial,sans-serif;box-sizing:border-box;page-break-inside:avoid;}
+.print-label.sz-small{ width:40mm; height:20mm; }
+.print-label.sz-medium{ width:50mm; height:25mm; }
+.print-label.sz-large{ width:62mm; height:30mm; }
+.print-label .pl-name{font-size:7pt;font-weight:700;color:#111;text-align:center;max-width:95%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:2px;}
+.print-label .pl-sku{font-size:6pt;color:#555;font-family:'Courier New',monospace;margin-bottom:2px;}
+.print-label canvas{max-width:95%;height:auto;}
+.print-label .pl-price{font-size:9pt;font-weight:900;color:#111;margin-top:2px;}
+</style>
+</head>
+<body>
+
+<div class="proto-banner">⚡ VENTAS SAMU v2.3 <span>— Prototipo interactivo · Usa el menú inferior para navegar</span></div>
+
+<div class="device">
+
+<!-- ── TOPBAR ── -->
+<div class="topbar">
+  <div>
+    <div class="logo">VENTAS <span>SAMU</span></div>
+    <div id="topbar-screen-title" style="font-size:10px;color:var(--muted);margin-top:1px;display:none;letter-spacing:.3px;"></div>
+  </div>
+  <div class="topbar-r">
+    <div class="local-pill" id="local-pill" onclick="goTo('locales')"><span class="ldot"></span><span id="local-name">Mi emprendimiento</span></div>
+    <div class="icon-btn" onclick="goTo('notifs')">🔔<div class="badge-dot" id="notif-badge"></div></div>
+    <div class="avatar-btn" onclick="goTo('config')">SA</div>
+  </div>
+</div>
+
+<!-- ── SCROLLABLE MAIN ── -->
+<div class="main" id="main-scroll">
+
+<!-- ════════════════════════════ DASHBOARD ════════════════════════════ -->
+<div class="screen active" id="screen-dashboard">
+  <div class="hero" onclick="goTo('analisis')">
+    <div class="hero-lbl">Ganancia del mes</div>
+    <div class="hero-amt" id="dash-hero-gan">$1.842.300</div>
+    <div class="hero-sub">
+      <span>Marzo 2026</span>
+      <span class="hero-badge">↑ +38% vs Feb</span>
+      <span class="hero-badge" id="dash-hero-roi">ROI 312%</span>
+    </div>
+    <div class="hero-tap">Toca para ver análisis →</div>
+  </div>
+
+  <!-- acciones rápidas — primero, antes de cualquier scroll -->
+  <div class="fabs" style="margin-bottom:14px;">
+    <div class="fab p" onclick="goTo('scanner')"><div class="fi">📷</div><div class="fl">Escanear</div><div class="fs">Vender · Ingresar · +</div></div>
+    <div class="fab" onclick="goTo('venta')"><div class="fi">🛍️</div><div class="fl">Nueva venta</div><div class="fs">Flujo paso a paso</div></div>
+  </div>
+
+  <div class="sgrid">
+    <div class="scard a" onclick="goTo('analisis')"><span class="si">💰</span><div class="sv" id="dash-ingresos">$3.640.000</div><div class="sl">Ingresos marzo</div></div>
+    <div class="scard" onclick="goTo('historial')"><span class="si">🛍️</span><div class="sv" id="dash-nventas">31</div><div class="sl">Ventas del mes</div></div>
+    <div class="scard r" onclick="goTo('inventario')"><span class="si">⚠️</span><div class="sv" id="dash-stockcrit">3</div><div class="sl">Stock crítico</div></div>
+    <div class="scard b" onclick="goTo('compras')"><span class="si">📥</span><div class="sv">5</div><div class="sl">Compras registradas</div></div>
+  </div>
+
+  <div class="sec-hdr"><div class="sec-title">⚠️ Alertas de stock</div><div class="sec-link" onclick="goTo('inventario')">Ver todo →</div></div>
+  <div id="dash-alertas" style="margin-bottom:16px;"></div>
+
+  <div class="sec-hdr"><div class="sec-title">Últimas ventas</div><div class="sec-link" onclick="goTo('historial')">Ver todo →</div></div>
+  <div id="dash-last-sales"></div>
+
+  <!-- gráfico de evolución al fondo — info contextual, no de acción -->
+  <div class="chart-box" onclick="goTo('analisis')" style="cursor:pointer;margin-top:6px;">
+    <div class="chart-hdr">
+      <div><div class="chart-title">Evolución ganancias · Oct–Mar</div><div class="chart-val" style="font-size:16px;">$7.284.100 acumulado</div></div>
+      <div><div class="chart-delta up">↑ +378%</div><div style="font-size:9px;color:var(--muted);">6 meses</div></div>
+    </div>
+    <div class="bars" style="height:60px;">
+      <div class="bcol"><div class="b pst" style="height:13px;"></div><div class="blbl">Oct</div></div>
+      <div class="bcol"><div class="b pst" style="height:21px;"></div><div class="blbl">Nov</div></div>
+      <div class="bcol"><div class="b pst" style="height:29px;"></div><div class="blbl">Dic</div></div>
+      <div class="bcol"><div class="b pst" style="height:36px;"></div><div class="blbl">Ene</div></div>
+      <div class="bcol"><div class="b pst" style="height:47px;"></div><div class="blbl">Feb</div></div>
+      <div class="bcol"><div class="b cur" style="height:60px;"></div><div class="blbl" style="color:var(--accent);">Mar</div></div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+</div><!-- end screen-dashboard -->
+
+<!-- ════════════════════════════ INVENTARIO ════════════════════════════ -->
+<div class="screen" id="screen-inventario">
+  <div class="ptitle">Inventario</div>
+  <div class="psub">7 productos · 47 unidades en stock</div>
+  <div class="search-row"><input class="srch" placeholder="Buscar producto o marca..." id="inv-search" oninput="filterInv(this.value)"><button class="filter-btn">⚙️</button></div>
+  <div class="chips" id="inv-chips">
+    <div class="chip on" onclick="filterChip(this,'todos')">Todos</div>
+    <div class="chip" onclick="filterChip(this,'zapatillas')">👟 Zapatillas</div>
+    <div class="chip" onclick="filterChip(this,'ropa')">👕 Ropa</div>
+    <div class="chip" onclick="filterChip(this,'accesorios')">🎒 Accesorios</div>
+    <div class="chip" onclick="filterChip(this,'bajo')">⚠️ Bajo stock</div>
+    <div class="chip" onclick="filterChip(this,'agotado')">🔴 Agotado</div>
+  </div>
+
+  <div id="inv-list">
+    <div class="pcard warn" data-cat="accesorios" data-stock="low"><div class="ptop"><div class="pemoji">🎒</div><div class="pinfo"><div class="pbrand">BAPE · Accesorios · Amazon JP</div><div class="pname">Boston Bag Camo Digital</div><div class="pcode">BAPE-BAG-CDG-001</div></div><div class="pprice"><div class="psell">$145.000</div><div class="pcost">Costo $8.200</div><div class="pmargin">Margen 1.669%</div></div></div><div class="vrow"><div class="vp lo">⚠️ <span class="vs">2 ud.</span></div><div class="vp" style="background:var(--adim);border-color:rgba(232,255,59,.2);color:var(--accent);font-size:9px;">+$136.800 ganancia</div></div></div>
+    <div class="pcard caution" data-cat="zapatillas" data-stock="low"><div class="ptop"><div class="pemoji">👟</div><div class="pinfo"><div class="pbrand">Nike · Zapatillas · Local</div><div class="pname">Dunk Low Panda</div><div class="pcode">NIK-DK-PAN-001</div></div><div class="pprice"><div class="psell">$225.000</div><div class="pcost">Costo $22.000</div><div class="pmargin">Margen 922%</div></div></div><div class="vrow"><div class="vp ok">40 <span class="vs">3</span></div><div class="vp ok">41 <span class="vs">2</span></div><div class="vp lo">42 <span class="vs">1</span></div><div class="vp out">43 <span class="vs">0</span></div></div></div>
+    <div class="pcard" data-cat="zapatillas" data-stock="ok"><div class="ptop"><div class="pemoji">👟</div><div class="pinfo"><div class="pbrand">Jordan · Zapatillas · Local</div><div class="pname">Air Jordan 1 Mid Chicago</div><div class="pcode">JOR-AJ1-CHI-001</div></div><div class="pprice"><div class="psell">$280.000</div><div class="pcost">Costo $38.000</div><div class="pmargin">Margen 637%</div></div></div><div class="vrow"><div class="vp ok">40 <span class="vs">1</span></div><div class="vp ok">41 <span class="vs">2</span></div><div class="vp ok">42 <span class="vs">2</span></div><div class="vp ok">43 <span class="vs">1</span></div></div></div>
+    <div class="pcard" data-cat="zapatillas" data-stock="ok"><div class="ptop"><div class="pemoji">👟</div><div class="pinfo"><div class="pbrand">New Balance · Zapatillas · Local</div><div class="pname">550 White Green</div><div class="pcode">NB-550-WHG-001</div></div><div class="pprice"><div class="psell">$195.000</div><div class="pcost">Costo $19.500</div><div class="pmargin">Margen 900%</div></div></div><div class="vrow"><div class="vp ok">39 <span class="vs">2</span></div><div class="vp ok">40 <span class="vs">4</span></div><div class="vp ok">41 <span class="vs">3</span></div><div class="vp ok">42 <span class="vs">2</span></div></div></div>
+    <div class="pcard" data-cat="ropa" data-stock="low"><div class="ptop"><div class="pemoji">👕</div><div class="pinfo"><div class="pbrand">Supreme · Ropa · Amazon JP</div><div class="pname">Box Logo Tee SS25</div><div class="pcode">SUP-BLT-SS25-001</div></div><div class="pprice"><div class="psell">$165.000</div><div class="pcost">Costo $16.000</div><div class="pmargin">Margen 931%</div></div></div><div class="vrow"><div class="vp ok">S <span class="vs">2</span></div><div class="vp ok">M <span class="vs">3</span></div><div class="vp ok">L <span class="vs">2</span></div><div class="vp out">XL <span class="vs">0</span></div></div></div>
+    <div class="pcard" data-cat="accesorios" data-stock="ok"><div class="ptop"><div class="pemoji">🧢</div><div class="pinfo"><div class="pbrand">Palace · Accesorios · Amazon JP</div><div class="pname">Tri-Ferg Cap Camo</div><div class="pcode">PAL-CAP-CAMO-001</div></div><div class="pprice"><div class="psell">$185.000</div><div class="pcost">Costo $14.500</div><div class="pmargin">Margen 1.176%</div></div></div><div class="vrow"><div class="vp ok">Única <span class="vs">4</span></div><div class="vp" style="background:var(--adim);border-color:rgba(232,255,59,.2);color:var(--accent);font-size:9px;">+$170.500 ganancia</div></div></div>
+    <div class="pcard" data-cat="ropa" data-stock="ok"><div class="ptop"><div class="pemoji">🧥</div><div class="pinfo"><div class="pbrand">BAPE · Ropa · Amazon JP</div><div class="pname">Shark Full Zip Hoodie</div><div class="pcode">BAPE-HOD-SFZ-001</div></div><div class="pprice"><div class="psell">$320.000</div><div class="pcost">Costo $42.000</div><div class="pmargin">Margen 661%</div></div></div><div class="vrow"><div class="vp ok">M <span class="vs">1</span></div><div class="vp ok">L <span class="vs">2</span></div><div class="vp ok">XL <span class="vs">1</span></div></div></div>
+  </div>
+
+  <div id="inv-empty" class="empty" style="display:none;"><div class="empty-icon">🔍</div><div class="empty-title">Sin resultados</div><div class="empty-sub">Intenta con otro nombre o categoría</div></div>
+  <button class="btn" style="margin-top:6px;" onclick="goTo('nueva-compra')">+ Agregar producto / lote</button>
+  <div class="spacer"></div>
+</div>
+
+<!-- ════════════════════════════ NUEVA VENTA ════════════════════════════ -->
+<div class="screen" id="screen-venta">
+  <div class="ptitle">Nueva venta</div>
+
+  <!-- indicador de pasos -->
+  <div class="steps" id="venta-steps">
+    <div class="sdot on" id="sd1">1</div><div class="sline" id="sl1"></div>
+    <div class="sdot" id="sd2">2</div><div class="sline" id="sl2"></div>
+    <div class="sdot" id="sd3">3</div>
+  </div>
+
+  <!-- ── PASO 1: BUSCAR / ESCANEAR PRODUCTO ── -->
+  <div id="vs1">
+    <div class="mono-lbl">Paso 1 de 3 · Producto</div>
+    <p style="font-family:'Archivo Black',sans-serif;font-size:18px;margin-bottom:14px;letter-spacing:-.3px;">¿Qué estás vendiendo?</p>
+
+    <!-- zona de escaneo / búsqueda -->
+    <div class="scan-area" id="venta-scan-area" onclick="document.getElementById('venta-scan-input').focus()">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <span style="font-size:22px;">📷</span>
+        <span style="font-size:12px;color:var(--muted);">Escanea o escribe el SKU / nombre</span>
+      </div>
+      <input id="venta-scan-input" class="scan-input" placeholder="Ej: NIK-ZAP-PAN-41-001 o &quot;Nike&quot;…"
+        autocomplete="off" oninput="ventaBuscar(this.value)" onkeydown="ventaScanKey(event)">
+    </div>
+
+    <!-- resultados de búsqueda -->
+    <div id="venta-resultados" style="margin-bottom:4px;"></div>
+
+    <!-- lista completa del inventario (visible al abrir) -->
+    <div class="sec-hdr" style="margin-top:10px;">
+      <div class="sec-title" style="font-size:12px;color:var(--muted);">O elige de tu inventario</div>
+    </div>
+    <div id="venta-inv-lista"></div>
+  </div>
+
+  <!-- ── PASO 2: CANAL + PRECIO ── -->
+  <div id="vs2" style="display:none;">
+    <div class="mono-lbl">Paso 2 de 3 · Canal y precio</div>
+
+    <!-- producto seleccionado (mini card) -->
+    <div id="v-prod-card" style="background:var(--adim);border:1px solid rgba(232,255,59,.2);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:16px;cursor:pointer;" onclick="ventaVolver()">
+      <span id="v-prod-icon" style="font-size:22px;">📦</span>
+      <div style="flex:1;min-width:0;">
+        <div id="v-prod-nombre" style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+        <div id="v-prod-meta" style="font-size:10px;color:var(--muted);"></div>
+      </div>
+      <span style="font-size:10px;color:var(--muted);">← cambiar</span>
+    </div>
+
+    <!-- canal -->
+    <div style="margin-bottom:14px;">
+      <div class="mono-lbl">Canal de venta</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;" id="canal-grid">
+        <div class="opt sel" id="vc-sotos"  onclick="selCanalV(this,'Sotos')"><div class="oico" style="font-size:17px;">🏪</div><div class="oinfo"><div class="oname" style="font-size:12px;">Sotos</div><div class="osub">15% · tope $10k</div></div></div>
+        <div class="opt"     id="vc-wsp"    onclick="selCanalV(this,'WhatsApp')"><div class="oico" style="font-size:17px;">💬</div><div class="oinfo"><div class="oname" style="font-size:12px;">WhatsApp</div><div class="osub">Sin comisión</div></div></div>
+        <div class="opt"     id="vc-fb"     onclick="selCanalV(this,'Facebook')"><div class="oico" style="font-size:17px;">📘</div><div class="oinfo"><div class="oname" style="font-size:12px;">Facebook</div><div class="osub">Sin comisión</div></div></div>
+        <div class="opt"     id="vc-snkr"   onclick="selCanalV(this,'Sneakerheads')"><div class="oico" style="font-size:17px;">👥</div><div class="oinfo"><div class="oname" style="font-size:12px;">Sneakerheads</div><div class="osub">Sin comisión</div></div></div>
+      </div>
+    </div>
+
+    <!-- precio y pago -->
+    <div class="frow">
+      <div class="field">
+        <label>Precio de venta</label>
+        <div class="fwrap"><span class="fpfx">$</span><input id="v-precio" class="pfx" type="number" oninput="recalcVenta()"></div>
+      </div>
+      <div class="field">
+        <label>Cantidad</label>
+        <input id="v-cant" type="number" value="1" min="1" oninput="recalcVenta()">
+      </div>
+    </div>
+    <div class="frow">
+      <div class="field">
+        <label>Método de pago</label>
+        <select id="v-pago">
+          <option>Transferencia</option><option>Efectivo</option>
+          <option>MercadoPago</option><option>Abono + saldo</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Envío</label>
+        <select id="v-envio">
+          <option>Presencial</option><option>Starken</option>
+          <option>Chilexpress</option><option>Otro courier</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Notas (opcional)</label>
+      <textarea id="v-notas" placeholder="Ej: cliente pagó abono de $20.000…" style="min-height:56px;"></textarea>
+    </div>
+
+    <!-- resumen en vivo -->
+    <div class="sum-card">
+      <div class="srow"><span class="sk">Producto</span><span class="sv" id="vs-prod">—</span></div>
+      <div class="srow"><span class="sk">Canal</span><span class="sv" id="vs-canal">Sotos</span></div>
+      <div class="srow"><span class="sk">Precio × cant.</span><span class="sv" id="vs-precio">—</span></div>
+      <div class="srow"><span class="sk" id="vs-com-lbl">Comisión</span><span class="sv r" id="vs-com">—</span></div>
+      <div class="srow"><span class="sk">Costo unitario</span><span class="sv r" id="vs-costo">—</span></div>
+      <div class="srow tot"><span class="sk">Ganancia neta</span><span class="sv g" style="font-size:15px;" id="vs-gan">—</span></div>
+    </div>
+
+    <button class="btn" onclick="ventaConfirmar()">Confirmar y registrar →</button>
+    <button class="btn sec" onclick="ventaVolver()" style="margin-top:8px;">← Cambiar producto</button>
+  </div>
+
+  <!-- ── PASO 3: CONFIRMACIÓN ── -->
+  <div id="vs3" style="display:none;">
+    <div class="confirm-center">
+      <div class="confirm-icon">✅</div>
+      <div class="confirm-title">¡Venta registrada!</div>
+      <div class="confirm-sub" id="vc-sub">Stock actualizado automáticamente.</div>
+      <div class="sum-card" style="text-align:left;">
+        <div class="srow"><span class="sk">Producto</span><span class="sv" id="vc-prod">—</span></div>
+        <div class="srow"><span class="sk">SKU</span><span class="sv" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);" id="vc-sku">—</span></div>
+        <div class="srow"><span class="sk">Canal</span><span class="sv" id="vc-canal">—</span></div>
+        <div class="srow"><span class="sk">Pago</span><span class="sv" id="vc-pago">—</span></div>
+        <div class="srow"><span class="sk">Recibiste</span><span class="sv g" id="vc-recibe">—</span></div>
+        <div class="srow"><span class="sk">Costo</span><span class="sv r" id="vc-costo">—</span></div>
+        <div class="srow tot"><span class="sk">Ganancia neta</span><span class="sv g" style="font-size:15px;" id="vc-gan">—</span></div>
+        <div class="srow"><span class="sk">Stock restante</span><span class="sv" id="vc-stock">—</span></div>
+      </div>
+      <button class="btn" onclick="resetVenta()">+ Nueva venta</button>
+      <div class="btn-row">
+        <button class="btn sec" onclick="goTo('historial')">Ver historial →</button>
+        <button class="btn sec" onclick="goTo('dashboard')">🏠 Inicio</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="spacer"></div>
+</div>
+
+<!-- ════════════════════════════ COMPRAS ════════════════════════════ -->
+<div class="screen" id="screen-compras">
+  <div class="ptitle">Compras</div>
+  <div class="psub">Registro de lotes · 5 compras · $2.232.018 total invertido</div>
+
+  <!-- acceso rápido al escáner para ingreso de stock -->
+  <div class="card a" style="display:flex;align-items:center;gap:12px;margin-bottom:12px;cursor:pointer;" onclick="scGoIngreso()">
+    <div style="font-size:28px;">📷</div>
+    <div style="flex:1;">
+      <div style="font-size:13px;font-weight:700;margin-bottom:2px;">Escanear para ingresar stock</div>
+      <div style="font-size:11px;color:rgba(232,255,59,.6);">Llega un lote — escanea cada producto directamente</div>
+    </div>
+    <div style="font-size:14px;color:var(--accent);">→</div>
+  </div>
+
+  <div class="fabs">
+    <div class="fab p" onclick="goTo('nueva-compra')"><div class="fi">📥</div><div class="fl">Registrar compra</div><div class="fs">Nuevo lote</div></div>
+    <div class="fab" onclick="goTo('locales')"><div class="fi">🔄</div><div class="fl">Transferir stock</div><div class="fs">Entre locales</div></div>
+  </div>
+
+  <div class="sec-hdr"><div class="sec-title">Historial de lotes</div></div>
+
+  <div class="ccard">
+    <div class="ccard-top"><div><div class="corigen">Amazon JP · 05/03/2026</div><div class="cdesc">Lote BAPE Boston Bag × 10</div><div class="cdate">10 unidades · $17.002/ud.</div></div><div class="ctotal"><div class="cmonto">$170.018</div><div class="cuds">10 uds.</div><div class="croi">ROI estimado 753%</div></div></div>
+    <div class="ctags"><span class="ctag t-jp">🇯🇵 Japón</span><span class="ctag t-l1">Mi emprendimiento</span></div>
+  </div>
+
+  <div class="ccard">
+    <div class="ccard-top"><div><div class="corigen">Proveedor local · 20/02/2026</div><div class="cdesc">Lote Jordan AJ1 + Nike Dunk</div><div class="cdate">18 unidades · $46.778/ud. prom.</div></div><div class="ctotal"><div class="cmonto">$842.000</div><div class="cuds">18 uds.</div><div class="croi">ROI estimado 735%</div></div></div>
+    <div class="ctags"><span class="ctag t-local">🏪 Local</span><span class="ctag t-l1">Mi emprendimiento</span></div>
+  </div>
+
+  <div class="ccard">
+    <div class="ccard-top"><div><div class="corigen">Amazon JP · 10/02/2026</div><div class="cdesc">Lote Palace Caps + BAPE Hoodies</div><div class="cdate">12 unidades · $57.125/ud. prom.</div></div><div class="ctotal"><div class="cmonto">$685.500</div><div class="cuds">12 uds.</div><div class="croi">ROI estimado 905%</div></div></div>
+    <div class="ctags"><span class="ctag t-jp">🇯🇵 Japón</span><span class="ctag t-l1">Mi emprendimiento</span></div>
+  </div>
+
+  <div class="ccard">
+    <div class="ccard-top"><div><div class="corigen">Proveedor local · 15/01/2026</div><div class="cdesc">Lote New Balance 550</div><div class="cdate">11 unidades · $19.500/ud.</div></div><div class="ctotal"><div class="cmonto">$214.500</div><div class="cuds">11 uds.</div><div class="croi">ROI estimado 900%</div></div></div>
+    <div class="ctags"><span class="ctag t-local">🏪 Local</span><span class="ctag t-l1">Mi emprendimiento</span></div>
+  </div>
+
+  <div class="ccard">
+    <div class="ccard-top"><div><div class="corigen">Amazon JP · 01/12/2025</div><div class="cdesc">Lote inicial BAPE + Supreme</div><div class="cdate">8 unidades · $40.000/ud. prom.</div></div><div class="ctotal"><div class="cmonto">$320.000</div><div class="cuds">8 uds.</div><div class="croi">ROI estimado 847%</div></div></div>
+    <div class="ctags"><span class="ctag t-jp">🇯🇵 Japón</span><span class="ctag t-l1">Mi emprendimiento</span></div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="sec-hdr"><div class="sec-title">Transferencias entre locales</div></div>
+  <div class="tcard"><span style="font-size:17px;">↔️</span><div class="tcard-info"><div class="tcard-name">Nike Dunk Panda talla 41 × 2 ud.</div><div class="tcard-detail">Mi emprendimiento → Local 1 Familiar</div></div><div class="tcard-date">07/03</div></div>
+  <div class="tcard"><span style="font-size:17px;">↔️</span><div class="tcard-info"><div class="tcard-name">Jordan AJ1 talla 42 × 1 ud.</div><div class="tcard-detail">Local 1 Familiar → Mi emprendimiento</div></div><div class="tcard-date">02/03</div></div>
+  <div class="spacer"></div>
+</div>
+
+<!-- ════════════════════════════ NUEVA COMPRA ════════════════════════════ -->
+<div class="screen" id="screen-nueva-compra">
+  <div class="ptitle">Registrar compra</div>
+  <div class="psub">Nuevo lote de inventario</div>
+
+  <div class="card">
+    <div class="mono-lbl">Origen de la compra</div>
+    <div class="opt sel" id="nc-jp" onclick="selOrigen('jp')"><div class="oico">🇯🇵</div><div class="oinfo"><div class="oname">Amazon Japón</div><div class="osub">Importación directa · cobro en CLP</div></div><div class="ochk">✓</div></div>
+    <div class="opt" id="nc-local" onclick="selOrigen('local')" style="margin-bottom:0;"><div class="oico">🏪</div><div class="oinfo"><div class="oname">Proveedor local</div><div class="osub">Santiago · pago directo en pesos</div></div><div class="ochk"></div></div>
+  </div>
+
+  <div class="card">
+    <div class="mono-lbl">Datos del lote</div>
+    <div class="field"><label>Descripción del lote</label><input type="text" id="nc-desc" placeholder="Ej: Lote BAPE Primavera 2026"></div>
+    <div class="frow">
+      <div class="field"><label>Total pagado (CLP)</label><div class="fwrap"><span class="fpfx">$</span><input id="nc-total" class="pfx" type="number" placeholder="170018" oninput="calcCostoUnit()"></div></div>
+      <div class="field"><label>Nº de unidades</label><input id="nc-uds" type="number" placeholder="10" oninput="calcCostoUnit()"></div>
+    </div>
+    <div class="field"><label>Costo por unidad (auto-calculado)</label><div class="fwrap"><span class="fpfx">$</span><input id="nc-costo-unit" class="pfx" type="number" placeholder="—" style="color:var(--accent);" readonly></div></div>
+    <div class="field"><label>Destino</label>
+      <select id="nc-destino"><option>Mi emprendimiento</option><option>Local 1 - Familiar</option><option>Local 2 - Familiar</option><option>Ambos locales familiares</option></select>
+    </div>
+    <div class="field"><label>Fecha de recepción</label><input type="date" id="nc-fecha" value="2026-03-10"></div>
+  </div>
+
+  <div class="card">
+    <div class="mono-lbl">Productos del lote</div>
+    <div id="nc-prods"></div>
+    <div class="opt" style="border-style:dashed;justify-content:center;gap:8px;color:var(--muted);margin-bottom:0;" onclick="addProdLote()"><span style="font-size:19px;">+</span><span style="font-size:12px;font-weight:600;">Agregar producto al lote</span></div>
+  </div>
+
+  <button class="btn">Guardar compra →</button>
+  <button class="btn sec" onclick="goTo('compras')" style="margin-top:8px;">← Cancelar</button>
+  <div class="spacer"></div>
+</div>
+
+<!-- ════════════════════════════ HISTORIAL ════════════════════════════ -->
+<div class="screen" id="screen-historial">
+  <div class="ptitle">Historial de ventas</div>
+  <div class="search-row"><input class="srch" id="hist-search-input" placeholder="Buscar producto, canal, SKU..." type="text" oninput="renderHistorial()"><button class="filter-btn">🗓️</button></div>
+  <div class="chips" id="hist-chips">
+    <div class="chip on" onclick="histSelChip(this,'todo')">Todo</div>
+    <div class="chip" onclick="histSelChip(this,'hoy')">Hoy</div>
+    <div class="chip" onclick="histSelChip(this,'semana')">Esta semana</div>
+    <div class="chip" onclick="histSelChip(this,'sotos')">Sotos</div>
+    <div class="chip" onclick="histSelChip(this,'wsp')">WhatsApp</div>
+    <div class="chip" onclick="histSelChip(this,'fb')">Facebook</div>
+  </div>
+
+  <!-- resumen dinámico -->
+  <div class="card a" style="margin-bottom:13px;">
+    <div style="margin-bottom:10px;"><span style="font-size:10px;color:rgba(232,255,59,.7);font-weight:600;letter-spacing:1px;">RESUMEN — TODAS LAS VENTAS</span></div>
+    <div style="display:flex;gap:0;justify-content:space-between;">
+      <div style="flex:1;text-align:center;"><div style="font-family:'Archivo Black',sans-serif;font-size:18px;color:var(--accent);" class="hist-stat">0</div><div style="font-size:10px;color:var(--muted);">Ventas</div></div>
+      <div style="width:1px;background:rgba(232,255,59,.15);"></div>
+      <div style="flex:1;text-align:center;"><div style="font-family:'Archivo Black',sans-serif;font-size:18px;color:var(--accent);" class="hist-stat">$0</div><div style="font-size:10px;color:var(--muted);">Ingresos</div></div>
+      <div style="width:1px;background:rgba(232,255,59,.15);"></div>
+      <div style="flex:1;text-align:center;"><div style="font-family:'Archivo Black',sans-serif;font-size:18px;color:var(--accent);" class="hist-stat">$0</div><div style="font-size:10px;color:var(--muted);">Ganancia</div></div>
+    </div>
+  </div>
+
+  <div id="hist-lista"></div>
+  <div class="spacer"></div>
+</div>
+
+<!-- ════════════════════════════ ANÁLISIS ════════════════════════════ -->
+<!-- ════════════════════════════ ANÁLISIS ════════════════════════════ -->
+<div class="screen" id="screen-analisis">
+  <div class="ptitle">Análisis</div>
+  <div class="periods" id="analisis-tabs">
+    <div class="pb on" onclick="renderAnalisis('hoy',this)">Hoy</div>
+    <div class="pb"    onclick="renderAnalisis('semana',this)">Semana</div>
+    <div class="pb"    onclick="renderAnalisis('mes',this)">Mes</div>
+    <div class="pb"    onclick="renderAnalisis('historico',this)">Histórico</div>
+    <div class="pb"    onclick="renderAnalisis('stock',this)">Stock</div>
+  </div>
+  <div id="analisis-body"></div>
+  <div class="spacer"></div>
+</div>
+
+<!-- ════════════════════════════ LOCALES ════════════════════════════ -->
+<div class="screen" id="screen-locales">
+  <div class="ptitle">Locales</div>
+  <div class="psub">Vista comparativa · 2 puntos de venta activos</div>
+
+  <div class="lcmp">
+    <div class="lcard l1"><div class="lname"><span class="ldot l1"></span>Mi emprendimiento</div><div class="lval">$1.842.300</div><div class="lsub">ganancia marzo</div></div>
+    <div class="lcard l2"><div class="lname"><span class="ldot l2"></span>Local 1 Familiar</div><div class="lval">$2.480.000</div><div class="lsub">ganancia marzo</div></div>
+  </div>
+  <div class="lcmp">
+    <div class="lcard l1"><div class="lname"><span class="ldot l1"></span>Ventas</div><div class="lval">31</div><div class="lsub">transacciones mes</div></div>
+    <div class="lcard l2"><div class="lname"><span class="ldot l2"></span>Ventas</div><div class="lval">48</div><div class="lsub">transacciones mes</div></div>
+  </div>
+  <div class="lcmp">
+    <div class="lcard l1"><div class="lname"><span class="ldot l1"></span>Stock</div><div class="lval">47</div><div class="lsub">unidades activas</div></div>
+    <div class="lcard l2"><div class="lname"><span class="ldot l2"></span>Stock</div><div class="lval">124</div><div class="lsub">unidades activas</div></div>
+  </div>
+
+  <div class="chart-box">
+    <div class="chart-hdr">
+      <div><div class="chart-title">Ganancias comparadas · Oct–Mar</div><div class="chart-val" style="font-size:15px;">$4.322.300 total combinado</div></div>
+    </div>
+    <div class="bars" style="height:75px;gap:8px;">
+      <!-- cada mes: barra l1 + barra l2 lado a lado -->
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="width:100%;display:flex;gap:2px;align-items:flex-end;height:65px;">
+          <div style="flex:1;background:rgba(232,255,59,.35);border-radius:3px 3px 0 0;height:13px;"></div>
+          <div style="flex:1;background:rgba(59,255,138,.35);border-radius:3px 3px 0 0;height:19px;"></div>
+        </div>
+        <div class="blbl">Oct</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="width:100%;display:flex;gap:2px;align-items:flex-end;height:65px;">
+          <div style="flex:1;background:rgba(232,255,59,.35);border-radius:3px 3px 0 0;height:21px;"></div>
+          <div style="flex:1;background:rgba(59,255,138,.35);border-radius:3px 3px 0 0;height:31px;"></div>
+        </div>
+        <div class="blbl">Nov</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="width:100%;display:flex;gap:2px;align-items:flex-end;height:65px;">
+          <div style="flex:1;background:rgba(232,255,59,.35);border-radius:3px 3px 0 0;height:29px;"></div>
+          <div style="flex:1;background:rgba(59,255,138,.35);border-radius:3px 3px 0 0;height:41px;"></div>
+        </div>
+        <div class="blbl">Dic</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="width:100%;display:flex;gap:2px;align-items:flex-end;height:65px;">
+          <div style="flex:1;background:rgba(232,255,59,.35);border-radius:3px 3px 0 0;height:36px;"></div>
+          <div style="flex:1;background:rgba(59,255,138,.35);border-radius:3px 3px 0 0;height:49px;"></div>
+        </div>
+        <div class="blbl">Ene</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="width:100%;display:flex;gap:2px;align-items:flex-end;height:65px;">
+          <div style="flex:1;background:rgba(232,255,59,.35);border-radius:3px 3px 0 0;height:47px;"></div>
+          <div style="flex:1;background:rgba(59,255,138,.35);border-radius:3px 3px 0 0;height:60px;"></div>
+        </div>
+        <div class="blbl">Feb</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div style="width:100%;display:flex;gap:2px;align-items:flex-end;height:65px;">
+          <div style="flex:1;background:var(--accent);border-radius:3px 3px 0 0;height:60px;"></div>
+          <div style="flex:1;background:var(--green);border-radius:3px 3px 0 0;height:65px;"></div>
+        </div>
+        <div class="blbl" style="color:var(--accent);">Mar</div>
+      </div>
+    </div>
+    <div class="chart-legend">
+      <span><span class="legend-dot" style="background:var(--accent);"></span>Mi emprendimiento</span>
+      <span><span class="legend-dot" style="background:var(--green);"></span>Local 1 Familiar</span>
+    </div>
+  </div>
+
+  <div class="sec-hdr" style="margin-top:4px;"><div class="sec-title">Transferencias recientes</div><div class="sec-link">+ Nueva</div></div>
+  <div class="tcard"><span style="font-size:16px;">↔️</span><div class="tcard-info"><div class="tcard-name">Nike Dunk Panda talla 41 × 2 ud.</div><div class="tcard-detail">Mi emprendimiento → Local 1 Familiar</div></div><div class="tcard-date">07/03</div></div>
+  <div class="tcard"><span style="font-size:16px;">↔️</span><div class="tcard-info"><div class="tcard-name">Jordan AJ1 talla 42 × 1 ud.</div><div class="tcard-detail">Local 1 Familiar → Mi emprendimiento</div></div><div class="tcard-date">02/03</div></div>
+
+  <button class="btn" style="margin-top:8px;">+ Agregar local</button>
+  <div class="spacer"></div>
+</div>
+
+<!-- ════════════════════════════ CONFIG ════════════════════════════ -->
+<div class="screen" id="screen-config">
+  <div class="ptitle">Configuración</div>
+
+  <!-- perfil -->
+  <div class="card" style="display:flex;align-items:center;gap:13px;margin-bottom:16px;">
+    <div style="width:50px;height:50px;background:var(--accent);border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:19px;color:var(--bg);flex-shrink:0;">SA</div>
+    <div style="flex:1;"><div style="font-size:14px;font-weight:600;margin-bottom:2px;">Samu</div><div style="font-size:11px;color:var(--muted);"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="cfbcaea2ba8fb9aaa1bbaebcbcaea2bae1aca3">[email&#160;protected]</a></div></div>
+    <span class="role owner">Dueño</span>
+  </div>
+
+  <div class="sec-hdr"><div class="sec-title">Equipo</div><div class="sec-link">+ Agregar usuario</div></div>
+  <div class="ucard"><div class="uavatar" style="background:var(--accent);color:var(--bg);">SA</div><div class="uinfo"><div class="uname">Samu</div><div class="umeta">Todos los locales · Acceso completo</div></div><span class="role owner">Dueño</span></div>
+  <div class="ucard"><div class="uavatar" style="background:var(--bdim2);color:var(--blue);border:1px solid rgba(77,159,255,.2);">MA</div><div class="uinfo"><div class="uname">María</div><div class="umeta">Local 1 Familiar · Ve costos</div></div><span class="role admin">Admin</span></div>
+  <div class="ucard"><div class="uavatar" style="background:var(--sf2);color:var(--muted);border:1px solid var(--bd);">JU</div><div class="uinfo"><div class="uname">Juan</div><div class="umeta">Local 1 Familiar · Solo ventas</div></div><span class="role seller">Vendedor</span></div>
+
+  <div class="divider"></div>
+  <div class="sec-hdr"><div class="sec-title">Permisos por rol</div></div>
+  <div class="card" style="overflow-x:auto;">
+    <table class="perm-table">
+      <thead>
+        <tr><th>Función</th><th>Dueño</th><th>Admin</th><th>Vendedor</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Registrar ventas</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+        <tr><td>Ver costos y ganancias</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td></tr>
+        <tr><td>Registrar compras</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td></tr>
+        <tr><td>Ver análisis completo</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td></tr>
+        <tr><td>Gestionar productos</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td></tr>
+        <tr><td>Ver todos los locales</td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td></tr>
+        <tr><td>Gestionar usuarios</td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="divider"></div>
+  <div class="sec-hdr"><div class="sec-title">Preferencias</div></div>
+  <div class="card">
+    <div class="tgl-row"><div><div class="tgl-lbl">Alertas de stock bajo</div><div class="tgl-sub">Notificación cuando llegue al mínimo</div></div><label class="tgl"><input type="checkbox" checked><span class="tgl-sl"></span></label></div>
+    <div class="tgl-row"><div><div class="tgl-lbl">Resumen diario</div><div class="tgl-sub">Notificación al cierre del día</div></div><label class="tgl"><input type="checkbox" checked><span class="tgl-sl"></span></label></div>
+    <div class="tgl-row"><div><div class="tgl-lbl">Mostrar costos en inventario</div><div class="tgl-sub">Solo visible para Dueño y Admin</div></div><label class="tgl"><input type="checkbox" checked><span class="tgl-sl"></span></label></div>
+    <div class="tgl-row"><div><div class="tgl-lbl">Mostrar ganancia en ventas</div><div class="tgl-sub">En historial y confirmación</div></div><label class="tgl"><input type="checkbox" checked><span class="tgl-sl"></span></label></div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="sec-hdr"><div class="sec-title">Datos del negocio</div></div>
+  <div class="card">
+    <div class="field" style="margin-bottom:0;"><label>Nombre del negocio</label><input type="text" value="Ventas Samu"></div>
+  </div>
+  <button class="btn danger" style="margin-top:8px;background:var(--rdim);border:1px solid rgba(255,68,68,.2);color:var(--red);font-family:'Archivo',sans-serif;font-size:13px;font-weight:600;">Cerrar sesión</button>
+  <div class="spacer"></div>
+</div>
+
+<!-- ════════════════════════════ NOTIFICACIONES ════════════════════════════ -->
+<div class="screen" id="screen-notifs">
+  <div class="ptitle">Notificaciones</div>
+  <div style="display:flex;justify-content:flex-end;margin-bottom:10px;"><span class="sec-link" onclick="clearNotifs()">Marcar todas como leídas</span></div>
+  <div class="card" id="notif-list">
+    <div class="nitem"><div class="nico" style="background:var(--rdim);">⚠️</div><div class="ntext"><div class="ntitle">Stock crítico — BAPE Boston Bag</div><div class="ndesc">Solo 2 unidades disponibles. Última venta hace 2 horas.</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;"><div class="ntime">Hoy</div><div class="unread"></div></div></div>
+    <div class="nitem"><div class="nico" style="background:var(--adim);">💰</div><div class="ntext"><div class="ntitle">Nuevo récord semanal</div><div class="ndesc">Esta semana: $1.040.000 en ventas. Tu mejor marca hasta ahora.</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;"><div class="ntime">Hoy</div><div class="unread"></div></div></div>
+    <div class="nitem"><div class="nico" style="background:var(--odim);">👟</div><div class="ntext"><div class="ntitle">Nike Dunk Panda — tallas agotadas</div><div class="ndesc">Tallas 42 y 43 sin stock. Considera reponer en el próximo lote.</div></div><div style="flex-shrink:0;"><div class="ntime">Ayer</div></div></div>
+    <div class="nitem"><div class="nico" style="background:var(--bdim2);">📥</div><div class="ntext"><div class="ntitle">Compra registrada exitosamente</div><div class="ndesc">Lote BAPE + Supreme SS25 · 10 unidades agregadas al inventario.</div></div><div style="flex-shrink:0;"><div class="ntime">05/03</div></div></div>
+    <div class="nitem"><div class="nico" style="background:var(--gdim);">📈</div><div class="ntext"><div class="ntitle">Mejor mes hasta ahora</div><div class="ndesc">Marzo ya superó a Febrero con 10 días por delante. ¡Sigue así!</div></div><div style="flex-shrink:0;"><div class="ntime">07/03</div></div></div>
+  </div>
+  <div class="spacer"></div>
+</div>
+
+<!-- ════════════════════════════ SKU & ETIQUETAS ════════════════════════════ -->
+<div class="screen" id="screen-skus">
+  <div class="ptitle">SKUs y Etiquetas</div>
+  <div class="psub">Genera códigos propios, imprime etiquetas y escanea para vender</div>
+
+  <!-- ACCESO AL ESCÁNER CENTRAL -->
+  <div class="card b" style="display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;" onclick="goTo('scanner')">
+    <div style="font-size:28px;">📷</div>
+    <div style="flex:1;">
+      <div style="font-size:13px;font-weight:700;margin-bottom:2px;">Escanear un código</div>
+      <div style="font-size:11px;color:rgba(77,159,255,.7);">Vender · Ingresar stock · Ver precio · Devolución</div>
+    </div>
+    <div style="font-size:14px;color:var(--blue);">→</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- CREAR NUEVO SKU -->
+  <div class="sec-hdr"><div class="sec-title">✏️ Crear nuevo SKU</div></div>
+  <div class="card">
+    <div class="mono-lbl">Datos del artículo</div>
+    <div class="frow">
+      <div class="field"><label>Marca</label>
+        <select id="sku-marca" onchange="autoSku()">
+          <option value="BAPE">BAPE</option><option value="NIKE">NIKE</option><option value="JOR">Jordan</option>
+          <option value="NB">New Balance</option><option value="SUP">Supreme</option><option value="PAL">Palace</option>
+          <option value="OTR">Otro</option>
+        </select>
+      </div>
+      <div class="field"><label>Categoría</label>
+        <select id="sku-cat" onchange="autoSku()">
+          <option value="ZAP">Zapatilla</option><option value="HOD">Hoodie</option><option value="TEE">Camiseta</option>
+          <option value="CAP">Gorra</option><option value="BAG">Bolso/Bag</option><option value="ACC">Accesorio</option>
+        </select>
+      </div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>Variante (talla/color)</label><input id="sku-var" type="text" placeholder="40, L, Camo…" oninput="autoSku()"></div>
+      <div class="field"><label>Nº correlativo</label><input id="sku-num" type="number" value="1" min="1" max="999" oninput="autoSku()"></div>
+    </div>
+    <div class="field"><label>Nombre del producto</label><input id="sku-nombre" type="text" placeholder="Ej: BAPE Boston Bag Camo Digital"></div>
+    <div class="frow">
+      <div class="field"><label>Precio de venta (opcional)</label><div class="fwrap"><span class="fpfx">$</span><input id="sku-precio" class="pfx" type="number" placeholder="145000"></div></div>
+      <div class="field"><label>Costo unitario</label><div class="fwrap"><span class="fpfx">$</span><input id="sku-costo" class="pfx" type="number" placeholder="17002"></div></div>
+    </div>
+    <div class="field"><label>SKU generado (editable)</label>
+      <div style="display:flex;gap:7px;">
+        <input id="sku-final" type="text" placeholder="BAPE-BAG-CAMO-001" style="font-family:'DM Mono',monospace;color:var(--accent);font-weight:600;">
+        <button class="sku-btn" onclick="autoSku()" style="white-space:nowrap;border-radius:9px;padding:0 12px;">↺ Auto</button>
+      </div>
+    </div>
+
+    <!-- preview barcode -->
+    <div style="margin-bottom:12px;">
+      <div class="mono-lbl">Vista previa del código de barras</div>
+      <div style="background:#fff;border-radius:9px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:6px;overflow:hidden;" id="bc-preview-wrap">
+        <canvas id="bc-preview" style="max-width:100%;height:auto;display:block;"></canvas>
+        <div id="bc-preview-name" style="font-size:9pt;font-weight:700;color:#222;text-align:center;font-family:Arial,sans-serif;"></div>
+        <div id="bc-preview-sku" style="font-size:8pt;color:#666;font-family:'Courier New',monospace;"></div>
+        <div id="bc-preview-price" style="font-size:11pt;font-weight:900;color:#111;font-family:Arial,sans-serif;"></div>
+      </div>
+    </div>
+
+    <button class="btn" onclick="crearSku()">Crear SKU y generar código →</button>
+  </div>
+
+  <!-- LISTA DE SKUs -->
+  <div class="sec-hdr"><div class="sec-title">SKUs registrados</div><div class="sec-link" onclick="printAllLabels()">🖨 Imprimir todos</div></div>
+  <div class="search-row"><input class="srch" placeholder="Buscar SKU, producto…" oninput="filterSkus(this.value)"></div>
+  <div id="sku-list"></div>
+  <div class="spacer"></div>
+</div>
+
+<!-- ════════════════════════════ ESCÁNER CENTRAL ════════════════════════════ -->
+<div class="screen" id="screen-scanner">
+  <div class="ptitle">Escáner</div>
+  <div class="psub">Escanea un producto y elige qué hacer con él</div>
+
+  <!-- Modo selector: cámara vs manual -->
+  <div class="cam-toggle-row" style="margin-bottom:10px;">
+    <div class="cam-mode-btn on" id="sc-mode-cam" onclick="scSetMode('cam')"><span class="cmi">📷</span>Cámara</div>
+    <div class="cam-mode-btn"   id="sc-mode-kbd" onclick="scSetMode('kbd')"><span class="cmi">⌨️</span>Manual / Pistola</div>
+  </div>
+
+  <!-- Cámara -->
+  <div id="sc-cam-panel">
+    <div class="scanner-cam-wrap" id="sc-cam-wrap" style="display:none;">
+      <video id="sc-video" playsinline muted></video>
+      <div class="scanner-cam-overlay"><div class="scanner-cam-frame"></div></div>
+      <div class="scanner-cam-hint">Centra el código en el recuadro</div>
+      <div class="scanner-cam-dot" id="sc-dot"></div>
+      <div class="scanner-flash" id="sc-flash"></div>
+    </div>
+    <button class="btn" id="sc-start-btn" onclick="scStartCamera()" style="margin-bottom:8px;">📷 Activar cámara</button>
+    <button class="btn sec" id="sc-stop-btn" onclick="scStopCamera()" style="display:none;margin-bottom:8px;border-color:rgba(255,68,68,.3);color:var(--red);">⏹ Detener cámara</button>
+  </div>
+
+  <!-- Manual -->
+  <div id="sc-kbd-panel" style="display:none;">
+    <div class="scan-manual-row">
+      <input id="sc-manual-input" class="scan-manual-input" placeholder="Escribe o escanea el SKU + Enter…" autocomplete="off" onkeydown="scHandleKey(event)">
+      <button class="btn" style="width:auto;padding:0 16px;margin:0;" onclick="scProcessManual()">→</button>
+    </div>
+  </div>
+
+  <!-- Producto encontrado -->
+  <div class="scan-found-card" id="sc-found-card">
+    <div class="scan-found-top">
+      <div class="scan-found-icon" id="sc-found-icon">📦</div>
+      <div class="scan-found-info">
+        <div class="scan-found-name" id="sc-found-name">—</div>
+        <div class="scan-found-sku"  id="sc-found-sku">—</div>
+        <div class="scan-found-meta" id="sc-found-meta">—</div>
+      </div>
+      <div>
+        <div class="scan-found-stock" id="sc-found-stock" style="color:var(--green);">—</div>
+        <div style="font-size:9px;color:var(--muted);text-align:right;">en stock</div>
+      </div>
+    </div>
+
+    <!-- Grilla de acciones -->
+    <div class="mono-lbl">¿Qué quieres hacer?</div>
+    <div class="action-grid" id="sc-action-grid">
+      <div class="action-btn venta"    onclick="scAccion('venta')">   <span class="ab-icon">🛍️</span><span class="ab-lbl">Registrar venta</span></div>
+      <div class="action-btn ingreso"  onclick="scAccion('ingreso')"> <span class="ab-icon">📥</span><span class="ab-lbl">Ingreso stock</span></div>
+      <div class="action-btn devol"    onclick="scAccion('devol')">   <span class="ab-icon">↩️</span><span class="ab-lbl">Devolución</span></div>
+      <div class="action-btn ajuste"   onclick="scAccion('ajuste')">  <span class="ab-icon">✏️</span><span class="ab-lbl">Ajuste inv.</span></div>
+      <div class="action-btn precio"   onclick="scAccion('precio')">  <span class="ab-icon">💰</span><span class="ab-lbl">Ver precio</span></div>
+      <div class="action-btn transfer" onclick="scAccion('transfer')"><span class="ab-icon">🔄</span><span class="ab-lbl">Transferir</span></div>
+    </div>
+  </div>
+
+  <!-- Producto no encontrado -->
+  <div id="sc-not-found" style="display:none;text-align:center;padding:20px;background:var(--rdim);border:1px solid rgba(255,68,68,.18);border-radius:14px;margin-bottom:12px;">
+    <div style="font-size:32px;margin-bottom:8px;">❓</div>
+    <div style="font-size:13px;font-weight:700;margin-bottom:4px;" id="sc-not-found-sku">SKU no registrado</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">Este código no existe en tu inventario</div>
+    <button class="btn" style="margin:0;" onclick="goTo('skus')">+ Crear SKU →</button>
+  </div>
+
+  <!-- ── PANEL: VENTA ── -->
+  <div class="action-panel" id="ap-venta">
+    <div class="action-panel-title">🛍️ Registrar venta</div>
+    <div class="mono-lbl">Canal de venta</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;" id="sc-canal-grid">
+      <div class="opt sel" id="sc-vc-sotos"  onclick="scSelCanal(this,'Sotos')">      <div class="oico" style="font-size:15px;">🏪</div><div class="oinfo"><div class="oname" style="font-size:11px;">Sotos</div><div class="osub">15% · tope $10k</div></div></div>
+      <div class="opt"     id="sc-vc-wsp"    onclick="scSelCanal(this,'WhatsApp')">   <div class="oico" style="font-size:15px;">💬</div><div class="oinfo"><div class="oname" style="font-size:11px;">WhatsApp</div><div class="osub">Sin comisión</div></div></div>
+      <div class="opt"     id="sc-vc-fb"     onclick="scSelCanal(this,'Facebook')">   <div class="oico" style="font-size:15px;">📘</div><div class="oinfo"><div class="oname" style="font-size:11px;">Facebook</div><div class="osub">Sin comisión</div></div></div>
+      <div class="opt"     id="sc-vc-snkr"   onclick="scSelCanal(this,'Sneakerheads')"><div class="oico" style="font-size:15px;">👥</div><div class="oinfo"><div class="oname" style="font-size:11px;">Grupos</div><div class="osub">Sin comisión</div></div></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>Precio de venta</label><div class="fwrap"><span class="fpfx">$</span><input id="sc-precio" class="pfx" type="number" oninput="scRecalc()"></div></div>
+      <div class="field"><label>Cantidad</label><input id="sc-cant" type="number" value="1" min="1" oninput="scRecalc()"></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>Pago</label><select id="sc-pago"><option>Transferencia</option><option>Efectivo</option><option>MercadoPago</option></select></div>
+      <div class="field"><label>Envío</label><select id="sc-envio"><option>Presencial</option><option>Starken</option><option>Chilexpress</option></select></div>
+    </div>
+    <!-- resumen vivo -->
+    <div class="sum-card">
+      <div class="srow"><span class="sk" id="sc-com-lbl">Comisión Sotos</span><span class="sv r" id="sc-com">—</span></div>
+      <div class="srow"><span class="sk">Costo</span><span class="sv r" id="sc-costo-lbl">—</span></div>
+      <div class="srow tot"><span class="sk">Ganancia neta</span><span class="sv g" style="font-size:15px;" id="sc-gan">—</span></div>
+    </div>
+    <button class="btn" onclick="scConfirmarVenta()">✓ Confirmar venta →</button>
+    <button class="btn sec" onclick="scCerrarPanel()" style="margin-top:7px;">Cancelar</button>
+  </div>
+
+  <!-- ── PANEL: INGRESO STOCK ── -->
+  <div class="action-panel" id="ap-ingreso">
+    <div class="action-panel-title">📥 Ingreso de stock</div>
+    <div class="frow">
+      <div class="field"><label>Unidades a agregar</label><input id="sc-ing-uds" type="number" value="1" min="1"></div>
+      <div class="field"><label>Costo unitario (CLP)</label><div class="fwrap"><span class="fpfx">$</span><input id="sc-ing-costo" class="pfx" type="number" placeholder="0"></div></div>
+    </div>
+    <div class="field"><label>Motivo / Referencia (opcional)</label><input id="sc-ing-nota" type="text" placeholder="Ej: Lote marzo JP · Factura #123"></div>
+    <button class="btn" onclick="scConfirmarIngreso()" style="background:var(--gdim);border-color:rgba(59,255,138,.3);color:var(--green);">📥 Agregar al stock →</button>
+    <button class="btn sec" onclick="scCerrarPanel()" style="margin-top:7px;">Cancelar</button>
+  </div>
+
+  <!-- ── PANEL: DEVOLUCIÓN ── -->
+  <div class="action-panel" id="ap-devol">
+    <div class="action-panel-title">↩️ Devolución</div>
+    <div class="field"><label>Unidades devueltas</label><input id="sc-dev-uds" type="number" value="1" min="1"></div>
+    <div class="field"><label>Motivo</label>
+      <select id="sc-dev-motivo">
+        <option>Producto con defecto</option>
+        <option>Talla incorrecta</option>
+        <option>Cliente arrepentido</option>
+        <option>No corresponde al pedido</option>
+        <option>Otro</option>
+      </select>
+    </div>
+    <div class="field"><label>¿Repone stock?</label>
+      <select id="sc-dev-repone">
+        <option value="si">Sí — vuelve al inventario</option>
+        <option value="no">No — producto dañado / descarte</option>
+      </select>
+    </div>
+    <button class="btn" onclick="scConfirmarDevolucion()" style="background:var(--odim);border-color:rgba(255,140,66,.3);color:var(--orange);">↩️ Registrar devolución →</button>
+    <button class="btn sec" onclick="scCerrarPanel()" style="margin-top:7px;">Cancelar</button>
+  </div>
+
+  <!-- ── PANEL: AJUSTE INVENTARIO ── -->
+  <div class="action-panel" id="ap-ajuste">
+    <div class="action-panel-title">✏️ Ajuste de inventario</div>
+    <div class="field"><label>Stock correcto (nuevo valor absoluto)</label><input id="sc-ajuste-stock" type="number" min="0" placeholder="Ej: 3"></div>
+    <div class="field"><label>Motivo del ajuste</label>
+      <select id="sc-ajuste-motivo">
+        <option>Conteo físico — corrección</option>
+        <option>Producto extraviado</option>
+        <option>Muestra / regalo</option>
+        <option>Error de ingreso anterior</option>
+        <option>Otro</option>
+      </select>
+    </div>
+    <button class="btn" onclick="scConfirmarAjuste()" style="background:var(--bdim2);border-color:rgba(77,159,255,.3);color:var(--blue);">✏️ Aplicar ajuste →</button>
+    <button class="btn sec" onclick="scCerrarPanel()" style="margin-top:7px;">Cancelar</button>
+  </div>
+
+  <!-- ── PANEL: VER PRECIO ── -->
+  <div class="action-panel" id="ap-precio">
+    <div class="action-panel-title">💰 Información de precio</div>
+    <div class="sum-card" id="sc-precio-detalle">
+      <div class="srow"><span class="sk">Precio de venta</span><span class="sv" id="scp-venta">—</span></div>
+      <div class="srow"><span class="sk">Costo unitario</span><span class="sv r" id="scp-costo">—</span></div>
+      <div class="srow"><span class="sk">Ganancia bruta</span><span class="sv g" id="scp-gan">—</span></div>
+      <div class="srow"><span class="sk">Si vendes en Sotos</span><span class="sv" id="scp-sotos">—</span></div>
+      <div class="srow tot"><span class="sk">Margen</span><span class="sv g" style="font-size:15px;" id="scp-margen">—</span></div>
+    </div>
+    <button class="btn sec" onclick="scCerrarPanel()" style="margin-top:4px;">Cerrar</button>
+  </div>
+
+  <!-- ── PANEL: TRANSFERIR ── -->
+  <div class="action-panel" id="ap-transfer">
+    <div class="action-panel-title">🔄 Transferir entre locales</div>
+    <div class="frow">
+      <div class="field"><label>Origen</label>
+        <select id="sc-tr-origen"><option>Mi emprendimiento</option><option>Local 1 Familiar</option><option>Local 2 Familiar</option></select>
+      </div>
+      <div class="field"><label>Destino</label>
+        <select id="sc-tr-destino"><option>Local 1 Familiar</option><option>Mi emprendimiento</option><option>Local 2 Familiar</option></select>
+      </div>
+    </div>
+    <div class="field"><label>Unidades a transferir</label><input id="sc-tr-uds" type="number" value="1" min="1"></div>
+    <button class="btn" onclick="scConfirmarTransfer()" style="background:var(--rdim);border-color:rgba(255,68,68,.2);color:var(--red);">🔄 Confirmar transferencia →</button>
+    <button class="btn sec" onclick="scCerrarPanel()" style="margin-top:7px;">Cancelar</button>
+  </div>
+
+  <!-- Confirmación genérica -->
+  <div id="sc-confirm-msg" style="display:none;text-align:center;padding:20px;background:var(--gdim);border:1px solid rgba(59,255,138,.2);border-radius:14px;margin-bottom:12px;">
+    <div style="font-size:40px;margin-bottom:8px;" id="sc-confirm-icon">✅</div>
+    <div style="font-family:'Archivo Black',sans-serif;font-size:16px;margin-bottom:4px;" id="sc-confirm-title">Listo</div>
+    <div style="font-size:11px;color:var(--muted);" id="sc-confirm-detail">—</div>
+    <button class="btn sec" onclick="scReset()" style="margin-top:14px;width:auto;padding:0 20px;">← Escanear otro</button>
+  </div>
+
+  <div class="spacer"></div>
+</div>
+
+</div><!-- end main scroll -->
+
+<!-- ── BOTTOM NAV ── -->
+<div class="bottom-nav">
+  <div class="ni on" id="nav-dashboard"  onclick="goTo('dashboard')"> <div class="nico2">📊</div><div class="nlbl">Inicio</div></div>
+  <div class="ni"    id="nav-inventario" onclick="goTo('inventario')"><div class="nico2">📦</div><div class="nlbl">Stock</div></div>
+  <div class="nav-fab-wrap" id="nav-fab-scanner" onclick="goTo('scanner')" title="Escáner">
+    <div class="nav-fab" id="nav-fab-icon">📷</div>
+    <div class="nav-fab-lbl">Escanear</div>
+  </div>
+  <div class="ni"    id="nav-analisis"   onclick="goTo('analisis')">  <div class="nico2">📈</div><div class="nlbl">Análisis</div></div>
+  <div class="ni"    id="nav-skus"       onclick="goTo('skus')">      <div class="nico2">🏷️</div><div class="nlbl">SKUs</div></div>
+</div>
+
+</div><!-- end device -->
+
+<!-- ── MODAL ETIQUETA ── -->
+<div class="label-modal-backdrop" id="label-modal" style="display:none;" onclick="closeLabelModal(event)">
+  <div class="label-modal">
+    <div class="label-modal-hdr">
+      <h2>🖨 Imprimir etiqueta</h2>
+      <div class="modal-close" onclick="document.getElementById('label-modal').style.display='none'">✕</div>
+    </div>
+    <div class="label-preview-wrap">
+      <div class="label-preview-inner" id="modal-preview">
+        <canvas id="modal-bc" style="max-width:100%;height:auto;display:block;"></canvas>
+        <div class="label-preview-name" id="modal-pname"></div>
+        <div class="label-preview-sku" id="modal-psku"></div>
+        <div class="label-preview-price" id="modal-pprice"></div>
+      </div>
+    </div>
+    <div class="label-modal-body">
+      <div class="mono-lbl">Tamaño de etiqueta</div>
+      <div class="size-opts" id="size-opts">
+        <div class="size-opt on" onclick="selSize(this,'small')" data-sz="small"><div class="so-size">40×20mm</div><div class="so-name">Pequeña</div></div>
+        <div class="size-opt" onclick="selSize(this,'medium')" data-sz="medium"><div class="so-size">50×25mm</div><div class="so-name">Mediana</div></div>
+        <div class="size-opt" onclick="selSize(this,'large')" data-sz="large"><div class="so-size">62×30mm</div><div class="so-name">Grande</div></div>
+      </div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:14px;">Compatible con Niimbot B21/D11, DYMO LabelWriter, Brother QL y similares</div>
+
+      <div class="mono-lbl">Cantidad de etiquetas</div>
+      <div class="qty-row">
+        <label>¿Cuántas copias imprimir?</label>
+        <div class="qty-ctrl">
+          <button onclick="adjQty(-1)">−</button>
+          <span id="print-qty">1</span>
+          <button onclick="adjQty(1)">+</button>
+        </div>
+      </div>
+
+      <div class="mono-lbl">Opciones</div>
+      <div class="card" style="margin-bottom:14px;">
+        <div class="tgl-row"><div><div class="tgl-lbl">Mostrar nombre del producto</div></div><label class="tgl"><input type="checkbox" id="opt-nombre" checked><span class="tgl-sl"></span></label></div>
+        <div class="tgl-row"><div><div class="tgl-lbl">Mostrar precio de venta</div></div><label class="tgl"><input type="checkbox" id="opt-precio" checked><span class="tgl-sl"></span></label></div>
+        <div class="tgl-row"><div><div class="tgl-lbl">Mostrar SKU debajo del código</div></div><label class="tgl"><input type="checkbox" id="opt-sku" checked><span class="tgl-sl"></span></label></div>
+      </div>
+
+      <button class="btn" onclick="printLabel()">🖨 Imprimir</button>
+      <button class="btn sec" onclick="document.getElementById('label-modal').style.display='none'" style="margin-top:8px;">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOJA DE IMPRESIÓN (solo visible al imprimir) -->
+<div class="print-labels" id="print-sheet">
+  <div class="print-sheet" id="print-sheet-inner"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  UTILIDADES
+// ══════════════════════════════════════════════════════
+function fmt(n) {
+  return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+function todayStr() {
+  const d = new Date();
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+function nowHHMM() {
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+function safeEncode(obj) {
+  return encodeURIComponent(JSON.stringify(obj));
+}
+function safeDecode(str) {
+  try { return JSON.parse(decodeURIComponent(str)); } catch(e) { return null; }
+}
+
+// ══════════════════════════════════════════════════════
+//  BASE DE DATOS EN MEMORIA
+// ══════════════════════════════════════════════════════
+const skuDB = [
+  {sku:'BAPE-BAG-CAMO-001',   nombre:'BAPE Boston Bag Camo',       precio:145000, costo:8200,  stock:2, icon:'🎒', variante:'Única'},
+  {sku:'NIK-ZAP-PAN-40-001',  nombre:'Nike Dunk Low Panda',         precio:225000, costo:22000, stock:3, icon:'👟', variante:'T40'},
+  {sku:'NIK-ZAP-PAN-41-001',  nombre:'Nike Dunk Low Panda',         precio:225000, costo:22000, stock:2, icon:'👟', variante:'T41'},
+  {sku:'NIK-ZAP-PAN-42-001',  nombre:'Nike Dunk Low Panda',         precio:225000, costo:22000, stock:1, icon:'👟', variante:'T42'},
+  {sku:'JOR-ZAP-CHI-41-001',  nombre:'Jordan AJ1 Mid Chicago',      precio:280000, costo:38000, stock:2, icon:'👟', variante:'T41'},
+  {sku:'JOR-ZAP-CHI-42-001',  nombre:'Jordan AJ1 Mid Chicago',      precio:280000, costo:38000, stock:2, icon:'👟', variante:'T42'},
+  {sku:'PAL-CAP-CAMO-001',    nombre:'Palace Tri-Ferg Cap',         precio:185000, costo:14500, stock:4, icon:'🧢', variante:'Única'},
+  {sku:'SUP-TEE-SS25-M-001',  nombre:'Supreme Box Logo Tee SS25',   precio:165000, costo:16000, stock:3, icon:'👕', variante:'Talla M'},
+  {sku:'BAPE-HOD-SFZ-L-001',  nombre:'BAPE Shark Full Zip Hoodie',  precio:320000, costo:42000, stock:2, icon:'🧥', variante:'Talla L'},
+];
+
+// Datos semilla corregidos (sin comisión en WhatsApp, SKUs y nombres coherentes)
+const ventasDB = [
+  { id:1,  sku:'PAL-CAP-CAMO-001',   nombre:'Palace Tri-Ferg Cap',        variante:'Única',   icon:'🧢', precio:185000, costo:14500, com:0,     canal:'WhatsApp',    pago:'Transferencia', envio:'Presencial',  gan:170500, fecha:'Hoy · 16:20' },
+  { id:2,  sku:'NIK-ZAP-PAN-41-001', nombre:'Nike Dunk Low Panda',        variante:'T41',     icon:'👟', precio:225000, costo:22000, com:10000, canal:'Sotos',        pago:'Transferencia', envio:'Starken',     gan:193000, fecha:'Hoy · 11:05' },
+  { id:3,  sku:'SUP-TEE-SS25-M-001', nombre:'Supreme Box Logo Tee SS25',  variante:'Talla M', icon:'👕', precio:165000, costo:16000, com:0,     canal:'Facebook',     pago:'Efectivo',      envio:'Presencial',  gan:149000, fecha:'Ayer · 19:30' },
+  { id:4,  sku:'BAPE-BAG-CAMO-001',  nombre:'BAPE Boston Bag Camo',       variante:'Única',   icon:'🎒', precio:145000, costo:8200,  com:0,     canal:'WhatsApp',     pago:'Transferencia', envio:'Presencial',  gan:136800, fecha:'Ayer · 14:15' },
+  { id:5,  sku:'JOR-ZAP-CHI-42-001', nombre:'Jordan AJ1 Mid Chicago',     variante:'T42',     icon:'👟', precio:280000, costo:38000, com:10000, canal:'Sotos',        pago:'Transferencia', envio:'Starken',     gan:232000, fecha:'Ayer · 10:40' },
+  { id:6,  sku:'NIK-ZAP-PAN-40-001', nombre:'Nike Dunk Low Panda',        variante:'T40',     icon:'👟', precio:225000, costo:22000, com:0,     canal:'Sneakerheads', pago:'Transferencia', envio:'Chilexpress', gan:203000, fecha:'07/03 · 18:00' },
+  { id:7,  sku:'BAPE-HOD-SFZ-L-001', nombre:'BAPE Shark Full Zip Hoodie', variante:'Talla L', icon:'🧥', precio:320000, costo:42000, com:0,     canal:'WhatsApp',     pago:'Efectivo',      envio:'Presencial',  gan:278000, fecha:'07/03 · 13:20' },
+  { id:8,  sku:'PAL-CAP-CAMO-001',   nombre:'Palace Tri-Ferg Cap',        variante:'Única',   icon:'🧢', precio:185000, costo:14500, com:0,     canal:'Facebook',     pago:'Transferencia', envio:'Presencial',  gan:170500, fecha:'07/03 · 11:10' },
+  { id:9,  sku:'JOR-ZAP-CHI-41-001', nombre:'Jordan AJ1 Mid Chicago',     variante:'T41',     icon:'👟', precio:280000, costo:38000, com:10000, canal:'Sotos',        pago:'Transferencia', envio:'Starken',     gan:232000, fecha:'06/03 · 17:30' },
+  { id:10, sku:'BAPE-BAG-CAMO-001',  nombre:'BAPE Boston Bag Camo',       variante:'Única',   icon:'🎒', precio:145000, costo:8200,  com:0,     canal:'Facebook',     pago:'MercadoPago',   envio:'Chilexpress', gan:136800, fecha:'06/03 · 15:00' },
+];
+
+// ══════════════════════════════════════════════════════
+//  NAVEGACIÓN
+// ══════════════════════════════════════════════════════
+const ALL_SCREENS = ['dashboard','inventario','venta','compras','nueva-compra','historial','analisis','locales','config','notifs','skus','scanner'];
+
+function goTo(id) {
+  ALL_SCREENS.forEach(s => {
+    const el = document.getElementById('screen-'+s);
+    if(el) el.classList.remove('active');
+  });
+  const target = document.getElementById('screen-'+id);
+  if(target) { target.classList.add('active'); document.getElementById('main-scroll').scrollTop = 0; }
+
+  // Nav inferior — pestañas fijas
+  const navIds = ['dashboard','inventario','analisis','skus'];
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('on'));
+  if(navIds.includes(id)) {
+    const el = document.getElementById('nav-'+id);
+    if(el) el.classList.add('on');
+  }
+  // FAB central: resalta cuando estás en scanner
+  const fabIcon = document.getElementById('nav-fab-icon');
+  const fabWrap = document.getElementById('nav-fab-scanner');
+  if(fabIcon) {
+    fabIcon.style.background = id === 'scanner' ? '#fff' : 'var(--accent)';
+  }
+
+  // Título dinámico en topbar
+  const screenTitles = {
+    dashboard: null, // en dashboard se oculta, solo se muestra el logo
+    inventario: 'Inventario', venta: 'Nueva venta', compras: 'Compras',
+    'nueva-compra': 'Registrar compra', historial: 'Historial',
+    analisis: 'Análisis', locales: 'Locales', config: 'Configuración',
+    notifs: 'Notificaciones', skus: 'SKUs y Etiquetas', scanner: 'Escáner'
+  };
+  const titleEl = document.getElementById('topbar-screen-title');
+  if(titleEl) {
+    const t = screenTitles[id];
+    titleEl.textContent = t || '';
+    titleEl.style.display = t ? 'block' : 'none';
+  }
+
+  // Acciones al entrar
+  if(id === 'dashboard')  renderDashboard();
+  if(id === 'historial')  renderHistorial();
+  if(id === 'inventario') renderInventario();
+  if(id === 'analisis')   renderAnalisis();
+  if(id === 'skus')       renderSkuList();
+  if(id === 'venta')      ventaGoTo1();
+  if(id === 'scanner')    scInit();
+
+  // Apagar cámara del escáner central al salir
+  if(id !== 'scanner' && _scCamActive) scStopCamera();
+}
+
+// ══════════════════════════════════════════════════════
+//  DASHBOARD DINÁMICO
+// ══════════════════════════════════════════════════════
+
+// Helper: fecha actual como string para filtros
+function mesActualStr() {
+  const d = new Date();
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+function mesActualNum() { return new Date().getMonth() + 1; }
+
+// Detectar si una venta es del mes actual (robusto)
+function esVentaMes(v) {
+  if(v.fecha.startsWith('Hoy') || v.fecha.startsWith('Ayer')) return true;
+  // formato dd/mm
+  const match = v.fecha.match(/^(\d{2})\/(\d{2})/);
+  if(match) return parseInt(match[2]) === mesActualNum();
+  return false;
+}
+
+function renderDashboard() {
+  // Últimas 4 ventas
+  const wrap = document.getElementById('dash-last-sales');
+  if(wrap) {
+    const ventasReales = ventasDB.filter(v => !v.nombre.startsWith('↩️'));
+    if(ventasReales.length === 0) {
+      wrap.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px;">Sin ventas registradas aún</div>';
+    } else {
+      wrap.innerHTML = ventasReales.slice(0,4).map(v => `
+        <div class="sale" onclick="goTo('historial')">
+          <div class="sale-thumb">${v.icon}</div>
+          <div class="sale-info">
+            <div class="sale-name">${v.nombre}</div>
+            <div class="sale-meta">${v.fecha} · ${v.variante}</div>
+          </div>
+          <div class="sale-r">
+            <div class="sale-amt">$${fmt(v.precio)}</div>
+            <div class="sale-profit">+$${fmt(v.gan)}</div>
+          </div>
+        </div>`).join('');
+    }
+  }
+
+  // Stats mes actual — dinámico
+  const ventasMes  = ventasDB.filter(v => esVentaMes(v) && !v.nombre.startsWith('↩️'));
+  const ganMes     = ventasMes.reduce((s,v) => s+v.gan, 0);
+  const ingrMes    = ventasMes.reduce((s,v) => s+v.precio, 0);
+  const costoMes   = ventasMes.reduce((s,v) => s+(v.costo||0), 0);
+  const nVentas    = ventasMes.length;
+  const stockCrit  = skuDB.filter(s => s.stock === 0).length;
+  const stockBajo  = skuDB.filter(s => s.stock > 0 && s.stock <= 2).length;
+  const roiMes     = costoMes > 0 ? Math.round((ganMes/costoMes)*100) : 0;
+
+  // Alertas dinámicas de stock
+  const alertasWrap = document.getElementById('dash-alertas');
+  if(alertasWrap) {
+    const criticos = skuDB.filter(s => s.stock === 0);
+    const bajos    = skuDB.filter(s => s.stock > 0 && s.stock <= 2);
+    let alertHtml = '';
+    criticos.slice(0,2).forEach(s => {
+      alertHtml += `<div class="alert red" onclick="goTo('inventario')"><div class="alert-icon">${s.icon}</div><div class="alert-body"><div class="alert-name">${s.nombre}</div><div class="alert-detail">${s.variante} — Sin stock</div></div><div class="alert-stock">0 ud.</div></div>`;
+    });
+    bajos.slice(0,2).forEach(s => {
+      alertHtml += `<div class="alert orange" onclick="goTo('inventario')"><div class="alert-icon">${s.icon}</div><div class="alert-body"><div class="alert-name">${s.nombre}</div><div class="alert-detail">${s.variante} — Stock bajo</div></div><div class="alert-stock">${s.stock} ud.</div></div>`;
+    });
+    if(!alertHtml) alertHtml = `<div style="padding:12px;font-size:12px;color:var(--green);text-align:center;">✓ Todo el stock en orden</div>`;
+    alertasWrap.innerHTML = alertHtml;
+  }
+
+  const set = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+  set('dash-hero-gan',  '$'+fmt(ganMes));
+  set('dash-ingresos',  '$'+fmt(ingrMes));
+  set('dash-nventas',   nVentas);
+  set('dash-stockcrit', stockCrit + stockBajo);
+  set('dash-hero-roi',  roiMes > 0 ? `ROI ${roiMes}%` : nVentas > 0 ? 'Sin datos de costo' : 'Sin ventas aún');
+}
+
+// ══════════════════════════════════════════════════════
+//  HISTORIAL DE VENTAS — dinámico + búsqueda + filtros
+// ══════════════════════════════════════════════════════
+let histFiltro = 'todo'; // filtro activo
+
+function renderHistorial(filtro) {
+  if(filtro !== undefined) histFiltro = filtro;
+  const container = document.getElementById('screen-historial');
+  if(!container) return;
+  const lista = document.getElementById('hist-lista');
+  if(!lista) return;
+
+  // Búsqueda por texto
+  const q = (document.getElementById('hist-search-input')?.value || '').toLowerCase();
+
+  let ventas = [...ventasDB];
+
+  // Filtro por chip — robusto
+  if(histFiltro === 'hoy')     ventas = ventas.filter(v => v.fecha.startsWith('Hoy'));
+  if(histFiltro === 'semana')  ventas = ventas.filter(v => esVentaMes(v));
+  if(histFiltro === 'sotos')   ventas = ventas.filter(v => v.canal === 'Sotos');
+  if(histFiltro === 'wsp')     ventas = ventas.filter(v => v.canal === 'WhatsApp');
+  if(histFiltro === 'fb')      ventas = ventas.filter(v => v.canal === 'Facebook');
+
+  // Filtro por búsqueda
+  if(q) ventas = ventas.filter(v =>
+    v.nombre.toLowerCase().includes(q) ||
+    v.canal.toLowerCase().includes(q)  ||
+    v.sku.toLowerCase().includes(q)    ||
+    v.variante.toLowerCase().includes(q)
+  );
+
+  // Resumen
+  const totalIngresos = ventas.reduce((s,v) => s+v.precio, 0);
+  const totalGan      = ventas.reduce((s,v) => s+v.gan,    0);
+  const rs = container.querySelectorAll('.hist-stat');
+  if(rs[0]) rs[0].textContent = ventas.length;
+  if(rs[1]) rs[1].textContent = '$'+fmt(totalIngresos);
+  if(rs[2]) rs[2].textContent = '$'+fmt(totalGan);
+
+  const filtroLabel = { todo:'TODAS LAS VENTAS', hoy:'HOY', semana:'ESTE MES', sotos:'SOTOS', wsp:'WHATSAPP', fb:'FACEBOOK' };
+  const rsLabel = document.querySelector('#screen-historial .card.a span');
+  if(rsLabel) rsLabel.textContent = `RESUMEN — ${filtroLabel[histFiltro] || 'FILTRO ACTIVO'}`;
+
+  if(ventas.length === 0) {
+    const msgs = {
+      hoy:    { icon:'🌅', title:'Sin ventas hoy todavía', sub:'Cuando registres una venta aparecerá aquí.', cta:'Escanear producto →', dest:'scanner' },
+      semana: { icon:'📅', title:'Sin ventas esta semana', sub:'Registra tu primera venta de la semana.', cta:'Escanear producto →', dest:'scanner' },
+      sotos:  { icon:'🏪', title:'Sin ventas en Sotos', sub:'Las ventas por Sotos aparecerán aquí.', cta:null },
+      wsp:    { icon:'💬', title:'Sin ventas por WhatsApp', sub:'Las ventas por WhatsApp aparecerán aquí.', cta:null },
+      fb:     { icon:'📘', title:'Sin ventas en Facebook', sub:'Las ventas en Facebook aparecerán aquí.', cta:null },
+    };
+    const m = msgs[histFiltro] || { icon:'🔍', title:'Sin resultados', sub:'Prueba con otro término de búsqueda.', cta:null };
+    lista.innerHTML = `
+      <div class="empty" style="padding:32px 10px;">
+        <div class="empty-icon">${m.icon}</div>
+        <div class="empty-title">${m.title}</div>
+        <div class="empty-sub" style="margin-bottom:${m.cta?'16px':'0'};">${m.sub}</div>
+        ${m.cta ? `<button class="btn" style="width:auto;padding:10px 24px;font-size:13px;margin:0;" onclick="goTo('${m.dest}')">${m.cta}</button>` : ''}
+      </div>`;
+    return;
+  }
+
+  const canalColor = { Sotos:'var(--accent)', WhatsApp:'var(--green)', Facebook:'var(--blue)', Sneakerheads:'var(--purple)', Devolución:'var(--red)' };
+  lista.innerHTML = ventas.map(v => {
+    const isDev = v.canal === 'Devolución';
+    const ganColor = v.gan >= 0 ? 'var(--green)' : 'var(--red)';
+    const cc = canalColor[v.canal] || 'var(--muted)';
+    return `
+    <div class="sale" style="${isDev?'opacity:.75;border-color:rgba(255,68,68,.2);':''}">
+      <div class="sale-thumb" style="${isDev?'background:var(--rdim);':''}">${v.icon}</div>
+      <div class="sale-info">
+        <div class="sale-name">${v.nombre}</div>
+        <div class="sale-meta">${v.fecha} · ${v.variante}</div>
+      </div>
+      <div class="sale-r">
+        <div class="sale-amt" style="${isDev?'color:var(--red);':''}">
+          ${isDev ? '↩️ ' : ''}$${fmt(Math.abs(v.precio))}
+        </div>
+        <div style="display:flex;align-items:center;gap:5px;justify-content:flex-end;margin-top:2px;">
+          <span style="font-size:9px;color:${cc};background:rgba(0,0,0,.2);border-radius:4px;padding:1px 5px;font-weight:700;">${v.canal}</span>
+          <span style="font-size:10px;color:${ganColor};font-family:'DM Mono',monospace;">${v.gan>=0?'+':''}$${fmt(v.gan)}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function histSelChip(el, filtro) {
+  document.querySelectorAll('#hist-chips .chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  renderHistorial(filtro);
+}
+
+// ══════════════════════════════════════════════════════
+//  INVENTARIO — filtros y búsqueda
+// ══════════════════════════════════════════════════════
+function filterInv(q) {
+  // Al escribir, resetear chip a "Todos"
+  if(q) {
+    document.querySelectorAll('#inv-chips .chip').forEach(c => c.classList.remove('on'));
+    const todoChip = document.querySelector('#inv-chips .chip');
+    if(todoChip) { todoChip.classList.add('on'); todoChip.dataset.cat = 'todos'; }
+  }
+  renderInventario();
+}
+
+function filterChip(el, cat) {
+  document.querySelectorAll('#inv-chips .chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  el.dataset.cat = cat;
+  const inv = document.getElementById('inv-search');
+  if(inv) inv.value = '';
+  renderInventario();
+}
+
+// ── Renderizar inventario completo desde skuDB ──
+function renderInventario() {
+  const list = document.getElementById('inv-list');
+  if(!list) return;
+
+  // Agrupar skuDB por nombre base de producto
+  const grupos = {};
+  skuDB.forEach(s => {
+    const key = s.nombre;
+    if(!grupos[key]) grupos[key] = { ...s, variantes: [] };
+    grupos[key].variantes.push(s);
+  });
+
+  // Detectar chip activo y búsqueda
+  const activeChip = document.querySelector('#inv-chips .chip.on')?.dataset?.cat || 'todos';
+  const q = (document.getElementById('inv-search')?.value || '').toLowerCase();
+
+  let html = '';
+  let visible = 0;
+
+  Object.values(grupos).forEach(g => {
+    // Determinar categoría desde el SKU
+    const skuParts = g.sku.split('-');
+    const catCode = skuParts[1] || '';
+    const catMap = { ZAP:'zapatillas', HOD:'ropa', TEE:'ropa', CAP:'accesorios', BAG:'accesorios', ACC:'accesorios' };
+    const cat = catMap[catCode] || 'accesorios';
+
+    const totalStock = g.variantes.reduce((s,v) => s+v.stock, 0);
+    const minStock   = Math.min(...g.variantes.map(v=>v.stock));
+    const stockClass = minStock === 0 ? 'warn' : totalStock <= 3 ? 'caution' : '';
+    const stockData  = minStock === 0 ? 'out' : totalStock <= 3 ? 'low' : 'ok';
+
+    // Filtro chip
+    if(activeChip === 'zapatillas' && cat !== 'zapatillas') return;
+    if(activeChip === 'ropa'       && cat !== 'ropa')       return;
+    if(activeChip === 'accesorios' && cat !== 'accesorios') return;
+    if(activeChip === 'bajo'       && stockData !== 'low' && stockData !== 'out') return;
+    if(activeChip === 'agotado'    && minStock > 0)         return;
+
+    // Filtro búsqueda
+    if(q && !g.nombre.toLowerCase().includes(q) && !g.sku.toLowerCase().includes(q)) return;
+
+    // Detectar origen desde el primer sku
+    const origen = g.sku.startsWith('BAPE')||g.sku.startsWith('SUP')||g.sku.startsWith('PAL') ? 'Amazon JP' : 'Local';
+    const marcaMap = { BAPE:'BAPE', NIK:'Nike', JOR:'Jordan', NB:'New Balance', SUP:'Supreme', PAL:'Palace' };
+    const marcaCode = g.sku.split('-')[0];
+    const marca = marcaMap[marcaCode] || marcaCode;
+    const catLabel = cat.charAt(0).toUpperCase() + cat.slice(1);
+    const margen = g.precio > 0 ? Math.round(((g.precio-g.costo)/g.precio)*100) : 0;
+
+    // Chips de variantes
+    const vpHtml = g.variantes.map(v => {
+      const cls = v.stock === 0 ? 'out' : v.stock <= 1 ? 'lo' : 'ok';
+      const lbl = v.variante.replace(/^T/,''); // quitar T de talla
+      const warn = v.stock === 0 ? '⚠️ ' : '';
+      return `<div class="vp ${cls}">${warn}<span class="vs">${lbl} · ${v.stock}</span></div>`;
+    }).join('');
+
+    html += `
+    <div class="pcard ${stockClass}" data-cat="${cat}" data-stock="${stockData}">
+      <div class="ptop">
+        <div class="pemoji">${g.icon}</div>
+        <div class="pinfo">
+          <div class="pbrand">${marca} · ${catLabel} · ${origen}</div>
+          <div class="pname">${g.nombre}</div>
+          <div class="pcode">${g.sku.split('-').slice(0,3).join('-')}-xxx</div>
+        </div>
+        <div class="pprice">
+          <div class="psell">$${fmt(g.precio)}</div>
+          <div class="pcost">Costo $${fmt(g.costo)}</div>
+          <div class="pmargin">Margen ${margen}% s/precio</div>
+        </div>
+      </div>
+      <div class="vrow">${vpHtml}</div>
+    </div>`;
+    visible++;
+  });
+
+  list.innerHTML = html;
+
+  // Subtítulo dinámico
+  const totalUds = skuDB.reduce((s,v)=>s+v.stock,0);
+  const psub = document.querySelector('#screen-inventario .psub');
+  if(psub) psub.textContent = `${Object.keys(grupos).length} productos · ${totalUds} unidades en stock`;
+
+  const empty = document.getElementById('inv-empty');
+  if(empty) empty.style.display = visible === 0 ? 'block' : 'none';
+}
+
+// Mantener alias para compatibilidad con llamadas existentes
+function updateInventarioStock() { renderInventario(); }
+
+// Toast suave en vez de alert() nativo
+function toast(msg, tipo='ok') {
+  let t = document.getElementById('_toast');
+  if(!t) {
+    t = document.createElement('div');
+    t.id = '_toast';
+    t.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:11px 18px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:all .25s;pointer-events:none;max-width:320px;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.4);';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.borderColor = tipo==='err' ? 'rgba(255,68,68,.4)' : tipo==='ok' ? 'rgba(59,255,138,.3)' : 'var(--bd)';
+  t.style.color = tipo==='err' ? 'var(--red)' : tipo==='ok' ? 'var(--green)' : 'var(--text)';
+  t.style.opacity = '1';
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(10px)'; }, 2800);
+}
+function selChip(el) {
+  el.closest('.chips').querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+}
+
+// ══════════════════════════════════════════════════════
+//  FLUJO DE VENTA — 3 pasos
+// ══════════════════════════════════════════════════════
+const ventaState = {
+  sku:   null,
+  canal: 'Sotos',
+};
+
+function ventaGoTo1() {
+  // Mantener estado si el usuario está en paso 2 con producto seleccionado
+  const vs2 = document.getElementById('vs2');
+  const vs3 = document.getElementById('vs3');
+  const enPaso2 = vs2 && vs2.style.display !== 'none' && ventaState.sku;
+  // Si está en paso 3 (confirmación), siempre resetear para nueva venta
+  const enPaso3 = vs3 && vs3.style.display !== 'none';
+  if(enPaso2 && !enPaso3) return;
+  resetVenta();
+}
+
+function ventaSetPaso(p) {
+  [1,2,3].forEach(i => {
+    const el = document.getElementById('vs'+i);
+    if(el) el.style.display = i===p ? 'block' : 'none';
+  });
+  [1,2,3].forEach(i => {
+    const d = document.getElementById('sd'+i); if(!d) return;
+    if(i < p)       { d.className='sdot dn'; d.textContent='✓'; }
+    else if(i === p){ d.className='sdot on'; d.textContent=i;   }
+    else            { d.className='sdot';    d.textContent=i;   }
+  });
+  [1,2].forEach(i => {
+    const l = document.getElementById('sl'+i);
+    if(l) l.className = 'sline' + (i<p ? ' dn' : '');
+  });
+  document.getElementById('main-scroll').scrollTop = 0;
+}
+
+// Renderizar lista inventario en paso 1
+function ventaRenderInventario(filter='') {
+  const lista = document.getElementById('venta-inv-lista');
+  if(!lista) return;
+  lista.style.display = '';
+  const q = filter.toLowerCase();
+  const items = skuDB.filter(s => s.stock > 0 &&
+    (!q || s.nombre.toLowerCase().includes(q) ||
+           s.sku.toLowerCase().includes(q)    ||
+           s.variante.toLowerCase().includes(q)));
+  if(items.length === 0) {
+    lista.innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px;">${filter ? 'Sin coincidencias' : 'Sin stock disponible'}</div>`;
+    return;
+  }
+  lista.innerHTML = items.map(s => {
+    const sc = s.stock<=1 ? 'var(--red)' : s.stock<=3 ? 'var(--orange)' : 'var(--green)';
+    const enc = safeEncode(s);
+    return `<div class="opt" onclick="ventaSelProductEncoded('${enc}')" style="margin-bottom:7px;">
+      <div class="oico" style="font-size:19px;">${s.icon}</div>
+      <div class="oinfo">
+        <div class="oname" style="font-size:12px;">${s.nombre}</div>
+        <div class="osub">${s.sku} · ${s.variante}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:13px;color:var(--accent);">${s.precio?'$'+fmt(s.precio):''}</div>
+        <div style="font-size:10px;color:${sc};font-family:'DM Mono',monospace;">${s.stock} ud.</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function ventaSelProductEncoded(enc) {
+  const s = safeDecode(enc);
+  if(s) ventaSelProduct(s);
+}
+
+// Búsqueda en tiempo real
+function ventaBuscar(q) {
+  const area  = document.getElementById('venta-scan-area');
+  const res   = document.getElementById('venta-resultados');
+  const lista = document.getElementById('venta-inv-lista');
+  const hasQ  = q.length > 0;
+
+  area.classList.toggle('active-scan', hasQ);
+
+  if(!hasQ) {
+    res.innerHTML   = '';
+    lista.style.display = '';
+    ventaRenderInventario('');
+    return;
+  }
+
+  // Siempre ocultar lista completa y mostrar resultados filtrados
+  lista.style.display = 'none';
+  const matches = skuDB.filter(s => s.stock > 0 &&
+    (s.sku.toLowerCase().includes(q.toLowerCase())      ||
+     s.nombre.toLowerCase().includes(q.toLowerCase())   ||
+     s.variante.toLowerCase().includes(q.toLowerCase())));
+
+  if(matches.length === 0) {
+    res.innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px;">Sin resultados para "<b>${q}</b>"</div>`;
+    return;
+  }
+  res.innerHTML = `<div style="margin-bottom:7px;font-size:10px;color:var(--accent);font-weight:600;letter-spacing:1px;text-transform:uppercase;">${matches.length} resultado${matches.length>1?'s':''}</div>` +
+    matches.map(s => {
+      const sc  = s.stock<=1?'var(--red)':s.stock<=3?'var(--orange)':'var(--green)';
+      const enc = safeEncode(s);
+      return `<div class="opt" onclick="ventaSelProductEncoded('${enc}')" style="margin-bottom:6px;border-color:rgba(232,255,59,.3);background:var(--adim);">
+        <div class="oico" style="font-size:19px;">${s.icon}</div>
+        <div class="oinfo">
+          <div class="oname" style="font-size:12px;">${s.nombre}</div>
+          <div class="osub">${s.sku} · ${s.variante} · <span style="color:${sc};">${s.stock} ud.</span></div>
+        </div>
+        <div style="font-family:'Archivo Black',sans-serif;font-size:13px;color:var(--accent);flex-shrink:0;">${s.precio?'$'+fmt(s.precio):''}</div>
+      </div>`;
+    }).join('');
+}
+
+// Enter = escaneo SKU exacto
+function ventaScanKey(e) {
+  if(e.key !== 'Enter') return;
+  const val   = e.target.value.trim();
+  const found = skuDB.find(s => s.sku === val && s.stock > 0);
+  if(found) {
+    ventaSelProduct(found);
+  } else {
+    const area = document.getElementById('venta-scan-area');
+    area.style.borderColor = 'var(--red)';
+    setTimeout(() => area.style.borderColor = '', 1000);
+  }
+}
+
+// Seleccionar producto → paso 2
+function ventaSelProduct(s) {
+  // Siempre leer stock fresco desde skuDB
+  const fresh = skuDB.find(i => i.sku === s.sku) || s;
+  ventaState.sku = fresh;
+
+  document.getElementById('v-prod-icon').textContent   = fresh.icon;
+  document.getElementById('v-prod-nombre').textContent = fresh.nombre;
+  document.getElementById('v-prod-meta').textContent   = `${fresh.sku} · ${fresh.variante} · ${fresh.stock} ud. en stock`;
+  document.getElementById('v-precio').value            = fresh.precio || '';
+  document.getElementById('v-cant').value              = 1;
+  document.getElementById('v-cant').max                = fresh.stock;
+
+  // Resetear canal a Sotos
+  ventaState.canal = 'Sotos';
+  document.querySelectorAll('#canal-grid .opt').forEach(o => o.classList.remove('sel'));
+  const sotoBtn = document.getElementById('vc-sotos');
+  if(sotoBtn) sotoBtn.classList.add('sel');
+
+  recalcVenta();
+  ventaSetPaso(2);
+}
+
+function selCanalV(el, nombre) {
+  document.querySelectorAll('#canal-grid .opt').forEach(o => o.classList.remove('sel'));
+  el.classList.add('sel');
+  ventaState.canal = nombre;
+  recalcVenta();
+}
+
+function ventaVolver() {
+  const inp = document.getElementById('venta-scan-input');
+  if(inp) { inp.value = ''; inp.focus(); }
+  document.getElementById('venta-resultados').innerHTML = '';
+  document.getElementById('venta-scan-area').classList.remove('active-scan');
+  const lista = document.getElementById('venta-inv-lista');
+  if(lista) lista.style.display = '';
+  ventaRenderInventario();
+  ventaSetPaso(1);
+}
+
+// Recalcular resumen en tiempo real
+function recalcVenta() {
+  const precio = parseInt(document.getElementById('v-precio').value) || 0;
+  const cant   = Math.max(1, parseInt(document.getElementById('v-cant').value) || 1);
+  const canal  = ventaState.canal;
+  const costo  = ventaState.sku ? ventaState.sku.costo : 0;
+
+  let com = 0, comLbl = 'Comisión';
+  if(canal === 'Sotos') {
+    com    = Math.min(Math.round(precio * 0.15), 10000);
+    comLbl = `Sotos (${precio>0 ? (Math.min(precio*0.15,10000)/precio*100).toFixed(1) : '15'}%)`;
+  }
+  const neto = (precio - com) * cant;
+  const gan  = neto - costo * cant;
+
+  const set  = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+  const setC = (id,c) => { const e=document.getElementById(id); if(e) e.className=c;   };
+
+  set('vs-prod',    ventaState.sku ? ventaState.sku.nombre : '—');
+  set('vs-canal',   canal);
+  set('vs-precio',  precio>0 ? `$${fmt(precio)} × ${cant}` : '—');
+  set('vs-com-lbl', comLbl);
+  set('vs-com',     com>0 ? `−$${fmt(com*cant)}` : 'Sin comisión');
+  setC('vs-com',    com>0 ? 'sv r' : 'sv g');
+  set('vs-costo',   costo>0 ? `−$${fmt(costo*cant)}` : '—');
+  set('vs-gan',     precio>0 ? `$${fmt(gan)}` : '—');
+  setC('vs-gan',    gan>=0 ? 'sv g' : 'sv r');
+  // Aviso si margen negativo
+  const ganRow = document.querySelector('.srow.tot');
+  if(ganRow) ganRow.style.background = (precio>0 && gan<0) ? 'rgba(255,68,68,.06)' : '';
+}
+
+// Confirmar venta
+function ventaConfirmar() {
+  const s = ventaState.sku;
+  if(!s) { toast('Selecciona un producto primero.','err'); return; }
+
+  // Leer siempre desde el DOM al confirmar
+  const precio = parseInt(document.getElementById('v-precio').value) || 0;
+  const cant   = Math.max(1, parseInt(document.getElementById('v-cant').value) || 1);
+  const canal  = ventaState.canal;
+  const pago   = document.getElementById('v-pago').value;
+  const envio  = document.getElementById('v-envio').value;
+
+  if(!precio) { toast('Ingresa el precio de venta.','err'); return; }
+
+  // Validar stock fresco desde skuDB (no desde el snapshot)
+  const liveItem = skuDB.find(i => i.sku === s.sku);
+  const liveStock = liveItem ? liveItem.stock : 0;
+  if(cant > liveStock) { toast(`Solo quedan ${liveStock} unidad${liveStock!==1?'es':''} disponibles.`,'err'); return; }
+
+  const com  = canal==='Sotos' ? Math.min(Math.round(precio*0.15), 10000) : 0;
+  const neto = (precio - com) * cant;
+  const gan  = neto - s.costo * cant;
+
+  // Descontar stock
+  if(liveItem) liveItem.stock = Math.max(0, liveItem.stock - cant);
+  const nuevoStock = liveItem ? liveItem.stock : 0;
+
+  // Guardar en historial
+  ventasDB.unshift({
+    id: ventasDB.length+1, sku:s.sku, nombre:s.nombre, variante:s.variante,
+    icon:s.icon, precio, costo:s.costo, com, canal, pago, envio, gan,
+    fecha: `Hoy · ${nowHHMM()}`
+  });
+
+  // Pantalla confirmación
+  const set=(id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+  set('vc-prod',   s.nombre);
+  set('vc-sku',    s.sku);
+  set('vc-canal',  canal);
+  set('vc-pago',   pago + (envio!=='Presencial' ? ' · '+envio : ''));
+  set('vc-recibe', '$'+fmt(neto));
+  set('vc-costo',  '−$'+fmt(s.costo*cant));
+  set('vc-gan',    '$'+fmt(gan));
+
+  const stockEl = document.getElementById('vc-stock');
+  if(stockEl) {
+    stockEl.textContent = nuevoStock===0 ? '0 ud. — Agotado 🔴' : nuevoStock<=2 ? `${nuevoStock} ud. — Stock bajo ⚠️` : `${nuevoStock} ud. ✓`;
+    stockEl.className   = nuevoStock===0 ? 'sv r' : nuevoStock<=2 ? 'sv' : 'sv g';
+  }
+  set('vc-sub', 'Stock descontado automáticamente.');
+
+  ventaSetPaso(3);
+  renderHistorial();
+  renderDashboard();
+  updateInventarioStock();
+}
+
+function resetVenta() {
+  ventaState.sku   = null;
+  ventaState.canal = 'Sotos';
+
+  const inp = document.getElementById('venta-scan-input');
+  if(inp) inp.value = '';
+  const res = document.getElementById('venta-resultados');
+  if(res) res.innerHTML = '';
+  const area = document.getElementById('venta-scan-area');
+  if(area) area.classList.remove('active-scan');
+  const notas = document.getElementById('v-notas');
+  if(notas) notas.value = '';
+
+  // Canal visual → Sotos
+  document.querySelectorAll('#canal-grid .opt').forEach(o => o.classList.remove('sel'));
+  const sotoBtn = document.getElementById('vc-sotos');
+  if(sotoBtn) sotoBtn.classList.add('sel');
+
+  const lista = document.getElementById('venta-inv-lista');
+  if(lista) lista.style.display = '';
+  ventaRenderInventario();
+  ventaSetPaso(1);
+}
+
+// ══════════════════════════════════════════════════════
+//  NUEVA COMPRA
+// ══════════════════════════════════════════════════════
+function calcCostoUnit() {
+  const total = parseFloat(document.getElementById('nc-total').value) || 0;
+  const uds   = parseInt(document.getElementById('nc-uds').value)     || 0;
+  const el    = document.getElementById('nc-costo-unit');
+  if(total > 0 && uds > 0) {
+    el.value = Math.round(total/uds);
+    el.style.color = 'var(--accent)';
+  } else {
+    el.value = '';
+    el.style.color = 'var(--muted)';
+  }
+}
+
+function selOrigen(tipo) {
+  const jp    = document.getElementById('nc-jp');
+  const local = document.getElementById('nc-local');
+  if(tipo === 'jp') {
+    jp.classList.add('sel');    local.classList.remove('sel');
+    jp.querySelector('.ochk').textContent    = '✓';
+    local.querySelector('.ochk').textContent = '';
+  } else {
+    local.classList.add('sel'); jp.classList.remove('sel');
+    local.querySelector('.ochk').textContent = '✓';
+    jp.querySelector('.ochk').textContent    = '';
+  }
+}
+
+let loteCount = 0;
+function addProdLote() {
+  loteCount++;
+  const div = document.createElement('div');
+  div.style.cssText = 'background:var(--sf2);border:1px solid var(--bd);border-radius:9px;padding:11px;margin-bottom:8px;position:relative;';
+  div.innerHTML = `
+    <button onclick="this.closest('div').remove()" style="position:absolute;top:8px;right:8px;background:var(--sf);border:1px solid var(--bd);border-radius:6px;color:var(--muted);font-size:11px;padding:2px 7px;cursor:pointer;">✕</button>
+    <div class="frow" style="margin-bottom:8px;">
+      <div class="field" style="margin:0;"><label>Producto</label><input type="text" placeholder="Ej: BAPE Boston Bag"></div>
+      <div class="field" style="margin:0;"><label>Cantidad</label><input type="number" value="1" min="1"></div>
+    </div>
+    <div class="field" style="margin:0;"><label>Tallas / Colores (opcional)</label><input type="text" placeholder="Ej: 40, 41, 42 o Único"></div>
+  `;
+  document.getElementById('nc-prods').appendChild(div);
+}
+
+// ══════════════════════════════════════════════════════
+//  ANÁLISIS — motor dinámico completo
+// ══════════════════════════════════════════════════════
+let _analisisTab = 'hoy';
+
+function renderAnalisis(tab, btn) {
+  _analisisTab = tab || _analisisTab;
+  if(btn) {
+    document.querySelectorAll('#analisis-tabs .pb').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+  }
+  const body = document.getElementById('analisis-body');
+  if(!body) return;
+
+  const now   = new Date();
+  const todayD = now.getDate();
+  const todayM = now.getMonth(); // 0-indexed
+  const todayY = now.getFullYear();
+  const todayDow = now.getDay(); // 0=Sun
+
+  // ── Helpers ──
+  const ventas = ventasDB.filter(v => !v.nombre.startsWith('↩️'));
+
+  function parseFecha(f) {
+    // Hoy · HH:MM  →  hoy
+    if(f.startsWith('Hoy'))  return new Date(todayY, todayM, todayD);
+    if(f.startsWith('Ayer')) return new Date(todayY, todayM, todayD-1);
+    const m = f.match(/^(\d{2})\/(\d{2})/);
+    if(m) return new Date(todayY, parseInt(m[2])-1, parseInt(m[1]));
+    return null;
+  }
+
+  function topProductos(arr, n=4) {
+    const map = {};
+    arr.forEach(v => {
+      if(!map[v.nombre]) map[v.nombre] = { nombre:v.nombre, icon:v.icon, uds:0, ingresos:0, gan:0, costo:0 };
+      map[v.nombre].uds++;
+      map[v.nombre].ingresos += v.precio;
+      map[v.nombre].gan      += v.gan;
+      map[v.nombre].costo    += (v.costo||0);
+    });
+    return Object.values(map).sort((a,b)=>b.gan-a.gan).slice(0,n);
+  }
+
+  function topCanales(arr) {
+    const map = {};
+    arr.forEach(v => {
+      if(!map[v.canal]) map[v.canal] = { canal:v.canal, n:0, ingresos:0, gan:0, com:0 };
+      map[v.canal].n++;
+      map[v.canal].ingresos += v.precio;
+      map[v.canal].gan      += v.gan;
+      map[v.canal].com      += (v.com||0);
+    });
+    return Object.values(map).sort((a,b)=>b.ingresos-a.ingresos);
+  }
+
+  function kpiRow(icon,label,val,color='var(--text)') {
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--bd);">
+      <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:16px;">${icon}</span><span style="font-size:12px;color:var(--muted);">${label}</span></div>
+      <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:${color};">${val}</span>
+    </div>`;
+  }
+
+  function barChart(values, labels, h=70) {
+    const max = Math.max(...values, 1);
+    return `<div class="bars" style="height:${h}px;">
+      ${values.map((v,i) => {
+        const px = Math.max(4, Math.round((v/max)*h));
+        const isToday = labels[i] === 'Hoy' || i === values.length-1;
+        return `<div class="bcol">
+          <div class="b ${isToday?'cur':'pst'}" style="height:${px}px;"></div>
+          <div class="blbl" style="${isToday?'color:var(--accent);':''}">${labels[i]}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+
+  function progressRows(canales, totalIngresos) {
+    const canalColor = { Sotos:'var(--accent)', WhatsApp:'var(--green)', Facebook:'var(--blue)', Sneakerheads:'var(--purple)' };
+    return canales.map((c,i) => {
+      const pct = totalIngresos > 0 ? Math.round((c.ingresos/totalIngresos)*100) : 0;
+      const col = canalColor[c.canal] || 'var(--muted)';
+      const rank = i===0 ? '<span class="trank f">1</span>' : `<span class="trank">${i+1}</span>`;
+      return `<div class="prow">
+        ${rank}
+        <div style="flex:1;min-width:0;padding:0 8px;">
+          <div style="font-size:12px;font-weight:600;margin-bottom:4px;">${c.canal}</div>
+          <div class="pbar-wrap"><div class="pbar" style="width:${pct}%;background:${col};"></div></div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-family:'DM Mono',monospace;font-size:11px;color:${col};">$${fmt(c.ingresos)}</div>
+          <div style="font-size:10px;color:var(--muted);">${pct}% · ${c.n} vta${c.n!==1?'s':''}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function topProdRows(prods) {
+    return prods.map((p,i) => {
+      const roi = p.costo > 0 ? Math.round((p.gan/p.costo)*100) : 0;
+      const margen = p.ingresos > 0 ? Math.round((p.gan/p.ingresos)*100) : 0;
+      return `<div class="trow">
+        <div class="trank ${i===0?'f':''}">${i===0?'🏆':i+1}</div>
+        <div class="tinfo">
+          <div class="tname">${p.icon} ${p.nombre}</div>
+          <div class="tunits">${p.uds} venta${p.uds!==1?'s':''} · Ganancia $${fmt(p.gan)}</div>
+        </div>
+        <div class="tamt">
+          <div class="trev">$${fmt(p.ingresos)}</div>
+          <div class="tmrg">ROI ${roi}%</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function emptyState(icon, title, sub, ctaLabel, ctaDest) {
+    return `<div class="empty" style="padding:40px 10px;">
+      <div class="empty-icon">${icon}</div>
+      <div class="empty-title">${title}</div>
+      <div class="empty-sub" style="margin-bottom:${ctaLabel?'16px':'0'};">${sub}</div>
+      ${ctaLabel?`<button class="btn" style="width:auto;padding:10px 24px;font-size:13px;margin:0;" onclick="goTo('${ctaDest}')">${ctaLabel}</button>`:''}
+    </div>`;
+  }
+
+  // ════════════════════════════════════════════
+  //  TAB: HOY
+  // ════════════════════════════════════════════
+  if(_analisisTab === 'hoy') {
+    const hoy = ventas.filter(v => v.fecha.startsWith('Hoy'));
+    const ing = hoy.reduce((s,v)=>s+v.precio,0);
+    const gan = hoy.reduce((s,v)=>s+v.gan,0);
+    const com = hoy.reduce((s,v)=>s+(v.com||0),0);
+    const ticket = hoy.length > 0 ? Math.round(ing/hoy.length) : 0;
+    const margenPct = ing > 0 ? Math.round((gan/ing)*100) : 0;
+
+    if(hoy.length === 0) {
+      body.innerHTML = emptyState('🌅','Sin ventas hoy','Cuando registres una venta aparecerá aquí.','Registrar venta →','scanner');
+      return;
+    }
+
+    // Barras por hora (agrupar ventas hoy en slots de 3h: 9,12,15,18,21)
+    const slots = [9,12,15,18,21];
+    const slotLbl = ['9am','12pm','3pm','6pm','9pm'];
+    const slotVals = slots.map(h => hoy.filter(v => {
+      const tm = v.fecha.match(/(\d{2}):(\d{2})/);
+      if(!tm) return false;
+      const hr = parseInt(tm[1]);
+      return hr >= h && hr < h+3;
+    }).reduce((s,v)=>s+v.gan,0));
+
+    const canalHoy = topCanales(hoy);
+
+    body.innerHTML = `
+      <!-- KPIs del día -->
+      <div class="sgrid" style="margin-bottom:12px;">
+        <div class="scard a"><span class="si">💰</span><div class="sv">$${fmt(gan)}</div><div class="sl">Ganancia hoy</div></div>
+        <div class="scard"><span class="si">🛍️</span><div class="sv">${hoy.length}</div><div class="sl">Ventas hoy</div></div>
+        <div class="scard g"><span class="si">🎯</span><div class="sv">${margenPct}%</div><div class="sl">Margen neto</div></div>
+        <div class="scard b"><span class="si">🎟️</span><div class="sv">$${fmt(ticket)}</div><div class="sl">Ticket prom.</div></div>
+      </div>
+
+      <!-- Gráfico ganancia por hora -->
+      <div class="chart-box">
+        <div class="chart-hdr">
+          <div><div class="chart-title">Ganancia por franja horaria</div><div class="chart-val" style="font-size:18px;">$${fmt(gan)}</div></div>
+          <div><div class="chart-delta up">↑ ${margenPct}% margen</div></div>
+        </div>
+        ${barChart(slotVals, slotLbl, 65)}
+      </div>
+
+      <!-- P&L del día -->
+      <div class="chart-box">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Resultado del día</div>
+        ${kpiRow('💵','Ingresos brutos','$'+fmt(ing),'var(--accent)')}
+        ${kpiRow('📦','Costo mercadería','−$'+fmt(hoy.reduce((s,v)=>s+(v.costo||0),0)),'var(--red)')}
+        ${com > 0 ? kpiRow('🏪','Comisiones Sotos','−$'+fmt(com),'var(--orange)') : ''}
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;font-weight:700;font-size:14px;">
+          <span>Ganancia neta</span>
+          <span style="font-family:'Archivo Black',sans-serif;color:${gan>=0?'var(--green)':'var(--red)'};">$${fmt(gan)}</span>
+        </div>
+      </div>
+
+      <!-- Canales hoy -->
+      <div class="chart-box">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Por canal</div>
+        ${progressRows(canalHoy, ing)}
+      </div>
+
+      <!-- Ventas del día -->
+      <div class="chart-box">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Ventas del día</div>
+        ${hoy.map(v=>`<div class="trow">
+          <div style="font-size:20px;width:28px;flex-shrink:0;">${v.icon}</div>
+          <div class="tinfo"><div class="tname">${v.nombre}</div><div class="tunits">${v.fecha.split('·')[1]?.trim()||''} · ${v.canal}</div></div>
+          <div class="tamt"><div class="trev">$${fmt(v.precio)}</div><div class="tmrg" style="color:var(--green);">+$${fmt(v.gan)}</div></div>
+        </div>`).join('')}
+      </div>`;
+    return;
+  }
+
+  // ════════════════════════════════════════════
+  //  TAB: SEMANA
+  // ════════════════════════════════════════════
+  if(_analisisTab === 'semana') {
+    // Lunes de esta semana
+    const lunes = new Date(todayY, todayM, todayD - ((todayDow+6)%7));
+    const dias  = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+    const diaVentas = dias.map((_,i) => {
+      const d = new Date(lunes); d.setDate(d.getDate()+i);
+      return ventas.filter(v => {
+        const fd = parseFecha(v.fecha);
+        return fd && fd.getDate()===d.getDate() && fd.getMonth()===d.getMonth();
+      });
+    });
+    const diaGan = diaVentas.map(arr => arr.reduce((s,v)=>s+v.gan,0));
+    const totalSem = diaGan.reduce((s,v)=>s+v,0);
+    const totalIng = diaVentas.flat().reduce((s,v)=>s+v.precio,0);
+    const nVentas  = diaVentas.flat().length;
+    const canalSem = topCanales(diaVentas.flat());
+    const topSem   = topProductos(diaVentas.flat());
+    const ticket   = nVentas > 0 ? Math.round(totalIng/nVentas) : 0;
+    const margen   = totalIng > 0 ? Math.round((totalSem/totalIng)*100) : 0;
+
+    if(nVentas === 0) {
+      body.innerHTML = emptyState('📅','Sin ventas esta semana','Registra tu primera venta de la semana.','Ir al escáner →','scanner');
+      return;
+    }
+
+    body.innerHTML = `
+      <div class="sgrid" style="margin-bottom:12px;">
+        <div class="scard a"><span class="si">💰</span><div class="sv">$${fmt(totalSem)}</div><div class="sl">Ganancia semana</div></div>
+        <div class="scard"><span class="si">🛍️</span><div class="sv">${nVentas}</div><div class="sl">Ventas</div></div>
+        <div class="scard g"><span class="si">🎯</span><div class="sv">${margen}%</div><div class="sl">Margen neto</div></div>
+        <div class="scard b"><span class="si">🎟️</span><div class="sv">$${fmt(ticket)}</div><div class="sl">Ticket prom.</div></div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-hdr">
+          <div><div class="chart-title">Ganancia por día · semana actual</div><div class="chart-val" style="font-size:18px;">$${fmt(totalSem)}</div></div>
+        </div>
+        ${barChart(diaGan, dias, 70)}
+      </div>
+      ${topSem.length ? `<div class="chart-box">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Top productos</div>
+        ${topProdRows(topSem)}
+      </div>` : ''}
+      ${canalSem.length ? `<div class="chart-box">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Por canal</div>
+        ${progressRows(canalSem, totalIng)}
+      </div>` : ''}`;
+    return;
+  }
+
+  // ════════════════════════════════════════════
+  //  TAB: MES
+  // ════════════════════════════════════════════
+  if(_analisisTab === 'mes') {
+    const mesMes = ventas.filter(v => esVentaMes(v));
+    const ing    = mesMes.reduce((s,v)=>s+v.precio,0);
+    const gan    = mesMes.reduce((s,v)=>s+v.gan,0);
+    const costos = mesMes.reduce((s,v)=>s+(v.costo||0),0);
+    const coms   = mesMes.reduce((s,v)=>s+(v.com||0),0);
+    const nV     = mesMes.length;
+    const ticket = nV > 0 ? Math.round(ing/nV) : 0;
+    const margen = ing > 0 ? Math.round((gan/ing)*100) : 0;
+
+    // Semanas del mes (agrupar en 4 semanas aprox)
+    const semanas = [0,7,14,21];
+    const semVals = semanas.map(inicio => {
+      return mesMes.filter(v => {
+        const fd = parseFecha(v.fecha);
+        if(!fd) return false;
+        const d = fd.getDate();
+        return d > inicio && d <= inicio+7;
+      }).reduce((s,v)=>s+v.gan,0);
+    });
+
+    const canalMes = topCanales(mesMes);
+    const topMes   = topProductos(mesMes);
+
+    const meses = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const mesLabel = meses[todayM];
+
+    if(nV === 0) {
+      body.innerHTML = emptyState('📆','Sin ventas este mes','Registra tu primera venta del mes.','Ir al escáner →','scanner');
+      return;
+    }
+
+    body.innerHTML = `
+      <div class="sgrid" style="margin-bottom:12px;">
+        <div class="scard a"><span class="si">💰</span><div class="sv">$${fmt(gan)}</div><div class="sl">Ganancia ${mesLabel}</div></div>
+        <div class="scard"><span class="si">🛍️</span><div class="sv">${nV}</div><div class="sl">Ventas del mes</div></div>
+        <div class="scard g"><span class="si">🎯</span><div class="sv">${margen}%</div><div class="sl">Margen neto</div></div>
+        <div class="scard b"><span class="si">🎟️</span><div class="sv">$${fmt(ticket)}</div><div class="sl">Ticket prom.</div></div>
+      </div>
+
+      <!-- Gráfico por semana -->
+      <div class="chart-box">
+        <div class="chart-hdr">
+          <div><div class="chart-title">Ganancia por semana</div><div class="chart-val" style="font-size:18px;">$${fmt(gan)}</div></div>
+        </div>
+        ${barChart(semVals, ['Sem 1','Sem 2','Sem 3','Sem 4'], 65)}
+      </div>
+
+      <!-- P&L del mes -->
+      <div class="chart-box">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Estado de resultados</div>
+        ${kpiRow('💵','Ingresos brutos','$'+fmt(ing),'var(--accent)')}
+        ${kpiRow('📦','Costo mercadería','−$'+fmt(costos),'var(--red)')}
+        ${coms > 0 ? kpiRow('🏪','Comisiones Sotos','−$'+fmt(coms),'var(--orange)') : ''}
+        ${kpiRow('📊','Margen bruto',margen+'%','var(--green)')}
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;font-weight:700;font-size:14px;border-top:1px solid var(--bd);margin-top:4px;">
+          <span>Ganancia neta</span>
+          <span style="font-family:'Archivo Black',sans-serif;font-size:16px;color:${gan>=0?'var(--green)':'var(--red)'};">$${fmt(gan)}</span>
+        </div>
+      </div>
+
+      <!-- Canales -->
+      <div class="chart-box">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Por canal</div>
+        ${progressRows(canalMes, ing)}
+      </div>
+
+      <!-- Top productos -->
+      ${topMes.length ? `<div class="chart-box">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:4px;">Top productos del mes</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:12px;">Por ganancia generada</div>
+        ${topProdRows(topMes)}
+      </div>` : ''}`;
+    return;
+  }
+
+  // ════════════════════════════════════════════
+  //  TAB: HISTÓRICO
+  // ════════════════════════════════════════════
+  if(_analisisTab === 'historico') {
+    // Agrupar ventas por mes
+    const porMes = {};
+    ventas.forEach(v => {
+      const fd = parseFecha(v.fecha);
+      if(!fd) return;
+      const key = `${fd.getFullYear()}-${String(fd.getMonth()+1).padStart(2,'0')}`;
+      if(!porMes[key]) porMes[key] = { label: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][fd.getMonth()], gan:0, ing:0, n:0, costo:0 };
+      porMes[key].gan   += v.gan;
+      porMes[key].ing   += v.precio;
+      porMes[key].n++;
+      porMes[key].costo += (v.costo||0);
+    });
+
+    const mesesOrden = Object.keys(porMes).sort();
+    if(mesesOrden.length === 0) {
+      body.innerHTML = emptyState('📈','Sin datos históricos','Las ventas aparecerán aquí mes a mes.','','');
+      return;
+    }
+
+    const ganPorMes = mesesOrden.map(k => porMes[k].gan);
+    const labPorMes = mesesOrden.map(k => porMes[k].label);
+    const maxGan    = Math.max(...ganPorMes);
+    const totalAcum = ganPorMes.reduce((s,v)=>s+v,0);
+    const topTotal  = topProductos(ventas, 5);
+    const canalTotal= topCanales(ventas);
+    const ingTotal  = ventas.reduce((s,v)=>s+v.precio,0);
+
+    // Delta mes anterior
+    let delta = '';
+    if(mesesOrden.length >= 2) {
+      const last  = ganPorMes[ganPorMes.length-1];
+      const prev  = ganPorMes[ganPorMes.length-2];
+      const pct   = prev > 0 ? Math.round(((last-prev)/prev)*100) : 0;
+      delta = `<div class="chart-delta ${pct>=0?'up':'dn'}">${pct>=0?'↑':'↓'} ${Math.abs(pct)}%</div>
+               <div style="font-size:9px;color:var(--muted);">vs mes anterior</div>`;
+    }
+
+    body.innerHTML = `
+      <!-- KPIs totales -->
+      <div class="sgrid" style="margin-bottom:12px;">
+        <div class="scard a"><span class="si">💰</span><div class="sv" style="font-size:14px;">$${fmt(totalAcum)}</div><div class="sl">Ganancia total</div></div>
+        <div class="scard"><span class="si">🛍️</span><div class="sv">${ventas.length}</div><div class="sl">Ventas totales</div></div>
+        <div class="scard g"><span class="si">📅</span><div class="sv">${mesesOrden.length}</div><div class="sl">Meses activo</div></div>
+        <div class="scard b"><span class="si">🎟️</span><div class="sv" style="font-size:14px;">$${fmt(ventas.length>0?Math.round(ingTotal/ventas.length):0)}</div><div class="sl">Ticket prom.</div></div>
+      </div>
+
+      <!-- Gráfico mes a mes -->
+      <div class="chart-box">
+        <div class="chart-hdr">
+          <div><div class="chart-title">Ganancia neta acumulada</div><div class="chart-val" style="font-size:17px;">$${fmt(totalAcum)}</div></div>
+          <div>${delta}</div>
+        </div>
+        ${barChart(ganPorMes, labPorMes, 75)}
+      </div>
+
+      <!-- Progreso mes a mes (barras horizontales) -->
+      <div class="chart-box">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Mes a mes — ganancia</div>
+        ${mesesOrden.map((k,i) => {
+          const m = porMes[k];
+          const pct = maxGan > 0 ? Math.round((m.gan/maxGan)*100) : 0;
+          const isCur = i === mesesOrden.length-1;
+          return `<div class="prow">
+            <div class="pkey" style="${isCur?'color:var(--accent);font-weight:700;':''}">${m.label}</div>
+            <div class="pbar-wrap"><div class="pbar" style="width:${pct}%;background:${isCur?'var(--accent)':'var(--muted)'};transition:width .4s;"></div></div>
+            <div class="pval" style="color:${isCur?'var(--accent)':'var(--muted)'};">$${fmt(m.gan)}</div>
+          </div>`;
+        }).join('')}
+      </div>
+
+      <!-- Productos estrella -->
+      <div class="chart-box">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:4px;">Productos estrella</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:12px;">Por ganancia total generada</div>
+        ${topProdRows(topTotal)}
+      </div>
+
+      <!-- Canales histórico -->
+      <div class="chart-box">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Canales — todo el período</div>
+        ${progressRows(canalTotal, ingTotal)}
+      </div>`;
+    return;
+  }
+
+  // ════════════════════════════════════════════
+  //  TAB: STOCK
+  // ════════════════════════════════════════════
+  if(_analisisTab === 'stock') {
+    const totalUds    = skuDB.reduce((s,v)=>s+v.stock,0);
+    const totalValor  = skuDB.reduce((s,v)=>s+(v.precio*v.stock),0);
+    const totalCosto  = skuDB.reduce((s,v)=>s+(v.costo*v.stock),0);
+    const ganPotencial= totalValor - totalCosto;
+    const agotados    = skuDB.filter(s=>s.stock===0);
+    const bajos       = skuDB.filter(s=>s.stock>0&&s.stock<=2);
+    const ok          = skuDB.filter(s=>s.stock>2);
+    const roiProm     = totalCosto > 0 ? Math.round(((ganPotencial)/totalCosto)*100) : 0;
+
+    // Top valor en stock (mayor inversión inmovilizada)
+    const topValor = [...skuDB].filter(s=>s.stock>0).sort((a,b)=>(b.precio*b.stock)-(a.precio*a.stock)).slice(0,5);
+    // Top ROI potencial
+    const topRoi   = [...skuDB].filter(s=>s.stock>0&&s.costo>0)
+      .map(s=>({...s, roi:Math.round(((s.precio-s.costo)/s.costo)*100)}))
+      .sort((a,b)=>b.roi-a.roi).slice(0,5);
+
+    body.innerHTML = `
+      <!-- KPIs de inventario -->
+      <div class="sgrid" style="margin-bottom:12px;">
+        <div class="scard a"><span class="si">💎</span><div class="sv" style="font-size:14px;">$${fmt(ganPotencial)}</div><div class="sl">Ganancia potencial</div></div>
+        <div class="scard b"><span class="si">📦</span><div class="sv">$${fmt(totalCosto)}</div><div class="sl">Capital invertido</div></div>
+        <div class="scard g"><span class="si">📈</span><div class="sv">${roiProm}%</div><div class="sl">ROI potencial</div></div>
+        <div class="scard r"><span class="si">⚠️</span><div class="sv">${agotados.length+bajos.length}</div><div class="sl">Productos críticos</div></div>
+      </div>
+
+      <!-- Semáforo de stock -->
+      <div class="chart-box">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Estado del inventario</div>
+        ${kpiRow('🟢','Con stock suficiente',ok.length+' SKUs','var(--green)')}
+        ${kpiRow('🟡','Stock bajo (≤2 ud.)',bajos.length+' SKUs','var(--orange)')}
+        ${kpiRow('🔴','Sin stock',agotados.length+' SKUs','var(--red)')}
+        ${kpiRow('📦','Unidades en total',totalUds+' uds.','var(--accent)')}
+        ${kpiRow('💵','Valor al precio de venta','$'+fmt(totalValor),'var(--accent)')}
+      </div>
+
+      <!-- Agotados -->
+      ${agotados.length ? `<div class="chart-box" style="border-color:rgba(255,68,68,.2);background:rgba(255,68,68,.03);">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;color:var(--red);">🔴 Agotados — reponer ahora</div>
+        ${agotados.map(s=>`<div class="trow">
+          <div style="font-size:18px;width:26px;flex-shrink:0;">${s.icon}</div>
+          <div class="tinfo"><div class="tname">${s.nombre}</div><div class="tunits">${s.variante} · $${fmt(s.precio)}</div></div>
+          <div class="tamt"><div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--red);">0 ud.</div><div class="tmrg">Costo $${fmt(s.costo)}</div></div>
+        </div>`).join('')}
+      </div>` : ''}
+
+      <!-- Bajo stock -->
+      ${bajos.length ? `<div class="chart-box" style="border-color:rgba(255,140,66,.2);">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;color:var(--orange);">🟡 Bajo stock — pronto a agotar</div>
+        ${bajos.map(s=>`<div class="trow">
+          <div style="font-size:18px;width:26px;flex-shrink:0;">${s.icon}</div>
+          <div class="tinfo"><div class="tname">${s.nombre}</div><div class="tunits">${s.variante}</div></div>
+          <div class="tamt"><div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--orange);">${s.stock} ud.</div><div class="tmrg">$${fmt(s.precio)}</div></div>
+        </div>`).join('')}
+      </div>` : ''}
+
+      <!-- Mayor valor inmovilizado -->
+      <div class="chart-box">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:4px;">Mayor capital inmovilizado</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:12px;">Productos con más plata parada — vender primero</div>
+        ${topValor.map((s,i)=>{
+          const val = s.precio*s.stock;
+          const cos = s.costo*s.stock;
+          return `<div class="trow">
+            <div class="trank ${i===0?'f':''}">${i+1}</div>
+            <div class="tinfo"><div class="tname">${s.icon} ${s.nombre}</div><div class="tunits">${s.stock} ud. · ${s.variante}</div></div>
+            <div class="tamt"><div class="trev">$${fmt(val)}</div><div class="tmrg">Costo $${fmt(cos)}</div></div>
+          </div>`;
+        }).join('')}
+      </div>
+
+      <!-- Top ROI potencial -->
+      <div class="chart-box">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:4px;">Mayor ROI potencial</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:12px;">Los más rentables al vender — priorizar</div>
+        ${topRoi.map((s,i)=>`<div class="trow">
+          <div class="trank ${i===0?'f':''}">${i+1}</div>
+          <div class="tinfo"><div class="tname">${s.icon} ${s.nombre}</div><div class="tunits">${s.variante} · $${fmt(s.precio)}</div></div>
+          <div class="tamt"><div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--green);">ROI ${s.roi}%</div><div class="tmrg">${s.stock} ud.</div></div>
+        </div>`).join('')}
+      </div>`;
+    return;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  NOTIFICACIONES
+// ══════════════════════════════════════════════════════
+function clearNotifs() {
+  document.querySelectorAll('.unread').forEach(d => d.remove());
+  const badge = document.getElementById('notif-badge');
+  if(badge) badge.style.display = 'none';
+}
+
+// ══════════════════════════════════════════════════════
+//  CODE 128B — generador nativo sin librerías
+// ══════════════════════════════════════════════════════
+const C128 = (() => {
+  const FULL = [
+    '11011001100','11001101100','11001100110','10010011000','10010001100',
+    '10001001100','10011001000','10011000100','10001100100','11001001000',
+    '11001000100','11000100100','10110011100','10011011100','10011001110',
+    '10111001100','10011101100','10011100110','11001110010','11001011100',
+    '11001001110','11011100100','11001110100','11101101110','11101001100',
+    '11100101100','11100100110','11101100100','11100110100','11100110010',
+    '11011011000','11011000110','11000110110','10100011000','10001011000',
+    '10001000110','10110001000','10001101000','10001100010','11010001000',
+    '11000101000','11000100010','10110111000','10110001110','10001101110',
+    '10111011000','10111000110','10001110110','11101110110','11010001110',
+    '11000101110','11011101000','11011100010','11011101110','11101011000',
+    '11101000110','11100010110','11010111000','11010001110','11000010110',
+    '11011010000','11011001000','11000110100','10100111000','10100011100',
+    '10111010000','10001110100','10111101000','10111100010','11110100010',
+    '11000010100','10001111010','10100111100','10010111100','10010011110',
+    '10111100100','10011110100','10011110010','11110100100','11110010100',
+    '11110010010','11011011110','11011110110','11110110110','10101111000',
+    '10100011110','10001011110','10111101110','10111110110','11101111010',
+    '11110111010','11110101110','11110101110','11010000100','11110001010',
+    '10110111110','10110001111','10001101111','10011110111','11001111010',
+    '11110011010','11111010110','10100011111','11010001111','11110100011',
+    '11010010000','11000111010',
+  ];
+  FULL[104] = '11010010000'; // START B
+  FULL[106] = '11000111010'; // STOP
+
+  function encode(text) {
+    let vals=[104], chk=104;
+    for(let i=0;i<text.length;i++){
+      const c=text.charCodeAt(i)-32;
+      if(c<0||c>95) continue;
+      vals.push(c); chk+=(i+1)*c;
+    }
+    vals.push(chk%103, 106);
+    return vals.map(v=>FULL[v]||'').join('')+'11';
+  }
+
+  function draw(canvas, text, opts={}) {
+    const {barH=40,barW=1.5,quiet=8,fontSize=9,showText=true}=opts;
+    const bits=encode(text);
+    const totalW=Math.ceil(bits.length*barW+quiet*2);
+    const totalH=barH+(showText?fontSize+5:0)+4;
+    canvas.width=totalW; canvas.height=totalH;
+    const ctx=canvas.getContext('2d');
+    ctx.fillStyle='#fff'; ctx.fillRect(0,0,totalW,totalH);
+    ctx.fillStyle='#111';
+    let x=quiet;
+    for(const b of bits){
+      if(b==='1') ctx.fillRect(Math.round(x),2,Math.max(1,Math.round(barW)),barH);
+      x+=barW;
+    }
+    if(showText){
+      ctx.fillStyle='#444';
+      ctx.font=`${fontSize}px 'Courier New',monospace`;
+      ctx.textAlign='center';
+      ctx.fillText(text, totalW/2, barH+fontSize+2);
+    }
+  }
+  return {draw};
+})();
+
+// ══════════════════════════════════════════════════════
+//  SKUs — generador, lista, etiquetas
+// ══════════════════════════════════════════════════════
+function autoSku() {
+  const marca = (document.getElementById('sku-marca')||{}).value||'';
+  const cat   = (document.getElementById('sku-cat')||{}).value||'';
+  const varv  = ((document.getElementById('sku-var')||{}).value||'').toUpperCase().replace(/\s+/g,'').substring(0,5);
+  const num   = String((document.getElementById('sku-num')||{}).value||1).padStart(3,'0');
+  const parts = [marca, cat];
+  if(varv) parts.push(varv);
+  parts.push(num);
+  const sku = parts.join('-');
+  const el = document.getElementById('sku-final');
+  if(el) el.value = sku;
+  refreshBcPreview();
+}
+
+function refreshBcPreview() {
+  const sku    = (document.getElementById('sku-final')||{}).value || 'SKU-EJEMPLO-001';
+  const nombre = (document.getElementById('sku-nombre')||{}).value || '';
+  const precio = (document.getElementById('sku-precio')||{}).value;
+  const canvas = document.getElementById('bc-preview');
+  if(!canvas) return;
+  const wrap   = document.getElementById('bc-preview-wrap');
+  const availW = wrap ? wrap.offsetWidth - 24 : 280;
+  const barW   = Math.max(0.9, Math.min(availW / 82, 2.0));
+  C128.draw(canvas, sku, {barH:34, barW, quiet:6, fontSize:8, showText:false});
+  canvas.style.maxWidth = '100%';
+  canvas.style.height   = 'auto';
+  const el_n=document.getElementById('bc-preview-name');
+  const el_s=document.getElementById('bc-preview-sku');
+  const el_p=document.getElementById('bc-preview-price');
+  if(el_n) el_n.textContent = nombre;
+  if(el_s) el_s.textContent = sku;
+  if(el_p) el_p.textContent = precio ? '$'+fmt(parseInt(precio)) : '';
+}
+
+function crearSku() {
+  const sku    = (document.getElementById('sku-final').value||'').trim();
+  const nombre = (document.getElementById('sku-nombre').value||'').trim();
+  const precio = parseInt(document.getElementById('sku-precio').value)||0;
+  const costo  = parseInt(document.getElementById('sku-costo').value)||0;
+  const varv   = (document.getElementById('sku-var').value||'').trim() || '—';
+  if(!sku||!nombre){ toast('Completa al menos el SKU y el nombre del producto.','err'); return; }
+  if(skuDB.find(s=>s.sku===sku)){ toast('Ese SKU ya existe. Cambia el número correlativo.','err'); return; }
+  skuDB.unshift({sku, nombre, precio, costo, stock:0, icon:'📦', variante:varv});
+  renderSkuList();
+  // limpiar formulario
+  ['sku-nombre','sku-precio','sku-costo','sku-var'].forEach(id => {
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('sku-num').value = skuDB.length+1;
+  autoSku();
+  // Actualizar lista de venta también
+  ventaRenderInventario();
+  document.getElementById('main-scroll').scrollTop = 99999;
+}
+
+function renderSkuList(filter='') {
+  const list = document.getElementById('sku-list');
+  if(!list) return;
+  const items = filter
+    ? skuDB.filter(s=>s.sku.toLowerCase().includes(filter)||s.nombre.toLowerCase().includes(filter))
+    : skuDB;
+  if(items.length===0){
+    list.innerHTML='<div class="empty"><div class="empty-icon">🏷️</div><div class="empty-title">Sin resultados</div></div>';
+    return;
+  }
+  list.innerHTML = items.map(s => {
+    const sc = s.stock===0?'var(--red)':s.stock<=2?'var(--orange)':'var(--green)';
+    const enc = safeEncode(s);
+    return `
+    <div class="sku-card">
+      <div class="sku-top">
+        <div style="font-size:22px;flex-shrink:0;">${s.icon}</div>
+        <div class="sku-info">
+          <div class="sku-code">${s.sku}</div>
+          <div class="sku-name">${s.nombre}</div>
+          <div class="sku-meta">${s.variante} · <span style="color:${sc};font-family:'DM Mono',monospace;">${s.stock} ud.</span>${s.precio?' · $'+fmt(s.precio):''}</div>
+        </div>
+        <div class="sku-actions">
+          <button class="sku-btn print" onclick="openLabelModalEncoded('${enc}')">🖨 Etiqueta</button>
+        </div>
+      </div>
+      <div class="sku-barcode-row">
+        <canvas id="bc-${s.sku.replace(/[^a-z0-9]/gi,'_')}" style="flex:1;min-width:0;height:30px;"></canvas>
+        ${s.precio?`<span class="sku-price-tag">$${fmt(s.precio)}</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  items.forEach(s=>{
+    const cvs=document.getElementById('bc-'+s.sku.replace(/[^a-z0-9]/gi,'_'));
+    if(cvs) {
+      // Calcular barW dinámico según ancho disponible del canvas
+      const availW = (cvs.parentElement?.offsetWidth || 280) - (s.precio ? 72 : 0) - 20;
+      const bits = availW > 0 ? availW / 80 : 1.0; // aprox 80 bars en Code128
+      C128.draw(cvs, s.sku, {barH:26, barW:Math.max(0.9, Math.min(bits, 1.3)), quiet:5, fontSize:7, showText:false});
+      cvs.style.width = '100%';
+      cvs.style.height = 'auto';
+    }
+  });
+}
+
+function filterSkus(q){ renderSkuList(q.toLowerCase()); }
+
+// ── Modal etiqueta ──
+let _msku=null, _psize='small', _pqty=1;
+
+function openLabelModalEncoded(enc) {
+  const s = safeDecode(enc);
+  if(s) openLabelModal(s);
+}
+function openLabelModal(s){
+  _msku=s;
+  document.getElementById('label-modal').style.display='flex';
+  // Esperar un frame para que el DOM esté renderizado y offsetWidth sea real
+  requestAnimationFrame(() => updateModalPreview());
+}
+function closeLabelModal(e){
+  if(e.target.id==='label-modal') document.getElementById('label-modal').style.display='none';
+}
+function updateModalPreview(){
+  if(!_msku) return;
+  const sn=document.getElementById('opt-nombre').checked;
+  const sp=document.getElementById('opt-precio').checked;
+  const ss=document.getElementById('opt-sku').checked;
+  const cvs = document.getElementById('modal-bc');
+  // Calcular ancho disponible real (modal - padding)
+  const wrap = document.querySelector('.label-preview-wrap');
+  const availW = wrap ? wrap.offsetWidth - 28 : 300;
+  // barW dinámico: Code128 genera aprox 80 barras para un SKU típico
+  const barW = Math.max(0.9, Math.min(availW / 82, 2.2));
+  C128.draw(cvs, _msku.sku, {barH:38, barW, quiet:6, fontSize:8, showText:false});
+  // Escalar canvas con CSS para que nunca desborde
+  cvs.style.maxWidth = '100%';
+  cvs.style.height   = 'auto';
+  document.getElementById('modal-pname').textContent = sn?_msku.nombre:'';
+  document.getElementById('modal-psku').textContent  = ss?_msku.sku:'';
+  document.getElementById('modal-pprice').textContent= (sp&&_msku.precio)?'$'+fmt(_msku.precio):'';
+}
+document.addEventListener('change',e=>{
+  if(['opt-nombre','opt-precio','opt-sku'].includes(e.target.id)) updateModalPreview();
+});
+function selSize(el,sz){
+  document.querySelectorAll('.size-opt').forEach(o=>o.classList.remove('on'));
+  el.classList.add('on'); _psize=sz;
+}
+function adjQty(d){ _pqty=Math.max(1,Math.min(50,_pqty+d)); document.getElementById('print-qty').textContent=_pqty; }
+
+function printLabel(){
+  if(!_msku) return;
+  const sn=document.getElementById('opt-nombre').checked;
+  const sp=document.getElementById('opt-precio').checked;
+  const ss=document.getElementById('opt-sku').checked;
+  buildPrintSheet([{sku:_msku,qty:_pqty}],{sn,sp,ss,size:_psize});
+  setTimeout(()=>window.print(),200);
+}
+function printAllLabels(){
+  buildPrintSheet(skuDB.map(s=>({sku:s,qty:1})),{sn:true,sp:true,ss:true,size:'medium'});
+  setTimeout(()=>window.print(),200);
+}
+function buildPrintSheet(items,{sn,sp,ss,size}){
+  const sheet=document.getElementById('print-sheet-inner');
+  sheet.innerHTML='';
+  // Ancho de etiqueta en px a 96dpi: 40mm≈151px, 50mm≈189px, 62mm≈235px
+  const widthPx = size==='small' ? 151 : size==='medium' ? 189 : 235;
+  const barH    = size==='small' ? 20  : size==='medium' ? 26  : 32;
+  // barW: ajustar para que el código quepa en el ancho de la etiqueta
+  const barW    = Math.max(0.8, Math.min((widthPx - 8) / 82, 1.8));
+
+  items.forEach(({sku:s,qty})=>{
+    for(let i=0;i<qty;i++){
+      const lbl=document.createElement('div');
+      lbl.className=`print-label sz-${size}`;
+      const cvs=document.createElement('canvas');
+      C128.draw(cvs,s.sku,{barH,barW,quiet:4,fontSize:6,showText:false});
+      cvs.style.maxWidth='95%';
+      cvs.style.height='auto';
+      lbl.appendChild(cvs);
+      if(ss){const d=document.createElement('div');d.className='pl-sku';d.textContent=s.sku;lbl.appendChild(d);}
+      if(sn){const d=document.createElement('div');d.className='pl-name';d.textContent=s.nombre+(s.variante&&s.variante!=='—'?' · '+s.variante:'');lbl.appendChild(d);}
+      if(sp&&s.precio){const d=document.createElement('div');d.className='pl-price';d.textContent='$'+fmt(s.precio);lbl.appendChild(d);}
+      sheet.appendChild(lbl);
+    }
+  });
+}
+
+
+// ══════════════════════════════════════════════════════
+//  ESCÁNER CENTRAL — pantalla scanner
+// ══════════════════════════════════════════════════════
+let _scCamActive = false;
+let _scReader    = null;
+let _scStream    = null;
+let _scItem      = null;   // producto actualmente encontrado
+let _scCanal     = 'Sotos';
+
+// Acción pendiente post-escaneo (para flujos dirigidos desde otras pantallas)
+let _scPendingAccion = null;
+
+// Ir al escáner en modo ingreso de stock (desde Compras)
+function scGoIngreso() {
+  goTo('scanner');
+  setTimeout(() => {
+    scSetMode('kbd');
+    _scPendingAccion = 'ingreso';
+    const inp = document.getElementById('sc-manual-input');
+    if(inp) { inp.placeholder = 'Escanea o escribe el SKU del producto…'; inp.focus(); }
+  }, 120);
+}
+
+function scInit() {
+  // Solo resetear si no hay un producto activo — preservar estado si el usuario navegó y volvió
+  if(!_scItem) scReset();
+  // Por defecto arrancar en modo cámara si no hay modo activo
+  const camPanel = document.getElementById('sc-cam-panel');
+  if(camPanel && camPanel.style.display === '') scSetMode('cam');
+}
+
+function scSetMode(mode) {
+  const isCam = mode === 'cam';
+  document.getElementById('sc-mode-cam').classList.toggle('on',  isCam);
+  document.getElementById('sc-mode-kbd').classList.toggle('on', !isCam);
+  document.getElementById('sc-cam-panel').style.display = isCam  ? 'block' : 'none';
+  document.getElementById('sc-kbd-panel').style.display = !isCam ? 'block' : 'none';
+  if(!isCam && _scCamActive) scStopCamera();
+}
+
+// ── Cámara ──
+async function scStartCamera() {
+  const startBtn = document.getElementById('sc-start-btn');
+  const stopBtn  = document.getElementById('sc-stop-btn');
+  const wrap     = document.getElementById('sc-cam-wrap');
+  const dot      = document.getElementById('sc-dot');
+  const video    = document.getElementById('sc-video');
+
+  if(typeof ZXing === 'undefined') {
+    scShowNotFound('Librería ZXing no disponible — revisa tu conexión'); return;
+  }
+  startBtn.textContent = '⏳ Iniciando…'; startBtn.disabled = true;
+
+  try {
+    _scStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode:{ ideal:'environment' }, width:{ ideal:1280 } }
+    });
+    video.srcObject = _scStream;
+    await video.play();
+    wrap.style.display = 'block';
+    startBtn.style.display = 'none';
+    stopBtn.style.display  = '';
+    dot.classList.add('live');
+    _scCamActive = true;
+
+    _scReader = new ZXing.BrowserMultiFormatReader();
+    const self = arguments.callee;
+    _scReader.decodeFromVideoElement(video, (result, err) => {
+      if(!result || !_scCamActive) return;
+      const flash = document.getElementById('sc-flash');
+      flash.classList.add('show');
+      setTimeout(() => flash.classList.remove('show'), 280);
+      _scReader.reset();
+      scProcessCode(result.getText());
+      // Pausa 2s antes de volver a leer
+      setTimeout(() => {
+        if(_scCamActive && _scReader) {
+          _scReader.decodeFromVideoElement(video, arguments.callee);
+        }
+      }, 2000);
+    });
+
+  } catch(err) {
+    startBtn.textContent = '📷 Activar cámara'; startBtn.disabled = false;
+    if(err.name === 'NotAllowedError')
+      scShowNotFound('Permiso de cámara denegado — actívalo en tu navegador');
+    else if(err.name === 'NotFoundError')
+      scShowNotFound('No se detectó cámara en este dispositivo');
+    else
+      scShowNotFound('Error al iniciar cámara: ' + (err.message || err.name));
+  }
+}
+
+function scStopCamera() {
+  _scCamActive = false;
+  if(_scReader)  { try{_scReader.reset();}catch(e){} _scReader=null; }
+  if(_scStream)  { _scStream.getTracks().forEach(t=>t.stop()); _scStream=null; }
+  const video = document.getElementById('sc-video');
+  if(video) video.srcObject = null;
+  document.getElementById('sc-cam-wrap').style.display = 'none';
+  document.getElementById('sc-dot').classList.remove('live');
+  const sb = document.getElementById('sc-start-btn');
+  sb.style.display=''; sb.textContent='📷 Activar cámara'; sb.disabled=false;
+  document.getElementById('sc-stop-btn').style.display='none';
+}
+
+// ── Input manual ──
+function scHandleKey(e) { if(e.key==='Enter') scProcessManual(); }
+function scProcessManual() {
+  const val = document.getElementById('sc-manual-input').value.trim();
+  if(!val) return;
+  document.getElementById('sc-manual-input').value = '';
+  scProcessCode(val);
+}
+
+// ── Núcleo: procesar código ──
+function scProcessCode(code) {
+  scCerrarPanel();
+  document.getElementById('sc-confirm-msg').style.display  = 'none';
+  document.getElementById('sc-not-found').style.display    = 'none';
+  document.getElementById('sc-found-card').classList.remove('show');
+
+  const item = skuDB.find(s => s.sku === code);
+  if(!item) { scShowNotFound(code); return; }
+
+  _scItem  = item;
+  _scCanal = 'Sotos';
+
+  // Rellenar card
+  document.getElementById('sc-found-icon').textContent  = item.icon;
+  document.getElementById('sc-found-name').textContent  = item.nombre;
+  document.getElementById('sc-found-sku').textContent   = item.sku;
+  document.getElementById('sc-found-meta').textContent  = `${item.variante} · $${fmt(item.precio)}`;
+  const stockEl = document.getElementById('sc-found-stock');
+  stockEl.textContent = item.stock;
+  stockEl.style.color = item.stock===0?'var(--red)':item.stock<=2?'var(--orange)':'var(--green)';
+
+  // Deshabilitar "venta" si sin stock
+  const ventaBtn = document.querySelector('#sc-action-grid .action-btn.venta');
+  if(ventaBtn) ventaBtn.classList.toggle('disabled', item.stock===0);
+
+  document.getElementById('sc-found-card').classList.add('show');
+
+  // Si hay acción pendiente (ej: llegamos desde Compras → ingreso), abrirla automáticamente
+  if(_scPendingAccion) {
+    const pending = _scPendingAccion;
+    _scPendingAccion = null;
+    setTimeout(() => scAccion(pending), 200);
+  }
+}
+
+function scShowNotFound(code) {
+  document.getElementById('sc-not-found-sku').textContent = `"${code}" no encontrado`;
+  document.getElementById('sc-not-found').style.display = 'block';
+}
+
+// ── Acciones ──
+function scAccion(tipo) {
+  // Cerrar todos los paneles
+  ['venta','ingreso','devol','ajuste','precio','transfer'].forEach(t => {
+    document.getElementById('ap-'+t).classList.remove('show');
+  });
+  if(!_scItem) return;
+
+  // "Venta" redirige al flujo de 3 pasos — NO abre panel propio
+  if(tipo === 'venta') {
+    const fresh = skuDB.find(s => s.sku === _scItem.sku) || _scItem;
+    if(fresh.stock <= 0) { toast('Este producto no tiene stock disponible.','err'); return; }
+    goTo('venta');
+    setTimeout(() => ventaSelProduct(fresh), 80);
+    return;
+  }
+
+  const panel = document.getElementById('ap-'+tipo);
+  if(!panel) return;
+  panel.classList.add('show');
+  if(tipo === 'ingreso') {
+    document.getElementById('sc-ing-uds').value   = 1;
+    document.getElementById('sc-ing-costo').value = _scItem.costo || '';
+    document.getElementById('sc-ing-nota').value  = '';
+  }
+  if(tipo === 'ajuste') {
+    document.getElementById('sc-ajuste-stock').value = _scItem.stock;
+  }
+  if(tipo === 'precio') {
+    const p  = _scItem.precio || 0;
+    const c  = _scItem.costo  || 0;
+    const com = Math.min(Math.round(p*0.15), 10000);
+    const gan = p - c;
+    const ganSotos = p - com - c;
+    const margen = p > 0 ? Math.round(((p-c)/p)*100) : 0;
+    document.getElementById('scp-venta').textContent  = p ? '$'+fmt(p) : '—';
+    document.getElementById('scp-costo').textContent  = c ? '−$'+fmt(c) : '—';
+    document.getElementById('scp-gan').textContent    = p&&c ? '$'+fmt(gan) : '—';
+    document.getElementById('scp-sotos').textContent  = p&&c ? '$'+fmt(ganSotos)+' neto' : '—';
+    document.getElementById('scp-margen').textContent = c > 0 ? margen+'%' : '—';
+  }
+
+  // Scroll al panel
+  setTimeout(() => {
+    panel.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }, 80);
+}
+
+function scSelCanal(el, nombre) {
+  document.querySelectorAll('#sc-canal-grid .opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  _scCanal = nombre;
+  scRecalc();
+}
+
+function scRecalc() {
+  const precio = parseInt(document.getElementById('sc-precio').value)||0;
+  const cant   = Math.max(1, parseInt(document.getElementById('sc-cant').value)||1);
+  const costo  = _scItem ? _scItem.costo : 0;
+  let com=0, comLbl='Sin comisión';
+  if(_scCanal==='Sotos'){
+    com    = Math.min(Math.round(precio*0.15),10000);
+    comLbl = `Sotos (${precio>0?(Math.min(precio*0.15,10000)/precio*100).toFixed(1):15}%)`;
+  }
+  const gan = (precio-com)*cant - costo*cant;
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  set('sc-com-lbl',  comLbl);
+  set('sc-com',      com>0?`−$${fmt(com*cant)}`:'Sin comisión');
+  set('sc-costo-lbl',costo>0?`−$${fmt(costo*cant)}`:'—');
+  set('sc-gan',      precio>0?`$${fmt(gan)}`:'—');
+  const ganEl=document.getElementById('sc-gan');
+  if(ganEl) ganEl.className=gan>=0?'sv g':'sv r';
+}
+
+// ── Confirmaciones ──
+function scConfirmarVenta() {
+  if(!_scItem) return;
+  const precio = parseInt(document.getElementById('sc-precio').value)||0;
+  const cant   = Math.max(1, parseInt(document.getElementById('sc-cant').value)||1);
+  const pago   = document.getElementById('sc-pago').value;
+  const envio  = document.getElementById('sc-envio').value;
+  if(!precio) { toast('Ingresa el precio de venta.','err'); return; }
+
+  const live = skuDB.find(s=>s.sku===_scItem.sku);
+  if(!live || live.stock < cant) { toast(`Solo hay ${live?.stock||0} unidad${live?.stock!==1?'es':''} disponibles.`,'err'); return; }
+
+  const com = _scCanal==='Sotos' ? Math.min(Math.round(precio*0.15),10000) : 0;
+  const gan = (precio-com)*cant - _scItem.costo*cant;
+
+  live.stock = Math.max(0, live.stock-cant);
+  ventasDB.unshift({
+    id:ventasDB.length+1, sku:_scItem.sku, nombre:_scItem.nombre, variante:_scItem.variante,
+    icon:_scItem.icon, precio, costo:_scItem.costo, com, canal:_scCanal, pago, envio, gan,
+    fecha:`Hoy · ${nowHHMM()}`
+  });
+  renderDashboard(); renderHistorial(); updateInventarioStock();
+  scShowConfirm('🛍️','¡Venta registrada!',`${cant}× ${_scItem.nombre} · $${fmt(precio*cant)} · Ganancia $${fmt(gan)}`);
+}
+
+function scConfirmarIngreso() {
+  if(!_scItem) return;
+  const uds   = parseInt(document.getElementById('sc-ing-uds').value)||0;
+  const costo = parseInt(document.getElementById('sc-ing-costo').value)||0;
+  if(uds<1) { toast('Ingresa al menos 1 unidad.','err'); return; }
+  const live = skuDB.find(s=>s.sku===_scItem.sku);
+  if(live) {
+    live.stock += uds;
+    if(costo>0) live.costo = costo; // actualizar costo si se ingresó
+  }
+  renderDashboard(); updateInventarioStock(); renderSkuList();
+  scShowConfirm('📥','Stock actualizado',`+${uds} ud. → ${live?.stock} en total · ${_scItem.nombre}`);
+}
+
+function scConfirmarDevolucion() {
+  if(!_scItem) return;
+  const uds    = parseInt(document.getElementById('sc-dev-uds').value)||1;
+  const repone = document.getElementById('sc-dev-repone').value === 'si';
+  const motivo = document.getElementById('sc-dev-motivo').value;
+  const live   = skuDB.find(s=>s.sku===_scItem.sku);
+  if(repone && live) live.stock += uds;
+  // Registrar como venta negativa en historial
+  ventasDB.unshift({
+    id:ventasDB.length+1, sku:_scItem.sku, nombre:`↩️ DEVOL · ${_scItem.nombre}`,
+    variante:_scItem.variante, icon:'↩️', precio:-_scItem.precio, costo:0, com:0,
+    canal:'Devolución', pago:'—', envio:'—', gan:-(_scItem.precio-_scItem.costo),
+    fecha:`Hoy · ${nowHHMM()}`
+  });
+  renderDashboard(); renderHistorial(); updateInventarioStock();
+  const reponeTxt = repone ? `Stock +${uds} repuesto` : 'Sin reposición de stock';
+  scShowConfirm('↩️','Devolución registrada',`${_scItem.nombre} · ${motivo} · ${reponeTxt}`);
+}
+
+function scConfirmarAjuste() {
+  if(!_scItem) return;
+  const nuevoStock = parseInt(document.getElementById('sc-ajuste-stock').value);
+  if(isNaN(nuevoStock)||nuevoStock<0) { toast('Ingresa un stock válido (0 o más).','err'); return; }
+  const live = skuDB.find(s=>s.sku===_scItem.sku);
+  const anterior = live ? live.stock : 0;
+  if(live) live.stock = nuevoStock;
+  renderDashboard(); updateInventarioStock(); renderSkuList();
+  scShowConfirm('✏️','Ajuste aplicado',`${_scItem.nombre} · ${anterior} → ${nuevoStock} ud.`);
+}
+
+function scConfirmarTransfer() {
+  if(!_scItem) return;
+  const uds    = parseInt(document.getElementById('sc-tr-uds').value)||1;
+  const origen = document.getElementById('sc-tr-origen').value;
+  const dest   = document.getElementById('sc-tr-destino').value;
+  if(origen===dest) { toast('Origen y destino deben ser distintos.','err'); return; }
+  // En el prototipo solo actualizamos el skuDB global (single-stock)
+  // En producción aquí iría la lógica por local
+  scShowConfirm('🔄','Transferencia registrada',`${uds}× ${_scItem.nombre} · ${origen} → ${dest}`);
+}
+
+function scShowConfirm(icon, title, detail) {
+  scCerrarPanel();
+  document.getElementById('sc-found-card').classList.remove('show');
+  const msg = document.getElementById('sc-confirm-msg');
+  document.getElementById('sc-confirm-icon').textContent   = icon;
+  document.getElementById('sc-confirm-title').textContent  = title;
+  document.getElementById('sc-confirm-detail').textContent = detail;
+  msg.style.background  = 'var(--gdim)';
+  msg.style.borderColor = 'rgba(59,255,138,.2)';
+  msg.style.display     = 'block';
+  msg.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function scCerrarPanel() {
+  ['venta','ingreso','devol','ajuste','precio','transfer'].forEach(t => {
+    document.getElementById('ap-'+t).classList.remove('show');
+  });
+}
+
+function scReset() {
+  _scItem  = null;
+  _scCanal = 'Sotos';
+  document.getElementById('sc-found-card').classList.remove('show');
+  document.getElementById('sc-not-found').style.display   = 'none';
+  document.getElementById('sc-confirm-msg').style.display = 'none';
+  scCerrarPanel();
+  const inp = document.getElementById('sc-manual-input');
+  if(inp) inp.value = '';
+}
+
+
+// ══════════════════════════════════════════════════════
+//  INIT — ejecutar al cargar
+// ══════════════════════════════════════════════════════
+(function init() {
+  // Fecha dinámica en nueva compra
+  const fechaEl = document.getElementById('nc-fecha');
+  if(fechaEl) {
+    const d = new Date();
+    fechaEl.value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  ventaSetPaso(1);
+  ventaRenderInventario();
+  renderDashboard();
+  renderHistorial();
+  renderAnalisis('hoy');
+  autoSku();
+  renderSkuList();
+})();
+</script>
+</body>
+</html>
