@@ -750,6 +750,11 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   <div class="sec-hdr"><div class="sec-title">⚠️ Alertas de stock</div><div class="sec-link" onclick="goTo('inventario')">Ver todo →</div></div>
   <div id="dash-alertas" style="margin-bottom:16px;"></div>
 
+  <div id="dash-insights-section" style="display:none;margin-bottom:4px;">
+    <div class="sec-hdr"><div class="sec-title">💡 Para tomar acción</div><div class="sec-link" onclick="goTo('analisis')">Ver análisis →</div></div>
+    <div id="dash-insights" style="margin-bottom:16px;"></div>
+  </div>
+
   <div class="sec-hdr"><div class="sec-title">Últimas ventas</div><div class="sec-link" onclick="goTo('historial')">Ver todo →</div></div>
   <div id="dash-last-sales"></div>
 
@@ -917,6 +922,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
         <div class="srow tot"><span class="sk">Ganancia neta</span><span class="sv g" style="font-size:15px;" id="vc-gan">—</span></div>
         <div class="srow"><span class="sk">Stock restante</span><span class="sv" id="vc-stock">—</span></div>
       </div>
+      <div id="vc-insight"></div>
       <button class="btn" onclick="resetVenta()">+ Nueva venta</button>
       <div class="btn-row">
         <button class="btn sec" onclick="goTo('historial')">Ver historial →</button>
@@ -1644,7 +1650,23 @@ function renderDashboard() {
   if(wrap) {
     const ventasReales = ventasDB.filter(v => !v.nombre.startsWith('↩️'));
     if(ventasReales.length === 0) {
-      wrap.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px;">Sin ventas registradas aún</div>';
+      const tieneProductos = skuDB.length > 0;
+      wrap.innerHTML = `
+        <div style="text-align:center;padding:28px 16px;background:var(--sf);border:1px solid var(--bd);border-radius:15px;margin-bottom:11px;">
+          <div style="font-size:44px;margin-bottom:11px;">${tieneProductos ? '🛍️' : '📦'}</div>
+          <div style="font-family:'Archivo Black',sans-serif;font-size:16px;margin-bottom:7px;letter-spacing:-.3px;">
+            ${tieneProductos ? 'Registra tu primera venta' : 'Empieza aquí'}
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.6;max-width:260px;margin-left:auto;margin-right:auto;">
+            ${tieneProductos
+              ? 'Tienes productos en inventario. Registra una venta y ve cuánto ganaste al instante.'
+              : 'Agrega tu primer producto al inventario y empieza a registrar ventas.'}
+          </div>
+          <button class="btn" style="width:auto;padding:13px 28px;font-size:14px;margin:0;"
+            onclick="goTo('${tieneProductos ? 'scanner' : 'skus'}')">
+            ${tieneProductos ? '📷 Registrar venta →' : '+ Agregar producto →'}
+          </button>
+        </div>`;
     } else {
       wrap.innerHTML = ventasReales.slice(0,4).map(v => `
         <div class="sale" onclick="goTo('historial')">
@@ -1708,6 +1730,74 @@ function renderDashboard() {
   // Label del mes en el stat card
   const slIngr = document.getElementById('dash-sl-ingresos');
   if(slIngr) slIngr.textContent = `Ingresos ${mesCorto}`;
+
+  // ── Insights accionables desde datos reales ──
+  const insightsSection = document.getElementById('dash-insights-section');
+  const insightsWrap    = document.getElementById('dash-insights');
+  if (insightsWrap) {
+    const insights = [];
+
+    // Canal más rentable (solo si hay 2+ canales con ventas este mes)
+    const porCanal = {};
+    ventasMes.forEach(v => {
+      if (!porCanal[v.canal]) porCanal[v.canal] = { n: 0, gan: 0 };
+      porCanal[v.canal].n++;
+      porCanal[v.canal].gan += v.gan;
+    });
+    const canalesArr = Object.entries(porCanal).sort((a,b) => b[1].gan - a[1].gan);
+    if (canalesArr.length >= 2) {
+      const [top] = canalesArr;
+      insights.push({ bg:'var(--adim)', border:'rgba(232,255,59,.18)', icon:'🏆',
+        text:`Tu canal más rentable este mes fue <b>${top[0]}</b> — te dejó $${fmt(top[1].gan)} de ganancia.` });
+    }
+
+    // Producto sin movimiento con capital parado
+    const nombresVendidos = new Set(ventasDB.map(v => v.nombre));
+    const parados = skuDB.filter(s => s.stock > 2 && !nombresVendidos.has(s.nombre));
+    if (parados.length > 0) {
+      const p = parados.sort((a,b) => (b.precio*b.stock) - (a.precio*a.stock))[0];
+      const val = p.precio * p.stock;
+      insights.push({ bg:'var(--odim)', border:'rgba(255,140,66,.18)', icon:'📦',
+        text:`<b>${p.nombre}</b> no se ha vendido — tienes <b>$${fmt(val)}</b> parados ahí.` });
+    }
+
+    // Stock crítico con nombre específico
+    const criticos = skuDB.filter(s => s.stock > 0 && s.stock <= 2).sort((a,b) => a.stock - b.stock);
+    if (criticos.length > 0) {
+      const c = criticos[0];
+      insights.push({ bg:'var(--rdim)', border:'rgba(255,68,68,.18)', icon:'⚠️',
+        text:`Se te va a acabar el stock de <b>${c.nombre}</b> — solo quedan <b>${c.stock} ud.</b>` });
+    }
+
+    // Producto más rentable del mes (si hay margen alto)
+    const porProd = {};
+    ventasMes.forEach(v => {
+      if (!porProd[v.nombre]) porProd[v.nombre] = { gan: 0, ingresos: 0 };
+      porProd[v.nombre].gan      += v.gan;
+      porProd[v.nombre].ingresos += v.precio;
+    });
+    const prodsArr = Object.entries(porProd).sort((a,b) => b[1].gan - a[1].gan);
+    if (prodsArr.length > 0) {
+      const [topNom, topData] = prodsArr[0];
+      const margenTop = topData.ingresos > 0 ? Math.round((topData.gan / topData.ingresos) * 100) : 0;
+      if (margenTop > 40) {
+        insights.push({ bg:'var(--gdim)', border:'rgba(59,255,138,.18)', icon:'🔥',
+          text:`<b>${topNom}</b> es tu producto más rentable — margen del <b>${margenTop}%</b> sobre lo vendido.` });
+      }
+    }
+
+    if (insights.length > 0) {
+      if (insightsSection) insightsSection.style.display = '';
+      insightsWrap.innerHTML = insights.slice(0, 4).map(ins => `
+        <div style="background:${ins.bg};border:1px solid ${ins.border};border-radius:12px;padding:13px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;cursor:pointer;" onclick="goTo('analisis')">
+          <span style="font-size:18px;flex-shrink:0;">${ins.icon}</span>
+          <div style="flex:1;font-size:12px;line-height:1.55;color:var(--text);">${ins.text}</div>
+          <span style="font-size:12px;color:var(--muted);flex-shrink:0;margin-top:1px;">→</span>
+        </div>`).join('');
+    } else {
+      if (insightsSection) insightsSection.style.display = 'none';
+    }
+  }
 
   actualizarBadgeNotifs();
 }
@@ -2197,6 +2287,45 @@ async function ventaConfirmar() {
     stockEl.className   = nuevoStock===0 ? 'sv r' : nuevoStock<=2 ? 'sv' : 'sv g';
   }
   set('vc-sub', 'Guardado en Cuanti ✓');
+
+  // ── Insight post-venta ──
+  const margenPct = precio > 0 ? Math.round((gan / (precio * cant)) * 100) : 0;
+  const insightEl = document.getElementById('vc-insight');
+  if (insightEl) {
+    let insightHtml = '';
+    if (nuevoStock === 0) {
+      insightHtml = `<div style="background:var(--rdim);border:1px solid rgba(255,68,68,.25);border-radius:12px;padding:13px 14px;margin:12px 0 0;display:flex;align-items:flex-start;gap:10px;">
+        <span style="font-size:20px;flex-shrink:0;">🔴</span>
+        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--red);">Se te agotó este producto</div>
+        <div style="font-size:11px;color:var(--muted);">Considera reponer en tu próximo lote.</div></div>
+      </div>`;
+    } else if (nuevoStock <= 2) {
+      insightHtml = `<div style="background:var(--odim);border:1px solid rgba(255,140,66,.25);border-radius:12px;padding:13px 14px;margin:12px 0 0;display:flex;align-items:flex-start;gap:10px;">
+        <span style="font-size:20px;flex-shrink:0;">⚠️</span>
+        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--orange);">Solo te quedan ${nuevoStock} unidad${nuevoStock !== 1 ? 'es' : ''}</div>
+        <div style="font-size:11px;color:var(--muted);">Piensa en reponer pronto.</div></div>
+      </div>`;
+    } else if (margenPct >= 50) {
+      insightHtml = `<div style="background:var(--gdim);border:1px solid rgba(59,255,138,.2);border-radius:12px;padding:13px 14px;margin:12px 0 0;display:flex;align-items:flex-start;gap:10px;">
+        <span style="font-size:20px;flex-shrink:0;">💚</span>
+        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--green);">Buen margen en esta venta</div>
+        <div style="font-size:11px;color:var(--muted);">Ganaste el ${margenPct}% de lo que vendiste — muy bien.</div></div>
+      </div>`;
+    } else if (canal === 'WhatsApp' && gan > 0) {
+      insightHtml = `<div style="background:var(--gdim);border:1px solid rgba(59,255,138,.2);border-radius:12px;padding:13px 14px;margin:12px 0 0;display:flex;align-items:flex-start;gap:10px;">
+        <span style="font-size:20px;flex-shrink:0;">💬</span>
+        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--green);">Venta sin comisión</div>
+        <div style="font-size:11px;color:var(--muted);">Por WhatsApp te quedas con toda la ganancia.</div></div>
+      </div>`;
+    } else if (gan > 0 && nuevoStock > 5) {
+      insightHtml = `<div style="background:var(--adim);border:1px solid rgba(232,255,59,.2);border-radius:12px;padding:13px 14px;margin:12px 0 0;display:flex;align-items:flex-start;gap:10px;">
+        <span style="font-size:20px;flex-shrink:0;">📦</span>
+        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--accent);">Buen stock disponible</div>
+        <div style="font-size:11px;color:var(--muted);">Quedan ${nuevoStock} unidades — puedes seguir vendiendo.</div></div>
+      </div>`;
+    }
+    insightEl.innerHTML = insightHtml;
+  }
 
   ventaSetPaso(3);
   renderHistorial();
