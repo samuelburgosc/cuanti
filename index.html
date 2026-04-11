@@ -901,11 +901,14 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
   <!-- ── PASO 1: BUSCAR PRODUCTO ── -->
   <div id="vs1">
-    <input id="venta-scan-input" type="text" class="venta-search"
-      placeholder="Buscar producto..."
-      autocomplete="off"
-      oninput="ventaBuscar(this.value)"
-      onkeydown="ventaScanKey(event)">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <input id="venta-scan-input" type="text" class="venta-search" style="margin-bottom:0;flex:1;"
+        placeholder="Buscar producto..."
+        autocomplete="off"
+        oninput="ventaBuscar(this.value)"
+        onkeydown="ventaScanKey(event)">
+      <div onclick="goTo('scanner')" style="flex-shrink:0;width:50px;height:50px;background:var(--sf);border:2px solid var(--bd);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;transition:border-color .15s;" onmouseenter="this.style.borderColor='var(--text)'" onmouseleave="this.style.borderColor='var(--bd)'">📷</div>
+    </div>
     <div id="venta-resultados" style="font-size:11px;color:var(--muted);margin-bottom:8px;min-height:16px;"></div>
     <div id="venta-inv-lista"></div>
   </div>
