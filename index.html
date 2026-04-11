@@ -210,7 +210,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
 /* ─── CARDS ─── */
 .card{background:var(--sf);border:1px solid var(--bd);border-radius:15px;padding:16px;margin-bottom:11px;}
-.card.a{background:var(--adim);border-color:rgba(232,255,59,.18);}
+.card.a{background:var(--adim);border-color:var(--bd2);}
 .card.r{background:var(--rdim);border-color:rgba(255,68,68,.18);}
 .card.b{background:var(--bdim2);border-color:rgba(77,159,255,.18);}
 .card.g{background:var(--gdim);border-color:rgba(59,255,138,.18);}
@@ -1116,13 +1116,13 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
   <!-- resumen dinámico -->
   <div class="card a" style="margin-bottom:13px;">
-    <div style="margin-bottom:10px;"><span style="font-size:10px;color:rgba(232,255,59,.7);font-weight:600;letter-spacing:1px;">RESUMEN — TODAS LAS VENTAS</span></div>
+    <div style="margin-bottom:10px;"><span style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:1px;">RESUMEN — TODAS LAS VENTAS</span></div>
     <div style="display:flex;gap:0;justify-content:space-between;">
-      <div style="flex:1;text-align:center;"><div style="font-family:'Archivo Black',sans-serif;font-size:18px;color:var(--accent);" class="hist-stat">0</div><div style="font-size:10px;color:var(--muted);">Ventas</div></div>
-      <div style="width:1px;background:rgba(232,255,59,.15);"></div>
-      <div style="flex:1;text-align:center;"><div style="font-family:'Archivo Black',sans-serif;font-size:18px;color:var(--accent);" class="hist-stat">$0</div><div style="font-size:10px;color:var(--muted);">Ingresos</div></div>
-      <div style="width:1px;background:rgba(232,255,59,.15);"></div>
-      <div style="flex:1;text-align:center;"><div style="font-family:'Archivo Black',sans-serif;font-size:18px;color:var(--accent);" class="hist-stat">$0</div><div style="font-size:10px;color:var(--muted);">Ganancia</div></div>
+      <div style="flex:1;text-align:center;"><div style="font-family:'Archivo Black',sans-serif;font-size:18px;color:var(--text);" class="hist-stat">0</div><div style="font-size:10px;color:var(--muted);">Ventas</div></div>
+      <div style="width:1px;background:var(--bd);"></div>
+      <div style="flex:1;text-align:center;"><div style="font-family:'Archivo Black',sans-serif;font-size:18px;color:var(--text);" class="hist-stat">$0</div><div style="font-size:10px;color:var(--muted);">Ingresos</div></div>
+      <div style="width:1px;background:var(--bd);"></div>
+      <div style="flex:1;text-align:center;"><div style="font-family:'Archivo Black',sans-serif;font-size:18px;color:var(--text);" class="hist-stat">$0</div><div style="font-size:10px;color:var(--muted);">Ganancia</div></div>
     </div>
   </div>
 
@@ -2347,9 +2347,8 @@ function ventaScanKey(e) {
   if(found) {
     ventaSelProduct(found);
   } else {
-    const area = document.getElementById('venta-scan-area');
-    area.style.borderColor = 'var(--red)';
-    setTimeout(() => area.style.borderColor = '', 1000);
+    const inp = document.getElementById('venta-scan-input');
+    if(inp){ inp.style.borderColor='var(--red)'; setTimeout(()=>inp.style.borderColor='',1000); }
   }
 }
 
@@ -3566,7 +3565,7 @@ async function scStartCamera() {
   const video    = document.getElementById('sc-video');
 
   if(typeof ZXing === 'undefined') {
-    scShowNotFound('Librería ZXing no disponible — revisa tu conexión'); return;
+    toast('Librería ZXing no disponible — revisa tu conexión','err'); return;
   }
   startBtn.textContent = '⏳ Iniciando…'; startBtn.disabled = true;
 
@@ -3602,11 +3601,11 @@ async function scStartCamera() {
   } catch(err) {
     startBtn.textContent = '📷 Activar cámara'; startBtn.disabled = false;
     if(err.name === 'NotAllowedError')
-      scShowNotFound('Permiso de cámara denegado — actívalo en tu navegador');
+      toast('Permiso de cámara denegado — actívalo en tu navegador','err');
     else if(err.name === 'NotFoundError')
-      scShowNotFound('No se detectó cámara en este dispositivo');
+      toast('No se detectó cámara en este dispositivo','err');
     else
-      scShowNotFound('Error al iniciar cámara: ' + (err.message || err.name));
+      toast('Error al iniciar cámara: ' + (err.message || err.name),'err');
   }
 }
 
