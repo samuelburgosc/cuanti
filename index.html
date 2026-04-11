@@ -334,10 +334,23 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .pmargin{font-size:9px;color:var(--green);margin-top:1px;}
 .vrow{display:flex;gap:5px;flex-wrap:wrap;}
 .vp{background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:3px 8px;font-size:10px;font-family:'DM Mono',monospace;display:flex;align-items:center;gap:3px;}
-.vp.ok .vs{color:var(--accent);}
+.vp.ok .vs{color:var(--green);}
 .vp.lo{border-color:rgba(255,68,68,.3);}
 .vp.lo .vs{color:var(--red);}
 .vp.out{opacity:.35;}
+
+/* ─── INV QUICK ACTIONS ─── */
+.inv-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:16px;}
+.inv-act-btn{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:border-color .15s;}
+.inv-act-btn:hover{border-color:var(--bd2);}
+.inv-act-icon{font-size:17px;line-height:1;}
+.inv-act-lbl{font-size:10px;font-weight:600;color:var(--text);}
+
+/* ─── BOTTOM SHEET ─── */
+.sheet-bd{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:400;display:none;}
+.sheet{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:430px;background:var(--sf);border-radius:22px 22px 0 0;z-index:401;padding:0 18px 36px;transition:transform .3s cubic-bezier(.32,0,.67,0);}
+.sheet.open{transform:translateX(-50%) translateY(0);transition-timing-function:cubic-bezier(.33,1,.68,1);}
+.sheet-handle{width:36px;height:4px;background:var(--bd2);border-radius:2px;margin:14px auto 20px;}
 
 /* ─── FORM ─── */
 .field{display:flex;flex-direction:column;gap:4px;margin-bottom:11px;}
@@ -818,22 +831,41 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 <div class="screen" id="screen-inventario">
   <div class="ptitle">Inventario</div>
   <div class="psub" id="inv-psub">Cargando inventario…</div>
-  <div class="search-row"><input class="srch" placeholder="Buscar producto o marca..." id="inv-search" oninput="filterInv(this.value)"><button class="filter-btn">⚙️</button></div>
+
+  <!-- acciones rápidas -->
+  <div class="inv-actions">
+    <div class="inv-act-btn" onclick="goTo('skus')">
+      <div class="inv-act-icon">📦</div>
+      <div class="inv-act-lbl">+ Producto</div>
+    </div>
+    <div class="inv-act-btn" onclick="invAbrirAddStock()">
+      <div class="inv-act-icon">📥</div>
+      <div class="inv-act-lbl">+ Stock</div>
+    </div>
+    <div class="inv-act-btn" onclick="goTo('nueva-compra')">
+      <div class="inv-act-icon">🧾</div>
+      <div class="inv-act-lbl">+ Compra</div>
+    </div>
+  </div>
+
+  <div class="search-row"><input class="srch" placeholder="Buscar producto o marca..." id="inv-search" oninput="filterInv(this.value)"><button class="filter-btn" onclick="invFiltroSheet()">⚙️</button></div>
   <div class="chips" id="inv-chips">
     <div class="chip on" onclick="filterChip(this,'todos')">Todos</div>
-    <div class="chip" onclick="filterChip(this,'zapatillas')">👟 Zapatillas</div>
-    <div class="chip" onclick="filterChip(this,'ropa')">👕 Ropa</div>
-    <div class="chip" onclick="filterChip(this,'gorras')">🧢 Gorras</div>
-    <div class="chip" onclick="filterChip(this,'bolsos')">👜 Bolsos</div>
-    <div class="chip" onclick="filterChip(this,'accesorios')">🎒 Accesorios</div>
-    <div class="chip" onclick="filterChip(this,'bajo')">⚠️ Bajo stock</div>
-    <div class="chip" onclick="filterChip(this,'agotado')">🔴 Agotado</div>
+    <div class="chip" onclick="filterChip(this,'zapatillas')">Zapatillas</div>
+    <div class="chip" onclick="filterChip(this,'ropa')">Ropa</div>
+    <div class="chip" onclick="filterChip(this,'gorras')">Gorras</div>
+    <div class="chip" onclick="filterChip(this,'bolsos')">Bolsos</div>
+    <div class="chip" onclick="filterChip(this,'accesorios')">Accesorios</div>
+    <div class="chip" onclick="filterChip(this,'bajo')">Bajo stock</div>
+    <div class="chip" onclick="filterChip(this,'agotado')">Agotado</div>
   </div>
 
   <div id="inv-list"></div>
-
-  <div id="inv-empty" class="empty" style="display:none;"><div class="empty-icon">🔍</div><div class="empty-title">Sin resultados</div><div class="empty-sub">Intenta con otro nombre o categoría</div></div>
-  <button class="btn" style="margin-top:6px;" onclick="goTo('nueva-compra')">+ Agregar producto / lote</button>
+  <div id="inv-empty" class="empty" style="display:none;">
+    <div class="empty-icon">📦</div>
+    <div class="empty-title">Sin resultados</div>
+    <div class="empty-sub">Intenta con otro nombre o categoría</div>
+  </div>
   <div class="spacer"></div>
 </div>
 
@@ -1531,6 +1563,13 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
 </div><!-- end device -->
 
+<!-- ── BOTTOM SHEET INVENTARIO ── -->
+<div class="sheet-bd" id="inv-sheet-bd" onclick="invCerrarSheet()"></div>
+<div class="sheet" id="inv-sheet">
+  <div class="sheet-handle"></div>
+  <div id="inv-sheet-body"></div>
+</div>
+
 <!-- ── MODAL ETIQUETA ── -->
 <div class="label-modal-backdrop" id="label-modal" style="display:none;" onclick="closeLabelModal(event)">
   <div class="label-modal">
@@ -1997,8 +2036,9 @@ function renderInventario() {
     }).join('');
 
     const ganUnit = g.precio > 0 && g.costo > 0 ? g.precio - g.costo : null;
+    const encNombre = encodeURIComponent(g.nombre);
     html += `
-    <div class="pcard ${stockClass}" data-cat="${cat}" data-stock="${stockData}">
+    <div class="pcard ${stockClass}" data-cat="${cat}" data-stock="${stockData}" onclick="invAbrirProducto('${encNombre}')">
       <div class="ptop">
         <div class="pemoji">${g.icon}</div>
         <div class="pinfo">
@@ -2028,6 +2068,142 @@ function renderInventario() {
 
 // Mantener alias para compatibilidad con llamadas existentes
 function updateInventarioStock() { renderInventario(); }
+
+// ══════════════════════════════════════════════════════
+//  INVENTARIO — BOTTOM SHEET
+// ══════════════════════════════════════════════════════
+
+function invAbrirSheet() {
+  const bd = document.getElementById('inv-sheet-bd');
+  const sh = document.getElementById('inv-sheet');
+  if(!bd || !sh) return;
+  bd.style.display = 'block';
+  sh.style.display = 'block';
+  requestAnimationFrame(() => sh.classList.add('open'));
+}
+
+function invCerrarSheet() {
+  const sh = document.getElementById('inv-sheet');
+  const bd = document.getElementById('inv-sheet-bd');
+  if(!sh) return;
+  sh.classList.remove('open');
+  setTimeout(() => {
+    sh.style.display = 'none';
+    if(bd) bd.style.display = 'none';
+  }, 300);
+}
+
+// Abrir detalle de producto (desde tap en pcard)
+function invAbrirProducto(nombreEnc) {
+  const nombre = decodeURIComponent(nombreEnc);
+  const variantes = skuDB.filter(s => s.nombre === nombre);
+  if(!variantes.length) return;
+  const g = variantes[0];
+  const ganUnit = g.precio > 0 && g.costo > 0 ? g.precio - g.costo : null;
+
+  const vpHtml = variantes.map(v => {
+    const stockColor = v.stock === 0 ? 'var(--red)' : v.stock <= 2 ? 'var(--orange)' : 'var(--green)';
+    const lbl = v.talla_color || v.variante || '—';
+    return `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--bd);">
+        <div>
+          <div style="font-size:13px;font-weight:600;">${lbl}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:1px;">${v.sku}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:${stockColor};">${v.stock} ud.</div>
+          <button onclick="invMostrarAddStock(${v.id},'${encodeURIComponent(nombre)}','${encodeURIComponent(lbl)}',${v.stock})" style="background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;color:var(--text);">+ Stock</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('inv-sheet-body').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+      <div style="width:46px;height:46px;background:var(--sf2);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">${g.icon}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:16px;letter-spacing:-.3px;margin-bottom:2px;">${nombre}</div>
+        <div style="font-size:11px;color:var(--muted);">${g.marca || ''} · $${fmt(g.precio)}${ganUnit ? ` · Te deja $${fmt(ganUnit)}` : ''}</div>
+      </div>
+    </div>
+    <div style="margin-bottom:18px;">${vpHtml}</div>
+    <button class="btn sec" onclick="goTo('nueva-compra');invCerrarSheet();" style="margin-top:4px;font-size:12px;">Registrar compra con este producto</button>`;
+
+  invAbrirSheet();
+}
+
+// Cambiar sheet a formulario "agregar stock"
+function invMostrarAddStock(varId, nombreEnc, varianteEnc, stockActual) {
+  const nombre   = decodeURIComponent(nombreEnc);
+  const variante = decodeURIComponent(varianteEnc);
+  document.getElementById('inv-sheet-body').innerHTML = `
+    <button onclick="invAbrirProducto('${nombreEnc}')" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;margin-bottom:16px;padding:0;">← Volver</button>
+    <div style="font-family:'Archivo Black',sans-serif;font-size:17px;letter-spacing:-.3px;margin-bottom:4px;">${nombre}</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:22px;">${variante} · ${stockActual} ud. en stock</div>
+    <div class="field" style="margin-bottom:14px;">
+      <label>Unidades a agregar</label>
+      <input id="inv-add-qty" type="number" value="1" min="1" placeholder="1" style="font-size:20px;font-family:'DM Mono',monospace;text-align:center;padding:12px;">
+    </div>
+    <div class="field" style="margin-bottom:20px;">
+      <label>Nota (opcional)</label>
+      <input id="inv-add-nota" type="text" placeholder="Ej: Reposición abril">
+    </div>
+    <button class="btn" onclick="invGuardarStock(${varId},'${nombreEnc}','${varianteEnc}',${stockActual})">Guardar →</button>`;
+  // Foco automático en qty
+  setTimeout(() => document.getElementById('inv-add-qty')?.focus(), 350);
+}
+
+// Guardar stock en Supabase
+async function invGuardarStock(varId, nombreEnc, varianteEnc, stockActual) {
+  const qty = parseInt(document.getElementById('inv-add-qty')?.value || '0');
+  if(!qty || qty < 1) { toast('Ingresa una cantidad válida','err'); return; }
+  const nuevo = stockActual + qty;
+
+  const { error } = await sb.from('variantes').update({ stock_actual: nuevo }).eq('id', varId);
+  if(error) { toast('Error al guardar','err'); return; }
+
+  // Actualizar cache local
+  const idx = skuDB.findIndex(s => s.id === varId);
+  if(idx !== -1) skuDB[idx].stock = nuevo;
+
+  invCerrarSheet();
+  renderInventario();
+  renderDashboard();
+  toast(`+${qty} ud. guardadas`);
+}
+
+// Abrir sheet para "+ Stock" desde acciones rápidas (buscar primero)
+function invAbrirAddStock() {
+  document.getElementById('inv-sheet-body').innerHTML = `
+    <div style="font-family:'Archivo Black',sans-serif;font-size:17px;letter-spacing:-.3px;margin-bottom:14px;">Agregar stock</div>
+    <input id="inv-add-buscar" type="text" placeholder="Busca producto o variante…"
+      style="width:100%;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:11px 14px;font-size:14px;color:var(--text);outline:none;margin-bottom:12px;"
+      oninput="invBuscarParaStock(this.value)" autocomplete="off">
+    <div id="inv-add-resultados"></div>`;
+  invAbrirSheet();
+  setTimeout(() => document.getElementById('inv-add-buscar')?.focus(), 350);
+}
+
+// Búsqueda en tiempo real dentro del sheet de stock
+function invBuscarParaStock(q) {
+  const res = document.getElementById('inv-add-resultados');
+  if(!res) return;
+  if(!q) { res.innerHTML = ''; return; }
+  const matches = skuDB.filter(s => s.nombre.toLowerCase().includes(q.toLowerCase()) || (s.sku||'').toLowerCase().includes(q.toLowerCase())).slice(0,6);
+  if(!matches.length) { res.innerHTML = `<div style="font-size:12px;color:var(--muted);padding:8px 0;">Sin resultados</div>`; return; }
+  res.innerHTML = matches.map(s => {
+    const sc = s.stock===0?'var(--red)':s.stock<=2?'var(--orange)':'var(--green)';
+    const lbl = s.talla_color || s.variante || '—';
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--bd);cursor:pointer;" onclick="invMostrarAddStock(${s.id},'${encodeURIComponent(s.nombre)}','${encodeURIComponent(lbl)}',${s.stock})">
+      <div>
+        <div style="font-size:13px;font-weight:600;">${s.nombre}</div>
+        <div style="font-size:10px;color:var(--muted);">${lbl}</div>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:12px;color:${sc};flex-shrink:0;">${s.stock} ud.</div>
+    </div>`;
+  }).join('');
+}
+
+function invFiltroSheet() { /* reservado para filtros avanzados */ }
 
 // Toast suave en vez de alert() nativo
 function toast(msg, tipo='ok') {
