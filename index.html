@@ -236,7 +236,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .scard.b{background:var(--sf);border-color:var(--bd);}
 .scard.b .sv{color:var(--text);}
 .scard.g{background:var(--sf);border-color:var(--bd);}
-.scard.g .sv{color:#15803d;}
+.scard.g .sv{color:var(--green);}
 
 /* ─── ALERT ─── */
 .alert{border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;cursor:pointer;}
@@ -862,7 +862,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
       <div class="inv-act-icon">📥</div>
       <div class="inv-act-lbl">+ Stock</div>
     </div>
-    <div class="inv-act-btn" onclick="goTo('nueva-compra')">
+    <div class="inv-act-btn" onclick="goTo('compras')">
       <div class="inv-act-icon">🧾</div>
       <div class="inv-act-lbl">+ Compra</div>
     </div>
@@ -1009,9 +1009,9 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
     <div style="font-size:28px;">📷</div>
     <div style="flex:1;">
       <div style="font-size:13px;font-weight:700;margin-bottom:2px;">Escanear para ingresar stock</div>
-      <div style="font-size:11px;color:rgba(215,240,46,.6);">Llega un lote — escanea cada producto directamente</div>
+      <div style="font-size:11px;color:var(--muted);">Llega un lote — escanea cada producto directamente</div>
     </div>
-    <div style="font-size:14px;color:var(--accent);">→</div>
+    <div style="font-size:14px;color:var(--text);">→</div>
   </div>
 
   <div class="fabs">
@@ -1019,37 +1019,8 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
     <div class="fab" onclick="goTo('locales')"><div class="fi">🔄</div><div class="fl">Transferir stock</div><div class="fs">Entre locales</div></div>
   </div>
 
-  <div class="sec-hdr"><div class="sec-title">Historial de lotes</div></div>
-
-  <div class="ccard">
-    <div class="ccard-top"><div><div class="corigen">Amazon JP · 05/03/2026</div><div class="cdesc">Lote BAPE Boston Bag × 10</div><div class="cdate">10 unidades · $17.002/ud.</div></div><div class="ctotal"><div class="cmonto">$170.018</div><div class="cuds">10 uds.</div><div class="croi">ROI estimado 753%</div></div></div>
-    <div class="ctags"><span class="ctag t-jp">🇯🇵 Japón</span><span class="ctag t-l1">Mi emprendimiento</span></div>
-  </div>
-
-  <div class="ccard">
-    <div class="ccard-top"><div><div class="corigen">Proveedor local · 20/02/2026</div><div class="cdesc">Lote Jordan AJ1 + Nike Dunk</div><div class="cdate">18 unidades · $46.778/ud. prom.</div></div><div class="ctotal"><div class="cmonto">$842.000</div><div class="cuds">18 uds.</div><div class="croi">ROI estimado 735%</div></div></div>
-    <div class="ctags"><span class="ctag t-local">🏪 Local</span><span class="ctag t-l1">Mi emprendimiento</span></div>
-  </div>
-
-  <div class="ccard">
-    <div class="ccard-top"><div><div class="corigen">Amazon JP · 10/02/2026</div><div class="cdesc">Lote Palace Caps + BAPE Hoodies</div><div class="cdate">12 unidades · $57.125/ud. prom.</div></div><div class="ctotal"><div class="cmonto">$685.500</div><div class="cuds">12 uds.</div><div class="croi">ROI estimado 905%</div></div></div>
-    <div class="ctags"><span class="ctag t-jp">🇯🇵 Japón</span><span class="ctag t-l1">Mi emprendimiento</span></div>
-  </div>
-
-  <div class="ccard">
-    <div class="ccard-top"><div><div class="corigen">Proveedor local · 15/01/2026</div><div class="cdesc">Lote New Balance 550</div><div class="cdate">11 unidades · $19.500/ud.</div></div><div class="ctotal"><div class="cmonto">$214.500</div><div class="cuds">11 uds.</div><div class="croi">ROI estimado 900%</div></div></div>
-    <div class="ctags"><span class="ctag t-local">🏪 Local</span><span class="ctag t-l1">Mi emprendimiento</span></div>
-  </div>
-
-  <div class="ccard">
-    <div class="ccard-top"><div><div class="corigen">Amazon JP · 01/12/2025</div><div class="cdesc">Lote inicial BAPE + Supreme</div><div class="cdate">8 unidades · $40.000/ud. prom.</div></div><div class="ctotal"><div class="cmonto">$320.000</div><div class="cuds">8 uds.</div><div class="croi">ROI estimado 847%</div></div></div>
-    <div class="ctags"><span class="ctag t-jp">🇯🇵 Japón</span><span class="ctag t-l1">Mi emprendimiento</span></div>
-  </div>
-
-  <div class="divider"></div>
-  <div class="sec-hdr"><div class="sec-title">Transferencias entre locales</div></div>
-  <div class="tcard"><span style="font-size:17px;">↔️</span><div class="tcard-info"><div class="tcard-name">Nike Dunk Panda talla 41 × 2 ud.</div><div class="tcard-detail">Mi emprendimiento → Local 1 Familiar</div></div><div class="tcard-date">07/03</div></div>
-  <div class="tcard"><span style="font-size:17px;">↔️</span><div class="tcard-info"><div class="tcard-name">Jordan AJ1 talla 42 × 1 ud.</div><div class="tcard-detail">Local 1 Familiar → Mi emprendimiento</div></div><div class="tcard-date">02/03</div></div>
+  <div class="sec-hdr" style="margin-bottom:8px;"><div class="sec-title">Historial de lotes</div></div>
+  <div id="compras-lista"><div style="text-align:center;padding:20px;color:var(--muted);font-size:12px;">Cargando…</div></div>
   <div class="spacer"></div>
 </div>
 
@@ -1071,7 +1042,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
       <div class="field"><label>Total pagado (CLP)</label><div class="fwrap"><span class="fpfx">$</span><input id="nc-total" class="pfx" type="number" placeholder="170018" oninput="calcCostoUnit()"></div></div>
       <div class="field"><label>Nº de unidades</label><input id="nc-uds" type="number" placeholder="10" oninput="calcCostoUnit()"></div>
     </div>
-    <div class="field"><label>Costo por unidad (auto-calculado)</label><div class="fwrap"><span class="fpfx">$</span><input id="nc-costo-unit" class="pfx" type="number" placeholder="—" style="color:var(--accent);" readonly></div></div>
+    <div class="field"><label>Costo por unidad (auto-calculado)</label><div class="fwrap"><span class="fpfx">$</span><input id="nc-costo-unit" class="pfx" type="number" placeholder="—" style="color:var(--green);font-weight:600;" readonly></div></div>
     <div class="field"><label>Destino</label>
       <select id="nc-destino"><option>Mi emprendimiento</option><option>Local 1 - Familiar</option><option>Local 2 - Familiar</option><option>Ambos locales familiares</option></select>
     </div>
@@ -1451,7 +1422,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
       <div class="field"><label>Costo unitario (CLP)</label><div class="fwrap"><span class="fpfx">$</span><input id="sc-ing-costo" class="pfx" type="number" placeholder="0"></div></div>
     </div>
     <div class="field"><label>Motivo / Referencia (opcional)</label><input id="sc-ing-nota" type="text" placeholder="Ej: Lote marzo JP · Factura #123"></div>
-    <button class="btn" onclick="scConfirmarIngreso()" style="background:rgba(21,128,61,.08);border-color:rgba(21,128,61,.25);color:#15803d;">📥 Agregar al stock →</button>
+    <button class="btn" onclick="scConfirmarIngreso()" style="background:rgba(21,128,61,.08);border-color:rgba(21,128,61,.25);color:var(--green);">📥 Agregar al stock →</button>
     <button class="btn sec" onclick="scCerrarPanel()" style="margin-top:7px;">Cancelar</button>
   </div>
 
@@ -1687,6 +1658,7 @@ function goTo(id) {
   if(id === 'skus')       renderSkuList();
   if(id === 'venta')      ventaGoTo1();
   if(id === 'scanner')    scInit();
+  if(id === 'compras')    renderCompras();
   if(id === 'notifs')     { renderNotificaciones(); clearNotifs(); }
   if(id === 'locales')    renderLocales();
 
@@ -1915,10 +1887,10 @@ function renderHistorial(filtro) {
     return;
   }
 
-  const canalColor = { Sotos:'#8A7A00', WhatsApp:'#15803d', Facebook:'var(--blue)', Sneakerheads:'var(--purple)', Devolución:'var(--red)' };
+  const canalColor = { Sotos:'#8A7A00', WhatsApp:'var(--green)', Facebook:'var(--blue)', Sneakerheads:'var(--purple)', Devolución:'var(--red)' };
   lista.innerHTML = ventas.map(v => {
     const isDev = v.canal === 'Devolución';
-    const ganColor = v.gan >= 0 ? '#15803d' : 'var(--red)';
+    const ganColor = v.gan >= 0 ? 'var(--green)' : 'var(--red)';
     const cc = canalColor[v.canal] || 'var(--muted)';
     return `
     <div class="sale" style="${isDev?'opacity:.75;border-color:rgba(255,68,68,.2);':''}">
@@ -2204,7 +2176,7 @@ function toast(msg, tipo='ok') {
   }
   t.textContent = msg;
   t.style.borderColor = tipo==='err' ? 'rgba(255,68,68,.4)' : tipo==='ok' ? 'rgba(59,255,138,.3)' : 'var(--bd)';
-  t.style.color = tipo==='err' ? 'var(--red)' : tipo==='ok' ? '#15803d' : 'var(--text)';
+  t.style.color = tipo==='err' ? 'var(--red)' : tipo==='ok' ? 'var(--green)' : 'var(--text)';
   t.style.opacity = '1';
   t.style.transform = 'translateX(-50%) translateY(0)';
   clearTimeout(t._timer);
@@ -2625,7 +2597,7 @@ function renderAnalisis(tab, btn) {
   }
 
   function progressRows(canales, totalIngresos) {
-    const canalColor = { Sotos:'#8A7A00', WhatsApp:'#15803d', Facebook:'var(--blue)', Sneakerheads:'var(--purple)' };
+    const canalColor = { Sotos:'#8A7A00', WhatsApp:'var(--green)', Facebook:'var(--blue)', Sneakerheads:'var(--purple)' };
     return canales.map((c,i) => {
       const pct = totalIngresos > 0 ? Math.round((c.ingresos/totalIngresos)*100) : 0;
       const col = canalColor[c.canal] || 'var(--muted)';
@@ -2725,7 +2697,7 @@ function renderAnalisis(tab, btn) {
         ${com > 0 ? kpiRow('🏪','Comisiones Sotos','−$'+fmt(com),'var(--orange)') : ''}
         <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;font-weight:700;font-size:14px;">
           <span>Ganancia neta</span>
-          <span style="font-family:'Archivo Black',sans-serif;color:${gan>=0?'#15803d':'var(--red)'};">$${fmt(gan)}</span>
+          <span style="font-family:'Archivo Black',sans-serif;color:${gan>=0?'var(--green)':'var(--red)'};">$${fmt(gan)}</span>
         </div>
       </div>
 
@@ -2741,7 +2713,7 @@ function renderAnalisis(tab, btn) {
         ${hoy.map(v=>`<div class="trow">
           <div style="font-size:20px;width:28px;flex-shrink:0;">${v.icon}</div>
           <div class="tinfo"><div class="tname">${v.nombre}</div><div class="tunits">${v.fecha.split('·')[1]?.trim()||''} · ${v.canal}</div></div>
-          <div class="tamt"><div class="trev">$${fmt(v.precio)}</div><div class="tmrg" style="color:#15803d;">+$${fmt(v.gan)}</div></div>
+          <div class="tamt"><div class="trev">$${fmt(v.precio)}</div><div class="tmrg" style="color:var(--green);">+$${fmt(v.gan)}</div></div>
         </div>`).join('')}
       </div>`;
     return;
@@ -2856,10 +2828,10 @@ function renderAnalisis(tab, btn) {
         ${kpiRow('💵','Ingresos brutos','$'+fmt(ing),'var(--text)')}
         ${kpiRow('📦','Costo mercadería','−$'+fmt(costos),'var(--red)')}
         ${coms > 0 ? kpiRow('🏪','Comisiones Sotos','−$'+fmt(coms),'var(--orange)') : ''}
-        ${kpiRow('📊','Margen bruto',margen+'%','#15803d')}
+        ${kpiRow('📊','Margen bruto',margen+'%','var(--green)')}
         <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;font-weight:700;font-size:14px;border-top:1px solid var(--bd);margin-top:4px;">
           <span>Ganancia neta</span>
-          <span style="font-family:'Archivo Black',sans-serif;font-size:16px;color:${gan>=0?'#15803d':'var(--red)'};">$${fmt(gan)}</span>
+          <span style="font-family:'Archivo Black',sans-serif;font-size:16px;color:${gan>=0?'var(--green)':'var(--red)'};">$${fmt(gan)}</span>
         </div>
       </div>
 
@@ -2999,7 +2971,7 @@ function renderAnalisis(tab, btn) {
       <!-- Semáforo de stock -->
       <div class="chart-box">
         <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Estado del inventario</div>
-        ${kpiRow('🟢','Con stock suficiente',ok.length+' SKUs','#15803d')}
+        ${kpiRow('🟢','Con stock suficiente',ok.length+' SKUs','var(--green)')}
         ${kpiRow('🟡','Se te va a acabar (≤2 ud.)',bajos.length+' SKUs','var(--orange)')}
         ${kpiRow('🔴','Agotados',agotados.length+' SKUs','var(--red)')}
         ${kpiRow('📦','Unidades en total',totalUds+' uds.','var(--text)')}
@@ -3191,6 +3163,50 @@ async function guardarCompra() {
 }
 
 // ══════════════════════════════════════════════════════
+//  COMPRAS — historial de lotes
+// ══════════════════════════════════════════════════════
+async function renderCompras() {
+  const el = document.getElementById('compras-lista');
+  if(!el) return;
+  el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px;">Cargando…</div>';
+  try {
+    const { data, error } = await sb.from('compras')
+      .select('id, fecha, origen, proveedor, referencia, total_pagado_clp, notas')
+      .order('fecha', { ascending: false })
+      .limit(30);
+    if(error) throw error;
+    if(!data || data.length === 0) {
+      el.innerHTML = `<div style="text-align:center;padding:32px 0;">
+        <div style="font-size:38px;margin-bottom:10px;">📦</div>
+        <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;">Sin lotes registrados</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Registra tu primer lote de inventario.</div>
+        <button class="btn" style="width:auto;padding:10px 22px;" onclick="goTo('nueva-compra')">+ Registrar compra</button>
+      </div>`;
+      return;
+    }
+    el.innerHTML = data.map(c => {
+      const origenLabel = c.origen === 'jp' ? '🇯🇵 Amazon JP' : '🏪 Proveedor local';
+      const fecha = c.fecha ? new Date(c.fecha+'T12:00:00').toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'}) : '—';
+      const desc  = c.referencia || c.notas || c.proveedor || 'Sin descripción';
+      const monto = c.total_pagado_clp ? '$'+fmt(c.total_pagado_clp) : '—';
+      const tag   = c.origen === 'jp' ? '<span class="ctag t-jp">🇯🇵 Japón</span>' : '<span class="ctag t-local">🏪 Local</span>';
+      return `<div class="ccard">
+        <div class="ccard-top">
+          <div style="flex:1;min-width:0;">
+            <div class="corigen">${origenLabel} · ${fecha}</div>
+            <div class="cdesc">${desc}</div>
+          </div>
+          <div class="ctotal"><div class="cmonto">${monto}</div></div>
+        </div>
+        <div class="ctags">${tag}</div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px;">Error al cargar. Revisa tu conexión.</div>';
+  }
+}
+
+// ══════════════════════════════════════════════════════
 //  REFRESH — recargar datos desde Supabase
 // ══════════════════════════════════════════════════════
 async function refreshData() {
@@ -3348,7 +3364,7 @@ function renderSkuList(filter='') {
     return;
   }
   list.innerHTML = items.map(s => {
-    const sc = s.stock===0?'var(--red)':s.stock<=2?'var(--orange)':'#15803d';
+    const sc = s.stock===0?'var(--red)':s.stock<=2?'var(--orange)':'var(--green)';
     const enc = safeEncode(s);
     return `
     <div class="sku-card">
@@ -3602,7 +3618,7 @@ function scProcessCode(code) {
   document.getElementById('sc-found-meta').textContent  = `${item.variante} · $${fmt(item.precio)}`;
   const stockEl = document.getElementById('sc-found-stock');
   stockEl.textContent = item.stock;
-  stockEl.style.color = item.stock===0?'var(--red)':item.stock<=2?'var(--orange)':'#15803d';
+  stockEl.style.color = item.stock===0?'var(--red)':item.stock<=2?'var(--orange)':'var(--green)';
 
   // Deshabilitar "venta" si sin stock
   const ventaBtn = document.querySelector('#sc-action-grid .action-btn.venta');
