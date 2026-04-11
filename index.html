@@ -202,9 +202,9 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 /* ─── TYPOGRAPHY ─── */
 .ptitle{font-family:'Archivo Black',sans-serif;font-size:21px;letter-spacing:-.5px;padding:16px 0 3px;}
 .psub{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5;}
-.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;margin-top:2px;}
-.sec-title{font-family:'Archivo Black',sans-serif;font-size:14px;letter-spacing:-.2px;}
-.sec-link{font-size:11px;color:var(--accent);cursor:pointer;font-weight:600;}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;margin-top:0;}
+.sec-title{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.2px;text-transform:uppercase;}
+.sec-link{font-size:11px;color:var(--muted);cursor:pointer;font-weight:500;}
 .mono-lbl{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;}
 .divider{height:1px;background:var(--bd);margin:4px 0 16px;}
 
@@ -216,14 +216,11 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .card.g{background:var(--gdim);border-color:rgba(59,255,138,.18);}
 
 /* ─── HERO ─── */
-.hero{background:var(--sf);border:1px solid var(--bd);border-radius:19px;padding:22px;margin:11px 0 13px;cursor:pointer;transition:border-color .2s,box-shadow .2s;}
-.hero:hover{border-color:var(--bd2);box-shadow:0 4px 16px rgba(0,0,0,.06);}
+.hero{background:var(--sf);border:1px solid var(--bd);border-radius:18px;padding:24px 22px 22px;margin:12px 0 24px;cursor:pointer;transition:border-color .2s;}
+.hero:hover{border-color:var(--bd2);}
 .hero::after{display:none;}
-.hero-lbl{font-size:11px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
-.hero-amt{font-family:'Archivo Black',sans-serif;font-size:48px;color:var(--text);line-height:1;letter-spacing:-2px;}
-.hero-sub{font-size:11px;color:var(--muted);margin-top:11px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
-.hero-badge{background:var(--sf2);border:1px solid var(--bd);border-radius:20px;padding:3px 9px;font-size:11px;font-weight:700;color:var(--text);}
-.hero-tap{font-size:10px;color:var(--muted2);margin-top:7px;}
+.hero-lbl{font-size:11px;font-weight:500;letter-spacing:.2px;color:var(--muted);margin-bottom:10px;}
+.hero-amt{font-family:'Archivo Black',sans-serif;font-size:52px;color:var(--text);line-height:1;letter-spacing:-2.5px;}
 
 /* ─── STAT GRID ─── */
 .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px;}
@@ -723,7 +720,6 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .chart-val{color:var(--text);}
 .chart-title{color:var(--muted);}
 .sec-link{color:var(--muted);}
-.sec-title{font-size:13px;font-weight:600;color:var(--muted);}
 .mono-lbl{color:var(--muted);letter-spacing:.3px;text-transform:none;font-size:11px;}
 .trank.f{color:var(--text);}
 .trev{color:var(--text);}
@@ -793,30 +789,26 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 <!-- ════════════════════════════ DASHBOARD ════════════════════════════ -->
 <div class="screen active" id="screen-dashboard">
 
-  <!-- 1. BLOQUE PRINCIPAL -->
+  <!-- 1. HERO -->
   <div class="hero" onclick="goTo('analisis')">
     <div class="hero-lbl">Esto te quedó este mes</div>
     <div class="hero-amt" id="dash-hero-gan">$—</div>
-    <div class="hero-sub">
-      <span id="dash-hero-mes">—</span>
-      <span class="hero-badge" id="dash-hero-roi">—</span>
+    <div style="font-size:12px;color:var(--muted);margin-top:10px;" id="dash-hero-mes">—</div>
+  </div>
+
+  <!-- 2. ACCIONES UNIFICADAS -->
+  <div id="dash-acciones-section">
+    <div class="sec-hdr" style="margin-bottom:4px;">
+      <div class="sec-title">Hoy deberías hacer esto</div>
     </div>
+    <div id="dash-acciones" style="margin-bottom:28px;"></div>
   </div>
 
-  <!-- 2. BLOQUE DE URGENCIAS -->
-  <div id="dash-urgencias-section">
-    <div class="sec-hdr"><div class="sec-title">Urgente</div><div class="sec-link" onclick="goTo('inventario')">Ver stock →</div></div>
-    <div id="dash-alertas" style="margin-bottom:20px;"></div>
+  <!-- 3. ÚLTIMA ACTIVIDAD -->
+  <div class="sec-hdr" style="margin-bottom:12px;">
+    <div class="sec-title">Última actividad</div>
+    <div class="sec-link" onclick="goTo('historial')">Ver todo →</div>
   </div>
-
-  <!-- 3. BLOQUE DE ACCIÓN -->
-  <div id="dash-insights-section" style="display:none;margin-bottom:4px;">
-    <div class="sec-hdr"><div class="sec-title">Para decidir</div><div class="sec-link" onclick="goTo('analisis')">Ver análisis →</div></div>
-    <div id="dash-insights" style="margin-bottom:20px;"></div>
-  </div>
-
-  <!-- 4. ACTIVIDAD RECIENTE -->
-  <div class="sec-hdr"><div class="sec-title">Última actividad</div><div class="sec-link" onclick="goTo('historial')">Ver todo →</div></div>
   <div id="dash-last-sales" style="margin-bottom:8px;"></div>
 
   <div class="spacer"></div>
@@ -1696,149 +1688,137 @@ function esVentaMes(v) {
 }
 
 function renderDashboard() {
-  // Últimas 4 ventas
+  const mesesNom = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const mesActual = mesesNom[new Date().getMonth()] + ' ' + new Date().getFullYear();
+  const set = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+
+  // ── Stats del mes ──
+  const ventasMes = ventasDB.filter(v => esVentaMes(v) && !v.nombre.startsWith('↩️'));
+  const ganMes    = ventasMes.reduce((s,v) => s+v.gan, 0);
+
+  set('dash-hero-gan', '$'+fmt(ganMes));
+  set('dash-hero-mes', mesActual);
+
+  // ── Sección unificada: "Hoy deberías hacer esto" ──
+  const accionesWrap = document.getElementById('dash-acciones');
+  const accionesSection = document.getElementById('dash-acciones-section');
+  if (accionesWrap) {
+    const items = [];
+
+    // 1. Agotados (crítico)
+    skuDB.filter(s => s.stock === 0).slice(0,2).forEach(s => {
+      items.push({
+        dot: 'var(--red)', dest: 'inventario',
+        text: `<b>${s.nombre}</b> se agotó — hay que reponer`,
+        sub: s.variante
+      });
+    });
+
+    // 2. Bajo stock
+    skuDB.filter(s => s.stock > 0 && s.stock <= 2).slice(0,2).forEach(s => {
+      items.push({
+        dot: 'var(--muted2)', dest: 'inventario',
+        text: `<b>${s.nombre}</b> solo tiene ${s.stock} unidad${s.stock>1?'es':''}`,
+        sub: s.variante
+      });
+    });
+
+    // 3. Capital parado
+    const nombresVendidos = new Set(ventasDB.map(v => v.nombre));
+    const parados = skuDB.filter(s => s.stock > 2 && !nombresVendidos.has(s.nombre));
+    if (parados.length > 0) {
+      const p = parados.sort((a,b) => (b.precio*b.stock)-(a.precio*a.stock))[0];
+      items.push({
+        dot: 'var(--muted2)', dest: 'inventario',
+        text: `<b>${p.nombre}</b> no se ha vendido — $${fmt(p.precio*p.stock)} parados`,
+        sub: `${p.stock} unidades en stock`
+      });
+    }
+
+    // 4. Producto más rentable del mes
+    const porProd = {};
+    ventasMes.forEach(v => {
+      if(!porProd[v.nombre]) porProd[v.nombre] = { gan:0, ing:0 };
+      porProd[v.nombre].gan += v.gan;
+      porProd[v.nombre].ing += v.precio;
+    });
+    const prodsArr = Object.entries(porProd).sort((a,b)=>b[1].gan-a[1].gan);
+    if (prodsArr.length > 0) {
+      const [nom, d] = prodsArr[0];
+      const mrg = d.ing > 0 ? Math.round((d.gan/d.ing)*100) : 0;
+      if (mrg > 35) {
+        items.push({
+          dot: 'var(--green)', dest: 'analisis',
+          text: `<b>${nom}</b> es tu producto más rentable este mes`,
+          sub: `${mrg}% de margen sobre lo vendido`
+        });
+      }
+    }
+
+    if (items.length === 0) {
+      accionesWrap.innerHTML = `<div style="padding:14px 0;font-size:13px;color:var(--muted);">Todo en orden. Registra ventas para ver recomendaciones.</div>`;
+    } else {
+      accionesWrap.innerHTML = items.map((it,i) => `
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-bottom:${i<items.length-1?'1px solid var(--bd)':'none'};cursor:pointer;" onclick="goTo('${it.dest}')">
+          <div style="width:7px;height:7px;border-radius:50%;background:${it.dot};flex-shrink:0;margin-top:5px;"></div>
+          <div style="flex:1;">
+            <div style="font-size:13px;line-height:1.45;color:var(--text);">${it.text}</div>
+            ${it.sub ? `<div style="font-size:11px;color:var(--muted);margin-top:2px;">${it.sub}</div>` : ''}
+          </div>
+        </div>`).join('');
+    }
+  }
+
+  // ── Última actividad: primera venta destacada + lista ──
   const wrap = document.getElementById('dash-last-sales');
-  if(wrap) {
+  if (wrap) {
     const ventasReales = ventasDB.filter(v => !v.nombre.startsWith('↩️'));
-    if(ventasReales.length === 0) {
+    if (ventasReales.length === 0) {
       const tieneProductos = skuDB.length > 0;
       wrap.innerHTML = `
-        <div style="text-align:center;padding:28px 16px;background:var(--sf);border:1px solid var(--bd);border-radius:15px;margin-bottom:11px;">
-          <div style="font-size:44px;margin-bottom:11px;">${tieneProductos ? '🛍️' : '📦'}</div>
-          <div style="font-family:'Archivo Black',sans-serif;font-size:16px;margin-bottom:7px;letter-spacing:-.3px;">
+        <div style="padding:28px 0 16px;text-align:center;">
+          <div style="font-family:'Archivo Black',sans-serif;font-size:15px;margin-bottom:8px;letter-spacing:-.2px;">
             ${tieneProductos ? 'Registra tu primera venta' : 'Empieza aquí'}
           </div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.6;max-width:260px;margin-left:auto;margin-right:auto;">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.6;max-width:260px;margin-inline:auto;">
             ${tieneProductos
               ? 'Tienes productos en inventario. Registra una venta y ve cuánto ganaste al instante.'
               : 'Agrega tu primer producto al inventario y empieza a registrar ventas.'}
           </div>
-          <button class="btn" style="width:auto;padding:13px 28px;font-size:14px;margin:0;"
-            onclick="goTo('${tieneProductos ? 'scanner' : 'skus'}')">
-            ${tieneProductos ? '📷 Registrar venta →' : '+ Agregar producto →'}
+          <button class="btn" style="width:auto;padding:13px 28px;font-size:13px;margin:0;"
+            onclick="goTo('${tieneProductos?'venta':'skus'}')">
+            ${tieneProductos ? 'Registrar venta →' : '+ Agregar producto →'}
           </button>
         </div>`;
     } else {
-      wrap.innerHTML = ventasReales.slice(0,4).map(v => `
-        <div class="sale" onclick="goTo('historial')">
-          <div class="sale-thumb">${v.icon}</div>
-          <div class="sale-info">
-            <div class="sale-name">${v.nombre}</div>
-            <div class="sale-meta">${v.fecha} · ${v.variante}</div>
+      const primera = ventasReales[0];
+      const resto   = ventasReales.slice(1,4);
+      wrap.innerHTML = `
+        <div style="background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:18px;margin-bottom:1px;cursor:pointer;" onclick="goTo('historial')">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">${primera.fecha} · ${primera.canal}</div>
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+            <div style="flex:1;min-width:0;">
+              <div style="font-family:'Archivo Black',sans-serif;font-size:17px;letter-spacing:-.3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${primera.nombre}</div>
+              <div style="font-size:11px;color:var(--muted);">${primera.variante}</div>
+            </div>
+            <div style="text-align:right;flex-shrink:0;">
+              <div style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;letter-spacing:-.5px;">$${fmt(primera.precio)}</div>
+              <div style="font-size:11px;color:var(--green);margin-top:1px;">+$${fmt(primera.gan)}</div>
+            </div>
           </div>
-          <div class="sale-r">
-            <div class="sale-amt">$${fmt(v.precio)}</div>
-            <div class="sale-profit">+$${fmt(v.gan)}</div>
+        </div>
+        ${resto.map(v => `
+        <div style="display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid var(--bd);cursor:pointer;" onclick="goTo('historial')">
+          <div style="width:32px;height:32px;background:var(--sf2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">${v.icon}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${v.nombre}</div>
+            <div style="font-size:10px;color:var(--muted);">${v.fecha}</div>
           </div>
-        </div>`).join('');
-    }
-  }
-
-  // Stats mes actual — dinámico
-  const ventasMes  = ventasDB.filter(v => esVentaMes(v) && !v.nombre.startsWith('↩️'));
-  const ganMes     = ventasMes.reduce((s,v) => s+v.gan, 0);
-  const ingrMes    = ventasMes.reduce((s,v) => s+v.precio, 0);
-  const costoMes   = ventasMes.reduce((s,v) => s+(v.costo||0), 0);
-  const nVentas    = ventasMes.length;
-  const stockCrit  = skuDB.filter(s => s.stock === 0).length;
-  const stockBajo  = skuDB.filter(s => s.stock > 0 && s.stock <= 2).length;
-  const roiMes     = costoMes > 0 ? Math.round((ganMes/costoMes)*100) : 0;
-
-  // Alertas dinámicas de stock
-  const alertasWrap = document.getElementById('dash-alertas');
-  if(alertasWrap) {
-    const criticos = skuDB.filter(s => s.stock === 0);
-    const bajos    = skuDB.filter(s => s.stock > 0 && s.stock <= 2);
-    let alertHtml = '';
-    criticos.slice(0,2).forEach(s => {
-      alertHtml += `<div class="alert red" onclick="goTo('inventario')"><div class="alert-icon">${s.icon}</div><div class="alert-body"><div class="alert-name">${s.nombre}</div><div class="alert-detail">${s.variante} — Agotado</div></div><div class="alert-stock">0 ud.</div></div>`;
-    });
-    bajos.slice(0,2).forEach(s => {
-      alertHtml += `<div class="alert orange" onclick="goTo('inventario')"><div class="alert-icon">${s.icon}</div><div class="alert-body"><div class="alert-name">${s.nombre}</div><div class="alert-detail">${s.variante} — Se te va a acabar</div></div><div class="alert-stock">${s.stock} ud.</div></div>`;
-    });
-    if(!alertHtml) alertHtml = `<div style="padding:12px;font-size:12px;color:#15803d;text-align:center;">✓ Todo el stock en orden</div>`;
-    alertasWrap.innerHTML = alertHtml;
-  }
-
-  const mesesNom = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  const mesActual = mesesNom[new Date().getMonth()] + ' ' + new Date().getFullYear();
-
-  const set = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
-  const mesesCortos = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-  const mesCorto = mesesCortos[new Date().getMonth()];
-  const totalProductos = Object.keys((() => {
-    const g={}; skuDB.forEach(s=>{ g[s.nombre]=1; }); return g;
-  })()).length;
-
-  set('dash-hero-gan', '$'+fmt(ganMes));
-  set('dash-hero-mes', mesActual);
-  set('dash-hero-roi', roiMes > 0 ? `ROI ${roiMes}%` : nVentas > 0 ? `${nVentas} ventas` : 'Sin ventas aún');
-
-  // ── Insights accionables desde datos reales ──
-  const insightsSection = document.getElementById('dash-insights-section');
-  const insightsWrap    = document.getElementById('dash-insights');
-  if (insightsWrap) {
-    const insights = [];
-
-    // Canal más rentable (solo si hay 2+ canales con ventas este mes)
-    const porCanal = {};
-    ventasMes.forEach(v => {
-      if (!porCanal[v.canal]) porCanal[v.canal] = { n: 0, gan: 0 };
-      porCanal[v.canal].n++;
-      porCanal[v.canal].gan += v.gan;
-    });
-    const canalesArr = Object.entries(porCanal).sort((a,b) => b[1].gan - a[1].gan);
-    if (canalesArr.length >= 2) {
-      const [top] = canalesArr;
-      insights.push({ color:'#B8A800', icon:'🏆',
-        text:`Tu canal más rentable este mes fue <b>${top[0]}</b> — te dejó $${fmt(top[1].gan)} de ganancia.` });
-    }
-
-    // Producto sin movimiento con capital parado
-    const nombresVendidos = new Set(ventasDB.map(v => v.nombre));
-    const parados = skuDB.filter(s => s.stock > 2 && !nombresVendidos.has(s.nombre));
-    if (parados.length > 0) {
-      const p = parados.sort((a,b) => (b.precio*b.stock) - (a.precio*a.stock))[0];
-      const val = p.precio * p.stock;
-      insights.push({ color:'var(--orange)', icon:'📦',
-        text:`<b>${p.nombre}</b> no se ha vendido — tienes <b>$${fmt(val)}</b> parados ahí.` });
-    }
-
-    // Stock crítico con nombre específico
-    const criticos = skuDB.filter(s => s.stock > 0 && s.stock <= 2).sort((a,b) => a.stock - b.stock);
-    if (criticos.length > 0) {
-      const c = criticos[0];
-      insights.push({ color:'var(--red)', icon:'⚠️',
-        text:`Se te va a acabar el stock de <b>${c.nombre}</b> — solo quedan <b>${c.stock} ud.</b>` });
-    }
-
-    // Producto más rentable del mes (si hay margen alto)
-    const porProd = {};
-    ventasMes.forEach(v => {
-      if (!porProd[v.nombre]) porProd[v.nombre] = { gan: 0, ingresos: 0 };
-      porProd[v.nombre].gan      += v.gan;
-      porProd[v.nombre].ingresos += v.precio;
-    });
-    const prodsArr = Object.entries(porProd).sort((a,b) => b[1].gan - a[1].gan);
-    if (prodsArr.length > 0) {
-      const [topNom, topData] = prodsArr[0];
-      const margenTop = topData.ingresos > 0 ? Math.round((topData.gan / topData.ingresos) * 100) : 0;
-      if (margenTop > 40) {
-        insights.push({ color:'#15803d', icon:'🔥',
-          text:`<b>${topNom}</b> es tu producto más rentable — margen del <b>${margenTop}%</b> sobre lo vendido.` });
-      }
-    }
-
-    if (insights.length > 0) {
-      if (insightsSection) insightsSection.style.display = '';
-      insightsWrap.innerHTML = insights.slice(0, 4).map(ins => `
-        <div style="background:#FFFFFF;border:1px solid var(--bd);border-left:3px solid ${ins.color};border-radius:12px;padding:13px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;cursor:pointer;" onclick="goTo('analisis')">
-          <span style="font-size:18px;flex-shrink:0;">${ins.icon}</span>
-          <div style="flex:1;font-size:12px;line-height:1.55;color:var(--text);">${ins.text}</div>
-          <span style="font-size:12px;color:var(--muted);flex-shrink:0;margin-top:1px;">→</span>
-        </div>`).join('');
-    } else {
-      if (insightsSection) insightsSection.style.display = 'none';
+          <div style="text-align:right;flex-shrink:0;">
+            <div style="font-family:'DM Mono',monospace;font-size:12px;">$${fmt(v.precio)}</div>
+            <div style="font-size:10px;color:var(--green);">+$${fmt(v.gan)}</div>
+          </div>
+        </div>`).join('')}`;
     }
   }
 
