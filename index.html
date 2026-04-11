@@ -396,6 +396,26 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .ochk{width:19px;height:19px;border-radius:50%;border:1.5px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;transition:all .15s;}
 .opt.sel .ochk{background:var(--accent);border-color:var(--accent);color:var(--bg);}
 
+/* ─── NUEVA VENTA ─── */
+.venta-search{width:100%;background:var(--sf);border:2px solid var(--bd);border-radius:14px;padding:16px 18px;color:var(--text);font-family:'Archivo',sans-serif;font-size:17px;outline:none;transition:border-color .15s;display:block;box-sizing:border-box;margin-bottom:16px;}
+.venta-search::placeholder{color:var(--muted);}
+.venta-search:focus{border-color:var(--text);}
+.pill-group{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:4px;}
+.pill{padding:9px 14px;border:1.5px solid var(--bd);border-radius:100px;font-size:13px;font-weight:500;color:var(--muted);background:var(--sf);cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;}
+.pill:active{transform:scale(.97);}
+.pill.sel{border-color:var(--text);color:var(--text);background:var(--sf2);font-weight:700;}
+.vprod-item{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--bd);cursor:pointer;transition:opacity .1s;}
+.vprod-item:last-child{border-bottom:none;}
+.vprod-item:active{opacity:.6;}
+.vprod-item.no-stock{opacity:.35;cursor:default;pointer-events:none;}
+.vprod-icon{font-size:22px;flex-shrink:0;width:30px;text-align:center;}
+.vprod-info{flex:1;min-width:0;}
+.vprod-name{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.vprod-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.vprod-right{text-align:right;flex-shrink:0;}
+.vprod-price{font-family:'Archivo Black',sans-serif;font-size:14px;color:var(--text);}
+.vprod-stock{font-size:11px;font-family:'DM Mono',monospace;margin-top:2px;}
+
 /* ─── PERIOD BUTTONS ─── */
 .periods{display:flex;gap:5px;margin:12px 0 14px;background:var(--sf);border:1px solid var(--bd);border-radius:11px;padding:3px;}
 .pb{flex:1;text-align:center;padding:7px 4px;border-radius:8px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;}
@@ -871,7 +891,6 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
 <!-- ════════════════════════════ NUEVA VENTA ════════════════════════════ -->
 <div class="screen" id="screen-venta">
-  <div class="ptitle">Nueva venta</div>
 
   <!-- indicador de pasos -->
   <div class="steps" id="venta-steps">
@@ -880,131 +899,97 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
     <div class="sdot" id="sd3">3</div>
   </div>
 
-  <!-- ── PASO 1: BUSCAR / ESCANEAR PRODUCTO ── -->
+  <!-- ── PASO 1: BUSCAR PRODUCTO ── -->
   <div id="vs1">
-    <div class="mono-lbl">Paso 1 de 3 · Producto</div>
-    <p style="font-family:'Archivo Black',sans-serif;font-size:18px;margin-bottom:14px;letter-spacing:-.3px;">¿Qué estás vendiendo?</p>
-
-    <!-- Buscador — opción principal -->
-    <input id="venta-scan-input" type="text"
-      style="width:100%;background:var(--sf);border:1.5px solid var(--bd);border-radius:12px;padding:14px 16px;color:var(--text);font-family:'Archivo',sans-serif;font-size:15px;outline:none;transition:border-color .15s;margin-bottom:10px;display:block;"
-      placeholder="Busca por nombre: Nike, Jordan, BAPE…"
-      autocomplete="off" oninput="ventaBuscar(this.value)" onkeydown="ventaScanKey(event)"
-      onfocus="this.style.borderColor='var(--text)'" onblur="this.style.borderColor='var(--bd)'">
-
-    <!-- Escáner — opción secundaria -->
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-      <div style="flex:1;height:1px;background:var(--bd);"></div>
-      <span style="font-size:11px;color:var(--muted2);flex-shrink:0;">o</span>
-      <div style="flex:1;height:1px;background:var(--bd);"></div>
-    </div>
-    <div style="text-align:center;margin-bottom:16px;">
-      <button class="btn sec" style="width:auto;padding:10px 22px;font-size:12px;" onclick="goTo('scanner')">📷 Escanear código de barras</button>
-    </div>
-
-    <!-- resultados de búsqueda -->
-    <div id="venta-resultados" style="margin-bottom:4px;"></div>
-
-    <!-- lista completa del inventario (visible al abrir) -->
-    <div class="sec-hdr" style="margin-top:10px;">
-      <div class="sec-title" style="font-size:12px;color:var(--muted);">O elige de tu inventario</div>
-    </div>
+    <input id="venta-scan-input" type="text" class="venta-search"
+      placeholder="Buscar producto..."
+      autocomplete="off"
+      oninput="ventaBuscar(this.value)"
+      onkeydown="ventaScanKey(event)">
+    <div id="venta-resultados" style="font-size:11px;color:var(--muted);margin-bottom:8px;min-height:16px;"></div>
     <div id="venta-inv-lista"></div>
   </div>
 
-  <!-- ── PASO 2: CANAL + PRECIO ── -->
+  <!-- ── PASO 2: CONFIRMAR VENTA ── -->
   <div id="vs2" style="display:none;">
-    <div class="mono-lbl">Paso 2 de 3 · Canal y precio</div>
 
-    <!-- producto seleccionado (mini card) -->
-    <div id="v-prod-card" style="background:var(--adim);border:1px solid rgba(232,255,59,.2);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:16px;cursor:pointer;" onclick="ventaVolver()">
-      <span id="v-prod-icon" style="font-size:22px;">📦</span>
+    <!-- producto seleccionado -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--bd);">
+      <div id="v-prod-icon" style="font-size:30px;flex-shrink:0;">📦</div>
       <div style="flex:1;min-width:0;">
-        <div id="v-prod-nombre" style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
-        <div id="v-prod-meta" style="font-size:10px;color:var(--muted);"></div>
+        <div id="v-prod-nombre" style="font-family:'Archivo Black',sans-serif;font-size:19px;color:var(--text);letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1;"></div>
+        <div id="v-prod-meta" style="font-size:12px;color:var(--muted);margin-top:4px;"></div>
       </div>
-      <span style="font-size:10px;color:var(--muted);">← cambiar</span>
+      <span style="font-size:12px;color:var(--muted);flex-shrink:0;cursor:pointer;padding:4px 0;" onclick="ventaVolver()">cambiar</span>
+    </div>
+
+    <!-- precio y cantidad -->
+    <div class="frow" style="margin-bottom:20px;">
+      <div class="field">
+        <label>Precio de venta</label>
+        <div class="fwrap"><span class="fpfx">$</span><input id="v-precio" class="pfx" type="number" oninput="recalcVenta()" style="font-size:20px;font-family:'Archivo Black',sans-serif;letter-spacing:-.5px;"></div>
+      </div>
+      <div class="field" style="max-width:90px;">
+        <label>Cantidad</label>
+        <input id="v-cant" type="number" value="1" min="1" oninput="recalcVenta()" style="font-size:20px;font-family:'Archivo Black',sans-serif;text-align:center;">
+      </div>
     </div>
 
     <!-- canal -->
-    <div style="margin-bottom:14px;">
-      <div class="mono-lbl">Canal de venta</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;" id="canal-grid">
-        <div class="opt sel" id="vc-sotos"  onclick="selCanalV(this,'Sotos')"><div class="oico" style="font-size:17px;">🏪</div><div class="oinfo"><div class="oname" style="font-size:12px;">Sotos</div><div class="osub">15% · tope $10k</div></div></div>
-        <div class="opt"     id="vc-wsp"    onclick="selCanalV(this,'WhatsApp')"><div class="oico" style="font-size:17px;">💬</div><div class="oinfo"><div class="oname" style="font-size:12px;">WhatsApp</div><div class="osub">Sin comisión</div></div></div>
-        <div class="opt"     id="vc-fb"     onclick="selCanalV(this,'Facebook')"><div class="oico" style="font-size:17px;">📘</div><div class="oinfo"><div class="oname" style="font-size:12px;">Facebook</div><div class="osub">Sin comisión</div></div></div>
-        <div class="opt"     id="vc-snkr"   onclick="selCanalV(this,'Sneakerheads')"><div class="oico" style="font-size:17px;">👥</div><div class="oinfo"><div class="oname" style="font-size:12px;">Sneakerheads</div><div class="osub">Sin comisión</div></div></div>
+    <div style="margin-bottom:18px;">
+      <div class="mono-lbl" style="margin-bottom:9px;">Canal</div>
+      <div class="pill-group" id="canal-grid">
+        <div class="pill sel" id="vc-sotos"  onclick="selCanalV(this,'Sotos')">🏪 Sotos</div>
+        <div class="pill"     id="vc-wsp"    onclick="selCanalV(this,'WhatsApp')">💬 WhatsApp</div>
+        <div class="pill"     id="vc-fb"     onclick="selCanalV(this,'Facebook')">📘 Facebook</div>
+        <div class="pill"     id="vc-pres"   onclick="selCanalV(this,'Presencial')">🤝 Presencial</div>
       </div>
     </div>
 
-    <!-- precio y pago -->
-    <div class="frow">
-      <div class="field">
-        <label>Precio de venta</label>
-        <div class="fwrap"><span class="fpfx">$</span><input id="v-precio" class="pfx" type="number" oninput="recalcVenta()"></div>
+    <!-- método de pago -->
+    <div style="margin-bottom:20px;">
+      <div class="mono-lbl" style="margin-bottom:9px;">Método de pago</div>
+      <div class="pill-group" id="pago-grid">
+        <div class="pill sel" id="vp-transf"  onclick="selPagoV(this,'Transferencia')">Transferencia</div>
+        <div class="pill"     id="vp-efec"    onclick="selPagoV(this,'Efectivo')">Efectivo</div>
+        <div class="pill"     id="vp-tarjeta" onclick="selPagoV(this,'Tarjeta')">Tarjeta</div>
       </div>
-      <div class="field">
-        <label>Cantidad</label>
-        <input id="v-cant" type="number" value="1" min="1" oninput="recalcVenta()">
-      </div>
-    </div>
-    <div class="frow">
-      <div class="field">
-        <label>Método de pago</label>
-        <select id="v-pago">
-          <option>Transferencia</option><option>Efectivo</option>
-          <option>MercadoPago</option><option>Abono + saldo</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Envío</label>
-        <select id="v-envio">
-          <option>Presencial</option><option>Starken</option>
-          <option>Chilexpress</option><option>Otro courier</option>
-        </select>
-      </div>
-    </div>
-    <div class="field">
-      <label>Notas (opcional)</label>
-      <textarea id="v-notas" placeholder="Ej: cliente pagó abono de $20.000…" style="min-height:56px;"></textarea>
     </div>
 
-    <!-- resumen en vivo -->
-    <div class="sum-card">
-      <div class="srow"><span class="sk">Producto</span><span class="sv" id="vs-prod">—</span></div>
-      <div class="srow"><span class="sk">Canal</span><span class="sv" id="vs-canal">Sotos</span></div>
-      <div class="srow"><span class="sk">Precio × cant.</span><span class="sv" id="vs-precio">—</span></div>
-      <div class="srow"><span class="sk" id="vs-com-lbl">Comisión</span><span class="sv r" id="vs-com">—</span></div>
-      <div class="srow"><span class="sk">Costo unitario</span><span class="sv r" id="vs-costo">—</span></div>
-      <div class="srow tot"><span class="sk">Ganancia neta</span><span class="sv g" style="font-size:15px;" id="vs-gan">—</span></div>
+    <!-- ganancia preview -->
+    <div id="v-gan-preview" style="background:var(--gdim);border:1px solid rgba(30,158,99,.2);border-radius:12px;padding:13px 16px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:13px;color:var(--muted);">Ganancia estimada</span>
+      <span id="vs-gan" style="font-family:'Archivo Black',sans-serif;font-size:20px;color:var(--green);letter-spacing:-.5px;">$—</span>
     </div>
 
-    <button class="btn" onclick="ventaConfirmar()">Confirmar y registrar →</button>
+    <button class="btn" id="venta-confirmar-btn" onclick="ventaConfirmar()">Registrar venta →</button>
     <button class="btn sec" onclick="ventaVolver()" style="margin-top:8px;">← Cambiar producto</button>
   </div>
 
-  <!-- ── PASO 3: CONFIRMACIÓN ── -->
+  <!-- ── PASO 3: RESULTADO ── -->
   <div id="vs3" style="display:none;">
     <div class="confirm-center">
-      <div class="confirm-icon">✅</div>
+      <div style="font-size:52px;margin-bottom:12px;">✅</div>
       <div class="confirm-title">¡Venta registrada!</div>
-      <div class="confirm-sub" id="vc-sub">Stock actualizado automáticamente.</div>
-      <div class="sum-card" style="text-align:left;">
-        <div class="srow"><span class="sk">Producto</span><span class="sv" id="vc-prod">—</span></div>
-        <div class="srow"><span class="sk">SKU</span><span class="sv" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);" id="vc-sku">—</span></div>
-        <div class="srow"><span class="sk">Canal</span><span class="sv" id="vc-canal">—</span></div>
-        <div class="srow"><span class="sk">Pago</span><span class="sv" id="vc-pago">—</span></div>
-        <div class="srow"><span class="sk">Recibiste</span><span class="sv g" id="vc-recibe">—</span></div>
-        <div class="srow"><span class="sk">Costo</span><span class="sv r" id="vc-costo">—</span></div>
-        <div class="srow tot"><span class="sk">Ganancia neta</span><span class="sv g" style="font-size:15px;" id="vc-gan">—</span></div>
-        <div class="srow"><span class="sk">Stock restante</span><span class="sv" id="vc-stock">—</span></div>
+      <div class="confirm-sub" id="vc-sub">Guardado en Cuanti.</div>
+
+      <!-- ganancia grande -->
+      <div style="margin:28px 0 20px;">
+        <div style="font-size:12px;color:var(--muted);font-weight:500;margin-bottom:6px;letter-spacing:.3px;">GANASTE</div>
+        <div id="vc-gan" style="font-family:'Archivo Black',sans-serif;font-size:56px;color:var(--green);letter-spacing:-3px;line-height:1;">$—</div>
+        <div id="vc-prod" style="font-size:13px;color:var(--muted);margin-top:8px;"></div>
       </div>
-      <div id="vc-insight"></div>
+
+      <!-- stock restante -->
+      <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:13px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:13px;color:var(--muted);">Stock restante</span>
+        <span id="vc-stock" class="sv" style="font-size:14px;font-family:'DM Mono',monospace;">—</span>
+      </div>
+
+      <div id="vc-insight" style="margin-bottom:4px;"></div>
+
       <button class="btn" onclick="resetVenta()">+ Nueva venta</button>
-      <div class="btn-row">
-        <button class="btn sec" onclick="goTo('historial')">Ver historial →</button>
-        <button class="btn sec" onclick="goTo('dashboard')">🏠 Inicio</button>
-      </div>
+      <button class="btn sec" style="margin-top:8px;" onclick="goTo('historial')">Ver historial →</button>
     </div>
   </div>
 
@@ -2233,6 +2218,7 @@ function selChip(el) {
 const ventaState = {
   sku:   null,
   canal: 'Sotos',
+  pago:  'Transferencia',
 };
 
 function ventaGoTo1() {
@@ -2267,29 +2253,39 @@ function ventaSetPaso(p) {
 // Renderizar lista inventario en paso 1
 function ventaRenderInventario(filter='') {
   const lista = document.getElementById('venta-inv-lista');
+  const res   = document.getElementById('venta-resultados');
   if(!lista) return;
-  lista.style.display = '';
   const q = filter.toLowerCase();
-  const items = skuDB.filter(s => s.stock > 0 &&
-    (!q || s.nombre.toLowerCase().includes(q) ||
-           s.sku.toLowerCase().includes(q)    ||
-           s.variante.toLowerCase().includes(q)));
+  let items = q
+    ? skuDB.filter(s =>
+        s.nombre.toLowerCase().includes(q) ||
+        s.sku.toLowerCase().includes(q)    ||
+        s.variante.toLowerCase().includes(q))
+    : [...skuDB];
+  // ordenar: con stock primero, luego alfabético
+  items.sort((a,b) => {
+    if(a.stock>0 && b.stock<=0) return -1;
+    if(a.stock<=0 && b.stock>0) return 1;
+    return a.nombre.localeCompare(b.nombre);
+  });
+  if(res) res.textContent = q && items.length > 0 ? `${items.length} resultado${items.length>1?'s':''}` : '';
   if(items.length === 0) {
-    lista.innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px;">${filter ? 'Sin coincidencias' : 'Sin stock disponible'}</div>`;
+    lista.innerHTML = `<div style="text-align:center;padding:28px 0;color:var(--muted);font-size:13px;">${q ? 'Sin resultados para "'+q+'"' : 'Sin productos en inventario'}</div>`;
     return;
   }
   lista.innerHTML = items.map(s => {
-    const sc = s.stock<=1 ? 'var(--red)' : s.stock<=3 ? 'var(--orange)' : '#15803d';
+    const noStock = s.stock <= 0;
+    const sc = s.stock<=1 ? 'var(--red)' : s.stock<=3 ? 'var(--orange)' : 'var(--green)';
     const enc = safeEncode(s);
-    return `<div class="opt" onclick="ventaSelProductEncoded('${enc}')" style="margin-bottom:7px;">
-      <div class="oico" style="font-size:19px;">${s.icon}</div>
-      <div class="oinfo">
-        <div class="oname" style="font-size:12px;">${s.nombre}</div>
-        <div class="osub">${s.sku} · ${s.variante}</div>
+    return `<div class="vprod-item${noStock?' no-stock':''}"${noStock?'':` onclick="ventaSelProductEncoded('${enc}')"`}>
+      <div class="vprod-icon">${s.icon}</div>
+      <div class="vprod-info">
+        <div class="vprod-name">${s.nombre}</div>
+        <div class="vprod-sub">${s.variante}${noStock?' · <span style="color:var(--red)">Sin stock</span>':''}</div>
       </div>
-      <div style="text-align:right;flex-shrink:0;">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:13px;color:var(--accent);">${s.precio?'$'+fmt(s.precio):''}</div>
-        <div style="font-size:10px;color:${sc};font-family:'DM Mono',monospace;">${s.stock} ud.</div>
+      <div class="vprod-right">
+        <div class="vprod-price">${s.precio?'$'+fmt(s.precio):''}</div>
+        <div class="vprod-stock" style="color:${noStock?'var(--red)':sc};">${noStock?'Sin stock':s.stock+' ud.'}</div>
       </div>
     </div>`;
   }).join('');
@@ -2302,41 +2298,7 @@ function ventaSelProductEncoded(enc) {
 
 // Búsqueda en tiempo real
 function ventaBuscar(q) {
-  const res   = document.getElementById('venta-resultados');
-  const lista = document.getElementById('venta-inv-lista');
-  const hasQ  = q.length > 0;
-
-  if(!hasQ) {
-    res.innerHTML   = '';
-    lista.style.display = '';
-    ventaRenderInventario('');
-    return;
-  }
-
-  // Siempre ocultar lista completa y mostrar resultados filtrados
-  lista.style.display = 'none';
-  const matches = skuDB.filter(s => s.stock > 0 &&
-    (s.sku.toLowerCase().includes(q.toLowerCase())      ||
-     s.nombre.toLowerCase().includes(q.toLowerCase())   ||
-     s.variante.toLowerCase().includes(q.toLowerCase())));
-
-  if(matches.length === 0) {
-    res.innerHTML = `<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px;">Sin resultados para "<b>${q}</b>"</div>`;
-    return;
-  }
-  res.innerHTML = `<div style="margin-bottom:7px;font-size:10px;color:var(--accent);font-weight:600;letter-spacing:1px;text-transform:uppercase;">${matches.length} resultado${matches.length>1?'s':''}</div>` +
-    matches.map(s => {
-      const sc  = s.stock<=1?'var(--red)':s.stock<=3?'var(--orange)':'#15803d';
-      const enc = safeEncode(s);
-      return `<div class="opt" onclick="ventaSelProductEncoded('${enc}')" style="margin-bottom:6px;border-color:rgba(232,255,59,.3);background:var(--adim);">
-        <div class="oico" style="font-size:19px;">${s.icon}</div>
-        <div class="oinfo">
-          <div class="oname" style="font-size:12px;">${s.nombre}</div>
-          <div class="osub">${s.sku} · ${s.variante} · <span style="color:${sc};">${s.stock} ud.</span></div>
-        </div>
-        <div style="font-family:'Archivo Black',sans-serif;font-size:13px;color:var(--accent);flex-shrink:0;">${s.precio?'$'+fmt(s.precio):''}</div>
-      </div>`;
-    }).join('');
+  ventaRenderInventario(q || '');
 }
 
 // Enter = escaneo SKU exacto
@@ -2354,74 +2316,71 @@ function ventaScanKey(e) {
 
 // Seleccionar producto → paso 2
 function ventaSelProduct(s) {
-  // Siempre leer stock fresco desde skuDB
   const fresh = skuDB.find(i => i.sku === s.sku) || s;
   ventaState.sku = fresh;
 
   document.getElementById('v-prod-icon').textContent   = fresh.icon;
   document.getElementById('v-prod-nombre').textContent = fresh.nombre;
-  document.getElementById('v-prod-meta').textContent   = `${fresh.sku} · ${fresh.variante} · ${fresh.stock} ud. en stock`;
+  document.getElementById('v-prod-meta').textContent   = `${fresh.variante} · ${fresh.stock} ud. disponibles`;
   document.getElementById('v-precio').value            = fresh.precio || '';
   document.getElementById('v-cant').value              = 1;
   document.getElementById('v-cant').max                = fresh.stock;
 
-  // Resetear canal a Sotos
+  // Resetear canal → Sotos
   ventaState.canal = 'Sotos';
-  document.querySelectorAll('#canal-grid .opt').forEach(o => o.classList.remove('sel'));
-  const sotoBtn = document.getElementById('vc-sotos');
-  if(sotoBtn) sotoBtn.classList.add('sel');
+  document.querySelectorAll('#canal-grid .pill').forEach(p => p.classList.remove('sel'));
+  const sotosBtn = document.getElementById('vc-sotos');
+  if(sotosBtn) sotosBtn.classList.add('sel');
+
+  // Resetear pago → Transferencia
+  ventaState.pago = 'Transferencia';
+  document.querySelectorAll('#pago-grid .pill').forEach(p => p.classList.remove('sel'));
+  const transfBtn = document.getElementById('vp-transf');
+  if(transfBtn) transfBtn.classList.add('sel');
 
   recalcVenta();
   ventaSetPaso(2);
 }
 
 function selCanalV(el, nombre) {
-  document.querySelectorAll('#canal-grid .opt').forEach(o => o.classList.remove('sel'));
+  document.querySelectorAll('#canal-grid .pill').forEach(p => p.classList.remove('sel'));
   el.classList.add('sel');
   ventaState.canal = nombre;
   recalcVenta();
 }
 
+function selPagoV(el, nombre) {
+  document.querySelectorAll('#pago-grid .pill').forEach(p => p.classList.remove('sel'));
+  el.classList.add('sel');
+  ventaState.pago = nombre;
+}
+
 function ventaVolver() {
   const inp = document.getElementById('venta-scan-input');
-  if(inp) { inp.value = ''; inp.focus(); }
-  document.getElementById('venta-resultados').innerHTML = '';
-  const lista = document.getElementById('venta-inv-lista');
-  if(lista) lista.style.display = '';
+  if(inp) { inp.value = ''; setTimeout(()=>inp.focus(), 100); }
+  const res = document.getElementById('venta-resultados');
+  if(res) res.textContent = '';
   ventaRenderInventario();
   ventaSetPaso(1);
 }
 
-// Recalcular resumen en tiempo real
+// Recalcular ganancia estimada
 function recalcVenta() {
   const precio = parseInt(document.getElementById('v-precio').value) || 0;
   const cant   = Math.max(1, parseInt(document.getElementById('v-cant').value) || 1);
   const canal  = ventaState.canal;
-  const costo  = ventaState.sku ? ventaState.sku.costo : 0;
+  const costo  = ventaState.sku ? (ventaState.sku.costo || 0) : 0;
+  const com    = canal === 'Sotos' ? Math.min(Math.round(precio * 0.15), 10000) : 0;
+  const gan    = (precio - com) * cant - costo * cant;
 
-  let com = 0, comLbl = 'Comisión';
-  if(canal === 'Sotos') {
-    com    = Math.min(Math.round(precio * 0.15), 10000);
-    comLbl = `Sotos (${precio>0 ? (Math.min(precio*0.15,10000)/precio*100).toFixed(1) : '15'}%)`;
-  }
-  const neto = (precio - com) * cant;
-  const gan  = neto - costo * cant;
-
-  const set  = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
-  const setC = (id,c) => { const e=document.getElementById(id); if(e) e.className=c;   };
-
-  set('vs-prod',    ventaState.sku ? ventaState.sku.nombre : '—');
-  set('vs-canal',   canal);
-  set('vs-precio',  precio>0 ? `$${fmt(precio)} × ${cant}` : '—');
-  set('vs-com-lbl', comLbl);
-  set('vs-com',     com>0 ? `−$${fmt(com*cant)}` : 'Sin comisión');
-  setC('vs-com',    com>0 ? 'sv r' : 'sv g');
-  set('vs-costo',   costo>0 ? `−$${fmt(costo*cant)}` : '—');
-  set('vs-gan',     precio>0 ? `$${fmt(gan)}` : '—');
-  setC('vs-gan',    gan>=0 ? 'sv g' : 'sv r');
-  // Aviso si margen negativo
-  const ganRow = document.querySelector('.srow.tot');
-  if(ganRow) ganRow.style.background = (precio>0 && gan<0) ? 'rgba(255,68,68,.06)' : '';
+  const ganEl   = document.getElementById('vs-gan');
+  const preview = document.getElementById('v-gan-preview');
+  if(!ganEl || !preview) return;
+  const negativo = precio > 0 && gan < 0;
+  ganEl.textContent = precio > 0 ? '$'+fmt(gan) : '$—';
+  ganEl.style.color = negativo ? 'var(--red)' : 'var(--green)';
+  preview.style.background   = negativo ? 'var(--rdim)' : 'var(--gdim)';
+  preview.style.borderColor  = negativo ? 'rgba(216,75,75,.2)' : 'rgba(30,158,99,.2)';
 }
 
 // Confirmar venta
@@ -2432,27 +2391,25 @@ async function ventaConfirmar() {
   const precio = parseInt(document.getElementById('v-precio').value) || 0;
   const cant   = Math.max(1, parseInt(document.getElementById('v-cant').value) || 1);
   const canal  = ventaState.canal;
-  const pago   = document.getElementById('v-pago').value;
-  const envio  = document.getElementById('v-envio').value;
+  const pago   = ventaState.pago;
+  const envio  = 'Presencial';
 
   if(!precio) { toast('Ingresa el precio de venta.','err'); return; }
 
-  const liveItem = skuDB.find(i => i.sku === s.sku);
+  const liveItem  = skuDB.find(i => i.sku === s.sku);
   const liveStock = liveItem ? liveItem.stock : 0;
   if(cant > liveStock) { toast(`Solo quedan ${liveStock} unidad${liveStock!==1?'es':''} disponibles.`,'err'); return; }
 
   const com  = canal==='Sotos' ? Math.min(Math.round(precio*0.15), 10000) : 0;
   const neto = (precio - com) * cant;
-  const gan  = neto - s.costo * cant;
+  const gan  = neto - (s.costo||0) * cant;
 
-  // Guardar en Supabase
-  const btn = document.querySelector('#vs2 .btn');
+  const btn = document.getElementById('venta-confirmar-btn');
   if(btn){ btn.textContent = '⏳ Guardando…'; btn.disabled = true; }
 
-  const ok = await registrarVentaDB(s.id, precio, s.costo, canal, pago, envio, cant);
+  const ok = await registrarVentaDB(s.id, precio, s.costo||0, canal, pago, envio, cant);
 
-  if(btn){ btn.textContent = 'Confirmar y registrar →'; btn.disabled = false; }
-
+  if(btn){ btn.textContent = 'Registrar venta →'; btn.disabled = false; }
   if(!ok){ toast('Error al guardar. Intenta de nuevo.','err'); return; }
 
   // Actualizar cache local
@@ -2461,63 +2418,53 @@ async function ventaConfirmar() {
 
   ventasDB.unshift({
     id: ventasDB.length+1, sku:s.sku, nombre:s.nombre, variante:s.variante,
-    icon:s.icon, precio, costo:s.costo, com, canal, pago, envio, gan,
+    icon:s.icon, precio, costo:s.costo||0, com, canal, pago, envio, gan,
     fecha: `Hoy · ${nowHHMM()}`
   });
 
-  const set=(id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
-  set('vc-prod',   s.nombre);
-  set('vc-sku',    s.sku);
-  set('vc-canal',  canal);
-  set('vc-pago',   pago + (envio!=='Presencial' ? ' · '+envio : ''));
-  set('vc-recibe', '$'+fmt(neto));
-  set('vc-costo',  '−$'+fmt(s.costo*cant));
-  set('vc-gan',    '$'+fmt(gan));
+  // Paso 3 — resultado
+  const set = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+  set('vc-gan',  '$'+fmt(gan));
+  set('vc-prod', `${s.nombre} · ${s.variante} · ${canal} · ${pago}`);
+  set('vc-sub',  'Guardado en Cuanti ✓');
 
   const stockEl = document.getElementById('vc-stock');
   if(stockEl) {
-    stockEl.textContent = nuevoStock===0 ? '0 ud. — Agotado 🔴' : nuevoStock<=2 ? `${nuevoStock} ud. — Stock bajo ⚠️` : `${nuevoStock} ud. ✓`;
-    stockEl.className   = nuevoStock===0 ? 'sv r' : nuevoStock<=2 ? 'sv' : 'sv g';
+    stockEl.textContent = nuevoStock===0 ? '0 ud. — Agotado' : nuevoStock<=2 ? `${nuevoStock} ud. — Stock bajo` : `${nuevoStock} ud.`;
+    stockEl.style.color = nuevoStock===0 ? 'var(--red)' : nuevoStock<=2 ? 'var(--orange)' : 'var(--green)';
   }
-  set('vc-sub', 'Guardado en Cuanti ✓');
 
-  // ── Insight post-venta ──
+  // Color de la ganancia grande según resultado
+  const ganEl = document.getElementById('vc-gan');
+  if(ganEl) ganEl.style.color = gan < 0 ? 'var(--red)' : 'var(--green)';
+
+  // Insight post-venta
   const margenPct = precio > 0 ? Math.round((gan / (precio * cant)) * 100) : 0;
   const insightEl = document.getElementById('vc-insight');
-  if (insightEl) {
-    let insightHtml = '';
-    if (nuevoStock === 0) {
-      insightHtml = `<div style="background:var(--rdim);border:1px solid rgba(255,68,68,.25);border-radius:12px;padding:13px 14px;margin:12px 0 0;display:flex;align-items:flex-start;gap:10px;">
+  if(insightEl) {
+    let html = '';
+    if(nuevoStock === 0) {
+      html = `<div style="background:var(--rdim);border:1px solid rgba(216,75,75,.25);border-radius:12px;padding:13px 14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;text-align:left;">
         <span style="font-size:20px;flex-shrink:0;">🔴</span>
         <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--red);">Se te agotó este producto</div>
-        <div style="font-size:11px;color:var(--muted);">Considera reponer en tu próximo lote.</div></div>
-      </div>`;
-    } else if (nuevoStock <= 2) {
-      insightHtml = `<div style="background:var(--odim);border:1px solid rgba(255,140,66,.25);border-radius:12px;padding:13px 14px;margin:12px 0 0;display:flex;align-items:flex-start;gap:10px;">
+        <div style="font-size:11px;color:var(--muted);">Considera reponer en tu próximo lote.</div></div></div>`;
+    } else if(nuevoStock <= 2) {
+      html = `<div style="background:var(--odim);border:1px solid rgba(228,106,46,.25);border-radius:12px;padding:13px 14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;text-align:left;">
         <span style="font-size:20px;flex-shrink:0;">⚠️</span>
-        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--orange);">Solo te quedan ${nuevoStock} unidad${nuevoStock !== 1 ? 'es' : ''}</div>
-        <div style="font-size:11px;color:var(--muted);">Piensa en reponer pronto.</div></div>
-      </div>`;
-    } else if (margenPct >= 50) {
-      insightHtml = `<div style="background:var(--gdim);border:1px solid rgba(59,255,138,.2);border-radius:12px;padding:13px 14px;margin:12px 0 0;display:flex;align-items:flex-start;gap:10px;">
+        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--orange);">Solo quedan ${nuevoStock} unidad${nuevoStock!==1?'es':''}</div>
+        <div style="font-size:11px;color:var(--muted);">Piensa en reponer pronto.</div></div></div>`;
+    } else if(margenPct >= 50) {
+      html = `<div style="background:var(--gdim);border:1px solid rgba(30,158,99,.2);border-radius:12px;padding:13px 14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;text-align:left;">
         <span style="font-size:20px;flex-shrink:0;">💚</span>
-        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:#15803d;">Buen margen en esta venta</div>
-        <div style="font-size:11px;color:var(--muted);">Ganaste el ${margenPct}% de lo que vendiste — muy bien.</div></div>
-      </div>`;
-    } else if (canal === 'WhatsApp' && gan > 0) {
-      insightHtml = `<div style="background:var(--gdim);border:1px solid rgba(59,255,138,.2);border-radius:12px;padding:13px 14px;margin:12px 0 0;display:flex;align-items:flex-start;gap:10px;">
-        <span style="font-size:20px;flex-shrink:0;">💬</span>
-        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:#15803d;">Venta sin comisión</div>
-        <div style="font-size:11px;color:var(--muted);">Por WhatsApp te quedas con toda la ganancia.</div></div>
-      </div>`;
-    } else if (gan > 0 && nuevoStock > 5) {
-      insightHtml = `<div style="background:var(--adim);border:1px solid rgba(232,255,59,.2);border-radius:12px;padding:13px 14px;margin:12px 0 0;display:flex;align-items:flex-start;gap:10px;">
-        <span style="font-size:20px;flex-shrink:0;">📦</span>
-        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--accent);">Buen stock disponible</div>
-        <div style="font-size:11px;color:var(--muted);">Quedan ${nuevoStock} unidades — puedes seguir vendiendo.</div></div>
-      </div>`;
+        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--green);">Buen margen en esta venta</div>
+        <div style="font-size:11px;color:var(--muted);">Ganaste el ${margenPct}% de lo que vendiste.</div></div></div>`;
+    } else if(canal !== 'Sotos' && gan > 0) {
+      html = `<div style="background:var(--gdim);border:1px solid rgba(30,158,99,.2);border-radius:12px;padding:13px 14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;text-align:left;">
+        <span style="font-size:20px;flex-shrink:0;">✓</span>
+        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--green);">Venta sin comisión</div>
+        <div style="font-size:11px;color:var(--muted);">Por ${canal} te quedas con toda la ganancia.</div></div></div>`;
     }
-    insightEl.innerHTML = insightHtml;
+    insightEl.innerHTML = html;
   }
 
   ventaSetPaso(3);
@@ -2529,25 +2476,26 @@ async function ventaConfirmar() {
 function resetVenta() {
   ventaState.sku   = null;
   ventaState.canal = 'Sotos';
+  ventaState.pago  = 'Transferencia';
 
   const inp = document.getElementById('venta-scan-input');
   if(inp) inp.value = '';
   const res = document.getElementById('venta-resultados');
-  if(res) res.innerHTML = '';
-  const area = document.getElementById('venta-scan-area');
-  if(area) area.classList.remove('active-scan');
-  const notas = document.getElementById('v-notas');
-  if(notas) notas.value = '';
+  if(res) res.textContent = '';
 
-  // Canal visual → Sotos
-  document.querySelectorAll('#canal-grid .opt').forEach(o => o.classList.remove('sel'));
-  const sotoBtn = document.getElementById('vc-sotos');
-  if(sotoBtn) sotoBtn.classList.add('sel');
+  // Canal → Sotos
+  document.querySelectorAll('#canal-grid .pill').forEach(p => p.classList.remove('sel'));
+  const sotosBtn = document.getElementById('vc-sotos');
+  if(sotosBtn) sotosBtn.classList.add('sel');
 
-  const lista = document.getElementById('venta-inv-lista');
-  if(lista) lista.style.display = '';
+  // Pago → Transferencia
+  document.querySelectorAll('#pago-grid .pill').forEach(p => p.classList.remove('sel'));
+  const transfBtn = document.getElementById('vp-transf');
+  if(transfBtn) transfBtn.classList.add('sel');
+
   ventaRenderInventario();
   ventaSetPaso(1);
+  setTimeout(() => { const i=document.getElementById('venta-scan-input'); if(i) i.focus(); }, 150);
 }
 
 // ══════════════════════════════════════════════════════
