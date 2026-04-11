@@ -161,15 +161,15 @@ async function initDB() {
 <style>
 /* ─── TOKENS ─── */
 :root{
-  --bg:#F7F7F5;--sf:#FFFFFF;--sf2:#F2F2F0;--sf3:#EAEAE8;
-  --bd:#E0E0DE;--bd2:#CCCCCA;
-  --accent:#E8FF3B;--adim:rgba(0,0,0,.04);--aglow:rgba(232,255,59,.4);
-  --red:#DC2626;--rdim:rgba(220,38,38,.07);
+  --bg:#F5F5F2;--sf:#FFFFFF;--sf2:#F2F2EE;--sf3:#EAEAE6;
+  --bd:#E6E3DD;--bd2:#D4D0CA;
+  --accent:#D7F02E;--adim:rgba(0,0,0,.04);--aglow:rgba(215,240,46,.35);
+  --red:#D84B4B;--rdim:rgba(216,75,75,.07);
   --blue:#2563EB;--bdim2:rgba(37,99,235,.07);
-  --orange:#EA580C;--odim:rgba(234,88,12,.07);
-  --green:#3BFF8A;--gdim:rgba(21,128,61,.07);
+  --orange:#E46A2E;--odim:rgba(228,106,46,.07);
+  --green:#1E9E63;--gdim:rgba(30,158,99,.07);
   --purple:#B47FFF;--pdim:rgba(180,127,255,.08);
-  --text:#1A1A1A;--muted:#777777;--muted2:#BBBBBB;
+  --text:#171717;--muted:#7A7A7A;--muted2:#BCBCBC;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;}
@@ -515,7 +515,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .ni .nlbl{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:.3px;text-transform:uppercase;}
 .ni.on .nlbl{color:var(--accent);}
 .nav-fab-wrap{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;margin:0 3px;padding-top:2px;}
-.nav-fab{width:46px;height:46px;background:var(--accent);border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 16px var(--aglow);color:var(--bg);font-weight:900;transition:transform .15s,box-shadow .15s;}
+.nav-fab{width:46px;height:46px;background:var(--accent);border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:26px;font-family:'Archivo Black',sans-serif;box-shadow:0 4px 16px var(--aglow);color:var(--text);font-weight:900;transition:transform .15s,box-shadow .15s;}
 .nav-fab-wrap:hover .nav-fab{transform:scale(1.06);box-shadow:0 6px 20px var(--aglow);}
 .nav-fab-lbl{font-size:9px;font-weight:700;color:var(--accent);letter-spacing:.3px;text-transform:uppercase;}
 
@@ -692,35 +692,40 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
 /* ─── LIGHT MODE — OVERRIDES ─── */
 /* Topbar blanco */
-.topbar .logo{color:#1A1A1A;}
-.topbar .logo span{background:#E8FF3B;color:#1A1A1A;padding:0 4px;border-radius:4px;}
+.topbar .logo{color:#171717;}
+.topbar .logo span{background:var(--accent);color:#171717;padding:0 4px;border-radius:4px;}
 .topbar .local-pill{background:var(--sf2);border-color:var(--bd);color:var(--muted);}
-.topbar .local-pill .ldot{background:#1A1A1A;}
+.topbar .local-pill .ldot{background:var(--text);}
 .topbar .icon-btn{background:var(--sf2);border-color:var(--bd);color:var(--text);}
 .topbar .icon-btn:hover{border-color:var(--bd2);}
-.topbar .avatar-btn{background:#1A1A1A;color:#FFFFFF;}
+.topbar .avatar-btn{background:var(--text);color:#FFFFFF;}
 .topbar #topbar-screen-title{color:var(--muted);}
 .badge-dot{border-color:#FFFFFF;}
-/* Botones: accent bg + texto oscuro */
-.btn{color:#1A1A1A;}
+/* Botones */
+.btn{color:var(--text);}
 .btn.sec{color:var(--text);background:var(--sf);border-color:var(--bd);}
 .btn.danger{background:var(--rdim);color:var(--red);}
-/* FAB y nav */
-.nav-fab{color:#1A1A1A;}
-.nav-fab-lbl{color:var(--text);}
-.ni.on .nlbl{color:var(--text);}
-.fab.p .fl,.fab.p .fs{color:#1A1A1A;}
-/* Chips y tabs activos */
-.chip.on{background:var(--accent);border-color:var(--accent);color:#1A1A1A;}
-.pb.on{background:var(--accent);color:#1A1A1A;}
-/* Cards — ya definidas en base CSS para light mode */
+/* Nav inferior */
+.nav-fab{color:var(--text);}
+.nav-fab-lbl{color:var(--muted);}
+.ni .nlbl{color:var(--muted2);}
+.ni.on .nlbl{color:var(--text);font-weight:700;}
+.ni.on .nico2{opacity:1;}
+.ni .nico2{opacity:.5;}
+.fab.p .fl,.fab.p .fs{color:var(--text);}
+/* Chips y tabs activos — amarillo solo en activo */
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--text);}
+.pb.on{background:var(--accent);color:var(--text);border-radius:8px;}
+/* Cards */
 .card.a{background:var(--adim);border-color:var(--bd);}
-/* Textos que eran accent ahora legibles */
+/* Textos que antes usaban accent */
 .sale-amt{color:var(--text);}
 .chart-val{color:var(--text);}
 .chart-title{color:var(--muted);}
 .sec-link{color:var(--muted);}
-.mono-lbl{color:var(--muted);letter-spacing:.5px;}
+.sec-title{font-size:13px;font-weight:600;color:var(--muted);}
+.mono-lbl{color:var(--muted);letter-spacing:.3px;text-transform:none;font-size:11px;}
+.trank.f{color:var(--text);}
 .trev{color:var(--text);}
 .sku-code{color:var(--text);font-weight:700;}
 .sku-price-tag{color:var(--text);}
@@ -728,25 +733,27 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .scan-input::placeholder{color:var(--muted2);}
 .scan-manual-input{color:var(--text);}
 .vp.ok .vs{color:var(--text);}
-.alert.yellow .alert-stock{color:#1A1A1A;}
+.alert.yellow .alert-stock{color:var(--text);}
 .date-lbl.cur{color:var(--text);}
-.conn-badge.ok{color:#15803d;background:rgba(21,128,61,.08);border-color:rgba(21,128,61,.2);}
-/* Verde legible sobre fondo claro */
-.sale-profit{color:#15803d;}
-.pmargin{color:#15803d;}
-.chart-delta.up{color:#15803d;}
-.sv.g{color:#15803d;}
-.scard.g .sv{color:#15803d;}
-.croi{color:#15803d;}
-.t-l2{color:#15803d;}
-.pill.g{background:rgba(21,128,61,.08);color:#15803d;border-color:rgba(21,128,61,.2);}
-.action-btn.ingreso .ab-lbl{color:#15803d;}
+.conn-badge.ok{color:var(--green);background:var(--gdim);border-color:rgba(30,158,99,.2);}
+/* Verde sobre fondo claro */
+.sale-profit{color:var(--green);}
+.pmargin{color:var(--green);}
+.chart-delta.up{color:var(--green);}
+.sv.g{color:var(--green);}
+.scard.g .sv{color:var(--green);}
+.croi{color:var(--green);}
+.t-l2{color:var(--green);}
+.pill.g{background:var(--gdim);color:var(--green);border-color:rgba(30,158,99,.2);}
+.action-btn.ingreso .ab-lbl{color:var(--green);}
+/* Historial resumen card — sin amarillo brillante */
+.card.a .hist-stat{color:var(--text) !important;}
 /* Últimas ventas dashboard — lista con separadores */
-#dash-last-sales .sale{background:transparent;border:none;border-bottom:1px solid var(--bd);border-radius:0;padding:12px 2px;margin-bottom:0;}
+#dash-last-sales .sale{background:transparent;border:none;border-bottom:1px solid var(--bd);border-radius:0;padding:13px 2px;margin-bottom:0;}
 #dash-last-sales .sale:last-child{border-bottom:none;}
 #dash-last-sales .sale-thumb{background:var(--sf2);}
-/* Scan found */
-.scan-found-stock{color:#15803d !important;}
+/* Scan */
+.scan-found-stock{color:var(--green) !important;}
 .scan-area{background:var(--sf2);border-color:var(--bd2);}
 .scan-area.active-scan{border-color:var(--accent);background:var(--adim);}
 </style>
@@ -754,8 +761,8 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 <body>
 
 <!-- PANTALLA DE CARGA -->
-<div id="loading-screen" style="position:fixed;inset:0;background:#F7F7F5;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:14px;">
-  <div style="font-family:'Archivo Black',sans-serif;font-size:36px;color:#1A1A1A;letter-spacing:-1.5px;">CUAN<span style="background:#E8FF3B;color:#1A1A1A;padding:0 4px;border-radius:4px;">TI</span></div>
+<div id="loading-screen" style="position:fixed;inset:0;background:#F5F5F2;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:14px;">
+  <div style="font-family:'Archivo Black',sans-serif;font-size:36px;color:#171717;letter-spacing:-1.5px;">CUAN<span style="background:#D7F02E;color:#171717;padding:0 4px;border-radius:4px;">TI</span></div>
   <div id="loading-step" style="font-size:12px;color:#888888;min-height:18px;transition:color .3s;">Conectando con Supabase…</div>
   <div style="width:140px;height:2px;background:#E0E0DE;border-radius:2px;overflow:hidden;position:relative;">
     <div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent,#E8FF3B,transparent);border-radius:2px;animation:ldbar 1.4s ease-in-out infinite;"></div>
@@ -785,6 +792,8 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
 <!-- ════════════════════════════ DASHBOARD ════════════════════════════ -->
 <div class="screen active" id="screen-dashboard">
+
+  <!-- 1. BLOQUE PRINCIPAL -->
   <div class="hero" onclick="goTo('analisis')">
     <div class="hero-lbl">Esto te quedó este mes</div>
     <div class="hero-amt" id="dash-hero-gan">$—</div>
@@ -792,48 +801,24 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
       <span id="dash-hero-mes">—</span>
       <span class="hero-badge" id="dash-hero-roi">—</span>
     </div>
-    <div class="hero-tap">Toca para ver análisis →</div>
   </div>
 
-  <!-- acciones rápidas — primero, antes de cualquier scroll -->
-  <div class="fabs" style="margin-bottom:14px;">
-    <div class="fab p" onclick="goTo('scanner')"><div class="fi">📷</div><div class="fl">Escanear</div><div class="fs">Vender · Ingresar · +</div></div>
-    <div class="fab" onclick="goTo('venta')"><div class="fi">🛍️</div><div class="fl">Nueva venta</div><div class="fs">Flujo paso a paso</div></div>
+  <!-- 2. BLOQUE DE URGENCIAS -->
+  <div id="dash-urgencias-section">
+    <div class="sec-hdr"><div class="sec-title">Urgente</div><div class="sec-link" onclick="goTo('inventario')">Ver stock →</div></div>
+    <div id="dash-alertas" style="margin-bottom:20px;"></div>
   </div>
 
-  <div class="sgrid">
-    <div class="scard a" onclick="goTo('analisis')"><span class="si">💰</span><div class="sv" id="dash-ingresos">$—</div><div class="sl" id="dash-sl-ingresos">Ingresos del mes</div></div>
-    <div class="scard" onclick="goTo('historial')"><span class="si">🛍️</span><div class="sv" id="dash-nventas">—</div><div class="sl">Ventas del mes</div></div>
-    <div class="scard r" onclick="goTo('inventario')"><span class="si">⚠️</span><div class="sv" id="dash-stockcrit">—</div><div class="sl">Casi sin stock</div></div>
-    <div class="scard b" onclick="goTo('inventario')"><span class="si">📦</span><div class="sv" id="dash-total-prod">—</div><div class="sl">Productos activos</div></div>
-  </div>
-
-  <div class="sec-hdr"><div class="sec-title">⚠️ Alertas de stock</div><div class="sec-link" onclick="goTo('inventario')">Ver todo →</div></div>
-  <div id="dash-alertas" style="margin-bottom:16px;"></div>
-
+  <!-- 3. BLOQUE DE ACCIÓN -->
   <div id="dash-insights-section" style="display:none;margin-bottom:4px;">
-    <div class="sec-hdr"><div class="sec-title">💡 Para tomar acción</div><div class="sec-link" onclick="goTo('analisis')">Ver análisis →</div></div>
-    <div id="dash-insights" style="margin-bottom:16px;"></div>
+    <div class="sec-hdr"><div class="sec-title">Para decidir</div><div class="sec-link" onclick="goTo('analisis')">Ver análisis →</div></div>
+    <div id="dash-insights" style="margin-bottom:20px;"></div>
   </div>
 
-  <div class="sec-hdr"><div class="sec-title">Últimas ventas</div><div class="sec-link" onclick="goTo('historial')">Ver todo →</div></div>
-  <div id="dash-last-sales"></div>
+  <!-- 4. ACTIVIDAD RECIENTE -->
+  <div class="sec-hdr"><div class="sec-title">Última actividad</div><div class="sec-link" onclick="goTo('historial')">Ver todo →</div></div>
+  <div id="dash-last-sales" style="margin-bottom:8px;"></div>
 
-  <!-- gráfico de evolución al fondo — info contextual, no de acción -->
-  <div class="chart-box" onclick="goTo('analisis')" style="cursor:pointer;margin-top:6px;">
-    <div class="chart-hdr">
-      <div><div class="chart-title">Evolución ganancias · Oct–Mar</div><div class="chart-val" style="font-size:16px;">$7.284.100 acumulado</div></div>
-      <div><div class="chart-delta up">↑ +378%</div><div style="font-size:9px;color:var(--muted);">6 meses</div></div>
-    </div>
-    <div class="bars" style="height:60px;">
-      <div class="bcol"><div class="b pst" style="height:13px;"></div><div class="blbl">Oct</div></div>
-      <div class="bcol"><div class="b pst" style="height:21px;"></div><div class="blbl">Nov</div></div>
-      <div class="bcol"><div class="b pst" style="height:29px;"></div><div class="blbl">Dic</div></div>
-      <div class="bcol"><div class="b pst" style="height:36px;"></div><div class="blbl">Ene</div></div>
-      <div class="bcol"><div class="b pst" style="height:47px;"></div><div class="blbl">Feb</div></div>
-      <div class="bcol"><div class="b cur" style="height:60px;"></div><div class="blbl" style="color:var(--accent);">Mar</div></div>
-    </div>
-  </div>
   <div class="spacer"></div>
 </div><!-- end screen-dashboard -->
 
@@ -1283,12 +1268,17 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 <!-- ════════════════════════════ SKU & ETIQUETAS ════════════════════════════ -->
 <div class="screen" id="screen-skus">
   <div class="ptitle">SKUs y Etiquetas</div>
-  <div class="psub">Genera códigos propios, imprime etiquetas y escanea para vender</div>
+  <div class="psub">Crea códigos, genera etiquetas e imprime</div>
 
   <!-- CREAR NUEVO SKU -->
-  <div class="sec-hdr"><div class="sec-title">✏️ Crear nuevo SKU</div></div>
-  <div class="card">
-    <div class="mono-lbl">Datos del artículo</div>
+  <div class="card" style="margin-bottom:20px;">
+    <div style="font-family:'Archivo Black',sans-serif;font-size:15px;margin-bottom:16px;letter-spacing:-.2px;">Nuevo SKU</div>
+
+    <!-- Producto -->
+    <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:10px;">Producto</div>
+    <div class="frow">
+      <div class="field"><label>Nombre</label><input id="sku-nombre" type="text" placeholder="Ej: BAPE Boston Bag Camo Digital"></div>
+    </div>
     <div class="frow">
       <div class="field"><label>Marca</label>
         <select id="sku-marca" onchange="autoSku()">
@@ -1305,38 +1295,43 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
       </div>
     </div>
     <div class="frow">
-      <div class="field"><label>Variante (talla/color)</label><input id="sku-var" type="text" placeholder="40, L, Camo…" oninput="autoSku()"></div>
+      <div class="field"><label>Variante (talla / color)</label><input id="sku-var" type="text" placeholder="40, L, Camo…" oninput="autoSku()"></div>
       <div class="field"><label>Nº correlativo</label><input id="sku-num" type="number" value="1" min="1" max="999" oninput="autoSku()"></div>
     </div>
-    <div class="field"><label>Nombre del producto</label><input id="sku-nombre" type="text" placeholder="Ej: BAPE Boston Bag Camo Digital"></div>
+
+    <!-- Precios -->
+    <div style="font-size:11px;font-weight:600;color:var(--muted);margin:16px 0 10px;">Precios</div>
     <div class="frow">
-      <div class="field"><label>Precio de venta (opcional)</label><div class="fwrap"><span class="fpfx">$</span><input id="sku-precio" class="pfx" type="number" placeholder="145000"></div></div>
+      <div class="field"><label>Precio de venta</label><div class="fwrap"><span class="fpfx">$</span><input id="sku-precio" class="pfx" type="number" placeholder="145000"></div></div>
       <div class="field"><label>Costo unitario</label><div class="fwrap"><span class="fpfx">$</span><input id="sku-costo" class="pfx" type="number" placeholder="17002"></div></div>
     </div>
-    <div class="field"><label>SKU generado (editable)</label>
+
+    <!-- Código -->
+    <div style="font-size:11px;font-weight:600;color:var(--muted);margin:16px 0 10px;">Código</div>
+    <div class="field" style="margin-bottom:12px;">
       <div style="display:flex;gap:7px;">
-        <input id="sku-final" type="text" placeholder="BAPE-BAG-CAMO-001" style="font-family:'DM Mono',monospace;color:var(--accent);font-weight:600;">
-        <button class="sku-btn" onclick="autoSku()" style="white-space:nowrap;border-radius:9px;padding:0 12px;">↺ Auto</button>
+        <input id="sku-final" type="text" placeholder="BAPE-BAG-CAMO-001" style="font-family:'DM Mono',monospace;color:var(--text);font-weight:600;">
+        <button class="sku-btn" onclick="autoSku()" style="white-space:nowrap;border-radius:9px;padding:0 12px;flex-shrink:0;">↺ Auto</button>
       </div>
     </div>
 
     <!-- preview barcode -->
-    <div style="margin-bottom:12px;">
-      <div class="mono-lbl">Vista previa del código de barras</div>
-      <div style="background:#fff;border-radius:9px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:6px;overflow:hidden;" id="bc-preview-wrap">
-        <canvas id="bc-preview" style="max-width:100%;height:auto;display:block;"></canvas>
-        <div id="bc-preview-name" style="font-size:9pt;font-weight:700;color:#222;text-align:center;font-family:Arial,sans-serif;"></div>
-        <div id="bc-preview-sku" style="font-size:8pt;color:#666;font-family:'Courier New',monospace;"></div>
-        <div id="bc-preview-price" style="font-size:11pt;font-weight:900;color:#111;font-family:Arial,sans-serif;"></div>
-      </div>
+    <div id="bc-preview-wrap" style="background:var(--sf2);border-radius:10px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:6px;overflow:hidden;margin-bottom:16px;">
+      <canvas id="bc-preview" style="max-width:100%;height:auto;display:block;"></canvas>
+      <div id="bc-preview-name" style="font-size:9pt;font-weight:700;color:#222;text-align:center;font-family:Arial,sans-serif;"></div>
+      <div id="bc-preview-sku" style="font-size:8pt;color:#666;font-family:'Courier New',monospace;"></div>
+      <div id="bc-preview-price" style="font-size:11pt;font-weight:900;color:#111;font-family:Arial,sans-serif;"></div>
     </div>
 
-    <button class="btn" onclick="crearSku()">Crear SKU y generar código →</button>
+    <button class="btn" onclick="crearSku()">Crear SKU →</button>
   </div>
 
   <!-- LISTA DE SKUs -->
-  <div class="sec-hdr"><div class="sec-title">SKUs registrados</div><div class="sec-link" onclick="printAllLabels()">🖨 Imprimir todos</div></div>
-  <div class="search-row"><input class="srch" placeholder="Buscar SKU, producto…" oninput="filterSkus(this.value)"></div>
+  <div class="sec-hdr" style="margin-top:4px;">
+    <div class="sec-title">SKUs registrados</div>
+    <div class="sec-link" onclick="printAllLabels()">Imprimir todos</div>
+  </div>
+  <div class="search-row"><input class="srch" placeholder="Buscar SKU o producto…" oninput="filterSkus(this.value)"></div>
   <div id="sku-list"></div>
   <div class="spacer"></div>
 </div>
@@ -1532,11 +1527,11 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
 <!-- ── BOTTOM NAV ── -->
 <div class="bottom-nav">
-  <div class="ni on" id="nav-dashboard"  onclick="goTo('dashboard')"> <div class="nico2">📊</div><div class="nlbl">Inicio</div></div>
+  <div class="ni on" id="nav-dashboard"  onclick="goTo('dashboard')"> <div class="nico2">🏠</div><div class="nlbl">Inicio</div></div>
   <div class="ni"    id="nav-inventario" onclick="goTo('inventario')"><div class="nico2">📦</div><div class="nlbl">Stock</div></div>
-  <div class="nav-fab-wrap" id="nav-fab-scanner" onclick="goTo('scanner')" title="Escáner">
-    <div class="nav-fab" id="nav-fab-icon">📷</div>
-    <div class="nav-fab-lbl">Escanear</div>
+  <div class="nav-fab-wrap" id="nav-fab-venta" onclick="goTo('venta')" title="Nueva venta">
+    <div class="nav-fab" id="nav-fab-icon">+</div>
+    <div class="nav-fab-lbl">Vender</div>
   </div>
   <div class="ni"    id="nav-analisis"   onclick="goTo('analisis')">  <div class="nico2">📈</div><div class="nlbl">Análisis</div></div>
   <div class="ni"    id="nav-skus"       onclick="goTo('skus')">      <div class="nico2">🏷️</div><div class="nlbl">SKUs</div></div>
@@ -1643,11 +1638,11 @@ function goTo(id) {
     const el = document.getElementById('nav-'+id);
     if(el) el.classList.add('on');
   }
-  // FAB central: resalta cuando estás en scanner
+  // FAB central: resalta cuando estás en venta
   const fabIcon = document.getElementById('nav-fab-icon');
-  const fabWrap = document.getElementById('nav-fab-scanner');
   if(fabIcon) {
-    fabIcon.style.background = id === 'scanner' ? '#fff' : 'var(--accent)';
+    fabIcon.style.background = id === 'venta' ? 'var(--text)' : 'var(--accent)';
+    fabIcon.style.color = id === 'venta' ? '#FFFFFF' : 'var(--text)';
   }
 
   // Título dinámico en topbar
@@ -1775,17 +1770,9 @@ function renderDashboard() {
     const g={}; skuDB.forEach(s=>{ g[s.nombre]=1; }); return g;
   })()).length;
 
-  set('dash-hero-gan',  '$'+fmt(ganMes));
-  set('dash-hero-mes',  mesActual);
-  set('dash-ingresos',  '$'+fmt(ingrMes));
-  set('dash-nventas',   nVentas);
-  set('dash-stockcrit', stockCrit + stockBajo);
-  set('dash-total-prod', totalProductos);
-  set('dash-hero-roi',  roiMes > 0 ? `ROI ${roiMes}%` : nVentas > 0 ? 'Sin costo registrado' : 'Sin ventas aún');
-
-  // Label del mes en el stat card
-  const slIngr = document.getElementById('dash-sl-ingresos');
-  if(slIngr) slIngr.textContent = `Ingresos ${mesCorto}`;
+  set('dash-hero-gan', '$'+fmt(ganMes));
+  set('dash-hero-mes', mesActual);
+  set('dash-hero-roi', roiMes > 0 ? `ROI ${roiMes}%` : nVentas > 0 ? `${nVentas} ventas` : 'Sin ventas aún');
 
   // ── Insights accionables desde datos reales ──
   const insightsSection = document.getElementById('dash-insights-section');
@@ -2935,28 +2922,17 @@ function renderAnalisis(tab, btn) {
 
       <!-- Mayor valor inmovilizado -->
       <div class="chart-box">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:4px;">Mayor capital inmovilizado</div>
-        <div style="font-size:10px;color:var(--muted);margin-bottom:12px;">Productos con más plata parada — vender primero</div>
+        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:3px;">Plata parada — vender primero</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">Productos con más capital inmovilizado</div>
         ${topValor.map((s,i)=>{
           const val = s.precio*s.stock;
-          const cos = s.costo*s.stock;
+          const ganPot = s.costo > 0 ? (s.precio - s.costo) * s.stock : null;
           return `<div class="trow">
             <div class="trank ${i===0?'f':''}">${i+1}</div>
             <div class="tinfo"><div class="tname">${s.icon} ${s.nombre}</div><div class="tunits">${s.stock} ud. · ${s.variante}</div></div>
-            <div class="tamt"><div class="trev">$${fmt(val)}</div><div class="tmrg">Costo $${fmt(cos)}</div></div>
+            <div class="tamt"><div class="trev">$${fmt(val)}</div>${ganPot!==null?`<div class="tmrg" style="color:var(--green);">+$${fmt(ganPot)}</div>`:'<div class="tmrg">—</div>'}</div>
           </div>`;
         }).join('')}
-      </div>
-
-      <!-- Top ROI potencial -->
-      <div class="chart-box">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:4px;">Mayor ROI potencial</div>
-        <div style="font-size:10px;color:var(--muted);margin-bottom:12px;">Los más rentables al vender — priorizar</div>
-        ${topRoi.map((s,i)=>`<div class="trow">
-          <div class="trank ${i===0?'f':''}">${i+1}</div>
-          <div class="tinfo"><div class="tname">${s.icon} ${s.nombre}</div><div class="tunits">${s.variante} · $${fmt(s.precio)}</div></div>
-          <div class="tamt"><div style="font-family:'DM Mono',monospace;font-size:12px;color:#15803d;">ROI ${s.roi}%</div><div class="tmrg">${s.stock} ud.</div></div>
-        </div>`).join('')}
       </div>`;
     return;
   }
