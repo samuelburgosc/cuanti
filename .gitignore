@@ -1,5 +1,27 @@
-.claude/
-*.local
-.DS_Store
-supabase cuanti.txt
+# Dependencias
+node_modules/
+
+# Build output
 dist/
+
+# Variables de entorno y credenciales
+.env
+.env.*
+*.local
+*.key
+*.secret
+
+# Archivos internos de desarrollo
+CLAUDE.md
+.claude/
+
+# Prototipos y archivos personales
+ventas-samu.html
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos sensibles del proyecto
+supabase cuanti.txt
+index_backup.html
