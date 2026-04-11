@@ -161,15 +161,15 @@ async function initDB() {
 <style>
 /* ─── TOKENS ─── */
 :root{
-  --bg:#080808;--sf:#111;--sf2:#191919;--sf3:#222;
-  --bd:#2a2a2a;--bd2:#3a3a3a;
-  --accent:#E8FF3B;--adim:rgba(232,255,59,.1);--aglow:rgba(232,255,59,.22);
-  --red:#FF4444;--rdim:rgba(255,68,68,.1);
-  --blue:#4D9FFF;--bdim2:rgba(77,159,255,.1);
-  --orange:#FF8C42;--odim:rgba(255,140,66,.1);
-  --green:#3BFF8A;--gdim:rgba(59,255,138,.1);
-  --purple:#B47FFF;--pdim:rgba(180,127,255,.1);
-  --text:#F2F2F2;--muted:#666;--muted2:#3e3e3e;
+  --bg:#F7F7F5;--sf:#FFFFFF;--sf2:#F0F0EE;--sf3:#E8E8E6;
+  --bd:#E0E0DE;--bd2:#CCCCCA;
+  --accent:#E8FF3B;--adim:rgba(232,255,59,.18);--aglow:rgba(232,255,59,.5);
+  --red:#FF4444;--rdim:rgba(255,68,68,.08);
+  --blue:#4D9FFF;--bdim2:rgba(77,159,255,.08);
+  --orange:#FF8C42;--odim:rgba(255,140,66,.08);
+  --green:#3BFF8A;--gdim:rgba(59,255,138,.08);
+  --purple:#B47FFF;--pdim:rgba(180,127,255,.08);
+  --text:#1A1A1A;--muted:#888888;--muted2:#BBBBBB;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;}
@@ -181,7 +181,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .device{width:100%;max-width:430px;flex:1;display:flex;flex-direction:column;position:relative;}
 
 /* ─── TOPBAR ─── */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 10px;background:rgba(8,8,8,.97);backdrop-filter:blur(18px);border-bottom:1px solid var(--bd);flex-shrink:0;z-index:200;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 10px;background:#1A1A1A;backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;z-index:200;}
 .logo{font-family:'Archivo Black',sans-serif;font-size:18px;letter-spacing:-.5px;}
 .logo span{color:var(--accent);}
 .topbar-r{display:flex;align-items:center;gap:9px;}
@@ -216,13 +216,14 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .card.g{background:var(--gdim);border-color:rgba(59,255,138,.18);}
 
 /* ─── HERO ─── */
-.hero{background:var(--accent);border-radius:19px;padding:20px;margin:11px 0 13px;position:relative;overflow:hidden;cursor:pointer;}
-.hero::after{content:'$';position:absolute;right:-4px;bottom:-22px;font-family:'Archivo Black',sans-serif;font-size:120px;color:rgba(0,0,0,.05);line-height:1;pointer-events:none;}
-.hero-lbl{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(0,0,0,.4);margin-bottom:4px;}
-.hero-amt{font-family:'Archivo Black',sans-serif;font-size:38px;color:#080808;line-height:1;letter-spacing:-1.5px;}
-.hero-sub{font-size:11px;color:rgba(0,0,0,.4);margin-top:9px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
-.hero-badge{background:rgba(0,0,0,.1);border-radius:20px;padding:3px 9px;font-size:11px;font-weight:700;color:#080808;}
-.hero-tap{font-size:10px;color:rgba(0,0,0,.3);margin-top:6px;}
+.hero{background:var(--sf);border:1px solid var(--bd);border-radius:19px;padding:22px;margin:11px 0 13px;cursor:pointer;transition:border-color .2s,box-shadow .2s;}
+.hero:hover{border-color:var(--bd2);box-shadow:0 4px 16px rgba(0,0,0,.06);}
+.hero::after{display:none;}
+.hero-lbl{font-size:11px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.hero-amt{font-family:'Archivo Black',sans-serif;font-size:40px;color:var(--text);line-height:1;letter-spacing:-1.5px;}
+.hero-sub{font-size:11px;color:var(--muted);margin-top:11px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.hero-badge{background:var(--sf2);border:1px solid var(--bd);border-radius:20px;padding:3px 9px;font-size:11px;font-weight:700;color:var(--text);}
+.hero-tap{font-size:10px;color:var(--muted2);margin-top:7px;}
 
 /* ─── STAT GRID ─── */
 .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px;}
@@ -507,7 +508,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .confirm-sub{font-size:12px;color:var(--muted);margin-bottom:20px;}
 
 /* ─── BOTTOM NAV ─── */
-.bottom-nav{position:sticky;bottom:0;width:100%;background:rgba(8,8,8,.97);backdrop-filter:blur(20px);border-top:1px solid var(--bd);display:flex;align-items:center;padding:6px 6px 14px;z-index:200;flex-shrink:0;}
+.bottom-nav{position:sticky;bottom:0;width:100%;background:rgba(247,247,245,.97);backdrop-filter:blur(20px);border-top:1px solid var(--bd);display:flex;align-items:center;padding:6px 6px 14px;z-index:200;flex-shrink:0;}
 .ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;cursor:pointer;border-radius:9px;transition:background .15s;}
 .ni:hover{background:var(--sf);}
 .ni .nico2{font-size:18px;line-height:1;}
@@ -688,15 +689,73 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .print-label .pl-sku{font-size:6pt;color:#555;font-family:'Courier New',monospace;margin-bottom:2px;}
 .print-label canvas{max-width:95%;height:auto;}
 .print-label .pl-price{font-size:9pt;font-weight:900;color:#111;margin-top:2px;}
+
+/* ─── LIGHT MODE — OVERRIDES ─── */
+/* Logo en topbar oscuro */
+.topbar .logo{color:#FFFFFF;}
+.topbar .logo span{color:var(--accent);}
+.topbar .local-pill{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.12);color:rgba(255,255,255,.6);}
+.topbar .local-pill .ldot{background:var(--accent);}
+.topbar .icon-btn{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.12);color:rgba(255,255,255,.8);}
+.topbar .icon-btn:hover{border-color:rgba(255,255,255,.3);}
+.topbar .avatar-btn{background:var(--accent);color:#1A1A1A;}
+.topbar #topbar-screen-title{color:rgba(255,255,255,.45);}
+.badge-dot{border-color:#1A1A1A;}
+/* Botones: accent bg + texto oscuro */
+.btn{color:#1A1A1A;}
+.btn.sec{color:var(--text);background:var(--sf);border-color:var(--bd);}
+.btn.danger{background:var(--rdim);color:var(--red);}
+/* FAB y nav */
+.nav-fab{color:#1A1A1A;}
+.nav-fab-lbl{color:var(--text);}
+.ni.on .nlbl{color:var(--text);}
+.fab.p .fl,.fab.p .fs{color:#1A1A1A;}
+/* Chips y tabs activos */
+.chip.on{background:var(--accent);border-color:var(--accent);color:#1A1A1A;}
+.pb.on{background:var(--accent);color:#1A1A1A;}
+/* Cards accent */
+.scard.a{background:var(--accent);border-color:rgba(232,255,59,.5);}
+.scard.a .sv{color:#1A1A1A;}
+.card.a{background:var(--adim);border-color:rgba(232,255,59,.3);}
+/* Textos que eran accent ahora legibles */
+.sale-amt{color:var(--text);}
+.chart-val{color:var(--text);}
+.chart-title{color:var(--muted);}
+.sec-link{color:var(--muted);}
+.mono-lbl{color:var(--muted);letter-spacing:.5px;}
+.trev{color:var(--text);}
+.sku-code{color:var(--text);font-weight:700;}
+.sku-price-tag{color:var(--text);}
+.scan-input{color:var(--text);}
+.scan-input::placeholder{color:var(--muted2);}
+.scan-manual-input{color:var(--text);}
+.vp.ok .vs{color:var(--text);}
+.alert.yellow .alert-stock{color:#1A1A1A;}
+.date-lbl.cur{color:var(--text);}
+.conn-badge.ok{color:#15803d;background:rgba(21,128,61,.08);border-color:rgba(21,128,61,.2);}
+/* Verde legible sobre fondo claro */
+.sale-profit{color:#15803d;}
+.pmargin{color:#15803d;}
+.chart-delta.up{color:#15803d;}
+.sv.g{color:#15803d;}
+.scard.g .sv{color:#15803d;}
+.croi{color:#15803d;}
+.t-l2{color:#15803d;}
+.pill.g{background:rgba(21,128,61,.08);color:#15803d;border-color:rgba(21,128,61,.2);}
+.action-btn.ingreso .ab-lbl{color:#15803d;}
+/* Scan found */
+.scan-found-stock{color:#15803d !important;}
+.scan-area{background:var(--sf2);border-color:var(--bd2);}
+.scan-area.active-scan{border-color:var(--accent);background:var(--adim);}
 </style>
 </head>
 <body>
 
 <!-- PANTALLA DE CARGA -->
-<div id="loading-screen" style="position:fixed;inset:0;background:#080808;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:14px;">
-  <div style="font-family:'Archivo Black',sans-serif;font-size:36px;color:#E8FF3B;letter-spacing:-1.5px;text-shadow:0 0 40px rgba(232,255,59,.3);">Cuanti</div>
-  <div id="loading-step" style="font-size:12px;color:#666;min-height:18px;transition:color .3s;">Conectando con Supabase…</div>
-  <div style="width:140px;height:2px;background:#1a1a1a;border-radius:2px;overflow:hidden;position:relative;">
+<div id="loading-screen" style="position:fixed;inset:0;background:#F7F7F5;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:14px;">
+  <div style="font-family:'Archivo Black',sans-serif;font-size:36px;color:#1A1A1A;letter-spacing:-1.5px;">CUAN<span style="background:#E8FF3B;color:#1A1A1A;padding:0 4px;border-radius:4px;">TI</span></div>
+  <div id="loading-step" style="font-size:12px;color:#888888;min-height:18px;transition:color .3s;">Conectando con Supabase…</div>
+  <div style="width:140px;height:2px;background:#E0E0DE;border-radius:2px;overflow:hidden;position:relative;">
     <div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent,#E8FF3B,transparent);border-radius:2px;animation:ldbar 1.4s ease-in-out infinite;"></div>
   </div>
   <style>@keyframes ldbar{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}</style>
@@ -725,7 +784,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 <!-- ════════════════════════════ DASHBOARD ════════════════════════════ -->
 <div class="screen active" id="screen-dashboard">
   <div class="hero" onclick="goTo('analisis')">
-    <div class="hero-lbl">Ganancia del mes</div>
+    <div class="hero-lbl">Esto te quedó este mes</div>
     <div class="hero-amt" id="dash-hero-gan">$—</div>
     <div class="hero-sub">
       <span id="dash-hero-mes">—</span>
@@ -743,7 +802,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   <div class="sgrid">
     <div class="scard a" onclick="goTo('analisis')"><span class="si">💰</span><div class="sv" id="dash-ingresos">$—</div><div class="sl" id="dash-sl-ingresos">Ingresos del mes</div></div>
     <div class="scard" onclick="goTo('historial')"><span class="si">🛍️</span><div class="sv" id="dash-nventas">—</div><div class="sl">Ventas del mes</div></div>
-    <div class="scard r" onclick="goTo('inventario')"><span class="si">⚠️</span><div class="sv" id="dash-stockcrit">—</div><div class="sl">Stock crítico / bajo</div></div>
+    <div class="scard r" onclick="goTo('inventario')"><span class="si">⚠️</span><div class="sv" id="dash-stockcrit">—</div><div class="sl">Casi sin stock</div></div>
     <div class="scard b" onclick="goTo('inventario')"><span class="si">📦</span><div class="sv" id="dash-total-prod">—</div><div class="sl">Productos activos</div></div>
   </div>
 
@@ -815,14 +874,21 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
     <div class="mono-lbl">Paso 1 de 3 · Producto</div>
     <p style="font-family:'Archivo Black',sans-serif;font-size:18px;margin-bottom:14px;letter-spacing:-.3px;">¿Qué estás vendiendo?</p>
 
-    <!-- zona de escaneo / búsqueda -->
-    <div class="scan-area" id="venta-scan-area" onclick="document.getElementById('venta-scan-input').focus()">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-        <span style="font-size:22px;">📷</span>
-        <span style="font-size:12px;color:var(--muted);">Escanea o escribe el SKU / nombre</span>
-      </div>
-      <input id="venta-scan-input" class="scan-input" placeholder="Ej: NIK-ZAP-PAN-41-001 o &quot;Nike&quot;…"
-        autocomplete="off" oninput="ventaBuscar(this.value)" onkeydown="ventaScanKey(event)">
+    <!-- Buscador — opción principal -->
+    <input id="venta-scan-input" type="text"
+      style="width:100%;background:var(--sf);border:1.5px solid var(--bd);border-radius:12px;padding:14px 16px;color:var(--text);font-family:'Archivo',sans-serif;font-size:15px;outline:none;transition:border-color .15s;margin-bottom:10px;display:block;"
+      placeholder="Busca por nombre: Nike, Jordan, BAPE…"
+      autocomplete="off" oninput="ventaBuscar(this.value)" onkeydown="ventaScanKey(event)"
+      onfocus="this.style.borderColor='var(--text)'" onblur="this.style.borderColor='var(--bd)'">
+
+    <!-- Escáner — opción secundaria -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <div style="flex:1;height:1px;background:var(--bd);"></div>
+      <span style="font-size:11px;color:var(--muted2);flex-shrink:0;">o</span>
+      <div style="flex:1;height:1px;background:var(--bd);"></div>
+    </div>
+    <div style="text-align:center;margin-bottom:16px;">
+      <button class="btn sec" style="width:auto;padding:10px 22px;font-size:12px;" onclick="goTo('scanner')">📷 Escanear código de barras</button>
     </div>
 
     <!-- resultados de búsqueda -->
@@ -1388,7 +1454,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
       <div class="field"><label>Costo unitario (CLP)</label><div class="fwrap"><span class="fpfx">$</span><input id="sc-ing-costo" class="pfx" type="number" placeholder="0"></div></div>
     </div>
     <div class="field"><label>Motivo / Referencia (opcional)</label><input id="sc-ing-nota" type="text" placeholder="Ej: Lote marzo JP · Factura #123"></div>
-    <button class="btn" onclick="scConfirmarIngreso()" style="background:var(--gdim);border-color:rgba(59,255,138,.3);color:var(--green);">📥 Agregar al stock →</button>
+    <button class="btn" onclick="scConfirmarIngreso()" style="background:rgba(21,128,61,.08);border-color:rgba(21,128,61,.25);color:#15803d;">📥 Agregar al stock →</button>
     <button class="btn sec" onclick="scCerrarPanel()" style="margin-top:7px;">Cancelar</button>
   </div>
 
@@ -1700,12 +1766,12 @@ function renderDashboard() {
     const bajos    = skuDB.filter(s => s.stock > 0 && s.stock <= 2);
     let alertHtml = '';
     criticos.slice(0,2).forEach(s => {
-      alertHtml += `<div class="alert red" onclick="goTo('inventario')"><div class="alert-icon">${s.icon}</div><div class="alert-body"><div class="alert-name">${s.nombre}</div><div class="alert-detail">${s.variante} — Sin stock</div></div><div class="alert-stock">0 ud.</div></div>`;
+      alertHtml += `<div class="alert red" onclick="goTo('inventario')"><div class="alert-icon">${s.icon}</div><div class="alert-body"><div class="alert-name">${s.nombre}</div><div class="alert-detail">${s.variante} — Agotado</div></div><div class="alert-stock">0 ud.</div></div>`;
     });
     bajos.slice(0,2).forEach(s => {
-      alertHtml += `<div class="alert orange" onclick="goTo('inventario')"><div class="alert-icon">${s.icon}</div><div class="alert-body"><div class="alert-name">${s.nombre}</div><div class="alert-detail">${s.variante} — Stock bajo</div></div><div class="alert-stock">${s.stock} ud.</div></div>`;
+      alertHtml += `<div class="alert orange" onclick="goTo('inventario')"><div class="alert-icon">${s.icon}</div><div class="alert-body"><div class="alert-name">${s.nombre}</div><div class="alert-detail">${s.variante} — Se te va a acabar</div></div><div class="alert-stock">${s.stock} ud.</div></div>`;
     });
-    if(!alertHtml) alertHtml = `<div style="padding:12px;font-size:12px;color:var(--green);text-align:center;">✓ Todo el stock en orden</div>`;
+    if(!alertHtml) alertHtml = `<div style="padding:12px;font-size:12px;color:#15803d;text-align:center;">✓ Todo el stock en orden</div>`;
     alertasWrap.innerHTML = alertHtml;
   }
 
@@ -1865,10 +1931,10 @@ function renderHistorial(filtro) {
     return;
   }
 
-  const canalColor = { Sotos:'var(--accent)', WhatsApp:'var(--green)', Facebook:'var(--blue)', Sneakerheads:'var(--purple)', Devolución:'var(--red)' };
+  const canalColor = { Sotos:'#8A7A00', WhatsApp:'#15803d', Facebook:'var(--blue)', Sneakerheads:'var(--purple)', Devolución:'var(--red)' };
   lista.innerHTML = ventas.map(v => {
     const isDev = v.canal === 'Devolución';
-    const ganColor = v.gan >= 0 ? 'var(--green)' : 'var(--red)';
+    const ganColor = v.gan >= 0 ? '#15803d' : 'var(--red)';
     const cc = canalColor[v.canal] || 'var(--muted)';
     return `
     <div class="sale" style="${isDev?'opacity:.75;border-color:rgba(255,68,68,.2);':''}">
@@ -1973,19 +2039,18 @@ function renderInventario() {
       return `<div class="vp ${cls}">${warn}<span class="vs">${lbl} · ${v.stock}</span></div>`;
     }).join('');
 
+    const ganUnit = g.precio > 0 && g.costo > 0 ? g.precio - g.costo : null;
     html += `
     <div class="pcard ${stockClass}" data-cat="${cat}" data-stock="${stockData}">
       <div class="ptop">
         <div class="pemoji">${g.icon}</div>
         <div class="pinfo">
-          <div class="pbrand">${marca} · ${catLabel} · ${origen}</div>
+          <div class="pbrand">${marca} · ${catLabel}</div>
           <div class="pname">${g.nombre}</div>
-          <div class="pcode">SKU ${g.sku.slice(-8)}</div>
         </div>
         <div class="pprice">
           <div class="psell">$${fmt(g.precio)}</div>
-          <div class="pcost">Costo $${fmt(g.costo)}</div>
-          <div class="pmargin">Margen ${margen}% s/precio</div>
+          ${ganUnit !== null ? `<div class="pmargin">Te deja $${fmt(ganUnit)}</div>` : ''}
         </div>
       </div>
       <div class="vrow">${vpHtml}</div>
@@ -2018,7 +2083,7 @@ function toast(msg, tipo='ok') {
   }
   t.textContent = msg;
   t.style.borderColor = tipo==='err' ? 'rgba(255,68,68,.4)' : tipo==='ok' ? 'rgba(59,255,138,.3)' : 'var(--bd)';
-  t.style.color = tipo==='err' ? 'var(--red)' : tipo==='ok' ? 'var(--green)' : 'var(--text)';
+  t.style.color = tipo==='err' ? 'var(--red)' : tipo==='ok' ? '#15803d' : 'var(--text)';
   t.style.opacity = '1';
   t.style.transform = 'translateX(-50%) translateY(0)';
   clearTimeout(t._timer);
@@ -2081,7 +2146,7 @@ function ventaRenderInventario(filter='') {
     return;
   }
   lista.innerHTML = items.map(s => {
-    const sc = s.stock<=1 ? 'var(--red)' : s.stock<=3 ? 'var(--orange)' : 'var(--green)';
+    const sc = s.stock<=1 ? 'var(--red)' : s.stock<=3 ? 'var(--orange)' : '#15803d';
     const enc = safeEncode(s);
     return `<div class="opt" onclick="ventaSelProductEncoded('${enc}')" style="margin-bottom:7px;">
       <div class="oico" style="font-size:19px;">${s.icon}</div>
@@ -2104,12 +2169,9 @@ function ventaSelProductEncoded(enc) {
 
 // Búsqueda en tiempo real
 function ventaBuscar(q) {
-  const area  = document.getElementById('venta-scan-area');
   const res   = document.getElementById('venta-resultados');
   const lista = document.getElementById('venta-inv-lista');
   const hasQ  = q.length > 0;
-
-  area.classList.toggle('active-scan', hasQ);
 
   if(!hasQ) {
     res.innerHTML   = '';
@@ -2131,7 +2193,7 @@ function ventaBuscar(q) {
   }
   res.innerHTML = `<div style="margin-bottom:7px;font-size:10px;color:var(--accent);font-weight:600;letter-spacing:1px;text-transform:uppercase;">${matches.length} resultado${matches.length>1?'s':''}</div>` +
     matches.map(s => {
-      const sc  = s.stock<=1?'var(--red)':s.stock<=3?'var(--orange)':'var(--green)';
+      const sc  = s.stock<=1?'var(--red)':s.stock<=3?'var(--orange)':'#15803d';
       const enc = safeEncode(s);
       return `<div class="opt" onclick="ventaSelProductEncoded('${enc}')" style="margin-bottom:6px;border-color:rgba(232,255,59,.3);background:var(--adim);">
         <div class="oico" style="font-size:19px;">${s.icon}</div>
@@ -2192,7 +2254,6 @@ function ventaVolver() {
   const inp = document.getElementById('venta-scan-input');
   if(inp) { inp.value = ''; inp.focus(); }
   document.getElementById('venta-resultados').innerHTML = '';
-  document.getElementById('venta-scan-area').classList.remove('active-scan');
   const lista = document.getElementById('venta-inv-lista');
   if(lista) lista.style.display = '';
   ventaRenderInventario();
@@ -2308,13 +2369,13 @@ async function ventaConfirmar() {
     } else if (margenPct >= 50) {
       insightHtml = `<div style="background:var(--gdim);border:1px solid rgba(59,255,138,.2);border-radius:12px;padding:13px 14px;margin:12px 0 0;display:flex;align-items:flex-start;gap:10px;">
         <span style="font-size:20px;flex-shrink:0;">💚</span>
-        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--green);">Buen margen en esta venta</div>
+        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:#15803d;">Buen margen en esta venta</div>
         <div style="font-size:11px;color:var(--muted);">Ganaste el ${margenPct}% de lo que vendiste — muy bien.</div></div>
       </div>`;
     } else if (canal === 'WhatsApp' && gan > 0) {
       insightHtml = `<div style="background:var(--gdim);border:1px solid rgba(59,255,138,.2);border-radius:12px;padding:13px 14px;margin:12px 0 0;display:flex;align-items:flex-start;gap:10px;">
         <span style="font-size:20px;flex-shrink:0;">💬</span>
-        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--green);">Venta sin comisión</div>
+        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:#15803d;">Venta sin comisión</div>
         <div style="font-size:11px;color:var(--muted);">Por WhatsApp te quedas con toda la ganancia.</div></div>
       </div>`;
     } else if (gan > 0 && nuevoStock > 5) {
@@ -2481,7 +2542,7 @@ function renderAnalisis(tab, btn) {
   }
 
   function progressRows(canales, totalIngresos) {
-    const canalColor = { Sotos:'var(--accent)', WhatsApp:'var(--green)', Facebook:'var(--blue)', Sneakerheads:'var(--purple)' };
+    const canalColor = { Sotos:'#8A7A00', WhatsApp:'#15803d', Facebook:'var(--blue)', Sneakerheads:'var(--purple)' };
     return canales.map((c,i) => {
       const pct = totalIngresos > 0 ? Math.round((c.ingresos/totalIngresos)*100) : 0;
       const col = canalColor[c.canal] || 'var(--muted)';
@@ -2576,12 +2637,12 @@ function renderAnalisis(tab, btn) {
       <!-- P&L del día -->
       <div class="chart-box">
         <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Resultado del día</div>
-        ${kpiRow('💵','Ingresos brutos','$'+fmt(ing),'var(--accent)')}
+        ${kpiRow('💵','Ingresos brutos','$'+fmt(ing),'var(--text)')}
         ${kpiRow('📦','Costo mercadería','−$'+fmt(hoy.reduce((s,v)=>s+(v.costo||0),0)),'var(--red)')}
         ${com > 0 ? kpiRow('🏪','Comisiones Sotos','−$'+fmt(com),'var(--orange)') : ''}
         <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;font-weight:700;font-size:14px;">
           <span>Ganancia neta</span>
-          <span style="font-family:'Archivo Black',sans-serif;color:${gan>=0?'var(--green)':'var(--red)'};">$${fmt(gan)}</span>
+          <span style="font-family:'Archivo Black',sans-serif;color:${gan>=0?'#15803d':'var(--red)'};">$${fmt(gan)}</span>
         </div>
       </div>
 
@@ -2597,7 +2658,7 @@ function renderAnalisis(tab, btn) {
         ${hoy.map(v=>`<div class="trow">
           <div style="font-size:20px;width:28px;flex-shrink:0;">${v.icon}</div>
           <div class="tinfo"><div class="tname">${v.nombre}</div><div class="tunits">${v.fecha.split('·')[1]?.trim()||''} · ${v.canal}</div></div>
-          <div class="tamt"><div class="trev">$${fmt(v.precio)}</div><div class="tmrg" style="color:var(--green);">+$${fmt(v.gan)}</div></div>
+          <div class="tamt"><div class="trev">$${fmt(v.precio)}</div><div class="tmrg" style="color:#15803d;">+$${fmt(v.gan)}</div></div>
         </div>`).join('')}
       </div>`;
     return;
@@ -2709,13 +2770,13 @@ function renderAnalisis(tab, btn) {
       <!-- P&L del mes -->
       <div class="chart-box">
         <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Estado de resultados</div>
-        ${kpiRow('💵','Ingresos brutos','$'+fmt(ing),'var(--accent)')}
+        ${kpiRow('💵','Ingresos brutos','$'+fmt(ing),'var(--text)')}
         ${kpiRow('📦','Costo mercadería','−$'+fmt(costos),'var(--red)')}
         ${coms > 0 ? kpiRow('🏪','Comisiones Sotos','−$'+fmt(coms),'var(--orange)') : ''}
-        ${kpiRow('📊','Margen bruto',margen+'%','var(--green)')}
+        ${kpiRow('📊','Margen bruto',margen+'%','#15803d')}
         <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;font-weight:700;font-size:14px;border-top:1px solid var(--bd);margin-top:4px;">
           <span>Ganancia neta</span>
-          <span style="font-family:'Archivo Black',sans-serif;font-size:16px;color:${gan>=0?'var(--green)':'var(--red)'};">$${fmt(gan)}</span>
+          <span style="font-family:'Archivo Black',sans-serif;font-size:16px;color:${gan>=0?'#15803d':'var(--red)'};">$${fmt(gan)}</span>
         </div>
       </div>
 
@@ -2855,11 +2916,11 @@ function renderAnalisis(tab, btn) {
       <!-- Semáforo de stock -->
       <div class="chart-box">
         <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Estado del inventario</div>
-        ${kpiRow('🟢','Con stock suficiente',ok.length+' SKUs','var(--green)')}
-        ${kpiRow('🟡','Stock bajo (≤2 ud.)',bajos.length+' SKUs','var(--orange)')}
-        ${kpiRow('🔴','Sin stock',agotados.length+' SKUs','var(--red)')}
-        ${kpiRow('📦','Unidades en total',totalUds+' uds.','var(--accent)')}
-        ${kpiRow('💵','Valor al precio de venta','$'+fmt(totalValor),'var(--accent)')}
+        ${kpiRow('🟢','Con stock suficiente',ok.length+' SKUs','#15803d')}
+        ${kpiRow('🟡','Se te va a acabar (≤2 ud.)',bajos.length+' SKUs','var(--orange)')}
+        ${kpiRow('🔴','Agotados',agotados.length+' SKUs','var(--red)')}
+        ${kpiRow('📦','Unidades en total',totalUds+' uds.','var(--text)')}
+        ${kpiRow('💵','Valor al precio de venta','$'+fmt(totalValor),'var(--text)')}
       </div>
 
       <!-- Agotados -->
@@ -2874,7 +2935,7 @@ function renderAnalisis(tab, btn) {
 
       <!-- Bajo stock -->
       ${bajos.length ? `<div class="chart-box" style="border-color:rgba(255,140,66,.2);">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;color:var(--orange);">🟡 Bajo stock — pronto a agotar</div>
+        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;color:var(--orange);">🟡 Se te va a acabar</div>
         ${bajos.map(s=>`<div class="trow">
           <div style="font-size:18px;width:26px;flex-shrink:0;">${s.icon}</div>
           <div class="tinfo"><div class="tname">${s.nombre}</div><div class="tunits">${s.variante}</div></div>
@@ -2904,7 +2965,7 @@ function renderAnalisis(tab, btn) {
         ${topRoi.map((s,i)=>`<div class="trow">
           <div class="trank ${i===0?'f':''}">${i+1}</div>
           <div class="tinfo"><div class="tname">${s.icon} ${s.nombre}</div><div class="tunits">${s.variante} · $${fmt(s.precio)}</div></div>
-          <div class="tamt"><div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--green);">ROI ${s.roi}%</div><div class="tmrg">${s.stock} ud.</div></div>
+          <div class="tamt"><div style="font-family:'DM Mono',monospace;font-size:12px;color:#15803d;">ROI ${s.roi}%</div><div class="tmrg">${s.stock} ud.</div></div>
         </div>`).join('')}
       </div>`;
     return;
@@ -3215,7 +3276,7 @@ function renderSkuList(filter='') {
     return;
   }
   list.innerHTML = items.map(s => {
-    const sc = s.stock===0?'var(--red)':s.stock<=2?'var(--orange)':'var(--green)';
+    const sc = s.stock===0?'var(--red)':s.stock<=2?'var(--orange)':'#15803d';
     const enc = safeEncode(s);
     return `
     <div class="sku-card">
@@ -3469,7 +3530,7 @@ function scProcessCode(code) {
   document.getElementById('sc-found-meta').textContent  = `${item.variante} · $${fmt(item.precio)}`;
   const stockEl = document.getElementById('sc-found-stock');
   stockEl.textContent = item.stock;
-  stockEl.style.color = item.stock===0?'var(--red)':item.stock<=2?'var(--orange)':'var(--green)';
+  stockEl.style.color = item.stock===0?'var(--red)':item.stock<=2?'var(--orange)':'#15803d';
 
   // Deshabilitar "venta" si sin stock
   const ventaBtn = document.querySelector('#sc-action-grid .action-btn.venta');
