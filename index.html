@@ -183,7 +183,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 /* ─── TOPBAR ─── */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 10px;background:#FFFFFF;border-bottom:1px solid #E0E0DE;flex-shrink:0;z-index:200;}
 .logo{font-family:'Archivo Black',sans-serif;font-size:18px;letter-spacing:-.5px;color:#1A1A1A;}
-.logo span{background:#E8FF3B;color:#1A1A1A;padding:0 4px;border-radius:4px;}
+.logo span{background:var(--accent);color:#1A1A1A;padding:0 4px;border-radius:4px;}
 .topbar-r{display:flex;align-items:center;gap:9px;}
 .local-pill{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:4px 9px;font-size:10px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;transition:border-color .2s;}
 .local-pill:hover{border-color:var(--bd2);}
@@ -242,7 +242,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .alert{border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;cursor:pointer;}
 .alert.red{background:var(--rdim);border:1px solid rgba(255,68,68,.2);}
 .alert.orange{background:var(--odim);border:1px solid rgba(255,140,66,.2);}
-.alert.yellow{background:var(--adim);border:1px solid rgba(232,255,59,.15);}
+.alert.yellow{background:var(--adim);border:1px solid rgba(215,240,46,.15);}
 .alert-icon{font-size:16px;flex-shrink:0;}
 .alert-body{flex:1;min-width:0;}
 .alert-name{font-size:12px;font-weight:600;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -306,7 +306,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .search-row{display:flex;gap:7px;margin:12px 0;}
 .srch{flex:1;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:9px 13px;color:var(--text);font-family:'Archivo',sans-serif;font-size:12px;outline:none;transition:border-color .15s;}
 .srch::placeholder{color:var(--muted2);}
-.srch:focus{border-color:rgba(232,255,59,.35);}
+.srch:focus{border-color:var(--text);}
 .filter-btn{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:9px 12px;color:var(--muted);font-size:14px;cursor:pointer;transition:border-color .15s;}
 .filter-btn:hover{border-color:var(--bd2);}
 
@@ -315,7 +315,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .chips::-webkit-scrollbar{display:none;}
 .chip{background:var(--sf);border:1px solid var(--bd);border-radius:18px;padding:5px 12px;font-size:11px;color:var(--muted);cursor:pointer;white-space:nowrap;font-weight:500;transition:all .15s;}
 .chip:hover{border-color:var(--bd2);}
-.chip.on{background:var(--adim);border-color:rgba(232,255,59,.3);color:var(--accent);}
+.chip.on{background:var(--adim);border-color:rgba(215,240,46,.3);color:var(--accent);}
 
 /* ─── PRODUCT CARD ─── */
 .pcard{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:9px;cursor:pointer;transition:border-color .15s;}
@@ -359,7 +359,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .fpfx{position:absolute;left:11px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);pointer-events:none;z-index:1;}
 .field input,.field select,.field textarea{width:100%;background:var(--sf2);border:1px solid var(--bd);border-radius:9px;padding:10px 12px;color:var(--text);font-family:'Archivo',sans-serif;font-size:13px;outline:none;transition:border-color .15s;-webkit-appearance:none;}
 .field input.pfx{padding-left:24px;}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:rgba(232,255,59,.4);}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--text);}
 .field input::placeholder{color:var(--muted2);}
 .field select option{background:var(--sf2);}
 .field textarea{resize:none;min-height:68px;line-height:1.5;}
@@ -369,9 +369,9 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .steps{display:flex;align-items:center;gap:6px;margin-bottom:20px;}
 .sdot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;font-family:'DM Mono',monospace;border:1.5px solid var(--bd);color:var(--muted);flex-shrink:0;transition:all .2s;}
 .sdot.on{background:var(--accent);border-color:var(--accent);color:var(--bg);}
-.sdot.dn{background:var(--adim);border-color:rgba(232,255,59,.3);color:var(--accent);}
+.sdot.dn{background:var(--adim);border-color:rgba(215,240,46,.3);color:var(--accent);}
 .sline{flex:1;height:1px;background:var(--bd);transition:background .2s;}
-.sline.dn{background:rgba(232,255,59,.3);}
+.sline.dn{background:rgba(215,240,46,.3);}
 
 /* ─── SUMMARY ─── */
 .sum-card{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:13px;}
@@ -438,7 +438,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .uname{font-size:13px;font-weight:600;margin-bottom:2px;}
 .umeta{font-size:10px;color:var(--muted);}
 .role{font-size:9px;padding:3px 9px;border-radius:18px;font-weight:700;font-family:'DM Mono',monospace;letter-spacing:.5px;}
-.role.owner{background:var(--adim);color:var(--accent);border:1px solid rgba(232,255,59,.2);}
+.role.owner{background:var(--adim);color:var(--accent);border:1px solid rgba(215,240,46,.2);}
 .role.admin{background:var(--bdim2);color:var(--blue);border:1px solid rgba(77,159,255,.2);}
 .role.seller{background:var(--sf2);color:var(--muted);border:1px solid var(--bd);}
 
@@ -457,7 +457,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .ctag{font-size:9px;padding:2px 7px;border-radius:5px;font-family:'DM Mono',monospace;}
 .t-jp{background:rgba(255,140,66,.12);color:var(--orange);border:1px solid rgba(255,140,66,.2);}
 .t-local{background:var(--bdim2);color:var(--blue);border:1px solid rgba(77,159,255,.2);}
-.t-l1{background:var(--adim);color:var(--accent);border:1px solid rgba(232,255,59,.2);}
+.t-l1{background:var(--adim);color:var(--accent);border:1px solid rgba(215,240,46,.2);}
 .t-l2{background:var(--gdim);color:var(--green);border:1px solid rgba(59,255,138,.2);}
 
 /* ─── LOCAL COMPARE ─── */
@@ -488,7 +488,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .tgl input{opacity:0;width:0;height:0;}
 .tgl-sl{position:absolute;inset:0;background:var(--bd2);border-radius:20px;cursor:pointer;transition:.2s;}
 .tgl-sl::before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:var(--muted);border-radius:50%;transition:.2s;}
-.tgl input:checked+.tgl-sl{background:rgba(232,255,59,.2);}
+.tgl input:checked+.tgl-sl{background:rgba(215,240,46,.2);}
 .tgl input:checked+.tgl-sl::before{transform:translateX(16px);background:var(--accent);}
 
 /* ─── PERMISSION TABLE ─── */
@@ -554,7 +554,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .pill{display:inline-flex;align-items:center;gap:4px;border-radius:20px;padding:3px 9px;font-size:10px;font-weight:600;}
 .pill.g{background:var(--gdim);color:var(--green);border:1px solid rgba(59,255,138,.2);}
 .pill.r{background:var(--rdim);color:var(--red);border:1px solid rgba(255,68,68,.2);}
-.pill.a{background:var(--adim);color:var(--accent);border:1px solid rgba(232,255,59,.2);}
+.pill.a{background:var(--adim);color:var(--accent);border:1px solid rgba(215,240,46,.2);}
 .pill.b2{background:var(--bdim2);color:var(--blue);border:1px solid rgba(77,159,255,.2);}
 
 /* ─── SKU / ETIQUETAS ─── */
@@ -568,8 +568,8 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .sku-actions{display:flex;gap:6px;flex-shrink:0;}
 .sku-btn{background:var(--sf2);border:1px solid var(--bd);border-radius:7px;padding:5px 9px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;}
 .sku-btn:hover{border-color:var(--bd2);color:var(--text);}
-.sku-btn.print{background:var(--adim);border-color:rgba(232,255,59,.25);color:var(--accent);}
-.sku-btn.print:hover{background:rgba(232,255,59,.18);}
+.sku-btn.print{background:var(--adim);border-color:rgba(215,240,46,.25);color:var(--accent);}
+.sku-btn.print:hover{background:rgba(215,240,46,.18);}
 .sku-barcode-row{display:flex;align-items:center;gap:8px;background:var(--sf2);border-radius:8px;padding:8px 10px;overflow:hidden;}
 .sku-barcode-row canvas{display:block;flex:1;min-width:0;max-width:100%;height:auto;}
 .sku-price-tag{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);flex-shrink:0;white-space:nowrap;font-weight:600;}
@@ -589,7 +589,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .label-modal-body{padding:0 18px 18px;}
 .size-opts{display:flex;gap:6px;margin-bottom:4px;}
 .size-opt{flex:1;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:8px 4px;text-align:center;cursor:pointer;transition:all .15s;}
-.size-opt.on{background:var(--adim);border-color:rgba(232,255,59,.3);}
+.size-opt.on{background:var(--adim);border-color:rgba(215,240,46,.3);}
 .size-opt .so-size{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);font-weight:600;margin-bottom:2px;}
 .size-opt .so-name{font-size:9px;color:var(--muted);}
 .qty-row{display:flex;align-items:center;gap:10px;background:var(--sf2);border:1px solid var(--bd);border-radius:9px;padding:10px 14px;margin-bottom:12px;}
@@ -623,7 +623,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .scanner-cam-hint{position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:11px;color:rgba(255,255,255,.55);letter-spacing:.4px;}
 .scanner-cam-dot{position:absolute;top:11px;right:11px;width:9px;height:9px;border-radius:50%;background:var(--red);}
 .scanner-cam-dot.live{background:var(--green);animation:pulse-dot .9s ease-in-out infinite;}
-.scanner-flash{position:absolute;inset:0;border-radius:16px;background:rgba(232,255,59,.22);opacity:0;pointer-events:none;transition:opacity .12s;}
+.scanner-flash{position:absolute;inset:0;border-radius:16px;background:rgba(215,240,46,.22);opacity:0;pointer-events:none;transition:opacity .12s;}
 .scanner-flash.show{opacity:1;}
 
 /* producto encontrado card */
@@ -643,7 +643,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .action-btn:hover{border-color:var(--bd2);background:var(--sf);}
 .action-btn .ab-icon{font-size:22px;}
 .action-btn .ab-lbl{font-size:10px;font-weight:700;text-align:center;color:var(--muted);line-height:1.2;}
-.action-btn.venta{border-color:rgba(232,255,59,.3);background:var(--adim);}
+.action-btn.venta{border-color:rgba(215,240,46,.3);background:var(--adim);}
 .action-btn.venta .ab-lbl{color:var(--accent);}
 .action-btn.ingreso{border-color:rgba(59,255,138,.2);background:var(--gdim);}
 .action-btn.ingreso .ab-lbl{color:var(--green);}
@@ -666,7 +666,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .scan-manual-row{display:flex;gap:7px;margin-bottom:10px;}
 .scan-manual-input{flex:1;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:10px 13px;font-family:'DM Mono',monospace;font-size:14px;color:var(--accent);outline:none;letter-spacing:1px;}
 .scan-manual-input::placeholder{color:var(--muted2);font-size:12px;letter-spacing:0;}
-.scan-manual-input:focus{border-color:rgba(232,255,59,.4);}
+.scan-manual-input:focus{border-color:var(--text);}
 
 /* ─── CAM TOGGLE ─── */
 .cam-toggle-row{display:flex;gap:6px;margin-bottom:10px;background:var(--sf);border:1px solid var(--bd);border-radius:11px;padding:3px;}
@@ -676,7 +676,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
 /* ─── PULSE ANIMATIONS ─── */
 @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.7;transform:scale(.85);}}
-@keyframes nav-fab-pulse{0%,100%{box-shadow:0 4px 16px rgba(232,255,59,.22);}50%{box-shadow:0 4px 24px rgba(232,255,59,.45);}}
+@keyframes nav-fab-pulse{0%,100%{box-shadow:0 4px 16px rgba(215,240,46,.22);}50%{box-shadow:0 4px 24px rgba(215,240,46,.45);}}
 .nav-fab{animation:nav-fab-pulse 2.5s ease-in-out infinite;}
 
 /* ─── CONNECTION BADGE ─── */
@@ -794,7 +794,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   <div style="font-family:'Archivo Black',sans-serif;font-size:36px;color:#171717;letter-spacing:-1.5px;">CUAN<span style="background:#D7F02E;color:#171717;padding:0 4px;border-radius:4px;">TI</span></div>
   <div id="loading-step" style="font-size:12px;color:#888888;min-height:18px;transition:color .3s;">Conectando con Supabase…</div>
   <div style="width:140px;height:2px;background:#E0E0DE;border-radius:2px;overflow:hidden;position:relative;">
-    <div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent,#E8FF3B,transparent);border-radius:2px;animation:ldbar 1.4s ease-in-out infinite;"></div>
+    <div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent,var(--accent),transparent);border-radius:2px;animation:ldbar 1.4s ease-in-out infinite;"></div>
   </div>
   <style>@keyframes ldbar{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}</style>
 </div>
@@ -1006,7 +1006,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
     <div style="font-size:28px;">📷</div>
     <div style="flex:1;">
       <div style="font-size:13px;font-weight:700;margin-bottom:2px;">Escanear para ingresar stock</div>
-      <div style="font-size:11px;color:rgba(232,255,59,.6);">Llega un lote — escanea cada producto directamente</div>
+      <div style="font-size:11px;color:rgba(215,240,46,.6);">Llega un lote — escanea cada producto directamente</div>
     </div>
     <div style="font-size:14px;color:var(--accent);">→</div>
   </div>
@@ -1156,35 +1156,35 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
       <!-- cada mes: barra l1 + barra l2 lado a lado -->
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
         <div style="width:100%;display:flex;gap:2px;align-items:flex-end;height:65px;">
-          <div style="flex:1;background:rgba(232,255,59,.35);border-radius:3px 3px 0 0;height:13px;"></div>
+          <div style="flex:1;background:rgba(215,240,46,.35);border-radius:3px 3px 0 0;height:13px;"></div>
           <div style="flex:1;background:rgba(59,255,138,.35);border-radius:3px 3px 0 0;height:19px;"></div>
         </div>
         <div class="blbl">Oct</div>
       </div>
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
         <div style="width:100%;display:flex;gap:2px;align-items:flex-end;height:65px;">
-          <div style="flex:1;background:rgba(232,255,59,.35);border-radius:3px 3px 0 0;height:21px;"></div>
+          <div style="flex:1;background:rgba(215,240,46,.35);border-radius:3px 3px 0 0;height:21px;"></div>
           <div style="flex:1;background:rgba(59,255,138,.35);border-radius:3px 3px 0 0;height:31px;"></div>
         </div>
         <div class="blbl">Nov</div>
       </div>
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
         <div style="width:100%;display:flex;gap:2px;align-items:flex-end;height:65px;">
-          <div style="flex:1;background:rgba(232,255,59,.35);border-radius:3px 3px 0 0;height:29px;"></div>
+          <div style="flex:1;background:rgba(215,240,46,.35);border-radius:3px 3px 0 0;height:29px;"></div>
           <div style="flex:1;background:rgba(59,255,138,.35);border-radius:3px 3px 0 0;height:41px;"></div>
         </div>
         <div class="blbl">Dic</div>
       </div>
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
         <div style="width:100%;display:flex;gap:2px;align-items:flex-end;height:65px;">
-          <div style="flex:1;background:rgba(232,255,59,.35);border-radius:3px 3px 0 0;height:36px;"></div>
+          <div style="flex:1;background:rgba(215,240,46,.35);border-radius:3px 3px 0 0;height:36px;"></div>
           <div style="flex:1;background:rgba(59,255,138,.35);border-radius:3px 3px 0 0;height:49px;"></div>
         </div>
         <div class="blbl">Ene</div>
       </div>
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
         <div style="width:100%;display:flex;gap:2px;align-items:flex-end;height:65px;">
-          <div style="flex:1;background:rgba(232,255,59,.35);border-radius:3px 3px 0 0;height:47px;"></div>
+          <div style="flex:1;background:rgba(215,240,46,.35);border-radius:3px 3px 0 0;height:47px;"></div>
           <div style="flex:1;background:rgba(59,255,138,.35);border-radius:3px 3px 0 0;height:60px;"></div>
         </div>
         <div class="blbl">Feb</div>
@@ -3530,8 +3530,7 @@ async function scStartCamera() {
     _scCamActive = true;
 
     _scReader = new ZXing.BrowserMultiFormatReader();
-    const self = arguments.callee;
-    _scReader.decodeFromVideoElement(video, (result, err) => {
+    const onDecode = function(result, err) {
       if(!result || !_scCamActive) return;
       const flash = document.getElementById('sc-flash');
       flash.classList.add('show');
@@ -3541,10 +3540,11 @@ async function scStartCamera() {
       // Pausa 2s antes de volver a leer
       setTimeout(() => {
         if(_scCamActive && _scReader) {
-          _scReader.decodeFromVideoElement(video, arguments.callee);
+          _scReader.decodeFromVideoElement(video, onDecode);
         }
       }, 2000);
-    });
+    };
+    _scReader.decodeFromVideoElement(video, onDecode);
 
   } catch(err) {
     startBtn.textContent = '📷 Activar cámara'; startBtn.disabled = false;
