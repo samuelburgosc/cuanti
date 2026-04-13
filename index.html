@@ -311,10 +311,14 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .filter-btn:hover{border-color:var(--bd2);}
 
 /* ─── CHIPS ─── */
-.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:3px;margin-bottom:13px;scrollbar-width:none;}
-.chips::-webkit-scrollbar{display:none;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:13px;}
 .chip{background:var(--sf);border:1px solid var(--bd);border-radius:18px;padding:5px 12px;font-size:11px;color:var(--muted);cursor:pointer;white-space:nowrap;font-weight:500;transition:all .15s;}
 .chip:hover{border-color:var(--bd2);}
+/* Chips de estado urgente */
+.chip.urgent-red{border-color:rgba(216,75,75,.25);color:var(--red);}
+.chip.urgent-red.on{background:rgba(216,75,75,.09);border-color:rgba(216,75,75,.4);color:var(--red);}
+.chip.urgent-orange{border-color:rgba(228,106,46,.25);color:var(--orange);}
+.chip.urgent-orange.on{background:rgba(228,106,46,.09);border-color:rgba(228,106,46,.4);color:var(--orange);}
 .chip.on{background:var(--adim);border-color:rgba(215,240,46,.3);color:var(--accent);}
 
 /* ─── PRODUCT CARD ─── */
@@ -871,32 +875,30 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   <div class="ptitle">Inventario</div>
   <div class="psub" id="inv-psub">Cargando inventario…</div>
 
-  <!-- acciones rápidas -->
-  <div class="inv-actions">
-    <div class="inv-act-btn" onclick="goTo('skus')">
-      <div class="inv-act-icon">📦</div>
-      <div class="inv-act-lbl">+ Producto</div>
-    </div>
-    <div class="inv-act-btn" onclick="invAbrirAddStock()">
-      <div class="inv-act-icon">📥</div>
-      <div class="inv-act-lbl">+ Stock</div>
-    </div>
-    <div class="inv-act-btn" onclick="goTo('compras')">
-      <div class="inv-act-icon">🧾</div>
-      <div class="inv-act-lbl">+ Compra</div>
+  <!-- acciones rápidas: + Stock destacado, resto secundarios -->
+  <div style="margin-bottom:12px;">
+    <button onclick="invAbrirAddStock()" style="width:100%;background:var(--accent);border:none;border-radius:12px;padding:13px;font-family:'Archivo Black',sans-serif;font-size:14px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;transition:opacity .15s;" onmousedown="this.style.opacity='.88'" onmouseup="this.style.opacity='1'">
+      <span>📥</span> Agregar stock
+    </button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div class="inv-act-btn" onclick="goTo('skus')"><div class="inv-act-icon">📦</div><div class="inv-act-lbl">+ Producto</div></div>
+      <div class="inv-act-btn" onclick="goTo('compras')"><div class="inv-act-icon">🧾</div><div class="inv-act-lbl">+ Compra</div></div>
     </div>
   </div>
+
+  <!-- resumen de stock dinámico -->
+  <div id="inv-stock-summary" style="display:none;margin-bottom:12px;"></div>
 
   <div class="search-row"><input class="srch" placeholder="Buscar producto o marca..." id="inv-search" oninput="filterInv(this.value)"><button class="filter-btn" onclick="invFiltroSheet()">⚙️</button></div>
   <div class="chips" id="inv-chips">
     <div class="chip on" onclick="filterChip(this,'todos')">Todos</div>
-    <div class="chip" onclick="filterChip(this,'zapatillas')">Zapatillas</div>
-    <div class="chip" onclick="filterChip(this,'ropa')">Ropa</div>
-    <div class="chip" onclick="filterChip(this,'gorras')">Gorras</div>
-    <div class="chip" onclick="filterChip(this,'bolsos')">Bolsos</div>
-    <div class="chip" onclick="filterChip(this,'accesorios')">Accesorios</div>
-    <div class="chip" onclick="filterChip(this,'bajo')">Bajo stock</div>
-    <div class="chip" onclick="filterChip(this,'agotado')">Agotado</div>
+    <div class="chip urgent-red" onclick="filterChip(this,'agotado')">🔴 Agotado</div>
+    <div class="chip urgent-orange" onclick="filterChip(this,'bajo')">🟡 Bajo stock</div>
+    <div class="chip" onclick="filterChip(this,'zapatillas')">👟 Zapatillas</div>
+    <div class="chip" onclick="filterChip(this,'ropa')">👕 Ropa</div>
+    <div class="chip" onclick="filterChip(this,'gorras')">🧢 Gorras</div>
+    <div class="chip" onclick="filterChip(this,'bolsos')">👜 Bolsos</div>
+    <div class="chip" onclick="filterChip(this,'accesorios')">🎒 Accesorios</div>
   </div>
 
   <div id="inv-list"></div>
@@ -2151,19 +2153,52 @@ function renderInventario() {
   const activeChip = document.querySelector('#inv-chips .chip.on')?.dataset?.cat || 'todos';
   const q = (document.getElementById('inv-search')?.value || '').toLowerCase();
 
+  // Resumen de stock para el banner dinámico
+  const totalAgotados = Object.values(grupos).filter(g => g.variantes.reduce((s,v)=>s+v.stock,0) === 0).length;
+  const totalBajo     = Object.values(grupos).filter(g => {
+    const tot = g.variantes.reduce((s,v)=>s+v.stock,0);
+    return tot > 0 && tot <= 3;
+  }).length;
+  const summaryEl = document.getElementById('inv-stock-summary');
+  if (summaryEl) {
+    if (totalAgotados > 0 || totalBajo > 0) {
+      summaryEl.style.display = '';
+      summaryEl.innerHTML = `
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          ${totalAgotados > 0 ? `<div onclick="filterChip(document.querySelector('#inv-chips .chip:nth-child(2)'),'agotado')" style="flex:1;background:rgba(216,75,75,.07);border:1px solid rgba(216,75,75,.2);border-radius:10px;padding:10px 12px;cursor:pointer;min-width:120px;">
+            <div style="font-family:'DM Mono',monospace;font-size:18px;font-weight:700;color:var(--red);line-height:1;">${totalAgotados}</div>
+            <div style="font-size:11px;color:var(--red);margin-top:2px;opacity:.8;">agotado${totalAgotados!==1?'s':''} — actuar ya</div>
+          </div>` : ''}
+          ${totalBajo > 0 ? `<div onclick="filterChip(document.querySelector('#inv-chips .chip:nth-child(3)'),'bajo')" style="flex:1;background:rgba(228,106,46,.07);border:1px solid rgba(228,106,46,.2);border-radius:10px;padding:10px 12px;cursor:pointer;min-width:120px;">
+            <div style="font-family:'DM Mono',monospace;font-size:18px;font-weight:700;color:var(--orange);line-height:1;">${totalBajo}</div>
+            <div style="font-size:11px;color:var(--orange);margin-top:2px;opacity:.8;">bajo stock</div>
+          </div>` : ''}
+        </div>`;
+    } else {
+      summaryEl.style.display = 'none';
+    }
+  }
+
+  // Ordenar por urgencia: agotados → bajo stock → OK
+  const gruposOrdenados = Object.values(grupos).sort((a, b) => {
+    const urgA = a.variantes.reduce((s,v)=>s+v.stock,0) === 0 ? 0
+               : Math.min(...a.variantes.map(v=>v.stock)) <= 1 ? 1 : 2;
+    const urgB = b.variantes.reduce((s,v)=>s+v.stock,0) === 0 ? 0
+               : Math.min(...b.variantes.map(v=>v.stock)) <= 1 ? 1 : 2;
+    return urgA - urgB;
+  });
+
   let html = '';
   let visible = 0;
 
-  Object.values(grupos).forEach(g => {
-    // Determinar categoría desde la base de datos
-    const cat = (g.categoria || 'accesorios').toLowerCase();
-
+  gruposOrdenados.forEach(g => {
+    const cat        = (g.categoria || 'accesorios').toLowerCase();
     const totalStock = g.variantes.reduce((s,v) => s+v.stock, 0);
     const minStock   = Math.min(...g.variantes.map(v=>v.stock));
     const stockClass = minStock === 0 ? 'warn' : totalStock <= 3 ? 'caution' : '';
     const stockData  = minStock === 0 ? 'out' : totalStock <= 3 ? 'low' : 'ok';
 
-    // Filtro chip (compara contra la categoría en minúsculas)
+    // Filtro chip
     const catChips = ['zapatillas','ropa','gorras','bolsos','accesorios'];
     if(catChips.includes(activeChip) && cat !== activeChip) return;
     if(activeChip === 'bajo'    && stockData !== 'low' && stockData !== 'out') return;
@@ -2172,25 +2207,27 @@ function renderInventario() {
     // Filtro búsqueda
     if(q && !g.nombre.toLowerCase().includes(q) && !g.sku.toLowerCase().includes(q)) return;
 
-    // Usar datos reales de BD; fallback a extracción del SKU
-    const marca  = g.marca || (() => {
+    const marca    = g.marca || (() => {
       const mc = { BAPE:'BAPE', NIK:'Nike', JOR:'Jordan', NB:'New Balance', SUP:'Supreme', PAL:'Palace' };
       return mc[g.sku.split('-')[0]] || g.sku.split('-')[0];
     })();
-    const origen = g.sku.startsWith('BAPE')||g.sku.startsWith('SUP')||g.sku.startsWith('PAL') ? 'Amazon JP' : 'Local';
     const catLabel = cat.charAt(0).toUpperCase() + cat.slice(1);
-    const margen = g.precio > 0 ? Math.round(((g.precio-g.costo)/g.precio)*100) : 0;
 
-    // Chips de variantes
-    const vpHtml = g.variantes.map(v => {
+    // Stock total con color de urgencia
+    const stockColor  = totalStock === 0 ? 'var(--red)' : totalStock <= 3 ? 'var(--orange)' : 'var(--green)';
+    const stockLabel  = totalStock === 0 ? 'Agotado' : `${totalStock} ud.`;
+
+    // Chips de variantes (solo si hay tallas reales)
+    const tieneVariantes = g.variantes.length > 1 || (g.variantes[0]?.variante && g.variantes[0].variante !== '—');
+    const vpHtml = tieneVariantes ? g.variantes.map(v => {
       const cls = v.stock === 0 ? 'out' : v.stock <= 1 ? 'lo' : 'ok';
-      const lbl = v.variante.replace(/^T/,''); // quitar T de talla
-      const warn = v.stock === 0 ? '⚠️ ' : '';
-      return `<div class="vp ${cls}">${warn}<span class="vs">${lbl} · ${v.stock}</span></div>`;
-    }).join('');
+      const lbl = v.variante.replace(/^T/,'');
+      return `<div class="vp ${cls}"><span class="vs">${lbl}·${v.stock}</span></div>`;
+    }).join('') : '';
 
-    const ganUnit = g.precio > 0 && g.costo > 0 ? g.precio - g.costo : null;
-    const encNombre = encodeURIComponent(g.nombre);
+    const ganUnit    = g.precio > 0 && g.costo > 0 ? g.precio - g.costo : null;
+    const encNombre  = encodeURIComponent(g.nombre);
+
     html += `
     <div class="pcard ${stockClass}" data-cat="${cat}" data-stock="${stockData}" onclick="invAbrirProducto('${encNombre}')">
       <div class="ptop">
@@ -2199,12 +2236,13 @@ function renderInventario() {
           <div class="pbrand">${marca} · ${catLabel}</div>
           <div class="pname">${g.nombre}</div>
         </div>
-        <div class="pprice">
+        <div class="pprice" style="text-align:right;">
           <div class="psell">$${fmt(g.precio)}</div>
-          ${ganUnit !== null ? `<div class="pmargin">Te deja $${fmt(ganUnit)}</div>` : ''}
+          <div style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:${stockColor};margin-top:3px;">${stockLabel}</div>
+          ${ganUnit !== null ? `<div class="pmargin" style="margin-top:2px;">↑$${fmt(ganUnit)}</div>` : ''}
         </div>
       </div>
-      <div class="vrow">${vpHtml}</div>
+      ${vpHtml ? `<div class="vrow">${vpHtml}</div>` : ''}
     </div>`;
     visible++;
   });
