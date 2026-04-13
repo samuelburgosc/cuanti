@@ -542,7 +542,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;cursor:pointer;border-radius:9px;transition:background .15s;}
 .ni:hover{background:var(--sf);}
 .ni .nico2{font-size:18px;line-height:1;}
-.ni .nlbl{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:.3px;text-transform:uppercase;}
+.ni .nlbl{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.1px;}
 .ni.on .nlbl{color:var(--accent);}
 .nav-fab-wrap{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;margin:0 3px;padding-top:2px;}
 .nav-fab{width:46px;height:46px;background:var(--accent);border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:26px;font-family:'Archivo Black',sans-serif;box-shadow:0 4px 16px var(--aglow);color:var(--text);font-weight:900;transition:transform .15s,box-shadow .15s;}
@@ -738,7 +738,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 /* Nav inferior */
 .nav-fab{color:var(--text);}
 .nav-fab-lbl{color:var(--muted);}
-.ni .nlbl{color:var(--muted2);}
+.ni .nlbl{color:var(--muted);}
 .ni.on .nlbl{color:var(--text);font-weight:700;}
 .ni.on .nico2{opacity:1;}
 .ni .nico2{opacity:.5;}
@@ -777,8 +777,8 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .action-btn.ingreso .ab-lbl{color:var(--green);}
 /* Historial resumen card — sin amarillo brillante */
 .card.a .hist-stat{color:var(--text) !important;}
-/* Últimas ventas dashboard — lista con separadores */
-#dash-last-sales .sale{background:transparent;border:none;border-bottom:1px solid var(--bd);border-radius:0;padding:13px 2px;margin-bottom:0;}
+/* Últimas ventas dashboard — agrupadas por día */
+#dash-last-sales .sale{background:transparent;border:none;border-bottom:1px solid var(--bd);border-radius:0;padding:10px 2px;margin-bottom:0;}
 #dash-last-sales .sale:last-child{border-bottom:none;}
 #dash-last-sales .sale-thumb{background:var(--sf2);}
 /* Scan */
@@ -824,9 +824,22 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
   <!-- 1. HERO -->
   <div class="hero" onclick="goTo('analisis')">
-    <div class="hero-lbl">Esto te quedó este mes</div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;">
+      <div class="hero-lbl">Ganancia este mes</div>
+      <div id="dash-hero-badge" style="display:none;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;"></div>
+    </div>
     <div class="hero-amt" id="dash-hero-gan">$—</div>
-    <div style="font-size:12px;color:var(--muted);margin-top:10px;" id="dash-hero-mes">—</div>
+    <div id="dash-hero-trend" style="font-size:12px;margin-top:6px;min-height:16px;"></div>
+    <div style="font-size:11px;color:var(--muted2);margin-top:3px;" id="dash-hero-mes">—</div>
+    <div style="margin-top:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+        <div style="font-size:10px;color:var(--muted);">Progreso del mes</div>
+        <div id="dash-hero-pct" style="font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);"></div>
+      </div>
+      <div style="height:3px;background:var(--sf2);border-radius:2px;overflow:hidden;">
+        <div id="dash-hero-bar" style="height:100%;background:var(--accent);border-radius:2px;transition:width .6s ease;width:0;"></div>
+      </div>
+    </div>
   </div>
 
   <!-- 2. STATS STRIP -->
@@ -834,8 +847,8 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
   <!-- 3. ACCIONES UNIFICADAS -->
   <div id="dash-acciones-section">
-    <div class="sec-hdr" style="margin-bottom:4px;">
-      <div class="sec-title">Hoy deberías hacer esto</div>
+    <div class="sec-hdr" style="margin-bottom:8px;">
+      <div class="sec-title">Atención ahora</div>
     </div>
     <div id="dash-acciones" style="margin-bottom:28px;"></div>
   </div>
@@ -1709,8 +1722,10 @@ function esVentaMes(v) {
 }
 
 function renderDashboard() {
-  const mesesNom = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  const mesActual = mesesNom[new Date().getMonth()] + ' ' + new Date().getFullYear();
+  const mesesNom   = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const mesesCortos= ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const hoy        = new Date();
+  const mesActual  = mesesNom[hoy.getMonth()] + ' ' + hoy.getFullYear();
   const set = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
 
   // ── Stats del mes ──
@@ -1720,21 +1735,55 @@ function renderDashboard() {
   set('dash-hero-gan', '$'+fmt(ganMes));
   set('dash-hero-mes', mesActual);
 
+  // ── Hero: badge de tendencia ──
+  const mesAntIdx  = hoy.getMonth() === 0 ? 11 : hoy.getMonth() - 1;
+  const anioAnt    = hoy.getMonth() === 0 ? hoy.getFullYear() - 1 : hoy.getFullYear();
+  const ganMesAnt  = ventasDB
+    .filter(v => !v.nombre.startsWith('↩️') && v.fecha_raw)
+    .filter(v => { const d = new Date(v.fecha_raw); return d.getMonth() === mesAntIdx && d.getFullYear() === anioAnt; })
+    .reduce((s,v) => s+v.gan, 0);
+
+  const badge = document.getElementById('dash-hero-badge');
+  const trend = document.getElementById('dash-hero-trend');
+  if (badge && trend) {
+    if (ganMesAnt > 0) {
+      const diff = ganMes - ganMesAnt;
+      const pct  = Math.abs(Math.round((diff / ganMesAnt) * 100));
+      const up   = diff >= 0;
+      badge.style.display    = '';
+      badge.textContent      = `${up ? '▲' : '▼'} ${pct}%`;
+      badge.style.background = up ? 'var(--gdim)' : 'var(--rdim)';
+      badge.style.color      = up ? 'var(--green)' : 'var(--red)';
+      badge.style.border     = `1px solid ${up ? 'rgba(30,158,99,.2)' : 'rgba(216,75,75,.2)'}`;
+      trend.textContent      = `${up ? '+' : '-'}$${fmt(Math.abs(diff))} ${up ? 'más' : 'menos'} que ${mesesCortos[mesAntIdx]}`;
+      trend.style.color      = up ? 'var(--green)' : 'var(--red)';
+    } else if (ganMes > 0) {
+      badge.style.display = 'none';
+      trend.textContent   = `Tu primer registro de ${mesesCortos[hoy.getMonth()]}`;
+      trend.style.color   = 'var(--muted)';
+    } else {
+      badge.style.display = 'none';
+      trend.textContent   = '';
+    }
+  }
+
+  // ── Hero: barra de progreso del mes ──
+  const diasEnMes = new Date(hoy.getFullYear(), hoy.getMonth()+1, 0).getDate();
+  const pctMes    = Math.round((hoy.getDate() / diasEnMes) * 100);
+  const barEl     = document.getElementById('dash-hero-bar');
+  const pctEl     = document.getElementById('dash-hero-pct');
+  if (barEl) setTimeout(() => { barEl.style.width = pctMes + '%'; }, 80);
+  if (pctEl) pctEl.textContent = `Día ${hoy.getDate()} de ${diasEnMes}`;
+
   // ── Stats strip ──
   const strip = document.getElementById('dash-stats-strip');
   if(strip) {
-    const hoy = new Date().toDateString();
     const ventasHoy = ventasDB.filter(v => !v.nombre.startsWith('↩️') && v.fecha.startsWith('Hoy'));
-    const ganHoy = ventasHoy.reduce((s,v) => s+v.gan, 0);
-
-    // Mejor canal del mes por ganancia
-    const porCanal = {};
-    ventasMes.forEach(v => {
-      if(!porCanal[v.canal]) porCanal[v.canal] = 0;
-      porCanal[v.canal] += v.gan;
-    });
-    const canales = Object.entries(porCanal).sort((a,b)=>b[1]-a[1]);
-    const mejorCanal = canales.length > 0 ? canales[0][0] : null;
+    const ganHoy    = ventasHoy.reduce((s,v) => s+v.gan, 0);
+    const porCanal  = {};
+    ventasMes.forEach(v => { if(!porCanal[v.canal]) porCanal[v.canal]=0; porCanal[v.canal]+=v.gan; });
+    const canales   = Object.entries(porCanal).sort((a,b)=>b[1]-a[1]);
+    const mejorCanal= canales.length > 0 ? canales[0][0] : null;
 
     const statCard = (lbl, val, sub, dest) =>
       `<div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:12px 10px;cursor:pointer;text-align:center;" onclick="goTo('${dest}')">
@@ -1749,33 +1798,37 @@ function renderDashboard() {
       statCard('Mejor canal', mejorCanal ? mejorCanal.split(' ')[0] : '—', mejorCanal ? '$'+fmt(porCanal[mejorCanal]) : 'Sin datos', 'analisis');
   }
 
-  // ── Sección unificada: "Hoy deberías hacer esto" ──
-  const accionesWrap = document.getElementById('dash-acciones');
+  // ── Acciones: urgencia diferenciada con CTA ──
+  const accionesWrap    = document.getElementById('dash-acciones');
   const accionesSection = document.getElementById('dash-acciones-section');
   if (accionesWrap) {
     const items = [];
 
-    // 1. Agotados (crítico)
+    // 1. Agotados (crítico) → CTA "Comprar"
     skuDB.filter(s => s.stock === 0).slice(0,2).forEach(s => {
       items.push({
-        color: 'var(--red)', bg: 'rgba(255,68,68,.08)', dest: 'inventario',
-        text: `<b>${s.nombre}</b> se agotó — hay que reponer`,
-        sub: s.variante && s.variante !== '—' ? s.variante : null
+        urgency: 'red',
+        icon: '🔴',
+        text: `<b>${s.nombre}</b> se agotó`,
+        sub: (s.variante && s.variante !== '—' ? s.variante + ' · ' : '') + 'Sin stock · Estás perdiendo ventas',
+        cta: 'Comprar', ctaDest: 'compras'
       });
     });
 
-    // 2. Bajo stock
+    // 2. Bajo stock → CTA "Ver stock"
     skuDB.filter(s => s.stock > 0 && s.stock <= 2).slice(0,2).forEach(s => {
       items.push({
-        color: 'var(--orange)', bg: 'rgba(255,140,66,.08)', dest: 'inventario',
-        text: `<b>${s.nombre}</b> tiene solo ${s.stock} unidad${s.stock>1?'es':', ¿vas a reponer?'}`,
-        sub: s.variante && s.variante !== '—' ? s.variante : null
+        urgency: 'orange',
+        icon: '🟡',
+        text: `<b>${s.nombre}</b> — solo ${s.stock} unidad${s.stock>1?'es':''}`,
+        sub: (s.variante && s.variante !== '—' ? s.variante + ' · ' : '') + '¿Vas a reponer?',
+        cta: 'Ver stock', ctaDest: 'inventario'
       });
     });
 
-    // 3. Capital parado (sin ventas en los últimos 30 días)
+    // 3. Capital parado
     const hace30 = new Date(); hace30.setDate(hace30.getDate() - 30);
-    const nombresVendidosReciente = new Set(
+    const nombresRecientes = new Set(
       ventasDB.filter(v => {
         if(v.fecha.startsWith('Hoy') || v.fecha.startsWith('Ayer')) return true;
         const m = v.fecha.match(/^(\d{2})\/(\d{2})/);
@@ -1784,42 +1837,42 @@ function renderDashboard() {
         return d >= hace30;
       }).map(v => v.nombre)
     );
-    const parados = skuDB.filter(s => s.stock > 2 && !nombresVendidosReciente.has(s.nombre));
+    const parados = skuDB.filter(s => s.stock > 2 && !nombresRecientes.has(s.nombre));
     if (parados.length > 0) {
       const p = parados.sort((a,b) => (b.precio*b.stock)-(a.precio*a.stock))[0];
       items.push({
-        color: 'var(--blue)', bg: 'rgba(77,159,255,.08)', dest: 'inventario',
+        urgency: 'blue',
+        icon: '💰',
         text: `<b>${p.nombre}</b> lleva 30 días sin venderse`,
-        sub: `$${fmt(p.precio*p.stock)} parados en stock (${p.stock} uds.)`
+        sub: `$${fmt(p.precio*p.stock)} parados en stock (${p.stock} uds.)`,
+        cta: 'Ver', ctaDest: 'inventario'
       });
     }
 
-    // 4. Canal más rentable del mes (si hay >1 canal con ventas)
-    const porCanalGan = {};
-    const porCanalCnt = {};
+    // 4. Canal más rentable
+    const porCanalGan = {}, porCanalCnt = {};
     ventasMes.forEach(v => {
       if(!porCanalGan[v.canal]) { porCanalGan[v.canal]=0; porCanalCnt[v.canal]=0; }
-      porCanalGan[v.canal] += v.gan;
-      porCanalCnt[v.canal]++;
+      porCanalGan[v.canal] += v.gan; porCanalCnt[v.canal]++;
     });
     const canalesMes = Object.keys(porCanalGan);
     if(canalesMes.length >= 2) {
-      const mejor = canalesMes.sort((a,b) => (porCanalGan[b]/porCanalCnt[b]) - (porCanalGan[a]/porCanalCnt[a]))[0];
-      const ganProm = Math.round(porCanalGan[mejor] / porCanalCnt[mejor]);
+      const mejor    = canalesMes.sort((a,b) => (porCanalGan[b]/porCanalCnt[b]) - (porCanalGan[a]/porCanalCnt[a]))[0];
+      const ganProm  = Math.round(porCanalGan[mejor] / porCanalCnt[mejor]);
       items.push({
-        color: 'var(--green)', bg: 'rgba(59,255,138,.06)', dest: 'analisis',
+        urgency: 'green',
+        icon: '📈',
         text: `Por <b>${mejor}</b> ganás más plata por venta`,
-        sub: `Promedio $${fmt(ganProm)} de ganancia por venta`
+        sub: `Promedio $${fmt(ganProm)} de ganancia · ${porCanalCnt[mejor]} ventas`,
+        cta: 'Analizar', ctaDest: 'analisis'
       });
     }
 
-    // 5. Producto más rentable del mes
+    // 5. Producto estrella del mes
     const porProd = {};
     ventasMes.forEach(v => {
       if(!porProd[v.nombre]) porProd[v.nombre] = { gan:0, ing:0, cnt:0 };
-      porProd[v.nombre].gan += v.gan;
-      porProd[v.nombre].ing += v.precio;
-      porProd[v.nombre].cnt++;
+      porProd[v.nombre].gan += v.gan; porProd[v.nombre].ing += v.precio; porProd[v.nombre].cnt++;
     });
     const prodsArr = Object.entries(porProd).sort((a,b)=>b[1].gan-a[1].gan);
     if (prodsArr.length > 0) {
@@ -1827,31 +1880,42 @@ function renderDashboard() {
       const mrg = d.ing > 0 ? Math.round((d.gan/d.ing)*100) : 0;
       if (mrg > 35 && d.cnt >= 2) {
         items.push({
-          color: 'var(--accent)', bg: 'rgba(232,255,59,.06)', dest: 'analisis',
-          text: `<b>${nom}</b> te conviene seguir vendiendo`,
-          sub: `${mrg}% de ganancia sobre lo que cobrás · ${d.cnt} ventas`
+          urgency: 'accent',
+          icon: '⭐',
+          text: `<b>${nom}</b> te deja más plata`,
+          sub: `${mrg}% de ganancia sobre lo que cobrás · ${d.cnt} ventas`,
+          cta: 'Ver análisis', ctaDest: 'analisis'
         });
       }
     }
 
+    const urgencyStyles = {
+      red:    { bg:'rgba(216,75,75,.06)',   border:'rgba(216,75,75,.18)',    ctaBg:'var(--red)',    ctaColor:'#fff' },
+      orange: { bg:'rgba(228,106,46,.06)',  border:'rgba(228,106,46,.18)',   ctaBg:'var(--orange)', ctaColor:'#fff' },
+      blue:   { bg:'rgba(37,99,235,.05)',   border:'rgba(37,99,235,.15)',    ctaBg:'var(--blue)',   ctaColor:'#fff' },
+      green:  { bg:'rgba(30,158,99,.05)',   border:'rgba(30,158,99,.15)',    ctaBg:'var(--green)',  ctaColor:'#fff' },
+      accent: { bg:'rgba(215,240,46,.06)',  border:'rgba(215,240,46,.18)',   ctaBg:'var(--accent)', ctaColor:'var(--text)' }
+    };
+
     if (items.length === 0) {
-      accionesWrap.innerHTML = ventasMes.length === 0
-        ? `<div style="padding:14px 0;font-size:13px;color:var(--muted);">Registra ventas para ver recomendaciones aquí.</div>`
-        : `<div style="padding:14px 0;font-size:13px;color:var(--muted);">Todo en orden — sin alertas pendientes.</div>`;
+      accionesSection.style.display = 'none';
     } else {
-      accionesWrap.innerHTML = items.map((it,i) => `
-        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;margin-bottom:6px;background:${it.bg};border-radius:10px;cursor:pointer;" onclick="goTo('${it.dest}')">
-          <div style="width:7px;height:7px;border-radius:50%;background:${it.color};flex-shrink:0;margin-top:5px;"></div>
-          <div style="flex:1;">
-            <div style="font-size:13px;line-height:1.45;color:var(--text);">${it.text}</div>
+      accionesSection.style.display = '';
+      accionesWrap.innerHTML = items.map(it => {
+        const s = urgencyStyles[it.urgency] || urgencyStyles.blue;
+        return `<div style="display:flex;align-items:center;gap:10px;padding:12px 13px;margin-bottom:7px;background:${s.bg};border:1px solid ${s.border};border-radius:12px;">
+          <div style="font-size:17px;flex-shrink:0;">${it.icon}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;line-height:1.4;color:var(--text);">${it.text}</div>
             ${it.sub ? `<div style="font-size:11px;color:var(--muted);margin-top:2px;">${it.sub}</div>` : ''}
           </div>
-          <div style="font-size:14px;color:var(--muted);flex-shrink:0;margin-top:1px;">›</div>
-        </div>`).join('');
+          <button onclick="event.stopPropagation();goTo('${it.ctaDest}')" style="background:${s.ctaBg};color:${s.ctaColor};border:none;border-radius:8px;padding:6px 11px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:'Archivo',sans-serif;white-space:nowrap;">${it.cta}</button>
+        </div>`;
+      }).join('');
     }
   }
 
-  // ── Última actividad: primera venta destacada + lista ──
+  // ── Última actividad: agrupada por día con totales ──
   const wrap = document.getElementById('dash-last-sales');
   if (wrap) {
     const ventasReales = ventasDB.filter(v => !v.nombre.startsWith('↩️'));
@@ -1873,34 +1937,38 @@ function renderDashboard() {
           </button>
         </div>`;
     } else {
-      const primera = ventasReales[0];
-      const resto   = ventasReales.slice(1,4);
-      wrap.innerHTML = `
-        <div style="background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:18px;margin-bottom:1px;cursor:pointer;" onclick="goTo('historial')">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">${primera.fecha} · ${primera.canal}</div>
-          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+      // Agrupar las últimas 8 ventas por día
+      const ultimas = ventasReales.slice(0, 8);
+      const grupos  = {};
+      const orden   = [];
+      ultimas.forEach(v => {
+        const dia = v.fecha.split(' · ')[0];
+        if (!grupos[dia]) { grupos[dia] = { items:[], gan:0 }; orden.push(dia); }
+        grupos[dia].items.push(v);
+        grupos[dia].gan += v.gan;
+      });
+
+      wrap.innerHTML = orden.map(dia => {
+        const g = grupos[dia];
+        const esCurr = dia === 'Hoy';
+        return `
+          <div style="display:flex;align-items:center;justify-content:space-between;margin:10px 0 6px;">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:${esCurr ? 'var(--text)' : 'var(--muted)'};">${dia}</div>
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--green);font-weight:600;">+$${fmt(g.gan)}</div>
+          </div>
+          ${g.items.map(v => `
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--bd);cursor:pointer;" onclick="goTo('historial')">
+            <div style="width:32px;height:32px;background:var(--sf2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">${v.icon}</div>
             <div style="flex:1;min-width:0;">
-              <div style="font-family:'Archivo Black',sans-serif;font-size:17px;letter-spacing:-.3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${primera.nombre}</div>
-              <div style="font-size:11px;color:var(--muted);">${primera.variante}</div>
+              <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${v.nombre}</div>
+              <div style="font-size:10px;color:var(--muted);">${v.fecha.split(' · ').slice(1).join(' · ')} · ${v.canal}</div>
             </div>
             <div style="text-align:right;flex-shrink:0;">
-              <div style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;letter-spacing:-.5px;">$${fmt(primera.precio)}</div>
-              <div style="font-size:11px;color:var(--green);margin-top:1px;">+$${fmt(primera.gan)}</div>
+              <div style="font-size:11px;color:var(--green);font-family:'DM Mono',monospace;font-weight:600;">+$${fmt(v.gan)}</div>
+              <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;">$${fmt(v.precio)}</div>
             </div>
-          </div>
-        </div>
-        ${resto.map(v => `
-        <div style="display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid var(--bd);cursor:pointer;" onclick="goTo('historial')">
-          <div style="width:32px;height:32px;background:var(--sf2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">${v.icon}</div>
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${v.nombre}</div>
-            <div style="font-size:10px;color:var(--muted);">${v.fecha}</div>
-          </div>
-          <div style="text-align:right;flex-shrink:0;">
-            <div style="font-family:'DM Mono',monospace;font-size:12px;">$${fmt(v.precio)}</div>
-            <div style="font-size:10px;color:var(--green);">+$${fmt(v.gan)}</div>
-          </div>
-        </div>`).join('')}`;
+          </div>`).join('')}`;
+      }).join('') + `<div style="padding:12px 0;text-align:center;"><span style="font-size:11px;color:var(--muted);cursor:pointer;" onclick="goTo('historial')">Ver todo el historial →</span></div>`;
     }
   }
 
