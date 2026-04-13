@@ -1067,7 +1067,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   <div class="chips" id="hist-chips">
     <div class="chip on" onclick="histSelChip(this,'todo')">Todo</div>
     <div class="chip" onclick="histSelChip(this,'hoy')">Hoy</div>
-    <div class="chip" onclick="histSelChip(this,'semana')">Esta semana</div>
+    <div class="chip" onclick="histSelChip(this,'semana')">Este mes</div>
     <div class="chip" onclick="histSelChip(this,'sotos')">Sotos</div>
     <div class="chip" onclick="histSelChip(this,'wsp')">WhatsApp</div>
     <div class="chip" onclick="histSelChip(this,'fb')">Facebook</div>
@@ -1306,7 +1306,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
       <div id="bc-preview-price" style="font-size:11pt;font-weight:900;color:#111;font-family:Arial,sans-serif;"></div>
     </div>
 
-    <button class="btn" onclick="crearSku()">Crear SKU →</button>
+    <button class="btn" id="btn-crear-sku" onclick="crearSku()">Crear SKU →</button>
   </div>
 
   <!-- LISTA DE SKUs -->
@@ -1679,7 +1679,11 @@ function mesActualNum() { return new Date().getMonth() + 1; }
 
 // Detectar si una venta es del mes actual (robusto)
 function esVentaMes(v) {
-  if(v.fecha.startsWith('Hoy') || v.fecha.startsWith('Ayer')) return true;
+  if(v.fecha.startsWith('Hoy')) return true;
+  if(v.fecha.startsWith('Ayer')) {
+    const ayer = new Date(); ayer.setDate(ayer.getDate()-1);
+    return ayer.getMonth() === new Date().getMonth();
+  }
   // formato dd/mm
   const match = v.fecha.match(/^(\d{2})\/(\d{2})/);
   if(match) return parseInt(match[2]) === mesActualNum();
@@ -3332,7 +3336,7 @@ function refreshBcPreview() {
   if(el_p) el_p.textContent = precio ? '$'+fmt(parseInt(precio)) : '';
 }
 
-function crearSku() {
+async function crearSku() {
   const sku    = (document.getElementById('sku-final').value||'').trim();
   const nombre = (document.getElementById('sku-nombre').value||'').trim();
   const precio = parseInt(document.getElementById('sku-precio').value)||0;
@@ -3340,17 +3344,46 @@ function crearSku() {
   const varv   = (document.getElementById('sku-var').value||'').trim() || '—';
   if(!sku||!nombre){ toast('Completa al menos el SKU y el nombre del producto.','err'); return; }
   if(skuDB.find(s=>s.sku===sku)){ toast('Ese SKU ya existe. Cambia el número correlativo.','err'); return; }
-  skuDB.unshift({sku, nombre, precio, costo, stock:0, icon:'📦', variante:varv});
-  renderSkuList();
-  // limpiar formulario
-  ['sku-nombre','sku-precio','sku-costo','sku-var'].forEach(id => {
-    const el=document.getElementById(id); if(el) el.value='';
-  });
-  document.getElementById('sku-num').value = skuDB.length+1;
-  autoSku();
-  // Actualizar lista de venta también
-  ventaRenderInventario();
-  document.getElementById('main-scroll').scrollTop = 99999;
+
+  const btn = document.getElementById('btn-crear-sku');
+  if(btn){ btn.textContent='⏳ Guardando…'; btn.disabled=true; }
+
+  try {
+    // 1. Crear producto
+    const { data: prod, error: e1 } = await sb
+      .from('productos')
+      .insert({ nombre, precio_base: precio, activo: true })
+      .select()
+      .single();
+    if(e1) throw e1;
+
+    // 2. Crear variante con el SKU
+    const { data: variante, error: e2 } = await sb
+      .from('variantes')
+      .insert({ sku, producto_id: prod.id, talla_color: varv, local_id: 1, stock_actual: 0, costo_ultima_compra: costo, activa: true })
+      .select()
+      .single();
+    if(e2) throw e2;
+
+    // 3. Actualizar cache local con ID real
+    skuDB.unshift({ id: variante.id, sku, nombre, precio, costo, stock: 0, icon: '📦', variante: varv });
+    toast('SKU creado y guardado ✓', 'ok');
+
+    // Limpiar formulario
+    ['sku-nombre','sku-precio','sku-costo','sku-var'].forEach(id => {
+      const el=document.getElementById(id); if(el) el.value='';
+    });
+    document.getElementById('sku-num').value = skuDB.length+1;
+    autoSku();
+    renderSkuList();
+    ventaRenderInventario();
+    document.getElementById('main-scroll').scrollTop = 99999;
+  } catch(e) {
+    console.error('Error creando SKU:', e);
+    toast('Error al guardar. Intenta de nuevo.','err');
+  } finally {
+    if(btn){ btn.textContent='Crear SKU →'; btn.disabled=false; }
+  }
 }
 
 function renderSkuList(filter='') {
