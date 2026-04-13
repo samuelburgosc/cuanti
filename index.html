@@ -2021,11 +2021,11 @@ function renderHistorial(filtro) {
 
   if(ventas.length === 0) {
     const msgs = {
-      hoy:    { icon:'🌅', title:'Sin ventas hoy todavía', sub:'Cuando registres una venta aparecerá aquí.', cta:'Escanear producto →', dest:'scanner' },
-      semana: { icon:'📅', title:'Sin ventas esta semana', sub:'Registra tu primera venta de la semana.', cta:'Escanear producto →', dest:'scanner' },
-      sotos:  { icon:'🏪', title:'Sin ventas en Sotos', sub:'Las ventas por Sotos aparecerán aquí.', cta:null },
-      wsp:    { icon:'💬', title:'Sin ventas por WhatsApp', sub:'Las ventas por WhatsApp aparecerán aquí.', cta:null },
-      fb:     { icon:'📘', title:'Sin ventas en Facebook', sub:'Las ventas en Facebook aparecerán aquí.', cta:null },
+      hoy:    { icon:'🌅', title:'Sin ventas hoy todavía', sub:'Registrá una venta y acá verás cuánto ganaste.', cta:'Registrar venta →', dest:'venta' },
+      semana: { icon:'📅', title:'Sin ventas este mes', sub:'Cuando registres ventas del mes aparecerán acá.', cta:'Registrar venta →', dest:'venta' },
+      sotos:  { icon:'🏪', title:'Sin ventas por Sotos', sub:'Cuando registres una venta por el canal Sotos, aparecerá aquí.', cta:'Registrar venta →', dest:'venta' },
+      wsp:    { icon:'💬', title:'Sin ventas por WhatsApp', sub:'Cuando registres una venta por WhatsApp, aparecerá aquí.', cta:'Registrar venta →', dest:'venta' },
+      fb:     { icon:'📘', title:'Sin ventas por Facebook', sub:'Cuando registres una venta por Facebook, aparecerá aquí.', cta:'Registrar venta →', dest:'venta' },
     };
     const m = msgs[histFiltro] || { icon:'🔍', title:'Sin resultados', sub:'Prueba con otro término de búsqueda.', cta:null };
     lista.innerHTML = `
@@ -2396,7 +2396,24 @@ function ventaRenderInventario(filter='') {
   });
   if(res) res.textContent = q && items.length > 0 ? `${items.length} resultado${items.length>1?'s':''}` : '';
   if(items.length === 0) {
-    lista.innerHTML = `<div style="text-align:center;padding:28px 0;color:var(--muted);font-size:13px;">${q ? 'Sin resultados para "'+q+'"' : 'Sin productos en inventario'}</div>`;
+    if(q) {
+      lista.innerHTML = `<div style="text-align:center;padding:32px 0;">
+        <div style="font-size:36px;margin-bottom:10px;opacity:.5;">🔍</div>
+        <div style="font-family:'Archivo Black',sans-serif;font-size:15px;margin-bottom:6px;">Sin resultados</div>
+        <div style="font-size:12px;color:var(--muted);">No hay productos que coincidan con "${q}"</div>
+      </div>`;
+    } else {
+      lista.innerHTML = `<div style="text-align:center;padding:36px 0 20px;">
+        <div style="font-size:42px;margin-bottom:12px;opacity:.5;">📦</div>
+        <div style="font-family:'Archivo Black',sans-serif;font-size:16px;margin-bottom:8px;">No hay productos todavía</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.6;max-width:240px;margin-inline:auto;">
+          Para empezar, creá un SKU con el precio y el costo de tu primer producto.
+        </div>
+        <button class="btn" style="width:auto;padding:13px 28px;font-size:13px;margin:0;" onclick="goTo('skus')">
+          + Crear primer producto →
+        </button>
+      </div>`;
+    }
     return;
   }
   lista.innerHTML = items.map(s => {
@@ -2836,7 +2853,7 @@ function renderAnalisis(tab, btn) {
     const margenPct = ing > 0 ? Math.round((gan/ing)*100) : 0;
 
     if(hoy.length === 0) {
-      body.innerHTML = emptyState('🌅','Sin ventas hoy','Cuando registres una venta aparecerá aquí.','Registrar venta →','scanner');
+      body.innerHTML = emptyState('🌅','Sin ventas hoy todavía','Registrá una venta y acá verás cuánto ganaste hoy.','Registrar venta →','venta');
       return;
     }
 
@@ -2924,7 +2941,7 @@ function renderAnalisis(tab, btn) {
     const margen   = totalIng > 0 ? Math.round((totalSem/totalIng)*100) : 0;
 
     if(nVentas === 0) {
-      body.innerHTML = emptyState('📅','Sin ventas esta semana','Registra tu primera venta de la semana.','Ir al escáner →','scanner');
+      body.innerHTML = emptyState('📅','Sin ventas esta semana','Registra ventas y acá verás cómo te fue en los últimos 7 días.','Registrar venta →','venta');
       return;
     }
 
@@ -2983,7 +3000,7 @@ function renderAnalisis(tab, btn) {
     const mesLabel = meses[todayM];
 
     if(nV === 0) {
-      body.innerHTML = emptyState('📆','Sin ventas este mes','Registra tu primera venta del mes.','Ir al escáner →','scanner');
+      body.innerHTML = emptyState('📆','Sin ventas este mes','Cuando registres ventas, acá verás cuánto ganaste y tus productos más vendidos.','Registrar venta →','venta');
       return;
     }
 
@@ -3050,7 +3067,7 @@ function renderAnalisis(tab, btn) {
 
     const mesesOrden = Object.keys(porMes).sort();
     if(mesesOrden.length === 0) {
-      body.innerHTML = emptyState('📈','Sin datos históricos','Las ventas aparecerán aquí mes a mes.','','');
+      body.innerHTML = emptyState('📈','Aún no hay historial','Registrá ventas durante el mes y acá verás tu progreso mes a mes.','Registrar venta →','venta');
       return;
     }
 
@@ -3571,7 +3588,17 @@ function renderSkuList(filter='') {
     ? skuDB.filter(s=>s.sku.toLowerCase().includes(filter)||s.nombre.toLowerCase().includes(filter))
     : skuDB;
   if(items.length===0){
-    list.innerHTML='<div class="empty"><div class="empty-icon">🏷️</div><div class="empty-title">Sin resultados</div></div>';
+    if(filter) {
+      list.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">Sin resultados</div><div class="empty-sub">No hay SKUs que coincidan con esa búsqueda</div></div>';
+    } else {
+      list.innerHTML=`<div style="text-align:center;padding:36px 0 20px;">
+        <div style="font-size:42px;margin-bottom:12px;opacity:.5;">🏷️</div>
+        <div style="font-family:'Archivo Black',sans-serif;font-size:16px;margin-bottom:8px;">Sin productos creados</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.6;max-width:240px;margin-inline:auto;">
+          Completá el formulario de arriba para crear tu primer producto con SKU.
+        </div>
+      </div>`;
+    }
     return;
   }
   list.innerHTML = items.map(s => {
