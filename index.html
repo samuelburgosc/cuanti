@@ -797,7 +797,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 <!-- ════ LOGIN ════ -->
 <div id="screen-login" style="display:none;position:fixed;inset:0;z-index:10000;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;">
   <div style="font-family:'Archivo Black',sans-serif;font-size:32px;letter-spacing:-1px;color:var(--accent);margin-bottom:8px;">Cuanti</div>
-  <div style="font-size:13px;color:var(--muted);margin-bottom:40px;">Ingresá para continuar</div>
+  <div style="font-size:13px;color:var(--muted);margin-bottom:40px;">Ingresa para continuar</div>
 
   <div style="width:100%;max-width:360px;">
     <div class="field" style="margin-bottom:12px;">
@@ -1736,7 +1736,7 @@ async function loginSubmit() {
   const btn   = document.getElementById('login-btn');
 
   if(!email || !pass) {
-    if(errEl) { errEl.textContent = 'Completá email y contraseña.'; errEl.style.display = 'block'; }
+    if(errEl) { errEl.textContent = 'Completa email y contraseña.'; errEl.style.display = 'block'; }
     return;
   }
   if(errEl) errEl.style.display = 'none';
@@ -1807,7 +1807,7 @@ async function crearVendedor() {
   const btn    = document.getElementById('cv-btn');
 
   if(!nombre || !email || pass.length < 6) {
-    toast('Completá nombre, email y contraseña (mínimo 6 caracteres).', 'err'); return;
+    toast('Completa nombre, email y contraseña (mínimo 6 caracteres).', 'err'); return;
   }
 
   if(btn) { btn.textContent = '⏳ Creando…'; btn.disabled = true; }
@@ -2236,7 +2236,7 @@ function renderDashboard() {
             <div style="font-family:'Archivo Black',sans-serif;font-size:14px;">Empezá en 2 minutos</div>
             <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;">${pasosDone}/3</div>
           </div>
-          ${paso(1, 'Creá tu primer producto', 'Ponele nombre, precio de venta y costo', 'skus', tieneProductos)}
+          ${paso(1, 'Crea tu primer producto', 'Ponle nombre, precio de venta y costo', 'skus', tieneProductos)}
           ${paso(2, 'Registrá tu primera venta', 'Elegí el producto y el canal por donde vendiste', 'venta', tieneVentas)}
           ${paso(3, 'Ves cuánto ganaste', 'Cuanti te muestra la ganancia real al instante', 'venta', tieneVentas)}
         </div>`;
@@ -2748,7 +2748,7 @@ function ventaRenderInventario(filter='') {
         <div style="font-size:42px;margin-bottom:12px;opacity:.5;">📦</div>
         <div style="font-family:'Archivo Black',sans-serif;font-size:16px;margin-bottom:8px;">No hay productos todavía</div>
         <div style="font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.6;max-width:240px;margin-inline:auto;">
-          Para empezar, creá un SKU con el precio y el costo de tu primer producto.
+          Para empezar, crea un SKU con el precio y el costo de tu primer producto.
         </div>
         <button class="btn" style="width:auto;padding:13px 28px;font-size:13px;margin:0;" onclick="goTo('skus')">
           + Crear primer producto →
@@ -3936,7 +3936,7 @@ function renderSkuList(filter='') {
         <div style="font-size:42px;margin-bottom:12px;opacity:.5;">🏷️</div>
         <div style="font-family:'Archivo Black',sans-serif;font-size:16px;margin-bottom:8px;">Sin productos creados</div>
         <div style="font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.6;max-width:240px;margin-inline:auto;">
-          Completá el formulario de arriba para crear tu primer producto con SKU.
+          Completa el formulario de arriba para crear tu primer producto con SKU.
         </div>
       </div>`;
     }
