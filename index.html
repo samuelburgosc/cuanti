@@ -19,6 +19,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let skuDB    = [];
 let ventasDB = [];
 let _dbReady = false;
+let _currentUser = null; // { id, nombre, email, rol: 'dueño'|'vendedor', local_id }
 
 // Cargar inventario desde Supabase
 async function cargarInventario() {
@@ -792,6 +793,31 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 </style>
 </head>
 <body>
+
+<!-- ════ LOGIN ════ -->
+<div id="screen-login" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;">
+  <div style="font-family:'Archivo Black',sans-serif;font-size:32px;letter-spacing:-1px;color:var(--accent);margin-bottom:8px;">Cuanti</div>
+  <div style="font-size:13px;color:var(--muted);margin-bottom:40px;">Ingresá para continuar</div>
+
+  <div style="width:100%;max-width:360px;">
+    <div class="field" style="margin-bottom:12px;">
+      <label style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.4px;text-transform:uppercase;">Email</label>
+      <input id="login-email" type="email" autocomplete="email" placeholder="tu@email.com"
+             style="width:100%;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:13px 14px;font-size:14px;color:var(--text);outline:none;box-sizing:border-box;"
+             onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()">
+    </div>
+    <div class="field" style="margin-bottom:20px;">
+      <label style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.4px;text-transform:uppercase;">Contraseña</label>
+      <input id="login-pass" type="password" autocomplete="current-password" placeholder="••••••••"
+             style="width:100%;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:13px 14px;font-size:14px;color:var(--text);outline:none;box-sizing:border-box;"
+             onkeydown="if(event.key==='Enter')loginSubmit()">
+    </div>
+    <div id="login-error" style="display:none;color:var(--red);font-size:12px;margin-bottom:12px;text-align:center;"></div>
+    <button id="login-btn" class="btn" onclick="loginSubmit()" style="width:100%;font-size:15px;padding:15px;">
+      Entrar →
+    </button>
+  </div>
+</div>
 
 <!-- PANTALLA DE CARGA -->
 <div id="loading-screen" style="position:fixed;inset:0;background:#F5F5F2;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:14px;">
