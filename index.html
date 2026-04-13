@@ -829,7 +829,10 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
     <div style="font-size:12px;color:var(--muted);margin-top:10px;" id="dash-hero-mes">—</div>
   </div>
 
-  <!-- 2. ACCIONES UNIFICADAS -->
+  <!-- 2. STATS STRIP -->
+  <div id="dash-stats-strip" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:24px;"></div>
+
+  <!-- 3. ACCIONES UNIFICADAS -->
   <div id="dash-acciones-section">
     <div class="sec-hdr" style="margin-bottom:4px;">
       <div class="sec-title">Hoy deberías hacer esto</div>
@@ -1717,6 +1720,35 @@ function renderDashboard() {
   set('dash-hero-gan', '$'+fmt(ganMes));
   set('dash-hero-mes', mesActual);
 
+  // ── Stats strip ──
+  const strip = document.getElementById('dash-stats-strip');
+  if(strip) {
+    const hoy = new Date().toDateString();
+    const ventasHoy = ventasDB.filter(v => !v.nombre.startsWith('↩️') && v.fecha.startsWith('Hoy'));
+    const ganHoy = ventasHoy.reduce((s,v) => s+v.gan, 0);
+
+    // Mejor canal del mes por ganancia
+    const porCanal = {};
+    ventasMes.forEach(v => {
+      if(!porCanal[v.canal]) porCanal[v.canal] = 0;
+      porCanal[v.canal] += v.gan;
+    });
+    const canales = Object.entries(porCanal).sort((a,b)=>b[1]-a[1]);
+    const mejorCanal = canales.length > 0 ? canales[0][0] : null;
+
+    const statCard = (lbl, val, sub, dest) =>
+      `<div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:12px 10px;cursor:pointer;text-align:center;" onclick="goTo('${dest}')">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:5px;line-height:1.2;">${lbl}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:15px;font-weight:600;color:var(--text);">${val}</div>
+        ${sub ? `<div style="font-size:10px;color:var(--muted);margin-top:3px;">${sub}</div>` : ''}
+      </div>`;
+
+    strip.innerHTML =
+      statCard('Ventas hoy', ventasHoy.length > 0 ? ventasHoy.length : '0', ventasHoy.length > 0 ? '+$'+fmt(ganHoy) : 'Sin ventas', 'historial') +
+      statCard('Ventas del mes', ventasMes.length, ventasMes.length === 1 ? '1 venta' : ventasMes.length + ' ventas', 'analisis') +
+      statCard('Mejor canal', mejorCanal ? mejorCanal.split(' ')[0] : '—', mejorCanal ? '$'+fmt(porCanal[mejorCanal]) : 'Sin datos', 'analisis');
+  }
+
   // ── Sección unificada: "Hoy deberías hacer esto" ──
   const accionesWrap = document.getElementById('dash-acciones');
   const accionesSection = document.getElementById('dash-acciones-section');
@@ -1726,63 +1758,95 @@ function renderDashboard() {
     // 1. Agotados (crítico)
     skuDB.filter(s => s.stock === 0).slice(0,2).forEach(s => {
       items.push({
-        dot: 'var(--red)', dest: 'inventario',
+        color: 'var(--red)', bg: 'rgba(255,68,68,.08)', dest: 'inventario',
         text: `<b>${s.nombre}</b> se agotó — hay que reponer`,
-        sub: s.variante
+        sub: s.variante && s.variante !== '—' ? s.variante : null
       });
     });
 
     // 2. Bajo stock
     skuDB.filter(s => s.stock > 0 && s.stock <= 2).slice(0,2).forEach(s => {
       items.push({
-        dot: 'var(--muted2)', dest: 'inventario',
-        text: `<b>${s.nombre}</b> solo tiene ${s.stock} unidad${s.stock>1?'es':''}`,
-        sub: s.variante
+        color: 'var(--orange)', bg: 'rgba(255,140,66,.08)', dest: 'inventario',
+        text: `<b>${s.nombre}</b> tiene solo ${s.stock} unidad${s.stock>1?'es':', ¿vas a reponer?'}`,
+        sub: s.variante && s.variante !== '—' ? s.variante : null
       });
     });
 
-    // 3. Capital parado
-    const nombresVendidos = new Set(ventasDB.map(v => v.nombre));
-    const parados = skuDB.filter(s => s.stock > 2 && !nombresVendidos.has(s.nombre));
+    // 3. Capital parado (sin ventas en los últimos 30 días)
+    const hace30 = new Date(); hace30.setDate(hace30.getDate() - 30);
+    const nombresVendidosReciente = new Set(
+      ventasDB.filter(v => {
+        if(v.fecha.startsWith('Hoy') || v.fecha.startsWith('Ayer')) return true;
+        const m = v.fecha.match(/^(\d{2})\/(\d{2})/);
+        if(!m) return false;
+        const d = new Date(new Date().getFullYear(), parseInt(m[2])-1, parseInt(m[1]));
+        return d >= hace30;
+      }).map(v => v.nombre)
+    );
+    const parados = skuDB.filter(s => s.stock > 2 && !nombresVendidosReciente.has(s.nombre));
     if (parados.length > 0) {
       const p = parados.sort((a,b) => (b.precio*b.stock)-(a.precio*a.stock))[0];
       items.push({
-        dot: 'var(--muted2)', dest: 'inventario',
-        text: `<b>${p.nombre}</b> no se ha vendido — $${fmt(p.precio*p.stock)} parados`,
-        sub: `${p.stock} unidades en stock`
+        color: 'var(--blue)', bg: 'rgba(77,159,255,.08)', dest: 'inventario',
+        text: `<b>${p.nombre}</b> lleva 30 días sin venderse`,
+        sub: `$${fmt(p.precio*p.stock)} parados en stock (${p.stock} uds.)`
       });
     }
 
-    // 4. Producto más rentable del mes
+    // 4. Canal más rentable del mes (si hay >1 canal con ventas)
+    const porCanalGan = {};
+    const porCanalCnt = {};
+    ventasMes.forEach(v => {
+      if(!porCanalGan[v.canal]) { porCanalGan[v.canal]=0; porCanalCnt[v.canal]=0; }
+      porCanalGan[v.canal] += v.gan;
+      porCanalCnt[v.canal]++;
+    });
+    const canalesMes = Object.keys(porCanalGan);
+    if(canalesMes.length >= 2) {
+      const mejor = canalesMes.sort((a,b) => (porCanalGan[b]/porCanalCnt[b]) - (porCanalGan[a]/porCanalCnt[a]))[0];
+      const ganProm = Math.round(porCanalGan[mejor] / porCanalCnt[mejor]);
+      items.push({
+        color: 'var(--green)', bg: 'rgba(59,255,138,.06)', dest: 'analisis',
+        text: `Por <b>${mejor}</b> ganás más plata por venta`,
+        sub: `Promedio $${fmt(ganProm)} de ganancia por venta`
+      });
+    }
+
+    // 5. Producto más rentable del mes
     const porProd = {};
     ventasMes.forEach(v => {
-      if(!porProd[v.nombre]) porProd[v.nombre] = { gan:0, ing:0 };
+      if(!porProd[v.nombre]) porProd[v.nombre] = { gan:0, ing:0, cnt:0 };
       porProd[v.nombre].gan += v.gan;
       porProd[v.nombre].ing += v.precio;
+      porProd[v.nombre].cnt++;
     });
     const prodsArr = Object.entries(porProd).sort((a,b)=>b[1].gan-a[1].gan);
     if (prodsArr.length > 0) {
       const [nom, d] = prodsArr[0];
       const mrg = d.ing > 0 ? Math.round((d.gan/d.ing)*100) : 0;
-      if (mrg > 35) {
+      if (mrg > 35 && d.cnt >= 2) {
         items.push({
-          dot: 'var(--green)', dest: 'analisis',
-          text: `<b>${nom}</b> es tu producto más rentable este mes`,
-          sub: `${mrg}% de margen sobre lo vendido`
+          color: 'var(--accent)', bg: 'rgba(232,255,59,.06)', dest: 'analisis',
+          text: `<b>${nom}</b> te conviene seguir vendiendo`,
+          sub: `${mrg}% de ganancia sobre lo que cobrás · ${d.cnt} ventas`
         });
       }
     }
 
     if (items.length === 0) {
-      accionesWrap.innerHTML = `<div style="padding:14px 0;font-size:13px;color:var(--muted);">Todo en orden. Registra ventas para ver recomendaciones.</div>`;
+      accionesWrap.innerHTML = ventasMes.length === 0
+        ? `<div style="padding:14px 0;font-size:13px;color:var(--muted);">Registra ventas para ver recomendaciones aquí.</div>`
+        : `<div style="padding:14px 0;font-size:13px;color:var(--muted);">Todo en orden — sin alertas pendientes.</div>`;
     } else {
       accionesWrap.innerHTML = items.map((it,i) => `
-        <div style="display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-bottom:${i<items.length-1?'1px solid var(--bd)':'none'};cursor:pointer;" onclick="goTo('${it.dest}')">
-          <div style="width:7px;height:7px;border-radius:50%;background:${it.dot};flex-shrink:0;margin-top:5px;"></div>
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;margin-bottom:6px;background:${it.bg};border-radius:10px;cursor:pointer;" onclick="goTo('${it.dest}')">
+          <div style="width:7px;height:7px;border-radius:50%;background:${it.color};flex-shrink:0;margin-top:5px;"></div>
           <div style="flex:1;">
             <div style="font-size:13px;line-height:1.45;color:var(--text);">${it.text}</div>
             ${it.sub ? `<div style="font-size:11px;color:var(--muted);margin-top:2px;">${it.sub}</div>` : ''}
           </div>
+          <div style="font-size:14px;color:var(--muted);flex-shrink:0;margin-top:1px;">›</div>
         </div>`).join('');
     }
   }
