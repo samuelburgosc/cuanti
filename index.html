@@ -843,6 +843,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
     <div class="icon-btn" id="btn-refresh" onclick="refreshData()" title="Actualizar datos" style="font-size:13px;">↺</div>
     <div class="icon-btn" onclick="goTo('notifs')">🔔<div class="badge-dot" id="notif-badge" style="display:none;"></div></div>
     <div class="avatar-btn" onclick="goTo('config')">SA</div>
+    <button id="topbar-logout-btn" onclick="logout()" style="display:none;background:none;border:1px solid var(--bd);border-radius:8px;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;padding:5px 10px;font-family:'Archivo',sans-serif;">Salir</button>
   </div>
 </div>
 
@@ -1298,7 +1299,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   <div class="card">
     <div class="field" style="margin-bottom:0;"><label>Nombre del negocio</label><input type="text" value="Ventas Samu"></div>
   </div>
-  <button class="btn danger" style="margin-top:8px;background:var(--rdim);border:1px solid rgba(255,68,68,.2);color:var(--red);font-family:'Archivo',sans-serif;font-size:13px;font-weight:600;">Cerrar sesión</button>
+  <button class="btn danger" onclick="logout()" style="margin-top:8px;background:var(--rdim);border:1px solid rgba(255,68,68,.2);color:var(--red);font-family:'Archivo',sans-serif;font-size:13px;font-weight:600;">Cerrar sesión</button>
   <div class="spacer"></div>
 </div>
 
