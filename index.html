@@ -983,15 +983,25 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
         <div id="vc-prod" style="font-size:13px;color:var(--muted);margin-top:8px;"></div>
       </div>
 
+      <!-- desglose -->
+      <div id="vc-desglose" style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;margin-bottom:12px;"></div>
+
       <!-- stock restante -->
-      <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:13px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:13px 16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
         <span style="font-size:13px;color:var(--muted);">Stock restante</span>
         <span id="vc-stock" class="sv" style="font-size:14px;font-family:'DM Mono',monospace;">—</span>
+      </div>
+
+      <!-- acumulado del mes -->
+      <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:13px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:13px;color:var(--muted);">Ganado este mes</span>
+        <span id="vc-mes-total" style="font-size:14px;font-family:'DM Mono',monospace;color:var(--accent);font-weight:600;">—</span>
       </div>
 
       <div id="vc-insight" style="margin-bottom:4px;"></div>
 
       <button class="btn" onclick="resetVenta()">+ Nueva venta</button>
+      <button id="vc-btn-stock" class="btn sec" style="margin-top:8px;display:none;" onclick="goTo('compras')">Reponer stock →</button>
       <button class="btn sec" style="margin-top:8px;" onclick="goTo('historial')">Ver historial →</button>
     </div>
   </div>
@@ -2409,18 +2419,43 @@ async function ventaConfirmar() {
   // Paso 3 — resultado
   const set = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
   set('vc-gan',  '$'+fmt(gan));
-  set('vc-prod', `${s.nombre} · ${s.variante} · ${canal} · ${pago}`);
-  set('vc-sub',  'Guardado en Cuanti ✓');
+  set('vc-prod', `${s.nombre}${s.variante && s.variante !== '—' ? ' · '+s.variante : ''}`);
 
+  // Color ganancia
+  const ganEl = document.getElementById('vc-gan');
+  if(ganEl) ganEl.style.color = gan < 0 ? 'var(--red)' : 'var(--green)';
+
+  // Stock restante
   const stockEl = document.getElementById('vc-stock');
   if(stockEl) {
     stockEl.textContent = nuevoStock===0 ? '0 ud. — Agotado' : nuevoStock<=2 ? `${nuevoStock} ud. — Stock bajo` : `${nuevoStock} ud.`;
     stockEl.style.color = nuevoStock===0 ? 'var(--red)' : nuevoStock<=2 ? 'var(--orange)' : 'var(--green)';
   }
 
-  // Color de la ganancia grande según resultado
-  const ganEl = document.getElementById('vc-gan');
-  if(ganEl) ganEl.style.color = gan < 0 ? 'var(--red)' : 'var(--green)';
+  // Desglose de la ganancia
+  const desgloseEl = document.getElementById('vc-desglose');
+  if(desgloseEl) {
+    const row = (lbl, val, color='var(--muted)') =>
+      `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;">
+        <span style="font-size:12px;color:var(--muted);">${lbl}</span>
+        <span style="font-size:13px;font-family:'DM Mono',monospace;color:${color};">${val}</span>
+      </div>`;
+    const sep = `<div style="border-top:1px solid var(--bd);margin:6px 0;"></div>`;
+    let rows = row(`Precio de venta${cant>1?' ×'+cant:''}`, '$'+fmt(precio*cant), 'var(--text)');
+    rows += row('Costo del producto', '−$'+fmt((s.costo||0)*cant));
+    if(com > 0) rows += row('Comisión Sotos', '−$'+fmt(com*cant));
+    rows += sep;
+    rows += row('Tu ganancia', '$'+fmt(gan), gan>=0?'var(--green)':'var(--red)');
+    desgloseEl.innerHTML = rows;
+  }
+
+  // Acumulado del mes (incluye la venta actual)
+  const ganMesTotal = ventasDB.filter(v => esVentaMes(v) && !v.nombre.startsWith('↩️')).reduce((s,v)=>s+v.gan,0);
+  set('vc-mes-total', '$'+fmt(ganMesTotal));
+
+  // Botón reponer stock
+  const btnStock = document.getElementById('vc-btn-stock');
+  if(btnStock) btnStock.style.display = nuevoStock <= 2 ? '' : 'none';
 
   // Insight post-venta
   const margenPct = precio > 0 ? Math.round((gan / (precio * cant)) * 100) : 0;
@@ -2431,22 +2466,27 @@ async function ventaConfirmar() {
       html = `<div style="background:var(--rdim);border:1px solid rgba(216,75,75,.25);border-radius:12px;padding:13px 14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;text-align:left;">
         <span style="font-size:20px;flex-shrink:0;">🔴</span>
         <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--red);">Se te agotó este producto</div>
-        <div style="font-size:11px;color:var(--muted);">Considera reponer en tu próximo lote.</div></div></div>`;
+        <div style="font-size:11px;color:var(--muted);">Anotá para reponer en el próximo lote.</div></div></div>`;
     } else if(nuevoStock <= 2) {
       html = `<div style="background:var(--odim);border:1px solid rgba(228,106,46,.25);border-radius:12px;padding:13px 14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;text-align:left;">
         <span style="font-size:20px;flex-shrink:0;">⚠️</span>
-        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--orange);">Solo quedan ${nuevoStock} unidad${nuevoStock!==1?'es':''}</div>
-        <div style="font-size:11px;color:var(--muted);">Piensa en reponer pronto.</div></div></div>`;
+        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--orange);">Quedan ${nuevoStock} unidad${nuevoStock!==1?'es':''} — poco stock</div>
+        <div style="font-size:11px;color:var(--muted);">Conviene reponer antes de que se agote.</div></div></div>`;
     } else if(margenPct >= 50) {
       html = `<div style="background:var(--gdim);border:1px solid rgba(30,158,99,.2);border-radius:12px;padding:13px 14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;text-align:left;">
         <span style="font-size:20px;flex-shrink:0;">💚</span>
-        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--green);">Buen margen en esta venta</div>
-        <div style="font-size:11px;color:var(--muted);">Ganaste el ${margenPct}% de lo que vendiste.</div></div></div>`;
+        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--green);">Este producto te deja buena plata</div>
+        <div style="font-size:11px;color:var(--muted);">Ganaste el ${margenPct}% de lo que cobraste. Sigue vendiéndolo.</div></div></div>`;
     } else if(canal !== 'Sotos' && gan > 0) {
       html = `<div style="background:var(--gdim);border:1px solid rgba(30,158,99,.2);border-radius:12px;padding:13px 14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;text-align:left;">
         <span style="font-size:20px;flex-shrink:0;">✓</span>
-        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--green);">Venta sin comisión</div>
-        <div style="font-size:11px;color:var(--muted);">Por ${canal} te quedas con toda la ganancia.</div></div></div>`;
+        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--green);">Sin comisión — plata completa para vos</div>
+        <div style="font-size:11px;color:var(--muted);">Por ${canal} te quedás con todo lo que ganás.</div></div></div>`;
+    } else if(gan < 0) {
+      html = `<div style="background:var(--rdim);border:1px solid rgba(216,75,75,.25);border-radius:12px;padding:13px 14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;text-align:left;">
+        <span style="font-size:20px;flex-shrink:0;">⚠️</span>
+        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--red);">Vendiste por debajo del costo</div>
+        <div style="font-size:11px;color:var(--muted);">Revisa el precio la próxima vez.</div></div></div>`;
     }
     insightEl.innerHTML = html;
   }
