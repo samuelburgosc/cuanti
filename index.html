@@ -842,7 +842,10 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
     </div>
   </div>
 
-  <!-- 2. STATS STRIP -->
+  <!-- 2. SETUP / ONBOARDING (desaparece cuando está completo) -->
+  <div id="dash-setup" style="display:none;margin-bottom:20px;"></div>
+
+  <!-- 3. STATS STRIP -->
   <div id="dash-stats-strip" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:24px;"></div>
 
   <!-- 3. ACCIONES UNIFICADAS -->
@@ -1969,6 +1972,46 @@ function renderDashboard() {
             </div>
           </div>`).join('')}`;
       }).join('') + `<div style="padding:12px 0;text-align:center;"><span style="font-size:11px;color:var(--muted);cursor:pointer;" onclick="goTo('historial')">Ver todo el historial →</span></div>`;
+    }
+  }
+
+  // ── Onboarding / Setup card ──
+  const setupEl = document.getElementById('dash-setup');
+  if(setupEl) {
+    const tieneProductos = skuDB.length > 0;
+    const tieneVentas    = ventasDB.filter(v => !v.nombre.startsWith('↩️')).length > 0;
+    const completo       = tieneProductos && tieneVentas;
+
+    if(completo) {
+      setupEl.style.display = 'none';
+    } else {
+      const paso = (num, titulo, sub, dest, hecho) => `
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--bd);cursor:${hecho?'default':'pointer'};"
+             ${hecho ? '' : `onclick="goTo('${dest}')"`}>
+          <div style="width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;
+               background:${hecho?'var(--green)':'var(--sf2)'};color:${hecho?'var(--bg)':'var(--muted)'};border:1px solid ${hecho?'var(--green)':'var(--bd)'};">
+            ${hecho ? '✓' : num}
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:600;color:${hecho?'var(--muted)':'var(--text)'};${hecho?'text-decoration:line-through;':''}">${titulo}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">${sub}</div>
+          </div>
+          ${!hecho ? '<div style="font-size:14px;color:var(--accent);flex-shrink:0;margin-top:1px;">›</div>' : ''}
+        </div>`;
+
+      const pasosDone = [tieneProductos, tieneVentas].filter(Boolean).length;
+
+      setupEl.style.display = '';
+      setupEl.innerHTML = `
+        <div style="background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div style="font-family:'Archivo Black',sans-serif;font-size:14px;">Empezá en 2 minutos</div>
+            <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;">${pasosDone}/3</div>
+          </div>
+          ${paso(1, 'Creá tu primer producto', 'Ponele nombre, precio de venta y costo', 'skus', tieneProductos)}
+          ${paso(2, 'Registrá tu primera venta', 'Elegí el producto y el canal por donde vendiste', 'venta', tieneVentas)}
+          ${paso(3, 'Ves cuánto ganaste', 'Cuanti te muestra la ganancia real al instante', 'venta', tieneVentas)}
+        </div>`;
     }
   }
 
