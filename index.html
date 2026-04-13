@@ -1761,8 +1761,38 @@ async function logout() {
 //  NAVEGACIÓN
 // ══════════════════════════════════════════════════════
 const ALL_SCREENS = ['dashboard','inventario','venta','compras','nueva-compra','historial','analisis','locales','config','notifs','skus','scanner'];
+const PANTALLAS_SOLO_DUENO = ['dashboard','historial','analisis','skus','compras','config','locales','notifs'];
+
+function aplicarRol() {
+  if(!_currentUser) return;
+  const esDueno = _currentUser.rol === 'dueño';
+
+  // Mostrar/ocultar ítems del nav
+  const navDash    = document.getElementById('nav-dashboard');
+  const navAnalisis= document.getElementById('nav-analisis');
+  const navSkus    = document.getElementById('nav-skus');
+  if(navDash)     navDash.style.display     = esDueno ? '' : 'none';
+  if(navAnalisis) navAnalisis.style.display = esDueno ? '' : 'none';
+  if(navSkus)     navSkus.style.display     = esDueno ? '' : 'none';
+
+  // Botón salir en topbar: visible solo para vendedor
+  const logoutBtn = document.getElementById('topbar-logout-btn');
+  if(logoutBtn) logoutBtn.style.display = esDueno ? 'none' : '';
+
+  // Mostrar datos del usuario en Config
+  const configNombre = document.getElementById('config-user-nombre');
+  const configEmail  = document.getElementById('config-user-email');
+  const configRolEl  = document.getElementById('config-user-rol');
+  if(configNombre) configNombre.textContent = _currentUser.nombre;
+  if(configEmail)  configEmail.textContent  = _currentUser.email;
+  if(configRolEl)  configRolEl.textContent  = _currentUser.rol === 'dueño' ? 'Dueño' : 'Vendedor';
+}
 
 function goTo(id) {
+  // Control de acceso por rol
+  if(_currentUser && _currentUser.rol !== 'dueño' && PANTALLAS_SOLO_DUENO.includes(id)) {
+    id = 'inventario';
+  }
   ALL_SCREENS.forEach(s => {
     const el = document.getElementById('screen-'+s);
     if(el) el.classList.remove('active');
@@ -1815,6 +1845,7 @@ function goTo(id) {
   if(id === 'compras')    renderCompras();
   if(id === 'notifs')     { renderNotificaciones(); clearNotifs(); }
   if(id === 'locales')    renderLocales();
+  if(id === 'config')     renderEquipo();
 
   // Apagar cámara del escáner central al salir
   if(id !== 'scanner' && _scCamActive) scStopCamera();
