@@ -3141,7 +3141,7 @@ async function guardarCompra() {
   try {
     const { error } = await sb
       .from('compras')
-      .insert({ descripcion: desc, total_pagado: total, unidades: uds, origen, fecha_recepcion: fecha, local_id: 1 });
+      .insert({ notas: desc, total_pagado_clp: total, origen, fecha, local_id: 1 });
 
     if(error) throw error;
 
@@ -3714,7 +3714,7 @@ function scRecalc() {
 }
 
 // ── Confirmaciones ──
-function scConfirmarVenta() {
+async function scConfirmarVenta() {
   if(!_scItem) return;
   const precio = parseInt(document.getElementById('sc-precio').value)||0;
   const cant   = Math.max(1, parseInt(document.getElementById('sc-cant').value)||1);
@@ -3728,6 +3728,9 @@ function scConfirmarVenta() {
   const com = _scCanal==='Sotos' ? Math.min(Math.round(precio*0.15),10000) : 0;
   const gan = (precio-com)*cant - _scItem.costo*cant;
 
+  const ok = await registrarVentaDB(live.id, precio, _scItem.costo, _scCanal, pago, envio, cant);
+  if(!ok) { toast('Error al guardar. Intenta de nuevo.','err'); return; }
+
   live.stock = Math.max(0, live.stock-cant);
   ventasDB.unshift({
     id:ventasDB.length+1, sku:_scItem.sku, nombre:_scItem.nombre, variante:_scItem.variante,
@@ -3738,18 +3741,26 @@ function scConfirmarVenta() {
   scShowConfirm('🛍️','¡Venta registrada!',`${cant}× ${_scItem.nombre} · $${fmt(precio*cant)} · Ganancia $${fmt(gan)}`);
 }
 
-function scConfirmarIngreso() {
+async function scConfirmarIngreso() {
   if(!_scItem) return;
   const uds   = parseInt(document.getElementById('sc-ing-uds').value)||0;
   const costo = parseInt(document.getElementById('sc-ing-costo').value)||0;
   if(uds<1) { toast('Ingresa al menos 1 unidad.','err'); return; }
   const live = skuDB.find(s=>s.sku===_scItem.sku);
-  if(live) {
-    live.stock += uds;
-    if(costo>0) live.costo = costo; // actualizar costo si se ingresó
-  }
+  if(!live) { toast('Producto no encontrado.','err'); return; }
+
+  const nuevoStock = live.stock + uds;
+  const update = { stock_actual: nuevoStock };
+  if(costo>0) update.costo_ultima_compra = costo;
+
+  const { error } = await sb.from('variantes').update(update).eq('id', live.id);
+  if(error) { console.error('Error actualizando stock:', error); toast('Error al guardar. Intenta de nuevo.','err'); return; }
+
+  live.stock = nuevoStock;
+  if(costo>0) live.costo = costo;
+
   renderDashboard(); updateInventarioStock(); renderSkuList();
-  scShowConfirm('📥','Stock actualizado',`+${uds} ud. → ${live?.stock} en total · ${_scItem.nombre}`);
+  scShowConfirm('📥','Stock actualizado',`+${uds} ud. → ${nuevoStock} en total · ${_scItem.nombre}`);
 }
 
 function scConfirmarDevolucion() {
@@ -3771,13 +3782,18 @@ function scConfirmarDevolucion() {
   scShowConfirm('↩️','Devolución registrada',`${_scItem.nombre} · ${motivo} · ${reponeTxt}`);
 }
 
-function scConfirmarAjuste() {
+async function scConfirmarAjuste() {
   if(!_scItem) return;
   const nuevoStock = parseInt(document.getElementById('sc-ajuste-stock').value);
   if(isNaN(nuevoStock)||nuevoStock<0) { toast('Ingresa un stock válido (0 o más).','err'); return; }
   const live = skuDB.find(s=>s.sku===_scItem.sku);
-  const anterior = live ? live.stock : 0;
-  if(live) live.stock = nuevoStock;
+  if(!live) { toast('Producto no encontrado.','err'); return; }
+  const anterior = live.stock;
+
+  const { error } = await sb.from('variantes').update({ stock_actual: nuevoStock }).eq('id', live.id);
+  if(error) { console.error('Error ajustando stock:', error); toast('Error al guardar. Intenta de nuevo.','err'); return; }
+
+  live.stock = nuevoStock;
   renderDashboard(); updateInventarioStock(); renderSkuList();
   scShowConfirm('✏️','Ajuste aplicado',`${_scItem.nombre} · ${anterior} → ${nuevoStock} ud.`);
 }
