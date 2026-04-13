@@ -1093,27 +1093,34 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
 <!-- ════════════════════════════ HISTORIAL ════════════════════════════ -->
 <div class="screen" id="screen-historial">
-  <div class="ptitle">Historial de ventas</div>
+  <div class="ptitle">Ventas</div>
+  <div class="psub" id="hist-psub" style="margin-bottom:14px;">Cargando…</div>
+
+  <!-- resumen dinámico — ganancia como número principal -->
+  <div style="background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:13px;">
+    <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.3px;margin-bottom:10px;" id="hist-resumen-lbl">RESUMEN — TODAS LAS VENTAS</div>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:8px;">
+      <!-- Ganancia: protagonista -->
+      <div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">Ganancia total</div>
+        <div style="font-family:'Archivo Black',sans-serif;font-size:28px;letter-spacing:-1px;color:var(--green);line-height:1;" class="hist-stat" id="hist-stat-gan">$0</div>
+      </div>
+      <!-- Ventas e Ingresos: secundarios -->
+      <div style="text-align:right;">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:2px;">Ingresos · <span class="hist-stat" id="hist-stat-cnt">0</span> ventas</div>
+        <div style="font-family:'DM Mono',monospace;font-size:14px;font-weight:600;color:var(--text);" class="hist-stat" id="hist-stat-ing">$0</div>
+      </div>
+    </div>
+  </div>
+
   <div class="search-row"><input class="srch" id="hist-search-input" placeholder="Buscar producto, canal, SKU..." type="text" oninput="renderHistorial()"><button class="filter-btn">🗓️</button></div>
   <div class="chips" id="hist-chips">
     <div class="chip on" onclick="histSelChip(this,'todo')">Todo</div>
     <div class="chip" onclick="histSelChip(this,'hoy')">Hoy</div>
     <div class="chip" onclick="histSelChip(this,'semana')">Este mes</div>
-    <div class="chip" onclick="histSelChip(this,'sotos')">Sotos</div>
-    <div class="chip" onclick="histSelChip(this,'wsp')">WhatsApp</div>
-    <div class="chip" onclick="histSelChip(this,'fb')">Facebook</div>
-  </div>
-
-  <!-- resumen dinámico -->
-  <div class="card a" style="margin-bottom:13px;">
-    <div style="margin-bottom:10px;"><span style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:1px;">RESUMEN — TODAS LAS VENTAS</span></div>
-    <div style="display:flex;gap:0;justify-content:space-between;">
-      <div style="flex:1;text-align:center;"><div style="font-family:'Archivo Black',sans-serif;font-size:18px;color:var(--text);" class="hist-stat">0</div><div style="font-size:10px;color:var(--muted);">Ventas</div></div>
-      <div style="width:1px;background:var(--bd);"></div>
-      <div style="flex:1;text-align:center;"><div style="font-family:'Archivo Black',sans-serif;font-size:18px;color:var(--text);" class="hist-stat">$0</div><div style="font-size:10px;color:var(--muted);">Ingresos</div></div>
-      <div style="width:1px;background:var(--bd);"></div>
-      <div style="flex:1;text-align:center;"><div style="font-family:'Archivo Black',sans-serif;font-size:18px;color:var(--text);" class="hist-stat">$0</div><div style="font-size:10px;color:var(--muted);">Ganancia</div></div>
-    </div>
+    <div class="chip" onclick="histSelChip(this,'sotos')">🏪 Sotos</div>
+    <div class="chip" onclick="histSelChip(this,'wsp')">💬 WhatsApp</div>
+    <div class="chip" onclick="histSelChip(this,'fb')">📘 Facebook</div>
   </div>
 
   <div id="hist-lista"></div>
@@ -2027,24 +2034,17 @@ let histFiltro = 'todo'; // filtro activo
 
 function renderHistorial(filtro) {
   if(filtro !== undefined) histFiltro = filtro;
-  const container = document.getElementById('screen-historial');
-  if(!container) return;
   const lista = document.getElementById('hist-lista');
   if(!lista) return;
 
-  // Búsqueda por texto
   const q = (document.getElementById('hist-search-input')?.value || '').toLowerCase();
 
   let ventas = [...ventasDB];
-
-  // Filtro por chip — robusto
-  if(histFiltro === 'hoy')     ventas = ventas.filter(v => v.fecha.startsWith('Hoy'));
-  if(histFiltro === 'semana')  ventas = ventas.filter(v => esVentaMes(v));
-  if(histFiltro === 'sotos')   ventas = ventas.filter(v => v.canal === 'Sotos');
-  if(histFiltro === 'wsp')     ventas = ventas.filter(v => v.canal === 'WhatsApp');
-  if(histFiltro === 'fb')      ventas = ventas.filter(v => v.canal === 'Facebook');
-
-  // Filtro por búsqueda
+  if(histFiltro === 'hoy')    ventas = ventas.filter(v => v.fecha.startsWith('Hoy'));
+  if(histFiltro === 'semana') ventas = ventas.filter(v => esVentaMes(v));
+  if(histFiltro === 'sotos')  ventas = ventas.filter(v => v.canal === 'Sotos');
+  if(histFiltro === 'wsp')    ventas = ventas.filter(v => v.canal === 'WhatsApp');
+  if(histFiltro === 'fb')     ventas = ventas.filter(v => v.canal === 'Facebook');
   if(q) ventas = ventas.filter(v =>
     v.nombre.toLowerCase().includes(q) ||
     v.canal.toLowerCase().includes(q)  ||
@@ -2052,23 +2052,26 @@ function renderHistorial(filtro) {
     v.variante.toLowerCase().includes(q)
   );
 
-  // Resumen
+  // Resumen con nuevos IDs
   const totalIngresos = ventas.reduce((s,v) => s+v.precio, 0);
   const totalGan      = ventas.reduce((s,v) => s+v.gan,    0);
-  const rs = container.querySelectorAll('.hist-stat');
-  if(rs[0]) rs[0].textContent = ventas.length;
-  if(rs[1]) rs[1].textContent = '$'+fmt(totalIngresos);
-  if(rs[2]) rs[2].textContent = '$'+fmt(totalGan);
-
+  const ganEl  = document.getElementById('hist-stat-gan');
+  const ingEl  = document.getElementById('hist-stat-ing');
+  const cntEl  = document.getElementById('hist-stat-cnt');
+  const lblEl  = document.getElementById('hist-resumen-lbl');
+  const psubEl = document.getElementById('hist-psub');
   const filtroLabel = { todo:'TODAS LAS VENTAS', hoy:'HOY', semana:'ESTE MES', sotos:'SOTOS', wsp:'WHATSAPP', fb:'FACEBOOK' };
-  const rsLabel = document.querySelector('#screen-historial .card.a span');
-  if(rsLabel) rsLabel.textContent = `RESUMEN — ${filtroLabel[histFiltro] || 'FILTRO ACTIVO'}`;
+  if(ganEl) { ganEl.textContent = '$'+fmt(totalGan); ganEl.style.color = totalGan >= 0 ? 'var(--green)' : 'var(--red)'; }
+  if(ingEl) ingEl.textContent = '$'+fmt(totalIngresos);
+  if(cntEl) cntEl.textContent = ventas.length;
+  if(lblEl) lblEl.textContent = `RESUMEN — ${filtroLabel[histFiltro] || 'FILTRO ACTIVO'}`;
+  if(psubEl) psubEl.textContent = ventas.length === 0 ? 'Sin ventas en este período' : `${ventas.length} venta${ventas.length!==1?'s':''} · +$${fmt(totalGan)} de ganancia`;
 
   if(ventas.length === 0) {
     const msgs = {
-      hoy:    { icon:'🌅', title:'Sin ventas hoy todavía', sub:'Registrá una venta y acá verás cuánto ganaste.', cta:'Registrar venta →', dest:'venta' },
+      hoy:    { icon:'🌅', title:'Sin ventas hoy todavía', sub:'Registra una venta y acá verás cuánto ganaste.', cta:'Registrar venta →', dest:'venta' },
       semana: { icon:'📅', title:'Sin ventas este mes', sub:'Cuando registres ventas del mes aparecerán acá.', cta:'Registrar venta →', dest:'venta' },
-      sotos:  { icon:'🏪', title:'Sin ventas por Sotos', sub:'Cuando registres una venta por el canal Sotos, aparecerá aquí.', cta:'Registrar venta →', dest:'venta' },
+      sotos:  { icon:'🏪', title:'Sin ventas por Sotos', sub:'Cuando registres una venta por Sotos, aparecerá aquí.', cta:'Registrar venta →', dest:'venta' },
       wsp:    { icon:'💬', title:'Sin ventas por WhatsApp', sub:'Cuando registres una venta por WhatsApp, aparecerá aquí.', cta:'Registrar venta →', dest:'venta' },
       fb:     { icon:'📘', title:'Sin ventas por Facebook', sub:'Cuando registres una venta por Facebook, aparecerá aquí.', cta:'Registrar venta →', dest:'venta' },
     };
@@ -2083,26 +2086,60 @@ function renderHistorial(filtro) {
     return;
   }
 
-  const canalColor = { Sotos:'#8A7A00', WhatsApp:'var(--green)', Facebook:'var(--blue)', Sneakerheads:'var(--purple)', Devolución:'var(--red)' };
-  lista.innerHTML = ventas.map(v => {
-    const isDev = v.canal === 'Devolución';
-    const ganColor = v.gan >= 0 ? 'var(--green)' : 'var(--red)';
-    const cc = canalColor[v.canal] || 'var(--muted)';
+  // Colores de canal con design system
+  const canalStyle = {
+    Sotos:        { bg:'rgba(215,240,46,.15)', color:'#7A7000' },
+    WhatsApp:     { bg:'var(--gdim)',          color:'var(--green)' },
+    Facebook:     { bg:'var(--bdim2)',         color:'var(--blue)' },
+    Presencial:   { bg:'var(--sf2)',           color:'var(--muted)' },
+    Devolución:   { bg:'var(--rdim)',          color:'var(--red)' },
+  };
+
+  // Agrupar por día
+  const grupos = {};
+  const orden  = [];
+  ventas.forEach(v => {
+    const dia = v.fecha.split(' · ')[0];
+    if(!grupos[dia]) { grupos[dia] = { items:[], gan:0, ing:0 }; orden.push(dia); }
+    grupos[dia].items.push(v);
+    grupos[dia].gan += v.gan;
+    grupos[dia].ing += v.precio;
+  });
+
+  lista.innerHTML = orden.map(dia => {
+    const g    = grupos[dia];
+    const esCurr = dia === 'Hoy';
+    const filas  = g.items.map(v => {
+      const isDev = v.canal === 'Devolución';
+      const cs    = canalStyle[v.canal] || { bg:'var(--sf2)', color:'var(--muted)' };
+      const hora  = v.fecha.split(' · ').slice(1).join(' · ');
+      const meta  = [hora, v.variante && v.variante !== '—' ? v.variante : null].filter(Boolean).join(' · ');
+      return `
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--bd);${isDev?'opacity:.7;':''}">
+        <div style="width:36px;height:36px;background:${isDev?'var(--rdim)':'var(--sf2)'};border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">${v.icon}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${v.nombre}</div>
+          <div style="display:flex;align-items:center;gap:5px;margin-top:3px;flex-wrap:wrap;">
+            <span style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:6px;background:${cs.bg};color:${cs.color};">${v.canal}</span>
+            ${meta ? `<span style="font-size:10px;color:var(--muted);">${meta}</span>` : ''}
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:${v.gan>=0?'var(--green)':'var(--red)'};">${v.gan>=0?'+':''}$${fmt(v.gan)}</div>
+          <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:1px;">$${fmt(Math.abs(v.precio))}</div>
+        </div>
+      </div>`;
+    }).join('');
+
     return `
-    <div class="sale" style="${isDev?'opacity:.75;border-color:rgba(255,68,68,.2);':''}">
-      <div class="sale-thumb" style="${isDev?'background:var(--rdim);':''}">${v.icon}</div>
-      <div class="sale-info">
-        <div class="sale-name">${v.nombre}</div>
-        <div class="sale-meta">${v.fecha} · ${v.variante}</div>
+    <div style="margin-bottom:4px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0 4px;">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:${esCurr?'var(--text)':'var(--muted)'};">${dia}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--green);font-weight:600;">+$${fmt(g.gan)}</div>
       </div>
-      <div class="sale-r">
-        <div class="sale-amt" style="${isDev?'color:var(--red);':''}">
-          ${isDev ? '↩️ ' : ''}$${fmt(Math.abs(v.precio))}
-        </div>
-        <div style="display:flex;align-items:center;gap:5px;justify-content:flex-end;margin-top:2px;">
-          <span style="font-size:9px;color:${cc};background:rgba(0,0,0,.2);border-radius:4px;padding:1px 5px;font-weight:700;">${v.canal}</span>
-          <span style="font-size:10px;color:${ganColor};font-family:'DM Mono',monospace;">${v.gan>=0?'+':''}$${fmt(v.gan)}</span>
-        </div>
+      <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:0 12px;">
+        ${filas}
+        <div style="height:1px;"></div>
       </div>
     </div>`;
   }).join('');
@@ -2111,6 +2148,8 @@ function renderHistorial(filtro) {
 function histSelChip(el, filtro) {
   document.querySelectorAll('#hist-chips .chip').forEach(c => c.classList.remove('on'));
   el.classList.add('on');
+  const inp = document.getElementById('hist-search-input');
+  if(inp) inp.value = '';
   renderHistorial(filtro);
 }
 
