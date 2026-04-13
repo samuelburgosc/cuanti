@@ -1256,15 +1256,24 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
   <!-- perfil -->
   <div class="card" style="display:flex;align-items:center;gap:13px;margin-bottom:16px;">
-    <div style="width:50px;height:50px;background:var(--accent);border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:19px;color:var(--bg);flex-shrink:0;">SA</div>
-    <div style="flex:1;"><div style="font-size:14px;font-weight:600;margin-bottom:2px;">Samu</div><div style="font-size:11px;color:var(--muted);"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="cfbcaea2ba8fb9aaa1bbaebcbcaea2bae1aca3">[email&#160;protected]</a></div></div>
-    <span class="role owner">Dueño</span>
+    <div style="width:50px;height:50px;background:var(--accent);border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:19px;color:var(--bg);flex-shrink:0;" id="config-user-avatar">SA</div>
+    <div style="flex:1;"><div style="font-size:14px;font-weight:600;margin-bottom:2px;" id="config-user-nombre">—</div><div style="font-size:11px;color:var(--muted);" id="config-user-email">—</div></div>
+    <span class="role owner" id="config-user-rol">Dueño</span>
   </div>
 
-  <div class="sec-hdr"><div class="sec-title">Equipo</div><div class="sec-link">+ Agregar usuario</div></div>
-  <div class="ucard"><div class="uavatar" style="background:var(--accent);color:var(--bg);">SA</div><div class="uinfo"><div class="uname">Samu</div><div class="umeta">Todos los locales · Acceso completo</div></div><span class="role owner">Dueño</span></div>
-  <div class="ucard"><div class="uavatar" style="background:var(--bdim2);color:var(--blue);border:1px solid rgba(77,159,255,.2);">MA</div><div class="uinfo"><div class="uname">María</div><div class="umeta">Local 1 Familiar · Ve costos</div></div><span class="role admin">Admin</span></div>
-  <div class="ucard"><div class="uavatar" style="background:var(--sf2);color:var(--muted);border:1px solid var(--bd);">JU</div><div class="uinfo"><div class="uname">Juan</div><div class="umeta">Local 1 Familiar · Solo ventas</div></div><span class="role seller">Vendedor</span></div>
+  <div class="sec-hdr" id="equipo-section" style="display:none;"><div class="sec-title">Equipo</div></div>
+  <div id="equipo-lista" style="display:none;"></div>
+
+  <!-- Formulario crear vendedor (solo dueño) -->
+  <div id="crear-vendedor-form" style="display:none;margin-bottom:16px;">
+    <div class="card">
+      <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:14px;letter-spacing:-.2px;">Agregar vendedor</div>
+      <div class="field" style="margin-bottom:10px;"><label>Nombre</label><input id="cv-nombre" type="text" placeholder="Nombre del vendedor"></div>
+      <div class="field" style="margin-bottom:10px;"><label>Email</label><input id="cv-email" type="email" placeholder="email@ejemplo.com"></div>
+      <div class="field" style="margin-bottom:16px;"><label>Contraseña temporal</label><input id="cv-pass" type="text" placeholder="Mínimo 6 caracteres"></div>
+      <button class="btn" id="cv-btn" onclick="crearVendedor()">Crear vendedor →</button>
+    </div>
+  </div>
 
   <div class="divider"></div>
   <div class="sec-hdr"><div class="sec-title">Permisos por rol</div></div>
@@ -1756,6 +1765,71 @@ async function logout() {
   const ps = document.getElementById('login-pass');
   if(em) em.value = '';
   if(ps) ps.value = '';
+}
+
+async function renderEquipo() {
+  const esDueno = _currentUser?.rol === 'dueño';
+  const secEl   = document.getElementById('equipo-section');
+  const listaEl = document.getElementById('equipo-lista');
+  const formEl  = document.getElementById('crear-vendedor-form');
+
+  if(!esDueno) {
+    if(secEl)   secEl.style.display   = 'none';
+    if(listaEl) listaEl.style.display = 'none';
+    if(formEl)  formEl.style.display  = 'none';
+    return;
+  }
+
+  if(secEl)   secEl.style.display   = '';
+  if(listaEl) listaEl.style.display = '';
+  if(formEl)  formEl.style.display  = '';
+
+  const { data, error } = await sb.from('usuarios').select('id, nombre, email, rol, activo').order('nombre');
+  if(error || !data) return;
+
+  listaEl.innerHTML = data.map(u => {
+    const ini   = u.nombre.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+    const esDue = u.rol === 'dueño';
+    return `<div class="ucard">
+      <div class="uavatar" style="background:${esDue?'var(--accent)':'var(--sf2)'};color:${esDue?'var(--bg)':'var(--muted)'};">${ini}</div>
+      <div class="uinfo"><div class="uname">${u.nombre}</div><div class="umeta">${u.email}</div></div>
+      <span class="role ${esDue?'owner':'seller'}">${esDue?'Dueño':'Vendedor'}</span>
+    </div>`;
+  }).join('');
+}
+
+async function crearVendedor() {
+  const nombre = (document.getElementById('cv-nombre')?.value || '').trim();
+  const email  = (document.getElementById('cv-email')?.value  || '').trim();
+  const pass   = (document.getElementById('cv-pass')?.value   || '').trim();
+  const btn    = document.getElementById('cv-btn');
+
+  if(!nombre || !email || pass.length < 6) {
+    toast('Completá nombre, email y contraseña (mínimo 6 caracteres).', 'err'); return;
+  }
+
+  if(btn) { btn.textContent = '⏳ Creando…'; btn.disabled = true; }
+
+  try {
+    const { error: authError } = await sb.auth.signUp({ email, password: pass });
+    if(authError) throw authError;
+
+    const { error: dbError } = await sb.from('usuarios').insert({
+      nombre, email, rol: 'vendedor', local_id: _currentUser.local_id || 1, activo: true
+    });
+    if(dbError) throw dbError;
+
+    toast(`Vendedor ${nombre} creado.`, 'ok');
+    document.getElementById('cv-nombre').value = '';
+    document.getElementById('cv-email').value  = '';
+    document.getElementById('cv-pass').value   = '';
+    await renderEquipo();
+  } catch(e) {
+    console.error('Error creando vendedor:', e);
+    toast('Error al crear el vendedor. ¿Ya existe ese email?', 'err');
+  } finally {
+    if(btn) { btn.textContent = 'Crear vendedor →'; btn.disabled = false; }
+  }
 }
 
 // ══════════════════════════════════════════════════════
