@@ -4359,27 +4359,17 @@ function scReset() {
 // ══════════════════════════════════════════════════════
 //  INIT — ejecutar al cargar
 // ══════════════════════════════════════════════════════
-(async function init() {
-  // Fecha dinámica en nueva compra
-  const fechaEl = document.getElementById('nc-fecha');
-  if(fechaEl) {
-    const d = new Date();
-    fechaEl.value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  }
-
-  // Cargar datos desde Supabase
+async function cargarDatos() {
   const loadEl   = document.getElementById('loading-screen');
   const loadStep = document.getElementById('loading-step');
   if(loadEl) loadEl.style.display = 'flex';
 
-  let cargaOk = false;
   try {
     if(loadStep) loadStep.textContent = 'Cargando inventario…';
     await cargarInventario();
     if(loadStep) loadStep.textContent = 'Cargando ventas…';
     await cargarVentas();
     _dbReady = true;
-    cargaOk  = true;
   } catch(e) {
     console.error('Error cargando datos:', e);
     if(loadStep) {
@@ -4399,8 +4389,24 @@ function scReset() {
   renderNotificaciones();
   autoSku();
   renderSkuList();
-  // Actualizar badge de notificaciones
   actualizarBadgeNotifs();
+}
+
+(async function init() {
+  // Fecha dinámica en nueva compra
+  const fechaEl = document.getElementById('nc-fecha');
+  if(fechaEl) {
+    const d = new Date();
+    fechaEl.value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  // Verificar sesión antes de cargar datos
+  const autenticado = await initAuth();
+  if(!autenticado) return; // se muestra el login, detenemos init
+
+  // Cargar datos y renderizar
+  await cargarDatos();
+  goTo(_currentUser.rol === 'dueño' ? 'dashboard' : 'inventario');
 })();
 </script>
 </body>
