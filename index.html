@@ -1654,7 +1654,12 @@ function goTo(id) {
   if(id === 'dashboard')  renderDashboard();
   if(id === 'historial')  renderHistorial();
   if(id === 'inventario') renderInventario();
-  if(id === 'analisis')   renderAnalisis();
+  if(id === 'analisis')   {
+    document.querySelectorAll('#analisis-tabs .pb').forEach(b => {
+      b.classList.toggle('on', b.textContent.toLowerCase().startsWith(_analisisTab === 'historico' ? 'hist' : _analisisTab));
+    });
+    renderAnalisis();
+  }
   if(id === 'skus')       renderSkuList();
   if(id === 'venta')      ventaGoTo1();
   if(id === 'scanner')    scInit();
@@ -2396,7 +2401,7 @@ async function ventaConfirmar() {
   const nuevoStock = liveItem ? liveItem.stock : 0;
 
   ventasDB.unshift({
-    id: ventasDB.length+1, sku:s.sku, nombre:s.nombre, variante:s.variante,
+    id: -Date.now(), sku:s.sku, nombre:s.nombre, variante:s.variante,
     icon:s.icon, precio, costo:s.costo||0, com, canal, pago, envio, gan,
     fecha: `Hoy · ${nowHHMM()}`
   });
@@ -3189,11 +3194,12 @@ async function renderCompras() {
       return;
     }
     el.innerHTML = data.map(c => {
-      const origenLabel = c.origen === 'jp' ? '🇯🇵 Amazon JP' : '🏪 Proveedor local';
+      const esJp  = c.origen === 'Amazon JP' || c.origen === 'jp';
+      const origenLabel = esJp ? '🇯🇵 Amazon JP' : '🏪 Proveedor local';
       const fecha = c.fecha ? new Date(c.fecha+'T12:00:00').toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'}) : '—';
       const desc  = c.referencia || c.notas || c.proveedor || 'Sin descripción';
       const monto = c.total_pagado_clp ? '$'+fmt(c.total_pagado_clp) : '—';
-      const tag   = c.origen === 'jp' ? '<span class="ctag t-jp">🇯🇵 Japón</span>' : '<span class="ctag t-local">🏪 Local</span>';
+      const tag   = esJp ? '<span class="ctag t-jp">🇯🇵 Japón</span>' : '<span class="ctag t-local">🏪 Local</span>';
       return `<div class="ccard">
         <div class="ccard-top">
           <div style="flex:1;min-width:0;">
@@ -3617,8 +3623,8 @@ function scStopCamera() {
   if(video) video.srcObject = null;
   document.getElementById('sc-cam-wrap').style.display = 'none';
   document.getElementById('sc-dot').classList.remove('live');
-  const sb = document.getElementById('sc-start-btn');
-  sb.style.display=''; sb.textContent='📷 Activar cámara'; sb.disabled=false;
+  const startBtn = document.getElementById('sc-start-btn');
+  startBtn.style.display=''; startBtn.textContent='📷 Activar cámara'; startBtn.disabled=false;
   document.getElementById('sc-stop-btn').style.display='none';
 }
 
@@ -3766,7 +3772,7 @@ async function scConfirmarVenta() {
 
   live.stock = Math.max(0, live.stock-cant);
   ventasDB.unshift({
-    id:ventasDB.length+1, sku:_scItem.sku, nombre:_scItem.nombre, variante:_scItem.variante,
+    id:-Date.now(), sku:_scItem.sku, nombre:_scItem.nombre, variante:_scItem.variante,
     icon:_scItem.icon, precio, costo:_scItem.costo, com, canal:_scCanal, pago, envio, gan,
     fecha:`Hoy · ${nowHHMM()}`
   });
@@ -3796,18 +3802,31 @@ async function scConfirmarIngreso() {
   scShowConfirm('📥','Stock actualizado',`+${uds} ud. → ${nuevoStock} en total · ${_scItem.nombre}`);
 }
 
-function scConfirmarDevolucion() {
+async function scConfirmarDevolucion() {
   if(!_scItem) return;
   const uds    = parseInt(document.getElementById('sc-dev-uds').value)||1;
   const repone = document.getElementById('sc-dev-repone').value === 'si';
   const motivo = document.getElementById('sc-dev-motivo').value;
   const live   = skuDB.find(s=>s.sku===_scItem.sku);
-  if(repone && live) live.stock += uds;
+
+  // Usar precio de la venta original si existe en historial; si no, usar precio del catálogo
+  const ventaOriginal = ventasDB.find(v => v.sku === _scItem.sku && !v.nombre.startsWith('↩️'));
+  const precioOrig = ventaOriginal ? Math.abs(ventaOriginal.precio) : _scItem.precio;
+  const costoOrig  = ventaOriginal ? ventaOriginal.costo : _scItem.costo;
+
+  // Reponer stock en Supabase si aplica
+  if(repone && live) {
+    const nuevoStock = live.stock + uds;
+    const { error } = await sb.from('variantes').update({ stock_actual: nuevoStock }).eq('id', live.id);
+    if(error) { console.error('Error reponiendo stock:', error); toast('Error al guardar. Intenta de nuevo.','err'); return; }
+    live.stock = nuevoStock;
+  }
+
   // Registrar como venta negativa en historial
   ventasDB.unshift({
-    id:ventasDB.length+1, sku:_scItem.sku, nombre:`↩️ DEVOL · ${_scItem.nombre}`,
-    variante:_scItem.variante, icon:'↩️', precio:-_scItem.precio, costo:0, com:0,
-    canal:'Devolución', pago:'—', envio:'—', gan:-(_scItem.precio-_scItem.costo),
+    id:-Date.now(), sku:_scItem.sku, nombre:`↩️ DEVOL · ${_scItem.nombre}`,
+    variante:_scItem.variante, icon:'↩️', precio:-precioOrig, costo:0, com:0,
+    canal:'Devolución', pago:'—', envio:'—', gan:-(precioOrig-costoOrig),
     fecha:`Hoy · ${nowHHMM()}`
   });
   renderDashboard(); renderHistorial(); updateInventarioStock();
