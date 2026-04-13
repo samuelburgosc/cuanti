@@ -2406,7 +2406,8 @@ function renderInventario() {
       return `<div class="vp ${cls}"><span class="vs">${lbl}·${v.stock}</span></div>`;
     }).join('') : '';
 
-    const ganUnit    = g.precio > 0 && g.costo > 0 ? g.precio - g.costo : null;
+    const esDueno    = _currentUser?.rol === 'dueño';
+    const ganUnit    = esDueno && g.precio > 0 && g.costo > 0 ? g.precio - g.costo : null;
     const encNombre  = encodeURIComponent(g.nombre);
 
     html += `
@@ -2472,7 +2473,8 @@ function invAbrirProducto(nombreEnc) {
   const variantes = skuDB.filter(s => s.nombre === nombre);
   if(!variantes.length) return;
   const g = variantes[0];
-  const ganUnit = g.precio > 0 && g.costo > 0 ? g.precio - g.costo : null;
+  const esDueno = _currentUser?.rol === 'dueño';
+  const ganUnit = esDueno && g.precio > 0 && g.costo > 0 ? g.precio - g.costo : null;
 
   const vpHtml = variantes.map(v => {
     const stockColor = v.stock === 0 ? 'var(--red)' : v.stock <= 2 ? 'var(--orange)' : 'var(--green)';
