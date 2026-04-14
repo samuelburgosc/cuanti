@@ -2943,17 +2943,32 @@ function recalcVenta() {
   const cant   = Math.max(1, parseInt(document.getElementById('v-cant').value) || 1);
   const canal  = ventaState.canal;
   const costo  = ventaState.sku ? (ventaState.sku.costo || 0) : 0;
-  const com    = canal === 'Sotos' ? Math.min(Math.round(precio * 0.15), 10000) : 0;
-  const gan    = (precio - com) * cant - costo * cant;
+
+  // Descuento
+  const descPanel  = document.getElementById('v-desc-panel');
+  const descAbierto = descPanel && descPanel.style.display !== 'none';
+  const descValor  = descAbierto ? (parseInt(document.getElementById('v-desc-valor')?.value) || 0) : 0;
+  const descTipo   = ventaState.descTipo || 'porcentaje';
+  let precioFinal  = precio;
+  if (descAbierto && descValor > 0) {
+    if (descTipo === 'porcentaje') {
+      precioFinal = Math.round(precio * (1 - descValor / 100));
+    } else {
+      precioFinal = Math.max(0, precio - descValor);
+    }
+  }
+
+  const com  = canal === 'Sotos' ? Math.min(Math.round(precioFinal * 0.15), 10000) : 0;
+  const gan  = (precioFinal - com) * cant - costo * cant;
 
   const ganEl   = document.getElementById('vs-gan');
   const preview = document.getElementById('v-gan-preview');
-  if(!ganEl || !preview) return;
+  if (!ganEl || !preview) return;
   const negativo = precio > 0 && gan < 0;
   ganEl.textContent = precio > 0 ? '$'+fmt(gan) : '$—';
   ganEl.style.color = negativo ? 'var(--red)' : 'var(--green)';
-  preview.style.background   = negativo ? 'var(--rdim)' : 'var(--gdim)';
-  preview.style.borderColor  = negativo ? 'rgba(216,75,75,.2)' : 'rgba(30,158,99,.2)';
+  preview.style.background  = negativo ? 'var(--rdim)' : 'var(--gdim)';
+  preview.style.borderColor = negativo ? 'rgba(216,75,75,.2)' : 'rgba(30,158,99,.2)';
 }
 
 // Confirmar venta
