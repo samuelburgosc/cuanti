@@ -1050,6 +1050,27 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
       </div>
     </div>
 
+    <!-- cliente (toggle opcional) -->
+    <div style="margin-bottom:18px;">
+      <div id="v-cliente-toggle" onclick="ventaToggleCliente()"
+        style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--sf2);border:1px dashed var(--bd2);border-radius:10px;cursor:pointer;">
+        <span style="font-size:12px;color:var(--muted);">¿Quién compra? (opcional)</span>
+        <span id="v-cliente-toggle-icon" style="font-size:18px;color:var(--accent);font-weight:700;line-height:1;">＋</span>
+      </div>
+      <div id="v-cliente-panel" style="display:none;margin-top:8px;">
+        <div class="field" style="margin-bottom:0;position:relative;">
+          <label>Nombre o teléfono</label>
+          <input id="v-cliente-input" type="text" placeholder="Buscar cliente existente..."
+            autocomplete="off" oninput="ventaBuscarCliente(this.value)">
+        </div>
+        <div id="v-cliente-sugerencias" style="background:var(--sf);border:1px solid var(--bd);border-radius:10px;margin-top:4px;display:none;"></div>
+        <div id="v-cliente-seleccionado" style="display:none;margin-top:6px;padding:8px 10px;background:var(--gdim);border:1px solid rgba(30,158,99,.2);border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+          <span id="v-cliente-sel-nombre" style="font-size:13px;font-weight:600;color:var(--green);"></span>
+          <span onclick="ventaLimpiarCliente()" style="font-size:11px;color:var(--muted);cursor:pointer;">✕</span>
+        </div>
+      </div>
+    </div>
+
     <!-- ganancia preview -->
     <div id="v-gan-preview" style="background:var(--gdim);border:1px solid rgba(30,158,99,.2);border-radius:12px;padding:13px 16px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;">
       <span style="font-size:13px;color:var(--muted);">Ganancia estimada</span>
@@ -2951,10 +2972,12 @@ function selChip(el) {
 //  FLUJO DE VENTA — 3 pasos
 // ══════════════════════════════════════════════════════
 const ventaState = {
-  sku:      null,
-  canal:    'Sotos',
-  pago:     'Transferencia',
-  descTipo: 'porcentaje',
+  sku:           null,
+  canal:         'Sotos',
+  pago:          'Transferencia',
+  descTipo:      'porcentaje',
+  clienteId:     null,
+  clienteNombre: null,
 };
 
 function ventaGoTo1() {
@@ -3134,6 +3157,66 @@ function ventaSelDescTipo(tipo) {
   pctBtn.style.cssText   += tipo === 'porcentaje' ? activo : inactivo;
   montoBtn.style.cssText += tipo === 'monto'      ? activo : inactivo;
   recalcVenta();
+}
+
+function ventaToggleCliente() {
+  const panel  = document.getElementById('v-cliente-panel');
+  const icon   = document.getElementById('v-cliente-toggle-icon');
+  const toggle = document.getElementById('v-cliente-toggle');
+  const abierto = panel.style.display !== 'none';
+  panel.style.display = abierto ? 'none' : '';
+  icon.textContent    = abierto ? '＋' : '−';
+  toggle.style.borderColor = abierto ? 'var(--bd2)' : 'var(--accent)';
+  if (abierto) ventaLimpiarCliente();
+}
+
+function ventaBuscarCliente(q) {
+  ventaState.clienteId     = null;
+  ventaState.clienteNombre = q.trim() || null;
+  const sugs = document.getElementById('v-cliente-sugerencias');
+  if (!sugs) return;
+  if (q.length < 2) { sugs.style.display = 'none'; return; }
+
+  const matches = clientesDB.filter(c =>
+    c.nombre.toLowerCase().includes(q.toLowerCase()) ||
+    (c.telefono || '').includes(q)
+  ).slice(0, 5);
+
+  if (matches.length === 0) { sugs.style.display = 'none'; return; }
+
+  sugs.style.display = '';
+  sugs.innerHTML = matches.map(c => {
+    const nombreSafe = c.nombre.replace(/'/g, '&#39;');
+    return `<div onclick="ventaSelCliente(${c.id}, '${nombreSafe}')"
+      style="padding:10px 12px;border-bottom:1px solid var(--bd);cursor:pointer;font-size:13px;">
+      <span style="font-weight:600;">${c.nombre}</span>
+      ${c.telefono ? `<span style="font-size:11px;color:var(--muted);margin-left:6px;">${c.telefono}</span>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function ventaSelCliente(id, nombre) {
+  ventaState.clienteId     = id;
+  ventaState.clienteNombre = nombre;
+  const input     = document.getElementById('v-cliente-input');
+  const sugs      = document.getElementById('v-cliente-sugerencias');
+  const sel       = document.getElementById('v-cliente-seleccionado');
+  const selNombre = document.getElementById('v-cliente-sel-nombre');
+  if (input) input.value = '';
+  if (sugs)  sugs.style.display = 'none';
+  if (sel)   sel.style.display  = '';
+  if (selNombre) selNombre.textContent = nombre;
+}
+
+function ventaLimpiarCliente() {
+  ventaState.clienteId     = null;
+  ventaState.clienteNombre = null;
+  const input = document.getElementById('v-cliente-input');
+  const sugs  = document.getElementById('v-cliente-sugerencias');
+  const sel   = document.getElementById('v-cliente-seleccionado');
+  if (input) input.value = '';
+  if (sugs)  sugs.style.display = 'none';
+  if (sel)   sel.style.display  = 'none';
 }
 
 function ventaVolver() {
@@ -3347,6 +3430,17 @@ function resetVenta() {
   if (descInput)  descInput.value          = '';
   if (descError)  descError.style.display  = 'none';
   ventaState.descTipo = 'porcentaje';
+
+  // Limpiar campo cliente
+  ventaLimpiarCliente();
+  const clientePanel  = document.getElementById('v-cliente-panel');
+  const clienteIcon   = document.getElementById('v-cliente-toggle-icon');
+  const clienteToggle = document.getElementById('v-cliente-toggle');
+  if (clientePanel)  clientePanel.style.display     = 'none';
+  if (clienteIcon)   clienteIcon.textContent         = '＋';
+  if (clienteToggle) clienteToggle.style.borderColor = 'var(--bd2)';
+  ventaState.clienteId     = null;
+  ventaState.clienteNombre = null;
 
   ventaState.sku   = null;
   ventaState.canal = 'Sotos';
