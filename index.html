@@ -1297,6 +1297,23 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   </div>
 
   <div class="divider"></div>
+  <div class="sec-hdr" id="ventas-config-section" style="display:none;"><div class="sec-title">Ventas</div></div>
+  <div class="card" id="ventas-config-card" style="display:none;">
+    <div class="tgl-row" style="border-bottom:none;">
+      <div>
+        <div class="tgl-lbl">Descuento máximo para vendedores</div>
+        <div class="tgl-sub">Los vendedores no pueden superar este porcentaje</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:4px;">
+        <input id="descuento-max-input" type="number" min="0" max="100" value="0"
+          style="width:52px;text-align:center;font-family:'DM Mono',monospace;font-size:14px;font-weight:600;border:1px solid var(--bd);border-radius:8px;padding:6px 4px;background:var(--sf2);"
+          oninput="setDescuentoMaxPct(this.value)">
+        <span style="font-size:13px;color:var(--muted);">%</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
   <div class="sec-hdr"><div class="sec-title">Preferencias</div></div>
   <div class="card">
     <div class="tgl-row"><div><div class="tgl-lbl">Alertas de stock bajo</div><div class="tgl-sub">Notificación cuando llegue al mínimo</div></div><label class="tgl"><input type="checkbox" checked><span class="tgl-sl"></span></label></div>
@@ -1771,6 +1788,14 @@ async function logout() {
   if(ps) ps.value = '';
 }
 
+function getDescuentoMaxPct() {
+  return parseInt(localStorage.getItem('cuanti_descuento_max_pct') || '0', 10);
+}
+function setDescuentoMaxPct(val) {
+  const n = Math.min(100, Math.max(0, parseInt(val) || 0));
+  localStorage.setItem('cuanti_descuento_max_pct', String(n));
+}
+
 async function renderEquipo() {
   const esDueno = _currentUser?.rol === 'Dueño';
   const secEl   = document.getElementById('equipo-section');
@@ -1800,6 +1825,15 @@ async function renderEquipo() {
       <span class="role ${esDue?'owner':'seller'}">${esDue?'Dueño':'Vendedor'}</span>
     </div>`;
   }).join('');
+
+  // Mostrar sección Ventas solo para el dueño
+  const esVentas = _currentUser?.rol === 'Dueño';
+  const ventasSection = document.getElementById('ventas-config-section');
+  const ventasCard    = document.getElementById('ventas-config-card');
+  if (ventasSection) ventasSection.style.display = esVentas ? '' : 'none';
+  if (ventasCard)    ventasCard.style.display    = esVentas ? '' : 'none';
+  const inputMax = document.getElementById('descuento-max-input');
+  if (inputMax) inputMax.value = getDescuentoMaxPct();
 }
 
 async function crearVendedor() {
