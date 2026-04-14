@@ -125,7 +125,7 @@ async function cargarVentas() {
 }
 
 // Registrar venta en Supabase
-async function registrarVentaDB(varianteId, precio, costo, canal, pago, envio, cantidad=1) {
+async function registrarVentaDB(varianteId, precio, costo, canal, pago, envio, cantidad=1, descuentoTipo=null, descuentoValor=0) {
   // 1. Crear cabecera de venta
   const { data: venta, error: e1 } = await sb
     .from('ventas')
@@ -135,9 +135,12 @@ async function registrarVentaDB(varianteId, precio, costo, canal, pago, envio, c
   if (e1) { console.error('Error creando venta:', e1); return false; }
 
   // 2. Crear detalle
-  const { error: e2 } = await sb
-    .from('detalle_ventas')
-    .insert({ venta_id: venta.id, variante_id: varianteId, cantidad, precio_unitario: precio, costo_unitario: costo });
+  const detalle = { venta_id: venta.id, variante_id: varianteId, cantidad, precio_unitario: precio, costo_unitario: costo };
+  if (descuentoTipo) {
+    detalle.descuento_tipo  = descuentoTipo;
+    detalle.descuento_valor = descuentoValor;
+  }
+  const { error: e2 } = await sb.from('detalle_ventas').insert(detalle);
   if (e2) { console.error('Error creando detalle:', e2); return false; }
 
   // 3. Descontar stock
