@@ -2396,6 +2396,11 @@ function renderHistorial(filtro) {
       const cs    = canalStyle[v.canal] || { bg:'var(--sf2)', color:'var(--muted)' };
       const hora  = v.fecha.split(' · ').slice(1).join(' · ');
       const meta  = [hora, v.variante && v.variante !== '—' ? v.variante : null].filter(Boolean).join(' · ');
+      const descLabel = v.descuento_tipo && v.descuento_valor > 0
+        ? (v.descuento_tipo === 'porcentaje'
+            ? `−${v.descuento_valor}% dto.`
+            : `−$${fmt(v.descuento_valor)} dto.`)
+        : null;
       return `
       <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--bd);${isDev?'opacity:.7;':''}">
         <div style="width:36px;height:36px;background:${isDev?'var(--rdim)':'var(--sf2)'};border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">${v.icon}</div>
@@ -2404,6 +2409,7 @@ function renderHistorial(filtro) {
           <div style="display:flex;align-items:center;gap:5px;margin-top:3px;flex-wrap:wrap;">
             <span style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:6px;background:${cs.bg};color:${cs.color};">${v.canal}</span>
             ${meta ? `<span style="font-size:10px;color:var(--muted);">${meta}</span>` : ''}
+            ${descLabel ? `<span style="font-size:10px;color:var(--orange);">${descLabel}</span>` : ''}
           </div>
         </div>
         <div style="text-align:right;flex-shrink:0;">
