@@ -3312,9 +3312,30 @@ async function ventaConfirmar() {
   const btn = document.getElementById('venta-confirmar-btn');
   if(btn){ btn.textContent = '⏳ Guardando…'; btn.disabled = true; }
 
+  // Resolver cliente
+  let clienteIdFinal = ventaState.clienteId;
+  if (!clienteIdFinal && ventaState.clienteNombre) {
+    const nombreLower = ventaState.clienteNombre.toLowerCase();
+    const existente   = clientesDB.find(c => c.nombre.toLowerCase() === nombreLower);
+    if (existente) {
+      clienteIdFinal = existente.id;
+    } else {
+      const { data: nuevoCliente, error: eCli } = await sb
+        .from('clientes')
+        .insert({ nombre: ventaState.clienteNombre, local_id: _currentUser?.local_id || 1, activo: true })
+        .select('id, nombre, telefono')
+        .single();
+      if (!eCli && nuevoCliente) {
+        clientesDB.push(nuevoCliente);
+        clienteIdFinal = nuevoCliente.id;
+      }
+    }
+  }
+
   const ok = await registrarVentaDB(s.id, precioFinal, s.costo||0, canal, pago, envio, cant,
     descAbierto && descValor > 0 ? descTipo : null,
-    descAbierto ? descValor : 0);
+    descAbierto ? descValor : 0,
+    clienteIdFinal);
 
   if(btn){ btn.textContent = 'Registrar venta →'; btn.disabled = false; }
   if(!ok){ toast('Error al guardar. Intenta de nuevo.','err'); return; }
@@ -3328,7 +3349,11 @@ async function ventaConfirmar() {
     icon:s.icon, precio: precioFinal, costo:s.costo||0, com, canal, pago, envio, gan,
     fecha: `Hoy · ${nowHHMM()}`,
     descuento_tipo:  descAbierto && descValor > 0 ? descTipo : null,
-    descuento_valor: descAbierto ? descValor : 0
+    descuento_valor: descAbierto ? descValor : 0,
+    cliente_id:      clienteIdFinal || null,
+    cliente_nombre:  clienteIdFinal
+      ? (clientesDB.find(c => c.id === clienteIdFinal)?.nombre || null)
+      : null
   });
 
   // Paso 3 — resultado
