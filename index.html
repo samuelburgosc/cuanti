@@ -988,6 +988,30 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
       </div>
     </div>
 
+    <!-- descuento (toggle opcional) -->
+    <div style="margin-bottom:18px;">
+      <div id="v-desc-toggle" onclick="ventaToggleDescuento()"
+        style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--sf2);border:1px dashed var(--bd2);border-radius:10px;cursor:pointer;">
+        <span style="font-size:12px;color:var(--muted);">Aplicar descuento</span>
+        <span id="v-desc-toggle-icon" style="font-size:18px;color:var(--accent);font-weight:700;line-height:1;">＋</span>
+      </div>
+      <div id="v-desc-panel" style="display:none;margin-top:8px;">
+        <div style="display:flex;gap:8px;align-items:flex-end;">
+          <div class="field" style="flex:1;margin-bottom:0;">
+            <label>Descuento</label>
+            <input id="v-desc-valor" type="number" min="0" placeholder="0" oninput="recalcVenta()">
+          </div>
+          <div style="display:flex;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:1px;">
+            <div id="v-desc-pct-btn" onclick="ventaSelDescTipo('porcentaje')"
+              style="padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;background:var(--accent);color:var(--bg);">%</div>
+            <div id="v-desc-monto-btn" onclick="ventaSelDescTipo('monto')"
+              style="padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted);">$</div>
+          </div>
+        </div>
+        <div id="v-desc-error" style="display:none;font-size:11px;color:var(--red);margin-top:6px;padding:0 4px;"></div>
+      </div>
+    </div>
+
     <!-- canal -->
     <div style="margin-bottom:18px;">
       <div class="mono-lbl" style="margin-bottom:9px;">Canal</div>
@@ -2719,9 +2743,10 @@ function selChip(el) {
 //  FLUJO DE VENTA — 3 pasos
 // ══════════════════════════════════════════════════════
 const ventaState = {
-  sku:   null,
-  canal: 'Sotos',
-  pago:  'Transferencia',
+  sku:      null,
+  canal:    'Sotos',
+  pago:     'Transferencia',
+  descTipo: 'porcentaje',
 };
 
 function ventaGoTo1() {
@@ -2875,6 +2900,34 @@ function selPagoV(el, nombre) {
   ventaState.pago = nombre;
 }
 
+function ventaToggleDescuento() {
+  const panel  = document.getElementById('v-desc-panel');
+  const icon   = document.getElementById('v-desc-toggle-icon');
+  const toggle = document.getElementById('v-desc-toggle');
+  const abierto = panel.style.display !== 'none';
+  panel.style.display = abierto ? 'none' : '';
+  icon.textContent    = abierto ? '＋' : '−';
+  toggle.style.borderColor = abierto ? 'var(--bd2)' : 'var(--accent)';
+  if (abierto) {
+    const input = document.getElementById('v-desc-valor');
+    if (input) input.value = '';
+    document.getElementById('v-desc-error').style.display = 'none';
+    recalcVenta();
+  }
+}
+
+function ventaSelDescTipo(tipo) {
+  ventaState.descTipo = tipo;
+  const pctBtn   = document.getElementById('v-desc-pct-btn');
+  const montoBtn = document.getElementById('v-desc-monto-btn');
+  if (!pctBtn || !montoBtn) return;
+  const activo   = 'background:var(--accent);color:var(--bg);';
+  const inactivo = 'background:transparent;color:var(--muted);';
+  pctBtn.style.cssText   += tipo === 'porcentaje' ? activo : inactivo;
+  montoBtn.style.cssText += tipo === 'monto'      ? activo : inactivo;
+  recalcVenta();
+}
+
 function ventaVolver() {
   const inp = document.getElementById('venta-scan-input');
   if(inp) { inp.value = ''; setTimeout(()=>inp.focus(), 100); }
@@ -3024,6 +3077,19 @@ async function ventaConfirmar() {
 }
 
 function resetVenta() {
+  // Ocultar panel de descuento
+  const descPanel  = document.getElementById('v-desc-panel');
+  const descIcon   = document.getElementById('v-desc-toggle-icon');
+  const descToggle = document.getElementById('v-desc-toggle');
+  const descInput  = document.getElementById('v-desc-valor');
+  const descError  = document.getElementById('v-desc-error');
+  if (descPanel)  descPanel.style.display  = 'none';
+  if (descIcon)   descIcon.textContent     = '＋';
+  if (descToggle) descToggle.style.borderColor = 'var(--bd2)';
+  if (descInput)  descInput.value          = '';
+  if (descError)  descError.style.display  = 'none';
+  ventaState.descTipo = 'porcentaje';
+
   ventaState.sku   = null;
   ventaState.canal = 'Sotos';
   ventaState.pago  = 'Transferencia';
