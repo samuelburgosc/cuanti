@@ -16,8 +16,9 @@ const SUPABASE_KEY = '__SUPABASE_KEY__';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Cache local de datos
-let skuDB    = [];
-let ventasDB = [];
+let skuDB      = [];
+let ventasDB   = [];
+let clientesDB = [];
 let _dbReady = false;
 let _currentUser = null; // { id, nombre, email, rol: 'Dueño'|'Vendedor', local_id }
 
@@ -74,7 +75,7 @@ async function cargarVentas() {
     .from('detalle_ventas')
     .select(`
       id, cantidad, precio_unitario, costo_unitario, descuento_tipo, descuento_valor,
-      ventas ( id, fecha_hora, canal, metodo_pago, tipo_envio, estado ),
+      ventas ( id, fecha_hora, canal, metodo_pago, tipo_envio, estado, cliente_id, clientes ( nombre ) ),
       variantes ( sku, talla_color,
         productos ( nombre,
           categorias ( nombre, icono ),
@@ -118,10 +119,22 @@ async function cargarVentas() {
       envio:    d.ventas?.tipo_envio || '—',
       fecha:    fechaStr,
       fecha_raw: d.ventas?.fecha_hora,
+      cliente_id:     d.ventas?.cliente_id         || null,
+      cliente_nombre: d.ventas?.clientes?.nombre   || null,
       descuento_tipo:  d.descuento_tipo  || null,
       descuento_valor: d.descuento_valor || 0,
     };
   });
+}
+
+async function cargarClientes() {
+  const { data, error } = await sb
+    .from('clientes')
+    .select('id, nombre, telefono, local_id')
+    .eq('activo', true)
+    .order('nombre');
+  if (error) { console.error('Error cargando clientes:', error); return; }
+  clientesDB = data || [];
 }
 
 // Registrar venta en Supabase
@@ -160,6 +173,7 @@ async function initDB() {
   document.getElementById('loading-screen').style.display = 'flex';
   await cargarInventario();
   await cargarVentas();
+  await cargarClientes();
   _dbReady = true;
   document.getElementById('loading-screen').style.display = 'none';
 }
@@ -4606,6 +4620,8 @@ async function cargarDatos() {
     await cargarInventario();
     if(loadStep) loadStep.textContent = 'Cargando ventas…';
     await cargarVentas();
+    if(loadStep) loadStep.textContent = 'Cargando clientes…';
+    await cargarClientes();
     _dbReady = true;
   } catch(e) {
     console.error('Error cargando datos:', e);
