@@ -1164,36 +1164,70 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 <!-- ════════════════════════════ HISTORIAL ════════════════════════════ -->
 <div class="screen" id="screen-historial">
   <div class="ptitle">Ventas</div>
-  <div class="psub" id="hist-psub" style="margin-bottom:14px;">Cargando…</div>
 
-  <!-- resumen dinámico — ganancia como número principal -->
-  <div style="background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:13px;">
-    <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.3px;margin-bottom:10px;" id="hist-resumen-lbl">RESUMEN — TODAS LAS VENTAS</div>
-    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:8px;">
-      <!-- Ganancia: protagonista -->
-      <div>
-        <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">Ganancia total</div>
-        <div style="font-family:'Archivo Black',sans-serif;font-size:28px;letter-spacing:-1px;color:var(--green);line-height:1;" class="hist-stat" id="hist-stat-gan">$0</div>
+  <!-- tabs: Ventas / Clientes -->
+  <div style="display:flex;gap:0;background:var(--sf2);border:1px solid var(--bd);border-radius:12px;padding:3px;margin-bottom:14px;">
+    <div id="hist-tab-ventas" onclick="histSelTab('ventas')"
+      style="flex:1;text-align:center;padding:7px 0;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;background:var(--sf);box-shadow:0 1px 3px rgba(0,0,0,.06);">
+      Ventas
+    </div>
+    <div id="hist-tab-clientes" onclick="histSelTab('clientes')"
+      style="flex:1;text-align:center;padding:7px 0;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);">
+      Clientes
+    </div>
+  </div>
+
+  <div id="hist-panel-ventas">
+    <div class="psub" id="hist-psub" style="margin-bottom:14px;">Cargando…</div>
+
+    <!-- resumen dinámico — ganancia como número principal -->
+    <div style="background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:13px;">
+      <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.3px;margin-bottom:10px;" id="hist-resumen-lbl">RESUMEN — TODAS LAS VENTAS</div>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:8px;">
+        <!-- Ganancia: protagonista -->
+        <div>
+          <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">Ganancia total</div>
+          <div style="font-family:'Archivo Black',sans-serif;font-size:28px;letter-spacing:-1px;color:var(--green);line-height:1;" class="hist-stat" id="hist-stat-gan">$0</div>
+        </div>
+        <!-- Ventas e Ingresos: secundarios -->
+        <div style="text-align:right;">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:2px;">Ingresos · <span class="hist-stat" id="hist-stat-cnt">0</span> ventas</div>
+          <div style="font-family:'DM Mono',monospace;font-size:14px;font-weight:600;color:var(--text);" class="hist-stat" id="hist-stat-ing">$0</div>
+        </div>
       </div>
-      <!-- Ventas e Ingresos: secundarios -->
-      <div style="text-align:right;">
-        <div style="font-size:10px;color:var(--muted);margin-bottom:2px;">Ingresos · <span class="hist-stat" id="hist-stat-cnt">0</span> ventas</div>
-        <div style="font-family:'DM Mono',monospace;font-size:14px;font-weight:600;color:var(--text);" class="hist-stat" id="hist-stat-ing">$0</div>
+    </div>
+
+    <div class="search-row"><input class="srch" id="hist-search-input" placeholder="Buscar producto, canal, SKU..." type="text" oninput="renderHistorial()"><button class="filter-btn">🗓️</button></div>
+    <div class="chips" id="hist-chips">
+      <div class="chip on" onclick="histSelChip(this,'todo')">Todo</div>
+      <div class="chip" onclick="histSelChip(this,'hoy')">Hoy</div>
+      <div class="chip" onclick="histSelChip(this,'semana')">Este mes</div>
+      <div class="chip" onclick="histSelChip(this,'sotos')">🏪 Sotos</div>
+      <div class="chip" onclick="histSelChip(this,'wsp')">💬 WhatsApp</div>
+      <div class="chip" onclick="histSelChip(this,'fb')">📘 Facebook</div>
+    </div>
+
+    <div id="hist-lista"></div>
+  </div>
+
+  <!-- contenido tab clientes -->
+  <div id="hist-panel-clientes" style="display:none;">
+    <div class="search-row" style="margin-bottom:12px;">
+      <input class="srch" id="clientes-search-input" placeholder="Buscar por nombre o teléfono..." type="text" oninput="renderClientes()">
+    </div>
+    <div id="clientes-lista"></div>
+    <button class="btn sec" style="margin-top:12px;" onclick="mostrarFormNuevoCliente()">+ Nuevo cliente</button>
+    <!-- formulario crear cliente (oculto por defecto) -->
+    <div id="nuevo-cliente-form" style="display:none;margin-top:12px;">
+      <div class="card">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:14px;">Nuevo cliente</div>
+        <div class="field" style="margin-bottom:10px;"><label>Nombre</label><input id="nc-nombre" type="text" placeholder="Nombre del cliente"></div>
+        <div class="field" style="margin-bottom:16px;"><label>Teléfono (opcional)</label><input id="nc-telefono" type="tel" placeholder="+56 9 1234 5678"></div>
+        <button class="btn" onclick="crearClienteManual()">Guardar cliente →</button>
       </div>
     </div>
   </div>
 
-  <div class="search-row"><input class="srch" id="hist-search-input" placeholder="Buscar producto, canal, SKU..." type="text" oninput="renderHistorial()"><button class="filter-btn">🗓️</button></div>
-  <div class="chips" id="hist-chips">
-    <div class="chip on" onclick="histSelChip(this,'todo')">Todo</div>
-    <div class="chip" onclick="histSelChip(this,'hoy')">Hoy</div>
-    <div class="chip" onclick="histSelChip(this,'semana')">Este mes</div>
-    <div class="chip" onclick="histSelChip(this,'sotos')">🏪 Sotos</div>
-    <div class="chip" onclick="histSelChip(this,'wsp')">💬 WhatsApp</div>
-    <div class="chip" onclick="histSelChip(this,'fb')">📘 Facebook</div>
-  </div>
-
-  <div id="hist-lista"></div>
   <div class="spacer"></div>
 </div>
 
@@ -2453,6 +2487,157 @@ function histSelChip(el, filtro) {
   const inp = document.getElementById('hist-search-input');
   if(inp) inp.value = '';
   renderHistorial(filtro);
+}
+
+let histTab = 'ventas';
+function histSelTab(tab) {
+  histTab = tab;
+  const tabVentas     = document.getElementById('hist-tab-ventas');
+  const tabClientes   = document.getElementById('hist-tab-clientes');
+  const panelVentas   = document.getElementById('hist-panel-ventas');
+  const panelClientes = document.getElementById('hist-panel-clientes');
+  if (!tabVentas) return;
+
+  if (tab === 'ventas') {
+    tabVentas.style.background   = 'var(--sf)';
+    tabVentas.style.boxShadow    = '0 1px 3px rgba(0,0,0,.06)';
+    tabVentas.style.color        = 'var(--text)';
+    tabClientes.style.background = 'transparent';
+    tabClientes.style.boxShadow  = 'none';
+    tabClientes.style.color      = 'var(--muted)';
+    panelVentas.style.display    = '';
+    panelClientes.style.display  = 'none';
+  } else {
+    tabClientes.style.background = 'var(--sf)';
+    tabClientes.style.boxShadow  = '0 1px 3px rgba(0,0,0,.06)';
+    tabClientes.style.color      = 'var(--text)';
+    tabVentas.style.background   = 'transparent';
+    tabVentas.style.boxShadow    = 'none';
+    tabVentas.style.color        = 'var(--muted)';
+    panelVentas.style.display    = 'none';
+    panelClientes.style.display  = '';
+    renderClientes();
+  }
+}
+
+function renderClientes() {
+  const lista = document.getElementById('clientes-lista');
+  if (!lista) return;
+  const q = (document.getElementById('clientes-search-input')?.value || '').toLowerCase();
+
+  // Calcular stats de cada cliente desde ventasDB
+  const stats = {};
+  ventasDB.filter(v => v.cliente_id).forEach(v => {
+    if (!stats[v.cliente_id]) stats[v.cliente_id] = { n: 0, total: 0 };
+    stats[v.cliente_id].n++;
+    stats[v.cliente_id].total += v.gan;
+  });
+
+  let clientes = clientesDB.filter(c =>
+    !q ||
+    c.nombre.toLowerCase().includes(q) ||
+    (c.telefono || '').includes(q)
+  );
+
+  if (clientes.length === 0) {
+    lista.innerHTML = `
+      <div style="text-align:center;padding:40px 20px;">
+        <div style="font-size:36px;margin-bottom:12px;">👥</div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:6px;">Sin clientes registrados</div>
+        <div style="font-size:12px;color:var(--muted);">Asígnalos al hacer una venta.</div>
+      </div>`;
+    return;
+  }
+
+  clientes = clientes.slice().sort((a, b) =>
+    (stats[b.id]?.total || 0) - (stats[a.id]?.total || 0)
+  );
+
+  lista.innerHTML = clientes.map(c => {
+    const st = stats[c.id] || { n: 0, total: 0 };
+    return `
+    <div onclick="renderDetalleCliente(${c.id})"
+      style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:14px;font-weight:600;margin-bottom:3px;">${c.nombre}</div>
+        <div style="font-size:11px;color:var(--muted);">${c.telefono ? c.telefono + ' · ' : ''}${st.n} compra${st.n !== 1 ? 's' : ''}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:var(--green);">$${fmt(st.total)}</div>
+        <div style="font-size:10px;color:var(--muted);">total ganado</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderDetalleCliente(clienteId) {
+  const cliente = clientesDB.find(c => c.id === clienteId);
+  if (!cliente) return;
+
+  const ventas  = ventasDB.filter(v => v.cliente_id === clienteId);
+  const totalGan = ventas.reduce((s, v) => s + v.gan, 0);
+  const waUrl   = cliente.telefono
+    ? 'https://wa.me/' + cliente.telefono.replace(/\D/g, '')
+    : null;
+
+  const panel = document.getElementById('hist-panel-clientes');
+  if (!panel) return;
+
+  panel.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <button onclick="histSelTab('clientes')" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);">←</button>
+      <div style="flex:1;">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:18px;">${cliente.nombre}</div>
+        ${cliente.telefono ? `<div style="font-size:12px;color:var(--muted);">${cliente.telefono}</div>` : ''}
+      </div>
+      ${waUrl ? `<a href="${waUrl}" target="_blank" style="background:var(--gdim);border:1px solid rgba(30,158,99,.2);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--green);text-decoration:none;font-weight:600;">WhatsApp</a>` : ''}
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <div style="flex:1;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:12px;text-align:center;">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">Compras</div>
+        <div style="font-family:'DM Mono',monospace;font-size:18px;font-weight:700;">${ventas.length}</div>
+      </div>
+      <div style="flex:2;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:12px;text-align:center;">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:4px;">Total ganado</div>
+        <div style="font-family:'DM Mono',monospace;font-size:18px;font-weight:700;color:var(--green);">$${fmt(totalGan)}</div>
+      </div>
+    </div>
+    ${ventas.length === 0
+      ? `<div style="text-align:center;padding:30px;color:var(--muted);font-size:13px;">Sin ventas registradas aún.</div>`
+      : ventas.map(v => `
+        <div style="background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:13px;font-weight:600;">${v.nombre}</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">${v.fecha} · ${v.canal}</div>
+          </div>
+          <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:${v.gan>=0?'var(--green)':'var(--red)'};">${v.gan>=0?'+':''}$${fmt(v.gan)}</div>
+        </div>`).join('')
+    }`;
+}
+
+function mostrarFormNuevoCliente() {
+  const form = document.getElementById('nuevo-cliente-form');
+  if (form) form.style.display = form.style.display === 'none' ? '' : 'none';
+}
+
+async function crearClienteManual() {
+  const nombre   = document.getElementById('nc-nombre')?.value.trim();
+  const telefono = document.getElementById('nc-telefono')?.value.trim() || null;
+  if (!nombre) { toast('Ingresa un nombre.', 'err'); return; }
+
+  const { data, error } = await sb
+    .from('clientes')
+    .insert({ nombre, telefono, local_id: _currentUser?.local_id || 1, activo: true })
+    .select('id, nombre, telefono')
+    .single();
+
+  if (error) { toast('Error al guardar cliente.', 'err'); console.error(error); return; }
+  clientesDB.push(data);
+  document.getElementById('nc-nombre').value   = '';
+  document.getElementById('nc-telefono').value = '';
+  document.getElementById('nuevo-cliente-form').style.display = 'none';
+  toast(`${nombre} agregado.`, 'ok');
+  renderClientes();
 }
 
 // ══════════════════════════════════════════════════════
