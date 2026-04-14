@@ -2982,20 +2982,48 @@ async function ventaConfirmar() {
   const pago   = ventaState.pago;
   const envio  = 'Presencial';
 
+  // Leer descuento
+  const descPanel   = document.getElementById('v-desc-panel');
+  const descAbierto = descPanel && descPanel.style.display !== 'none';
+  const descValor   = descAbierto ? (parseInt(document.getElementById('v-desc-valor')?.value) || 0) : 0;
+  const descTipo    = ventaState.descTipo || 'porcentaje';
+  let   precioFinal = precio;
+  if (descAbierto && descValor > 0) {
+    if (descTipo === 'porcentaje') {
+      precioFinal = Math.round(precio * (1 - descValor / 100));
+    } else {
+      precioFinal = Math.max(0, precio - descValor);
+    }
+  }
+
+  // Validar límite de descuento para vendedores
+  if (_currentUser?.rol === 'Vendedor' && descAbierto && descValor > 0) {
+    const maxPct     = getDescuentoMaxPct();
+    const pctEfectivo = precio > 0 ? Math.round(((precio - precioFinal) / precio) * 100) : 0;
+    if (pctEfectivo > maxPct) {
+      const errEl = document.getElementById('v-desc-error');
+      if (errEl) { errEl.textContent = `Límite máximo: ${maxPct}%`; errEl.style.display = ''; }
+      toast(`Descuento máximo permitido: ${maxPct}%`, 'err');
+      return;
+    }
+  }
+
   if(!precio) { toast('Ingresa el precio de venta.','err'); return; }
 
   const liveItem  = skuDB.find(i => i.sku === s.sku);
   const liveStock = liveItem ? liveItem.stock : 0;
   if(cant > liveStock) { toast(`Solo quedan ${liveStock} unidad${liveStock!==1?'es':''} disponibles.`,'err'); return; }
 
-  const com  = canal==='Sotos' ? Math.min(Math.round(precio*0.15), 10000) : 0;
-  const neto = (precio - com) * cant;
+  const com  = canal==='Sotos' ? Math.min(Math.round(precioFinal*0.15), 10000) : 0;
+  const neto = (precioFinal - com) * cant;
   const gan  = neto - (s.costo||0) * cant;
 
   const btn = document.getElementById('venta-confirmar-btn');
   if(btn){ btn.textContent = '⏳ Guardando…'; btn.disabled = true; }
 
-  const ok = await registrarVentaDB(s.id, precio, s.costo||0, canal, pago, envio, cant);
+  const ok = await registrarVentaDB(s.id, precioFinal, s.costo||0, canal, pago, envio, cant,
+    descAbierto && descValor > 0 ? descTipo : null,
+    descAbierto ? descValor : 0);
 
   if(btn){ btn.textContent = 'Registrar venta →'; btn.disabled = false; }
   if(!ok){ toast('Error al guardar. Intenta de nuevo.','err'); return; }
@@ -3006,8 +3034,10 @@ async function ventaConfirmar() {
 
   ventasDB.unshift({
     id: -Date.now(), sku:s.sku, nombre:s.nombre, variante:s.variante,
-    icon:s.icon, precio, costo:s.costo||0, com, canal, pago, envio, gan,
-    fecha: `Hoy · ${nowHHMM()}`
+    icon:s.icon, precio: precioFinal, costo:s.costo||0, com, canal, pago, envio, gan,
+    fecha: `Hoy · ${nowHHMM()}`,
+    descuento_tipo:  descAbierto && descValor > 0 ? descTipo : null,
+    descuento_valor: descAbierto ? descValor : 0
   });
 
   // Paso 3 — resultado
@@ -3036,6 +3066,11 @@ async function ventaConfirmar() {
       </div>`;
     const sep = `<div style="border-top:1px solid var(--bd);margin:6px 0;"></div>`;
     let rows = row(`Precio de venta${cant>1?' ×'+cant:''}`, '$'+fmt(precio*cant), 'var(--text)');
+    if (descAbierto && descValor > 0) {
+      const descMonto = (precio - precioFinal) * cant;
+      const descLbl   = descTipo === 'porcentaje' ? `Descuento ${descValor}%` : 'Descuento';
+      rows += row(descLbl, '−$'+fmt(descMonto), 'var(--orange)');
+    }
     rows += row('Costo del producto', '−$'+fmt((s.costo||0)*cant));
     if(com > 0) rows += row('Comisión Sotos', '−$'+fmt(com*cant));
     rows += sep;
