@@ -73,7 +73,7 @@ async function cargarVentas() {
   const { data, error } = await sb
     .from('detalle_ventas')
     .select(`
-      id, cantidad, precio_unitario, costo_unitario,
+      id, cantidad, precio_unitario, costo_unitario, descuento_tipo, descuento_valor,
       ventas ( id, fecha_hora, canal, metodo_pago, tipo_envio, estado ),
       variantes ( sku, talla_color,
         productos ( nombre,
@@ -117,7 +117,9 @@ async function cargarVentas() {
       pago:     d.ventas?.metodo_pago || '—',
       envio:    d.ventas?.tipo_envio || '—',
       fecha:    fechaStr,
-      fecha_raw: d.ventas?.fecha_hora
+      fecha_raw: d.ventas?.fecha_hora,
+      descuento_tipo:  d.descuento_tipo  || null,
+      descuento_valor: d.descuento_valor || 0,
     };
   });
 }
