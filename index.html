@@ -2466,7 +2466,7 @@ function renderHistorial(filtro) {
       const isDev = v.canal === 'Devolución';
       const cs    = canalStyle[v.canal] || { bg:'var(--sf2)', color:'var(--muted)' };
       const hora  = v.fecha.split(' · ').slice(1).join(' · ');
-      const meta  = [hora, v.variante && v.variante !== '—' ? v.variante : null].filter(Boolean).join(' · ');
+      const meta  = [hora, v.variante && v.variante !== '—' ? v.variante : null, v.cliente_nombre || null].filter(Boolean).join(' · ');
       const descLabel = v.descuento_tipo && v.descuento_valor > 0
         ? (v.descuento_tipo === 'porcentaje'
             ? `−${v.descuento_valor}% dto.`
