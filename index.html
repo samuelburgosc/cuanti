@@ -1083,7 +1083,8 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
       <div class="pill-group" id="pago-grid">
         <div class="pill sel" id="vp-transf"  onclick="selPagoV(this,'Transferencia')">Transferencia</div>
         <div class="pill"     id="vp-efec"    onclick="selPagoV(this,'Efectivo')">Efectivo</div>
-        <div class="pill"     id="vp-tarjeta" onclick="selPagoV(this,'Tarjeta')">Tarjeta</div>
+        <div class="pill"     id="vp-tdeb"    onclick="selPagoV(this,'Tarjeta débito')">T. Débito</div>
+        <div class="pill"     id="vp-tcre"    onclick="selPagoV(this,'Tarjeta crédito')">T. Crédito</div>
       </div>
     </div>
 
@@ -1175,7 +1176,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
   <div class="fabs">
     <div class="fab p" onclick="goTo('nueva-compra')"><div class="fi">📥</div><div class="fl">Registrar compra</div><div class="fs">Nuevo lote</div></div>
-    <div class="fab" onclick="goTo('locales')"><div class="fi">🔄</div><div class="fl">Transferir stock</div><div class="fs">Entre locales</div></div>
+    <div class="fab" onclick="goTo('scanner');setTimeout(()=>scAccion('transfer'),400)"><div class="fi">🔄</div><div class="fl">Transferir stock</div><div class="fs">Escanea y transfiere</div></div>
   </div>
 
   <div class="sec-hdr" style="margin-bottom:8px;"><div class="sec-title">Historial de lotes</div></div>
@@ -1307,82 +1308,40 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
 <!-- ════════════════════════════ LOCALES ════════════════════════════ -->
 <div class="screen" id="screen-locales">
-  <div class="ptitle">Locales</div>
-  <div class="psub">Vista comparativa · 2 puntos de venta activos</div>
+  <div class="ptitle">Mi negocio</div>
+  <div class="psub" id="locales-psub">Resumen del local activo</div>
 
-  <div class="lcmp">
-    <div class="lcard l1"><div class="lname"><span class="ldot l1"></span>Mi emprendimiento</div><div class="lval">$1.842.300</div><div class="lsub">ganancia marzo</div></div>
-    <div class="lcard l2"><div class="lname"><span class="ldot l2"></span>Local 1 Familiar</div><div class="lval">$2.480.000</div><div class="lsub">ganancia marzo</div></div>
-  </div>
-  <div class="lcmp">
-    <div class="lcard l1"><div class="lname"><span class="ldot l1"></span>Ventas</div><div class="lval">31</div><div class="lsub">transacciones mes</div></div>
-    <div class="lcard l2"><div class="lname"><span class="ldot l2"></span>Ventas</div><div class="lval">48</div><div class="lsub">transacciones mes</div></div>
-  </div>
-  <div class="lcmp">
-    <div class="lcard l1"><div class="lname"><span class="ldot l1"></span>Stock</div><div class="lval">47</div><div class="lsub">unidades activas</div></div>
-    <div class="lcard l2"><div class="lname"><span class="ldot l2"></span>Stock</div><div class="lval">124</div><div class="lsub">unidades activas</div></div>
-  </div>
-
-  <div class="chart-box">
-    <div class="chart-hdr">
-      <div><div class="chart-title">Ganancias comparadas · Oct–Mar</div><div class="chart-val" style="font-size:15px;">$4.322.300 total combinado</div></div>
+  <!-- KPIs reales del local actual -->
+  <div id="locales-kpis" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+    <div style="background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:14px;">
+      <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.3px;margin-bottom:6px;">GANANCIA ESTE MES</div>
+      <div style="font-family:'Archivo Black',sans-serif;font-size:22px;letter-spacing:-1px;color:var(--text);" id="loc-gan">$—</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px;" id="loc-gan-sub">—</div>
     </div>
-    <div class="bars" style="height:75px;gap:8px;">
-      <!-- cada mes: barra l1 + barra l2 lado a lado -->
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
-        <div style="width:100%;display:flex;gap:2px;align-items:flex-end;height:65px;">
-          <div style="flex:1;background:rgba(215,240,46,.35);border-radius:3px 3px 0 0;height:13px;"></div>
-          <div style="flex:1;background:rgba(59,255,138,.35);border-radius:3px 3px 0 0;height:19px;"></div>
-        </div>
-        <div class="blbl">Oct</div>
-      </div>
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
-        <div style="width:100%;display:flex;gap:2px;align-items:flex-end;height:65px;">
-          <div style="flex:1;background:rgba(215,240,46,.35);border-radius:3px 3px 0 0;height:21px;"></div>
-          <div style="flex:1;background:rgba(59,255,138,.35);border-radius:3px 3px 0 0;height:31px;"></div>
-        </div>
-        <div class="blbl">Nov</div>
-      </div>
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
-        <div style="width:100%;display:flex;gap:2px;align-items:flex-end;height:65px;">
-          <div style="flex:1;background:rgba(215,240,46,.35);border-radius:3px 3px 0 0;height:29px;"></div>
-          <div style="flex:1;background:rgba(59,255,138,.35);border-radius:3px 3px 0 0;height:41px;"></div>
-        </div>
-        <div class="blbl">Dic</div>
-      </div>
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
-        <div style="width:100%;display:flex;gap:2px;align-items:flex-end;height:65px;">
-          <div style="flex:1;background:rgba(215,240,46,.35);border-radius:3px 3px 0 0;height:36px;"></div>
-          <div style="flex:1;background:rgba(59,255,138,.35);border-radius:3px 3px 0 0;height:49px;"></div>
-        </div>
-        <div class="blbl">Ene</div>
-      </div>
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
-        <div style="width:100%;display:flex;gap:2px;align-items:flex-end;height:65px;">
-          <div style="flex:1;background:rgba(215,240,46,.35);border-radius:3px 3px 0 0;height:47px;"></div>
-          <div style="flex:1;background:rgba(59,255,138,.35);border-radius:3px 3px 0 0;height:60px;"></div>
-        </div>
-        <div class="blbl">Feb</div>
-      </div>
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
-        <div style="width:100%;display:flex;gap:2px;align-items:flex-end;height:65px;">
-          <div style="flex:1;background:var(--accent);border-radius:3px 3px 0 0;height:60px;"></div>
-          <div style="flex:1;background:var(--green);border-radius:3px 3px 0 0;height:65px;"></div>
-        </div>
-        <div class="blbl" style="color:var(--accent);">Mar</div>
-      </div>
+    <div style="background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:14px;">
+      <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.3px;margin-bottom:6px;">VENTAS ESTE MES</div>
+      <div style="font-family:'Archivo Black',sans-serif;font-size:22px;letter-spacing:-1px;color:var(--text);" id="loc-ventas">—</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px;">transacciones</div>
     </div>
-    <div class="chart-legend">
-      <span><span class="legend-dot" style="background:var(--accent);"></span>Mi emprendimiento</span>
-      <span><span class="legend-dot" style="background:var(--green);"></span>Local 1 Familiar</span>
+    <div style="background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:14px;">
+      <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.3px;margin-bottom:6px;">STOCK TOTAL</div>
+      <div style="font-family:'Archivo Black',sans-serif;font-size:22px;letter-spacing:-1px;color:var(--text);" id="loc-stock">—</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px;">unidades en inventario</div>
+    </div>
+    <div style="background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:14px;">
+      <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.3px;margin-bottom:6px;">PRODUCTOS</div>
+      <div style="font-family:'Archivo Black',sans-serif;font-size:22px;letter-spacing:-1px;color:var(--text);" id="loc-skus">—</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px;">variantes activas</div>
     </div>
   </div>
 
-  <div class="sec-hdr" style="margin-top:4px;"><div class="sec-title">Transferencias recientes</div><div class="sec-link">+ Nueva</div></div>
-  <div class="tcard"><span style="font-size:16px;">↔️</span><div class="tcard-info"><div class="tcard-name">Nike Dunk Panda talla 41 × 2 ud.</div><div class="tcard-detail">Mi emprendimiento → Local 1 Familiar</div></div><div class="tcard-date">07/03</div></div>
-  <div class="tcard"><span style="font-size:16px;">↔️</span><div class="tcard-info"><div class="tcard-name">Jordan AJ1 talla 42 × 1 ud.</div><div class="tcard-detail">Local 1 Familiar → Mi emprendimiento</div></div><div class="tcard-date">02/03</div></div>
+  <!-- Multi-local: próximamente -->
+  <div style="background:var(--sf2);border:1px solid var(--bd);border-radius:13px;padding:16px;text-align:center;margin-bottom:12px;">
+    <div style="font-size:28px;margin-bottom:8px;">🏪</div>
+    <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:6px;">Multi-local próximamente</div>
+    <div style="font-size:12px;color:var(--muted);line-height:1.5;">Cuando tengas más de un local, acá podrás comparar ganancias, stock y ventas entre todos tus puntos de venta.</div>
+  </div>
 
-  <button class="btn" style="margin-top:8px;">+ Agregar local</button>
   <div class="spacer"></div>
 </div>
 
@@ -1416,16 +1375,15 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   <div class="card" style="overflow-x:auto;">
     <table class="perm-table">
       <thead>
-        <tr><th>Función</th><th>Dueño</th><th>Admin</th><th>Vendedor</th></tr>
+        <tr><th>Función</th><th>Dueño</th><th>Vendedor</th></tr>
       </thead>
       <tbody>
-        <tr><td>Registrar ventas</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
-        <tr><td>Ver costos y ganancias</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td></tr>
-        <tr><td>Registrar compras</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td></tr>
-        <tr><td>Ver análisis completo</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td></tr>
-        <tr><td>Gestionar productos</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td></tr>
-        <tr><td>Ver todos los locales</td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td></tr>
-        <tr><td>Gestionar usuarios</td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td></tr>
+        <tr><td>Registrar ventas</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+        <tr><td>Ver costos y ganancias</td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td></tr>
+        <tr><td>Registrar compras</td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td></tr>
+        <tr><td>Ver análisis completo</td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td></tr>
+        <tr><td>Gestionar productos</td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td></tr>
+        <tr><td>Gestionar usuarios</td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td></tr>
       </tbody>
     </table>
   </div>
@@ -1452,7 +1410,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   <div class="card">
     <div class="tgl-row"><div><div class="tgl-lbl">Alertas de stock bajo</div><div class="tgl-sub">Notificación cuando llegue al mínimo</div></div><label class="tgl"><input type="checkbox" checked><span class="tgl-sl"></span></label></div>
     <div class="tgl-row"><div><div class="tgl-lbl">Resumen diario</div><div class="tgl-sub">Notificación al cierre del día</div></div><label class="tgl"><input type="checkbox" checked><span class="tgl-sl"></span></label></div>
-    <div class="tgl-row"><div><div class="tgl-lbl">Mostrar costos en inventario</div><div class="tgl-sub">Solo visible para Dueño y Admin</div></div><label class="tgl"><input type="checkbox" checked><span class="tgl-sl"></span></label></div>
+    <div class="tgl-row"><div><div class="tgl-lbl">Mostrar costos en inventario</div><div class="tgl-sub">Solo visible para el Dueño</div></div><label class="tgl"><input type="checkbox" checked><span class="tgl-sl"></span></label></div>
     <div class="tgl-row"><div><div class="tgl-lbl">Mostrar ganancia en ventas</div><div class="tgl-sub">En historial y confirmación</div></div><label class="tgl"><input type="checkbox" checked><span class="tgl-sl"></span></label></div>
   </div>
 
@@ -1628,7 +1586,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
       <div class="field"><label>Cantidad</label><input id="sc-cant" type="number" value="1" min="1" oninput="scRecalc()"></div>
     </div>
     <div class="frow">
-      <div class="field"><label>Pago</label><select id="sc-pago"><option>Transferencia</option><option>Efectivo</option><option>MercadoPago</option></select></div>
+      <div class="field"><label>Pago</label><select id="sc-pago"><option>Transferencia</option><option>Efectivo</option><option>Tarjeta débito</option><option>Tarjeta crédito</option></select></div>
       <div class="field"><label>Envío</label><select id="sc-envio"><option>Presencial</option><option>Starken</option><option>Chilexpress</option></select></div>
     </div>
     <!-- resumen vivo -->
@@ -1709,17 +1667,12 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   <!-- ── PANEL: TRANSFERIR ── -->
   <div class="action-panel" id="ap-transfer">
     <div class="action-panel-title">🔄 Transferir entre locales</div>
-    <div class="frow">
-      <div class="field"><label>Origen</label>
-        <select id="sc-tr-origen"><option>Mi emprendimiento</option><option>Local 1 Familiar</option><option>Local 2 Familiar</option></select>
-      </div>
-      <div class="field"><label>Destino</label>
-        <select id="sc-tr-destino"><option>Local 1 Familiar</option><option>Mi emprendimiento</option><option>Local 2 Familiar</option></select>
-      </div>
+    <div style="background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:14px;text-align:center;margin-bottom:12px;">
+      <div style="font-size:24px;margin-bottom:8px;">🏪</div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:4px;">Solo tienes un local activo</div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.5;">Para transferir entre locales necesitas tener más de uno configurado. La gestión multi-local estará disponible próximamente.</div>
     </div>
-    <div class="field"><label>Unidades a transferir</label><input id="sc-tr-uds" type="number" value="1" min="1"></div>
-    <button class="btn" onclick="scConfirmarTransfer()" style="background:var(--rdim);border-color:rgba(255,68,68,.2);color:var(--red);">🔄 Confirmar transferencia →</button>
-    <button class="btn sec" onclick="scCerrarPanel()" style="margin-top:7px;">Cancelar</button>
+    <button class="btn sec" onclick="scCerrarPanel()" style="margin-top:4px;">Cerrar</button>
   </div>
 
   <!-- Confirmación genérica -->
@@ -3226,7 +3179,12 @@ function invBuscarParaStock(q) {
   }).join('');
 }
 
-function invFiltroSheet() { /* reservado para filtros avanzados */ }
+function invFiltroSheet() {
+  // Scroll hacia los chips de filtro para que el usuario los vea
+  const chips = document.getElementById('inv-chips');
+  if (chips) chips.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  toast('Usa los filtros de arriba para filtrar por categoría o estado.', 'ok');
+}
 
 // Toast suave en vez de alert() nativo
 function toast(msg, tipo='ok') {
@@ -4536,32 +4494,24 @@ function clearNotifs() {
 //  LOCALES — render dinámico desde skuDB + ventasDB
 // ══════════════════════════════════════════════════════
 function renderLocales() {
-  // Stock total real desde skuDB
-  const stockTotal = skuDB.reduce((s,v)=>s+v.stock,0);
-  const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-  const mesNom = meses[new Date().getMonth()];
-
+  const hoy       = new Date();
+  const meses     = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const mesNom    = meses[hoy.getMonth()];
+  const stockTotal = skuDB.reduce((s,v)=>s+v.stock, 0);
+  const skusActivos = skuDB.filter(s=>s.activa!==false).length;
   const ventasMes  = ventasDB.filter(v => esVentaMes(v) && !v.nombre.startsWith('↩️'));
   const ganMes     = ventasMes.reduce((s,v)=>s+v.gan, 0);
+  const gastosMes  = calcGastosMes();
+  const ganReal    = ganMes - gastosMes;
   const nVentasMes = ventasMes.length;
 
-  // Actualizar subtítulo
-  const sub = document.querySelector('#screen-locales .psub');
-  if(sub) sub.textContent = `Vista real · ${stockTotal} unidades en stock · ${mesNom} ${new Date().getFullYear()}`;
-
-  // Actualizar las lcards dinámicamente (el local principal)
-  const lcards = document.querySelectorAll('#screen-locales .lcard.l1 .lval');
-  if(lcards[0]) lcards[0].textContent = `$${fmt(ganMes)}`;
-  const lcardsSub = document.querySelectorAll('#screen-locales .lcard.l1 .lsub');
-  if(lcardsSub[0]) lcardsSub[0].textContent = `ganancia ${mesNom.toLowerCase()}`;
-
-  const lcardsV = document.querySelectorAll('#screen-locales .lcmp:nth-child(3) .lcard.l1 .lval');
-  if(lcardsV[0]) lcardsV[0].textContent = nVentasMes;
-  const lcardsVSub = document.querySelectorAll('#screen-locales .lcmp:nth-child(3) .lcard.l1 .lsub');
-  if(lcardsVSub[0]) lcardsVSub[0].textContent = `transacciones ${mesNom.toLowerCase()}`;
-
-  const lcardsS = document.querySelectorAll('#screen-locales .lcmp:nth-child(4) .lcard.l1 .lval');
-  if(lcardsS[0]) lcardsS[0].textContent = stockTotal;
+  const set = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+  set('locales-psub', `${mesNom} ${hoy.getFullYear()} · datos reales`);
+  set('loc-gan',      '$'+fmt(ganReal));
+  set('loc-gan-sub',  gastosMes > 0 ? `Ventas $${fmt(ganMes)} − Gastos $${fmt(gastosMes)}` : mesNom);
+  set('loc-ventas',   nVentasMes);
+  set('loc-stock',    stockTotal);
+  set('loc-skus',     skusActivos);
 }
 
 // ══════════════════════════════════════════════════════
