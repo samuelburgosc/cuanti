@@ -2168,16 +2168,24 @@ function mesActualStr() {
 }
 function mesActualNum() { return new Date().getMonth() + 1; }
 
-// Detectar si una venta es del mes actual (robusto)
+// Detectar si una venta es del mes actual (robusto, con año)
 function esVentaMes(v) {
-  if(v.fecha.startsWith('Hoy')) return true;
-  if(v.fecha.startsWith('Ayer')) {
-    const ayer = new Date(); ayer.setDate(ayer.getDate()-1);
-    return ayer.getMonth() === new Date().getMonth();
+  // Si tenemos fecha_raw (ISO de Supabase), usarla directamente
+  if (v.fecha_raw) {
+    const d = new Date(v.fecha_raw);
+    const hoy = new Date();
+    return d.getMonth() === hoy.getMonth() && d.getFullYear() === hoy.getFullYear();
   }
-  // formato dd/mm
+  // Fallback para ventas añadidas localmente sin fecha_raw
+  if (v.fecha.startsWith('Hoy')) return true;
+  if (v.fecha.startsWith('Ayer')) {
+    const ayer = new Date(); ayer.setDate(ayer.getDate()-1);
+    const hoy  = new Date();
+    return ayer.getMonth() === hoy.getMonth() && ayer.getFullYear() === hoy.getFullYear();
+  }
+  // formato dd/mm — solo fallback, no sabe el año
   const match = v.fecha.match(/^(\d{2})\/(\d{2})/);
-  if(match) return parseInt(match[2]) === mesActualNum();
+  if (match) return parseInt(match[2]) === mesActualNum();
   return false;
 }
 
@@ -2378,16 +2386,20 @@ function renderDashboard() {
     }
 
     // 6. Proyección del mes
+    // Proyecta ganancia bruta de ventas (sin gastos, que no son lineales),
+    // luego resta los gastos ya incurridos este mes.
     const diaActual   = hoy.getDate();
     const diasEnMesP  = new Date(hoy.getFullYear(), hoy.getMonth()+1, 0).getDate();
-    if (ventasMes.length >= 2 && diaActual >= 3 && gananciaReal > 0) {
-      const proyeccion = Math.round((gananciaReal / diaActual) * diasEnMesP);
-      const diasRestantes = diasEnMesP - diaActual;
+    if (ventasMes.length >= 3 && diaActual >= 5 && ganMes > 0) {
+      const proyeccionVentas = Math.round((ganMes / diaActual) * diasEnMesP);
+      const proyeccion       = proyeccionVentas - gastosMes;
+      const diasRestantes    = diasEnMesP - diaActual;
+      const promDiario       = Math.round(ganMes / diaActual);
       items.push({
         urgency: 'blue',
         icon: '📅',
         text: `Al ritmo de hoy, terminarás el mes con <b>$${fmt(proyeccion)}</b>`,
-        sub: `Quedan ${diasRestantes} días · Promedio $${fmt(Math.round(gananciaReal/diaActual))}/día`,
+        sub: `Quedan ${diasRestantes} días · Promedio $${fmt(promDiario)}/día en ventas`,
         cta: 'Ver mes', ctaDest: 'analisis'
       });
     }
