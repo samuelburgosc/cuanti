@@ -4042,12 +4042,29 @@ function renderAnalisis(tab, btn) {
 
     const canalHoy = topCanales(hoy);
 
+    // Cierre de caja — agrupar ingresos cobrados por método de pago
+    const porPago = {};
+    hoy.forEach(v => {
+      const p = v.pago || 'Otro';
+      if (!porPago[p]) porPago[p] = 0;
+      porPago[p] += v.precio;
+    });
+    const efectivo    = porPago['Efectivo'] || 0;
+    const transferencia = porPago['Transferencia'] || 0;
+    const tarjeta     = (porPago['Tarjeta débito'] || 0) + (porPago['Tarjeta crédito'] || 0);
+    const pagoIcon    = { 'Efectivo':'💵', 'Transferencia':'📲', 'Tarjeta débito':'💳', 'Tarjeta crédito':'💳' };
+    const pagoRows    = Object.entries(porPago)
+      .sort((a,b) => b[1]-a[1])
+      .map(([p, monto]) =>
+        kpiRow(pagoIcon[p]||'💰', p, '$'+fmt(monto), 'var(--text)')
+      ).join('');
+
     body.innerHTML = `
       <!-- KPIs del día -->
       <div class="sgrid" style="margin-bottom:12px;">
         <div class="scard a"><span class="si">💰</span><div class="sv">$${fmt(gan)}</div><div class="sl">Ganancia hoy</div></div>
         <div class="scard"><span class="si">🛍️</span><div class="sv">${hoy.length}</div><div class="sl">Ventas hoy</div></div>
-        <div class="scard g"><span class="si">🎯</span><div class="sv">${margenPct}%</div><div class="sl">Margen neto</div></div>
+        <div class="scard g"><span class="si">🎯</span><div class="sv">${margenPct}%</div><div class="sl">Margen</div></div>
         <div class="scard b"><span class="si">🎟️</span><div class="sv">$${fmt(ticket)}</div><div class="sl">Ticket prom.</div></div>
       </div>
 
@@ -4072,6 +4089,21 @@ function renderAnalisis(tab, btn) {
         </div>
       </div>
 
+      <!-- Cierre de caja -->
+      <div class="chart-box">
+        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:4px;">Cierre de caja</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">Lo que cobraste hoy, por forma de pago</div>
+        ${pagoRows}
+        ${efectivo > 0 ? `
+        <div style="margin-top:10px;padding:11px 13px;background:var(--gdim);border:1px solid rgba(30,158,99,.2);border-radius:10px;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--green);">En tu caja ahora</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">Solo el efectivo cobrado hoy</div>
+          </div>
+          <div style="font-family:'DM Mono',monospace;font-size:17px;font-weight:700;color:var(--green);">$${fmt(efectivo)}</div>
+        </div>` : ''}
+      </div>
+
       <!-- Canales hoy -->
       <div class="chart-box">
         <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Por canal</div>
@@ -4083,7 +4115,7 @@ function renderAnalisis(tab, btn) {
         <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Ventas del día</div>
         ${hoy.map(v=>`<div class="trow">
           <div style="font-size:20px;width:28px;flex-shrink:0;">${v.icon}</div>
-          <div class="tinfo"><div class="tname">${v.nombre}</div><div class="tunits">${v.fecha.split('·')[1]?.trim()||''} · ${v.canal}</div></div>
+          <div class="tinfo"><div class="tname">${v.nombre}</div><div class="tunits">${v.fecha.split('·')[1]?.trim()||''} · ${v.canal} · ${v.pago}</div></div>
           <div class="tamt"><div class="trev">$${fmt(v.precio)}</div><div class="tmrg" style="color:var(--green);">+$${fmt(v.gan)}</div></div>
         </div>`).join('')}
       </div>`;
@@ -4122,7 +4154,7 @@ function renderAnalisis(tab, btn) {
       <div class="sgrid" style="margin-bottom:12px;">
         <div class="scard a"><span class="si">💰</span><div class="sv">$${fmt(totalSem)}</div><div class="sl">Ganancia semana</div></div>
         <div class="scard"><span class="si">🛍️</span><div class="sv">${nVentas}</div><div class="sl">Ventas</div></div>
-        <div class="scard g"><span class="si">🎯</span><div class="sv">${margen}%</div><div class="sl">Margen neto</div></div>
+        <div class="scard g"><span class="si">🎯</span><div class="sv">${margen}%</div><div class="sl">Margen</div></div>
         <div class="scard b"><span class="si">🎟️</span><div class="sv">$${fmt(ticket)}</div><div class="sl">Ticket prom.</div></div>
       </div>
       <div class="chart-box">
@@ -4181,7 +4213,7 @@ function renderAnalisis(tab, btn) {
       <div class="sgrid" style="margin-bottom:12px;">
         <div class="scard a"><span class="si">💰</span><div class="sv">$${fmt(gan)}</div><div class="sl">Ganancia ${mesLabel}</div></div>
         <div class="scard"><span class="si">🛍️</span><div class="sv">${nV}</div><div class="sl">Ventas del mes</div></div>
-        <div class="scard g"><span class="si">🎯</span><div class="sv">${margen}%</div><div class="sl">Margen neto</div></div>
+        <div class="scard g"><span class="si">🎯</span><div class="sv">${margen}%</div><div class="sl">Margen</div></div>
         <div class="scard b"><span class="si">🎟️</span><div class="sv">$${fmt(ticket)}</div><div class="sl">Ticket prom.</div></div>
       </div>
 
@@ -4199,12 +4231,25 @@ function renderAnalisis(tab, btn) {
         ${kpiRow('💵','Ingresos brutos','$'+fmt(ing),'var(--text)')}
         ${kpiRow('📦','Costo mercadería','−$'+fmt(costos),'var(--red)')}
         ${coms > 0 ? kpiRow('🏪','Comisiones Sotos','−$'+fmt(coms),'var(--orange)') : ''}
-        ${kpiRow('📊','Margen bruto',margen+'%','var(--green)')}
+        ${kpiRow('📊','Margen',margen+'%','var(--green)')}
         <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;font-weight:700;font-size:14px;border-top:1px solid var(--bd);margin-top:4px;">
           <span>Ganancia neta</span>
           <span style="font-family:'Archivo Black',sans-serif;font-size:16px;color:${gan>=0?'var(--green)':'var(--red)'};">$${fmt(gan)}</span>
         </div>
       </div>
+
+      <!-- Por método de pago -->
+      ${(() => {
+        const porPagoMes = {};
+        mesMes.forEach(v => { const p = v.pago||'Otro'; porPagoMes[p]=(porPagoMes[p]||0)+v.precio; });
+        const pagoIconM = { 'Efectivo':'💵','Transferencia':'📲','Tarjeta débito':'💳','Tarjeta crédito':'💳' };
+        const rows = Object.entries(porPagoMes).sort((a,b)=>b[1]-a[1])
+          .map(([p,m])=>kpiRow(pagoIconM[p]||'💰',p,'$'+fmt(m),'var(--text)')).join('');
+        return `<div class="chart-box">
+          <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Por método de pago</div>
+          ${rows}
+        </div>`;
+      })()}
 
       <!-- Canales -->
       <div class="chart-box">
