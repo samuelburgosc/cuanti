@@ -1292,6 +1292,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
     <div class="pb"    onclick="renderAnalisis('mes',this)">Mes</div>
     <div class="pb"    onclick="renderAnalisis('historico',this)">Histórico</div>
     <div class="pb"    onclick="renderAnalisis('stock',this)">Stock</div>
+    <div class="pb"    onclick="renderAnalisis('gastos',this)">Gastos</div>
   </div>
   <div id="analisis-body"></div>
   <div class="spacer"></div>
@@ -3725,6 +3726,84 @@ function addProdLote() {
   document.getElementById('nc-prods').appendChild(div);
 }
 
+function renderGastos(body) {
+  const hoy = new Date();
+  const gastosDelMes = gastosDB.filter(g => {
+    const d = new Date(g.fecha);
+    return d.getMonth() === hoy.getMonth() && d.getFullYear() === hoy.getFullYear();
+  });
+
+  const totalMes = gastosDelMes.reduce((s, g) => s + g.monto, 0);
+
+  if (gastosDelMes.length === 0) {
+    body.innerHTML = `
+      <div style="text-align:center;padding:40px 20px;">
+        <div style="font-size:40px;margin-bottom:12px;">💸</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:8px;">Sin gastos este mes</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:20px;">Registra tus gastos desde el Dashboard para ver la ganancia real.</div>
+      </div>`;
+    return;
+  }
+
+  const porCat = {};
+  gastosDelMes.forEach(g => {
+    if (!porCat[g.categoria_gasto]) porCat[g.categoria_gasto] = 0;
+    porCat[g.categoria_gasto] += g.monto;
+  });
+
+  const catsSorted = Object.entries(porCat).sort((a,b) => b[1]-a[1]);
+  const maxCat = catsSorted[0]?.[1] || 1;
+
+  const barrasCat = catsSorted.map(([catId, total]) => {
+    const cat  = CATEGORIAS_GASTO.find(c => c.id === catId) || { icon: '✏️', label: catId };
+    const pct  = Math.round((total / maxCat) * 100);
+    return `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <span style="font-size:16px;flex-shrink:0;">${cat.icon}</span>
+      <div style="flex:1;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+          <span style="font-size:12px;font-weight:500;">${cat.label}</span>
+          <span style="font-size:12px;font-family:'DM Mono',monospace;color:var(--red);">$${fmt(total)}</span>
+        </div>
+        <div style="height:5px;background:var(--sf2);border-radius:3px;overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:var(--red);border-radius:3px;opacity:.7;"></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const filas = gastosDelMes.map(g => {
+    const cat = CATEGORIAS_GASTO.find(c => c.id === g.categoria_gasto) || { icon: '✏️', label: g.categoria_gasto };
+    const fecha = new Date(g.fecha);
+    const fechaStr = `${String(fecha.getDate()).padStart(2,'0')}/${String(fecha.getMonth()+1).padStart(2,'0')}`;
+    return `
+    <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--bd);">
+      <div style="width:36px;height:36px;background:rgba(255,68,68,.12);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">${cat.icon}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:600;">${g.descripcion || cat.label}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px;">${fechaStr} · ${cat.label}</div>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--red);">−$${fmt(g.monto)}</div>
+    </div>`;
+  }).join('');
+
+  const mesesNom = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  body.innerHTML = `
+    <div style="background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:16px;">
+      <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.3px;margin-bottom:8px;">GASTOS — ${mesesNom[hoy.getMonth()].toUpperCase()} ${hoy.getFullYear()}</div>
+      <div style="font-family:'Archivo Black',sans-serif;font-size:28px;letter-spacing:-1px;color:var(--red);line-height:1;">$${fmt(totalMes)}</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px;">${gastosDelMes.length} gasto${gastosDelMes.length!==1?'s':''} registrado${gastosDelMes.length!==1?'s':''}</div>
+    </div>
+    <div style="background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:16px;">
+      <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.3px;margin-bottom:12px;">POR CATEGORÍA</div>
+      ${barrasCat}
+    </div>
+    <div style="background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:0 12px;margin-bottom:16px;">
+      ${filas}
+      <div style="height:1px;"></div>
+    </div>`;
+}
+
 // ══════════════════════════════════════════════════════
 //  ANÁLISIS — motor dinámico completo
 // ══════════════════════════════════════════════════════
@@ -3738,6 +3817,8 @@ function renderAnalisis(tab, btn) {
   }
   const body = document.getElementById('analisis-body');
   if(!body) return;
+
+  if (_analisisTab === 'gastos') { renderGastos(body); return; }
 
   const now   = new Date();
   const todayD = now.getDate();
