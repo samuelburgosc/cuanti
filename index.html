@@ -1748,6 +1748,42 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   <div id="inv-sheet-body"></div>
 </div>
 
+<!-- ── SHEET REGISTRAR GASTO ── -->
+<div class="sheet-bd" id="gasto-sheet-bd" onclick="cerrarRegistrarGasto()" style="display:none;"></div>
+<div class="sheet" id="gasto-sheet" style="display:none;">
+  <div class="sheet-handle"></div>
+  <div style="padding:0 16px 32px;">
+    <div style="font-family:'Archivo Black',sans-serif;font-size:16px;margin-bottom:18px;letter-spacing:-.2px;">Registrar gasto</div>
+
+    <!-- categoría -->
+    <div style="margin-bottom:16px;">
+      <div class="mono-lbl" style="margin-bottom:9px;">Categoría</div>
+      <div id="gasto-cats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;"></div>
+    </div>
+
+    <!-- descripción -->
+    <div class="field" style="margin-bottom:14px;">
+      <label id="gasto-desc-lbl">Descripción (opcional)</label>
+      <input id="gasto-descripcion" type="text" placeholder="ej. Bolsas de nylon">
+    </div>
+
+    <!-- monto -->
+    <div class="field" style="margin-bottom:14px;">
+      <label>Monto</label>
+      <div class="fwrap"><span class="fpfx">$</span><input id="gasto-monto" class="pfx" type="number" placeholder="0" style="font-size:20px;font-family:'Archivo Black',sans-serif;"></div>
+    </div>
+
+    <!-- fecha -->
+    <div class="field" style="margin-bottom:20px;">
+      <label>Fecha</label>
+      <input id="gasto-fecha" type="date">
+    </div>
+
+    <button class="btn" onclick="guardarGasto()">Guardar gasto →</button>
+    <button class="btn sec" onclick="cerrarRegistrarGasto()" style="margin-top:8px;">Cancelar</button>
+  </div>
+</div>
+
 <!-- ── MODAL ETIQUETA ── -->
 <div class="label-modal-backdrop" id="label-modal" style="display:none;" onclick="closeLabelModal(event)">
   <div class="label-modal">
@@ -2598,6 +2634,99 @@ function histSelTab(tab) {
     panelClientes.style.display  = '';
     renderClientes();
   }
+}
+
+// ══════════════════════════════════════════════════════
+//  GASTOS GENERALES — sheet de registro
+// ══════════════════════════════════════════════════════
+let _gastoCatSeleccionada = null;
+
+function abrirRegistrarGasto() {
+  _gastoCatSeleccionada = null;
+
+  const cats = document.getElementById('gasto-cats');
+  if (cats) {
+    cats.innerHTML = CATEGORIAS_GASTO.map(c =>
+      `<div id="gcat-${c.id}" onclick="selCategoriaGasto('${c.id}')"
+        style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;cursor:pointer;font-size:12px;color:var(--muted);">
+        <span style="font-size:20px;">${c.icon}</span>
+        <span>${c.label}</span>
+      </div>`
+    ).join('');
+  }
+
+  const fechaInput = document.getElementById('gasto-fecha');
+  if (fechaInput) {
+    const hoy = new Date();
+    fechaInput.value = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}-${String(hoy.getDate()).padStart(2,'0')}`;
+  }
+
+  const desc = document.getElementById('gasto-descripcion');
+  const monto = document.getElementById('gasto-monto');
+  if (desc)  desc.value  = '';
+  if (monto) monto.value = '';
+
+  const descLbl = document.getElementById('gasto-desc-lbl');
+  if (descLbl) descLbl.textContent = 'Descripción (opcional)';
+
+  const bd = document.getElementById('gasto-sheet-bd');
+  const sh = document.getElementById('gasto-sheet');
+  if (bd) bd.style.display = '';
+  if (sh) { sh.style.display = ''; setTimeout(() => sh.classList.add('open'), 10); }
+}
+
+function cerrarRegistrarGasto() {
+  const bd = document.getElementById('gasto-sheet-bd');
+  const sh = document.getElementById('gasto-sheet');
+  if (sh) sh.classList.remove('open');
+  setTimeout(() => {
+    if (bd) bd.style.display = 'none';
+    if (sh) sh.style.display = 'none';
+  }, 300);
+}
+
+function selCategoriaGasto(id) {
+  _gastoCatSeleccionada = id;
+  CATEGORIAS_GASTO.forEach(c => {
+    const el = document.getElementById(`gcat-${c.id}`);
+    if (!el) return;
+    const activo = c.id === id;
+    el.style.background  = activo ? 'var(--accent)' : 'var(--sf2)';
+    el.style.color       = activo ? 'var(--bg)'     : 'var(--muted)';
+    el.style.borderColor = activo ? 'var(--accent)'  : 'var(--bd)';
+  });
+  const descLbl = document.getElementById('gasto-desc-lbl');
+  if (descLbl) descLbl.textContent = id === 'otro' ? 'Descripción (obligatoria)' : 'Descripción (opcional)';
+}
+
+async function guardarGasto() {
+  if (!_gastoCatSeleccionada) { toast('Selecciona una categoría.', 'err'); return; }
+  const monto = parseInt(document.getElementById('gasto-monto')?.value) || 0;
+  if (!monto)  { toast('Ingresa el monto.', 'err'); return; }
+  const desc  = document.getElementById('gasto-descripcion')?.value.trim() || '';
+  if (_gastoCatSeleccionada === 'otro' && !desc) { toast('Describe el gasto.', 'err'); return; }
+  const fecha = document.getElementById('gasto-fecha')?.value || new Date().toISOString().split('T')[0];
+
+  const cat   = CATEGORIAS_GASTO.find(c => c.id === _gastoCatSeleccionada);
+  const { data, error } = await sb
+    .from('gastos_generales')
+    .insert({
+      fecha,
+      descripcion:     desc || cat?.label || _gastoCatSeleccionada,
+      categoria_gasto: _gastoCatSeleccionada,
+      monto,
+      local_id:        _currentUser?.local_id || 1,
+      usuario_id:      _currentUser?.id       || null,
+    })
+    .select('id, fecha, descripcion, categoria_gasto, monto, local_id')
+    .single();
+
+  if (error) { toast('Error al guardar.', 'err'); console.error(error); return; }
+
+  gastosDB.unshift(data);
+  cerrarRegistrarGasto();
+  toast('Gasto registrado.', 'ok');
+  renderDashboard();
 }
 
 function renderClientes() {
