@@ -226,17 +226,19 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .device{width:100%;max-width:430px;flex:1;display:flex;flex-direction:column;position:relative;}
 
 /* ─── TOPBAR ─── */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 10px;background:#FFFFFF;border-bottom:1px solid #E0E0DE;flex-shrink:0;z-index:200;}
-.logo{font-family:'Archivo Black',sans-serif;font-size:18px;letter-spacing:-.5px;color:#1A1A1A;}
-.logo span{background:var(--accent);color:#1A1A1A;padding:0 4px;border-radius:4px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--sf);border-bottom:1px solid var(--bd);flex-shrink:0;z-index:200;}
+.logo{font-family:'Archivo Black',sans-serif;font-size:18px;letter-spacing:-.5px;color:var(--text);}
+.logo span{background:var(--accent);color:var(--text);padding:0 4px;border-radius:4px;}
 .topbar-r{display:flex;align-items:center;gap:9px;}
 .local-pill{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:4px 9px;font-size:10px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;transition:border-color .2s;}
 .local-pill:hover{border-color:var(--bd2);}
 .local-pill .ldot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
-.icon-btn{width:32px;height:32px;background:var(--sf);border:1px solid var(--bd);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;position:relative;transition:border-color .2s;}
+.icon-btn{width:40px;height:40px;background:var(--sf);border:1px solid var(--bd);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;position:relative;transition:border-color .2s;}
 .icon-btn:hover{border-color:var(--bd2);}
+.icon-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .badge-dot{width:7px;height:7px;background:var(--red);border-radius:50%;position:absolute;top:4px;right:4px;border:1.5px solid var(--bg);}
-.avatar-btn{width:32px;height:32px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:12px;color:var(--bg);cursor:pointer;}
+.avatar-btn{width:40px;height:40px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:12px;color:var(--bg);cursor:pointer;}
+.avatar-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
 /* ─── SCREENS ─── */
 .main{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:80px;}
@@ -569,6 +571,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .btn{width:100%;background:var(--accent);border:none;border-radius:12px;padding:14px;font-family:'Archivo Black',sans-serif;font-size:14px;color:var(--bg);cursor:pointer;transition:opacity .15s,transform .1s;margin-top:5px;letter-spacing:.2px;}
 .btn:hover{opacity:.92;}
 .btn:active{transform:scale(.98);}
+.btn:focus-visible{outline:2px solid var(--text);outline-offset:2px;}
 .btn.sec{background:var(--sf);border:1px solid var(--bd);color:var(--text);font-family:'Archivo',sans-serif;font-weight:600;font-size:13px;}
 .btn.sec:hover{border-color:var(--bd2);}
 .btn.danger{background:var(--rdim);border:1px solid rgba(255,68,68,.25);color:var(--red);font-family:'Archivo',sans-serif;font-weight:600;font-size:13px;}
@@ -587,9 +590,10 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .confirm-sub{font-size:12px;color:var(--muted);margin-bottom:20px;}
 
 /* ─── BOTTOM NAV ─── */
-.bottom-nav{position:sticky;bottom:0;width:100%;background:rgba(247,247,245,.97);backdrop-filter:blur(20px);border-top:1px solid var(--bd);display:flex;align-items:center;padding:6px 6px 14px;z-index:200;flex-shrink:0;}
-.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;cursor:pointer;border-radius:9px;transition:background .15s;}
+.bottom-nav{position:sticky;bottom:0;width:100%;background:rgba(245,245,242,.97);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-top:1px solid var(--bd);display:flex;align-items:center;padding:6px 6px 14px;z-index:200;flex-shrink:0;}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 2px;min-height:44px;cursor:pointer;border-radius:9px;transition:background .15s;}
 .ni:hover{background:var(--sf);}
+.ni:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .ni .nico2{font-size:18px;line-height:1;}
 .ni .nlbl{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.1px;}
 .ni.on .nlbl{color:var(--accent);}
@@ -628,7 +632,8 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .label-modal{background:var(--sf);border:1px solid var(--bd2);border-radius:18px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto;}
 .label-modal-hdr{padding:18px 18px 0;display:flex;align-items:center;justify-content:space-between;}
 .label-modal-hdr h2{font-family:'Archivo Black',sans-serif;font-size:17px;letter-spacing:-.3px;}
-.modal-close{width:28px;height:28px;background:var(--sf2);border:1px solid var(--bd);border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;flex-shrink:0;}
+.modal-close{width:36px;height:36px;background:var(--sf2);border:1px solid var(--bd);border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;flex-shrink:0;}
+.modal-close:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .label-preview-wrap{margin:14px 18px;background:#fff;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px;min-height:100px;overflow:hidden;}
 .label-preview-inner{display:flex;flex-direction:column;align-items:center;gap:4px;font-family:Arial,sans-serif;width:100%;}
 .label-preview-inner canvas{max-width:100%;height:auto;display:block;}
@@ -644,7 +649,8 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .qty-row{display:flex;align-items:center;gap:10px;background:var(--sf2);border:1px solid var(--bd);border-radius:9px;padding:10px 14px;margin-bottom:12px;}
 .qty-row label{font-size:12px;font-weight:600;flex:1;}
 .qty-ctrl{display:flex;align-items:center;gap:8px;}
-.qty-ctrl button{width:28px;height:28px;background:var(--sf);border:1px solid var(--bd);border-radius:7px;color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:600;line-height:1;}
+.qty-ctrl button{width:36px;height:36px;background:var(--sf);border:1px solid var(--bd);border-radius:7px;color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:600;line-height:1;}
+.qty-ctrl button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .qty-ctrl span{font-family:'DM Mono',monospace;font-size:14px;font-weight:600;min-width:20px;text-align:center;}
 
 /* scan venta */
@@ -770,16 +776,16 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .print-label .pl-price{font-size:9pt;font-weight:900;color:#111;margin-top:2px;}
 
 /* ─── LIGHT MODE — OVERRIDES ─── */
-/* Topbar blanco */
-.topbar .logo{color:#171717;}
-.topbar .logo span{background:var(--accent);color:#171717;padding:0 4px;border-radius:4px;}
+/* Topbar */
+.topbar .logo{color:var(--text);}
+.topbar .logo span{background:var(--accent);color:var(--text);padding:0 4px;border-radius:4px;}
 .topbar .local-pill{background:var(--sf2);border-color:var(--bd);color:var(--muted);}
 .topbar .local-pill .ldot{background:var(--text);}
 .topbar .icon-btn{background:var(--sf2);border-color:var(--bd);color:var(--text);}
 .topbar .icon-btn:hover{border-color:var(--bd2);}
-.topbar .avatar-btn{background:var(--text);color:#FFFFFF;}
+.topbar .avatar-btn{background:var(--text);color:var(--sf);}
 .topbar #topbar-screen-title{color:var(--muted);}
-.badge-dot{border-color:#FFFFFF;}
+.badge-dot{border-color:var(--sf);}
 /* Botones */
 .btn{color:var(--text);}
 .btn.sec{color:var(--text);background:var(--sf);border-color:var(--bd);}
@@ -884,9 +890,9 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   </div>
   <div class="topbar-r">
     <div class="local-pill" id="local-pill" onclick="goTo('locales')"><span class="ldot"></span><span id="local-name">Mi emprendimiento</span></div>
-    <div class="icon-btn" id="btn-refresh" onclick="refreshData()" title="Actualizar datos" style="font-size:13px;">↺</div>
-    <div class="icon-btn" onclick="goTo('notifs')">🔔<div class="badge-dot" id="notif-badge" style="display:none;"></div></div>
-    <div class="avatar-btn" onclick="goTo('config')">SA</div>
+    <div class="icon-btn" id="btn-refresh" onclick="refreshData()" title="Actualizar datos" aria-label="Actualizar datos" role="button" tabindex="0" style="font-size:13px;">↺</div>
+    <div class="icon-btn" onclick="goTo('notifs')" aria-label="Notificaciones" role="button" tabindex="0">🔔<div class="badge-dot" id="notif-badge" style="display:none;"></div></div>
+    <div class="avatar-btn" onclick="goTo('config')" aria-label="Mi perfil" role="button" tabindex="0">SA</div>
     <button id="topbar-logout-btn" onclick="logout()" style="display:none;background:none;border:1px solid var(--bd);border-radius:8px;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;padding:5px 10px;font-family:'Archivo',sans-serif;">Salir</button>
   </div>
 </div>
@@ -1730,14 +1736,14 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
 <!-- ── BOTTOM NAV ── -->
 <div class="bottom-nav">
-  <div class="ni on" id="nav-dashboard"  onclick="goTo('dashboard')"> <div class="nico2">🏠</div><div class="nlbl">Inicio</div></div>
-  <div class="ni"    id="nav-inventario" onclick="goTo('inventario')"><div class="nico2">📦</div><div class="nlbl">Stock</div></div>
-  <div class="nav-fab-wrap" id="nav-fab-venta" onclick="goTo('venta')" title="Nueva venta">
+  <div class="ni on" id="nav-dashboard"  onclick="goTo('dashboard')"  role="button" tabindex="0" aria-label="Inicio"> <div class="nico2">🏠</div><div class="nlbl">Inicio</div></div>
+  <div class="ni"    id="nav-inventario" onclick="goTo('inventario')" role="button" tabindex="0" aria-label="Stock"><div class="nico2">📦</div><div class="nlbl">Stock</div></div>
+  <div class="nav-fab-wrap" id="nav-fab-venta" onclick="goTo('venta')" role="button" tabindex="0" aria-label="Nueva venta">
     <div class="nav-fab" id="nav-fab-icon">+</div>
     <div class="nav-fab-lbl">Vender</div>
   </div>
-  <div class="ni"    id="nav-analisis"   onclick="goTo('analisis')">  <div class="nico2">📈</div><div class="nlbl">Análisis</div></div>
-  <div class="ni"    id="nav-skus"       onclick="goTo('skus')">      <div class="nico2">🏷️</div><div class="nlbl">SKUs</div></div>
+  <div class="ni"    id="nav-analisis"   onclick="goTo('analisis')"   role="button" tabindex="0" aria-label="Análisis">  <div class="nico2">📈</div><div class="nlbl">Análisis</div></div>
+  <div class="ni"    id="nav-skus"       onclick="goTo('skus')"       role="button" tabindex="0" aria-label="SKUs">      <div class="nico2">🏷️</div><div class="nlbl">SKUs</div></div>
 </div>
 
 </div><!-- end device -->
@@ -3778,7 +3784,7 @@ function renderGastos(body) {
     const fechaStr = `${String(fecha.getDate()).padStart(2,'0')}/${String(fecha.getMonth()+1).padStart(2,'0')}`;
     return `
     <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--bd);">
-      <div style="width:36px;height:36px;background:rgba(255,68,68,.12);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">${cat.icon}</div>
+      <div style="width:36px;height:36px;background:var(--rdim);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">${cat.icon}</div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:13px;font-weight:600;">${g.descripcion || cat.label}</div>
         <div style="font-size:10px;color:var(--muted);margin-top:2px;">${fechaStr} · ${cat.label}</div>
