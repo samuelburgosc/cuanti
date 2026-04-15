@@ -900,10 +900,11 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   <!-- 1. HERO -->
   <div class="hero" onclick="goTo('analisis')">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;">
-      <div class="hero-lbl">Ganancia este mes</div>
+      <div class="hero-lbl" id="dash-hero-lbl">Ganancia este mes</div>
       <div id="dash-hero-badge" style="display:none;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;"></div>
     </div>
     <div class="hero-amt" id="dash-hero-gan">$—</div>
+    <div id="dash-hero-gastos-sub" style="display:none;font-size:11px;color:var(--muted);margin-top:2px;"></div>
     <div id="dash-hero-trend" style="font-size:12px;margin-top:6px;min-height:16px;"></div>
     <div style="font-size:11px;color:var(--muted2);margin-top:3px;" id="dash-hero-mes">—</div>
     <div style="margin-top:14px;">
@@ -921,7 +922,11 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   <div id="dash-setup" style="display:none;margin-bottom:20px;"></div>
 
   <!-- 3. STATS STRIP -->
-  <div id="dash-stats-strip" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:24px;"></div>
+  <div id="dash-stats-strip" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;"></div>
+  <!-- botón registrar gasto — solo dueño -->
+  <div id="dash-btn-gasto" style="display:none;margin-bottom:16px;">
+    <button onclick="abrirRegistrarGasto()" class="btn sec" style="width:100%;font-size:13px;font-weight:600;">＋ Registrar gasto</button>
+  </div>
 
   <!-- 3. ACCIONES UNIFICADAS -->
   <div id="dash-acciones-section">
@@ -2128,10 +2133,25 @@ function renderDashboard() {
 
   // ── Stats del mes ──
   const ventasMes = ventasDB.filter(v => esVentaMes(v) && !v.nombre.startsWith('↩️'));
-  const ganMes    = ventasMes.reduce((s,v) => s+v.gan, 0);
+  const ganMes       = ventasMes.reduce((s,v) => s+v.gan, 0);
+  const gastosMes    = calcGastosMes();
+  const gananciaReal = ganMes - gastosMes;
 
-  set('dash-hero-gan', '$'+fmt(ganMes));
+  set('dash-hero-gan', '$'+fmt(gananciaReal));
   set('dash-hero-mes', mesActual);
+
+  const lbl = document.getElementById('dash-hero-lbl');
+  if (lbl) lbl.textContent = gastosMes > 0 ? 'Ganancia real este mes' : 'Ganancia este mes';
+
+  const gastosSubEl = document.getElementById('dash-hero-gastos-sub');
+  if (gastosSubEl) {
+    if (gastosMes > 0) {
+      gastosSubEl.style.display = '';
+      gastosSubEl.textContent   = `Ventas $${fmt(ganMes)} — Gastos $${fmt(gastosMes)}`;
+    } else {
+      gastosSubEl.style.display = 'none';
+    }
+  }
 
   // ── Hero: badge de tendencia ──
   const mesAntIdx  = hoy.getMonth() === 0 ? 11 : hoy.getMonth() - 1;
@@ -2411,6 +2431,10 @@ function renderDashboard() {
   }
 
   actualizarBadgeNotifs();
+
+  // Botón registrar gasto — solo dueño
+  const btnGasto = document.getElementById('dash-btn-gasto');
+  if (btnGasto) btnGasto.style.display = _currentUser?.rol === 'Dueño' ? '' : 'none';
 }
 
 // ══════════════════════════════════════════════════════
