@@ -2326,6 +2326,7 @@ function renderDashboard() {
     const hace30 = new Date(); hace30.setDate(hace30.getDate() - 30);
     const nombresRecientes = new Set(
       ventasDB.filter(v => {
+        if (v.fecha_raw) return new Date(v.fecha_raw) >= hace30;
         if(v.fecha.startsWith('Hoy') || v.fecha.startsWith('Ayer')) return true;
         const m = v.fecha.match(/^(\d{2})\/(\d{2})/);
         if(!m) return false;
@@ -2537,11 +2538,11 @@ function renderDashboard() {
       setupEl.innerHTML = `
         <div style="background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <div style="font-family:'Archivo Black',sans-serif;font-size:14px;">Empezá en 2 minutos</div>
+            <div style="font-family:'Archivo Black',sans-serif;font-size:14px;">Empieza en 2 minutos</div>
             <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;">${pasosDone}/3</div>
           </div>
           ${paso(1, 'Crea tu primer producto', 'Ponle nombre, precio de venta y costo', 'skus', tieneProductos)}
-          ${paso(2, 'Registrá tu primera venta', 'Elegí el producto y el canal por donde vendiste', 'venta', tieneVentas)}
+          ${paso(2, 'Registra tu primera venta', 'Elige el producto y el canal por donde vendiste', 'venta', tieneVentas)}
           ${paso(3, 'Ves cuánto ganaste', 'Cuanti te muestra la ganancia real al instante', 'venta', tieneVentas)}
         </div>`;
     }
@@ -3909,8 +3910,11 @@ function renderAnalisis(tab, btn) {
   // ── Helpers ──
   const ventas = ventasDB.filter(v => !v.nombre.startsWith('↩️'));
 
-  function parseFecha(f) {
-    // Hoy · HH:MM  →  hoy
+  // Parsear fecha de una venta. Usa fecha_raw (ISO) cuando está disponible
+  // para no perder el año real. Fallback al string formateado.
+  function parseFecha(v) {
+    if (v.fecha_raw) return new Date(v.fecha_raw);
+    const f = v.fecha;
     if(f.startsWith('Hoy'))  return new Date(todayY, todayM, todayD);
     if(f.startsWith('Ayer')) return new Date(todayY, todayM, todayD-1);
     const m = f.match(/^(\d{2})\/(\d{2})/);
@@ -4022,7 +4026,7 @@ function renderAnalisis(tab, btn) {
     const margenPct = ing > 0 ? Math.round((gan/ing)*100) : 0;
 
     if(hoy.length === 0) {
-      body.innerHTML = emptyState('🌅','Sin ventas hoy todavía','Registrá una venta y acá verás cuánto ganaste hoy.','Registrar venta →','venta');
+      body.innerHTML = emptyState('🌅','Sin ventas hoy todavía','Registra una venta y acá verás cuánto ganaste hoy.','Registrar venta →','venta');
       return;
     }
 
@@ -4096,8 +4100,8 @@ function renderAnalisis(tab, btn) {
     const diaVentas = dias.map((_,i) => {
       const d = new Date(lunes); d.setDate(d.getDate()+i);
       return ventas.filter(v => {
-        const fd = parseFecha(v.fecha);
-        return fd && fd.getDate()===d.getDate() && fd.getMonth()===d.getMonth();
+        const fd = parseFecha(v);
+        return fd && fd.getDate()===d.getDate() && fd.getMonth()===d.getMonth() && fd.getFullYear()===d.getFullYear();
       });
     });
     const diaGan = diaVentas.map(arr => arr.reduce((s,v)=>s+v.gan,0));
@@ -4155,7 +4159,7 @@ function renderAnalisis(tab, btn) {
     const semanas = [0,7,14,21];
     const semVals = semanas.map(inicio => {
       return mesMes.filter(v => {
-        const fd = parseFecha(v.fecha);
+        const fd = parseFecha(v);
         if(!fd) return false;
         const d = fd.getDate();
         return d > inicio && d <= inicio+7;
@@ -4224,10 +4228,10 @@ function renderAnalisis(tab, btn) {
     // Agrupar ventas por mes
     const porMes = {};
     ventas.forEach(v => {
-      const fd = parseFecha(v.fecha);
+      const fd = parseFecha(v);
       if(!fd) return;
       const key = `${fd.getFullYear()}-${String(fd.getMonth()+1).padStart(2,'0')}`;
-      if(!porMes[key]) porMes[key] = { label: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][fd.getMonth()], gan:0, ing:0, n:0, costo:0 };
+      if(!porMes[key]) porMes[key] = { label: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][fd.getMonth()]+' '+fd.getFullYear(), gan:0, ing:0, n:0, costo:0 };
       porMes[key].gan   += v.gan;
       porMes[key].ing   += v.precio;
       porMes[key].n++;
@@ -4236,7 +4240,7 @@ function renderAnalisis(tab, btn) {
 
     const mesesOrden = Object.keys(porMes).sort();
     if(mesesOrden.length === 0) {
-      body.innerHTML = emptyState('📈','Aún no hay historial','Registrá ventas durante el mes y acá verás tu progreso mes a mes.','Registrar venta →','venta');
+      body.innerHTML = emptyState('📈','Aún no hay historial','Registra ventas y acá verás tu progreso mes a mes.','Registrar venta →','venta');
       return;
     }
 
