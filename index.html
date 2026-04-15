@@ -2277,9 +2277,12 @@ function renderDashboard() {
         ${sub ? `<div style="font-size:10px;color:var(--muted);margin-top:3px;">${sub}</div>` : ''}
       </div>`;
 
+    const ingMesStrip  = ventasMes.reduce((s,v) => s + v.precio, 0);
+    const margenStrip  = ingMesStrip > 0 ? Math.round((ganMes / ingMesStrip) * 100) : null;
+
     strip.innerHTML =
-      statCard('Ventas hoy', ventasHoy.length > 0 ? ventasHoy.length : '0', ventasHoy.length > 0 ? '+$'+fmt(ganHoy) : 'Sin ventas', 'historial') +
-      statCard('Ventas del mes', ventasMes.length, ventasMes.length === 1 ? '1 venta' : ventasMes.length + ' ventas', 'analisis') +
+      statCard('Hoy', ventasHoy.length > 0 ? '+$'+fmt(ganHoy) : '$0', ventasHoy.length > 0 ? ventasHoy.length + ' venta' + (ventasHoy.length !== 1 ? 's' : '') : 'Sin ventas', 'historial') +
+      statCard('Margen del mes', margenStrip !== null ? margenStrip + '%' : '—', margenStrip !== null ? 'de lo facturado' : 'Sin ventas', 'analisis') +
       statCard('Mejor canal', mejorCanal ? mejorCanal.split(' ')[0] : '—', mejorCanal ? '$'+fmt(porCanal[mejorCanal]) : 'Sin datos', 'analisis');
   }
 
@@ -2370,6 +2373,41 @@ function renderDashboard() {
           text: `<b>${nom}</b> te deja más plata`,
           sub: `${mrg}% de ganancia sobre lo que cobrás · ${d.cnt} ventas`,
           cta: 'Ver análisis', ctaDest: 'analisis'
+        });
+      }
+    }
+
+    // 6. Proyección del mes
+    const diaActual   = hoy.getDate();
+    const diasEnMesP  = new Date(hoy.getFullYear(), hoy.getMonth()+1, 0).getDate();
+    if (ventasMes.length >= 2 && diaActual >= 3 && gananciaReal > 0) {
+      const proyeccion = Math.round((gananciaReal / diaActual) * diasEnMesP);
+      const diasRestantes = diasEnMesP - diaActual;
+      items.push({
+        urgency: 'blue',
+        icon: '📅',
+        text: `Al ritmo de hoy, terminarás el mes con <b>$${fmt(proyeccion)}</b>`,
+        sub: `Quedan ${diasRestantes} días · Promedio $${fmt(Math.round(gananciaReal/diaActual))}/día`,
+        cta: 'Ver mes', ctaDest: 'analisis'
+      });
+    }
+
+    // 7. Margen promedio del mes
+    const ingMes = ventasMes.reduce((s,v) => s + v.precio, 0);
+    if (ventasMes.length >= 3 && ingMes > 0) {
+      const margenProm = Math.round((ganMes / ingMes) * 100);
+      if (margenProm > 0) {
+        const margenMsg = margenProm >= 40
+          ? `Buen margen — de cada $100 que cobrás, te quedan $${margenProm}`
+          : margenProm >= 20
+            ? `De cada $100 que cobrás, te quedan $${margenProm}`
+            : `Margen bajo — de cada $100 que cobrás, te quedan $${margenProm}`;
+        items.push({
+          urgency: margenProm >= 40 ? 'green' : margenProm >= 20 ? 'blue' : 'orange',
+          icon: margenProm >= 40 ? '💚' : margenProm >= 20 ? '📊' : '⚠️',
+          text: margenMsg,
+          sub: `${ventasMes.length} ventas · $${fmt(ingMes)} facturado`,
+          cta: 'Analizar', ctaDest: 'analisis'
         });
       }
     }
