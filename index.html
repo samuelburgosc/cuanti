@@ -19,6 +19,18 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let skuDB      = [];
 let ventasDB   = [];
 let clientesDB = [];
+let gastosDB   = [];
+
+const CATEGORIAS_GASTO = [
+  { id: 'arriendo',   label: 'Arriendo',   icon: '🏠' },
+  { id: 'transporte', label: 'Transporte', icon: '🚚' },
+  { id: 'packaging',  label: 'Packaging',  icon: '📦' },
+  { id: 'publicidad', label: 'Publicidad', icon: '📣' },
+  { id: 'servicios',  label: 'Servicios',  icon: '📱' },
+  { id: 'comisiones', label: 'Comisiones', icon: '💸' },
+  { id: 'otro',       label: 'Otro',       icon: '✏️' },
+];
+
 let _dbReady = false;
 let _currentUser = null; // { id, nombre, email, rol: 'Dueño'|'Vendedor', local_id }
 
@@ -137,6 +149,16 @@ async function cargarClientes() {
   clientesDB = data || [];
 }
 
+async function cargarGastos() {
+  const { data, error } = await sb
+    .from('gastos_generales')
+    .select('id, fecha, descripcion, categoria_gasto, monto, local_id')
+    .order('fecha', { ascending: false })
+    .limit(200);
+  if (error) { console.error('Error cargando gastos:', error); return; }
+  gastosDB = data || [];
+}
+
 // Registrar venta en Supabase
 async function registrarVentaDB(varianteId, precio, costo, canal, pago, envio, cantidad=1, descuentoTipo=null, descuentoValor=0, clienteId=null) {
   // 1. Crear cabecera de venta
@@ -176,6 +198,7 @@ async function initDB() {
   await cargarInventario();
   await cargarVentas();
   await cargarClientes();
+  await cargarGastos();
   _dbReady = true;
   document.getElementById('loading-screen').style.display = 'none';
 }
@@ -2084,6 +2107,16 @@ function esVentaMes(v) {
   const match = v.fecha.match(/^(\d{2})\/(\d{2})/);
   if(match) return parseInt(match[2]) === mesActualNum();
   return false;
+}
+
+function calcGastosMes() {
+  const hoy = new Date();
+  return gastosDB
+    .filter(g => {
+      const d = new Date(g.fecha);
+      return d.getMonth() === hoy.getMonth() && d.getFullYear() === hoy.getFullYear();
+    })
+    .reduce((s, g) => s + g.monto, 0);
 }
 
 function renderDashboard() {
@@ -4928,6 +4961,8 @@ async function cargarDatos() {
     await cargarVentas();
     if(loadStep) loadStep.textContent = 'Cargando clientes…';
     await cargarClientes();
+    if(loadStep) loadStep.textContent = 'Cargando gastos…';
+    await cargarGastos();
     _dbReady = true;
   } catch(e) {
     console.error('Error cargando datos:', e);
