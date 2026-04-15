@@ -847,7 +847,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
 <!-- ════ LOGIN ════ -->
 <div id="screen-login" style="display:none;position:fixed;inset:0;z-index:10000;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;">
-  <div style="font-family:'Archivo Black',sans-serif;font-size:32px;letter-spacing:-1px;color:var(--accent);margin-bottom:8px;">Cuanti</div>
+  <div style="font-family:'Archivo Black',sans-serif;font-size:36px;letter-spacing:-1.5px;color:var(--text);margin-bottom:8px;">CUAN<span style="background:var(--accent);color:var(--text);padding:0 5px;border-radius:5px;">TI</span></div>
   <div style="font-size:13px;color:var(--muted);margin-bottom:40px;">Ingresa para continuar</div>
 
   <div style="width:100%;max-width:360px;">
@@ -893,7 +893,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
     <div class="local-pill" id="local-pill" onclick="goTo('locales')"><span class="ldot"></span><span id="local-name">Mi emprendimiento</span></div>
     <div class="icon-btn" id="btn-refresh" onclick="refreshData()" title="Actualizar datos" aria-label="Actualizar datos" role="button" tabindex="0" style="font-size:13px;">↺</div>
     <div class="icon-btn" onclick="goTo('notifs')" aria-label="Notificaciones" role="button" tabindex="0">🔔<div class="badge-dot" id="notif-badge" style="display:none;"></div></div>
-    <div class="avatar-btn" onclick="goTo('config')" aria-label="Mi perfil" role="button" tabindex="0">SA</div>
+    <div class="avatar-btn" id="topbar-avatar" onclick="goTo('config')" aria-label="Mi perfil" role="button" tabindex="0">SA</div>
     <button id="topbar-logout-btn" onclick="logout()" style="display:none;background:none;border:1px solid var(--bd);border-radius:8px;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;padding:5px 10px;font-family:'Archivo',sans-serif;">Salir</button>
   </div>
 </div>
@@ -1892,6 +1892,15 @@ function hideLogin() {
 }
 
 async function initAuth() {
+  // Escuchar cambios de sesión (expiración, logout externo)
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_OUT' || (!session && _currentUser)) {
+      _currentUser = null;
+      skuDB = []; ventasDB = []; _dbReady = false;
+      showLogin();
+    }
+  });
+
   const { data: { session } } = await sb.auth.getSession();
   if (!session) { showLogin(); return false; }
   return await cargarUsuarioActual(session.user.email);
@@ -2050,17 +2059,31 @@ function aplicarRol() {
   if(!_currentUser) return;
   const esDueno = _currentUser.rol === 'Dueño';
 
-  // Mostrar/ocultar ítems del nav
+  // Nav: Dueño ve todo, Vendedor ve solo Stock + Vender
   const navDash    = document.getElementById('nav-dashboard');
   const navAnalisis= document.getElementById('nav-analisis');
   const navSkus    = document.getElementById('nav-skus');
+  const navInv     = document.getElementById('nav-inventario');
   if(navDash)     navDash.style.display     = esDueno ? '' : 'none';
   if(navAnalisis) navAnalisis.style.display = esDueno ? '' : 'none';
   if(navSkus)     navSkus.style.display     = esDueno ? '' : 'none';
 
+  // Para Vendedor: centrar los ítems visibles (Stock + FAB)
+  const bottomNav = document.querySelector('.bottom-nav');
+  if(bottomNav) bottomNav.style.justifyContent = esDueno ? '' : 'center';
+  if(navInv)    navInv.style.flex = esDueno ? '1' : '0 0 auto';
+  if(navInv)    navInv.style.padding = esDueno ? '' : '8px 32px';
+
   // Botón salir en topbar: visible solo para vendedor
   const logoutBtn = document.getElementById('topbar-logout-btn');
   if(logoutBtn) logoutBtn.style.display = esDueno ? 'none' : '';
+
+  // Avatar con iniciales del usuario actual
+  const avatarEl = document.getElementById('topbar-avatar');
+  if(avatarEl && _currentUser.nombre) {
+    const iniciales = _currentUser.nombre.trim().split(/\s+/).map(p => p[0]).join('').slice(0,2).toUpperCase();
+    avatarEl.textContent = iniciales;
+  }
 
   // Mostrar datos del usuario en Config
   const configNombre = document.getElementById('config-user-nombre');
