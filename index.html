@@ -229,11 +229,11 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .logo{font-family:'Archivo Black',sans-serif;font-size:19px;letter-spacing:-.6px;color:var(--text);}
 .logo span{background:var(--accent);color:var(--text);padding:0 5px;border-radius:5px;}
 .topbar-r{display:flex;align-items:center;gap:9px;}
-.icon-btn{width:40px;height:40px;background:var(--sf);border:1px solid var(--bd);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;position:relative;transition:border-color .2s;}
+.icon-btn{width:44px;height:44px;background:var(--sf);border:1px solid var(--bd);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;position:relative;transition:border-color .2s;}
 .icon-btn:hover{border-color:var(--bd2);}
 .icon-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
-.badge-dot{width:7px;height:7px;background:var(--red);border-radius:50%;position:absolute;top:4px;right:4px;border:1.5px solid var(--bg);}
-.avatar-btn{width:40px;height:40px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:12px;color:var(--text);cursor:pointer;}
+.badge-dot{width:7px;height:7px;background:var(--red);border-radius:50%;position:absolute;top:5px;right:5px;border:1.5px solid var(--bg);}
+.avatar-btn{width:44px;height:44px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:12px;color:var(--text);cursor:pointer;}
 .avatar-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
 /* ─── SCREENS ─── */
@@ -596,7 +596,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .hist-tab-on{background:var(--sf);box-shadow:0 1px 4px rgba(0,0,0,.07);color:var(--text);font-weight:700;}
 
 /* ─── BOTTOM NAV ─── */
-.bottom-nav{position:sticky;bottom:0;width:100%;background:rgba(245,245,242,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--bd);display:flex;align-items:center;padding:8px 8px max(16px,env(safe-area-inset-bottom));z-index:200;flex-shrink:0;}
+.bottom-nav{position:sticky;bottom:0;width:100%;background:rgba(245,245,242,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--bd);box-shadow:0 -4px 20px rgba(0,0,0,.06);display:flex;align-items:center;padding:8px 8px max(16px,env(safe-area-inset-bottom));z-index:200;flex-shrink:0;}
 .ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 2px;min-height:44px;cursor:pointer;border-radius:10px;transition:background .15s;}
 .ni:hover{background:var(--sf2);}
 .ni:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
@@ -846,9 +846,27 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 #dash-last-sales .sale:last-child{border-bottom:none;}
 #dash-last-sales .sale-thumb{background:var(--sf2);}
 /* Scan */
-.scan-found-stock{color:var(--green) !important;}
+.scan-found-stock{color:var(--green);}
 .scan-area{background:var(--sf2);border-color:var(--bd2);}
 .scan-area.active-scan{border-color:var(--accent);background:var(--adim);}
+/* Urgency items — dashboard acciones */
+.urgency-item{display:flex;align-items:center;gap:10px;padding:12px 13px;margin-bottom:7px;border-radius:12px;border:1px solid transparent;}
+.urgency-item.red{background:rgba(216,75,75,.06);border-color:rgba(216,75,75,.18);}
+.urgency-item.orange{background:rgba(228,106,46,.06);border-color:rgba(228,106,46,.18);}
+.urgency-item.blue{background:rgba(37,99,235,.05);border-color:rgba(37,99,235,.15);}
+.urgency-item.green{background:rgba(30,158,99,.05);border-color:rgba(30,158,99,.15);}
+.urgency-item.accent{background:rgba(215,240,46,.06);border-color:rgba(215,240,46,.18);}
+.urgency-cta{border:none;border-radius:8px;padding:6px 11px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:'Archivo',sans-serif;white-space:nowrap;}
+.urgency-cta.red{background:var(--red);color:#fff;}
+.urgency-cta.orange{background:var(--orange);color:#fff;}
+.urgency-cta.blue{background:var(--blue);color:#fff;}
+.urgency-cta.green{background:var(--green);color:#fff;}
+.urgency-cta.accent{background:var(--accent);color:var(--text);}
+/* Scrollbar */
+.main{scrollbar-width:thin;scrollbar-color:var(--bd2) transparent;}
+.main::-webkit-scrollbar{width:3px;}
+.main::-webkit-scrollbar-track{background:transparent;}
+.main::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px;}
 </style>
 </head>
 <body>
@@ -978,7 +996,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   <!-- resumen de stock dinámico -->
   <div id="inv-stock-summary" style="display:none;margin-bottom:12px;"></div>
 
-  <div class="search-row"><input class="srch" placeholder="Buscar producto o marca..." id="inv-search" oninput="filterInv(this.value)"><button class="filter-btn" onclick="invFiltroSheet()">⚙️</button></div>
+  <div class="search-row"><input class="srch" placeholder="Buscar producto o marca..." id="inv-search" oninput="filterInvD(this.value)"><button class="filter-btn" onclick="invFiltroSheet()">⚙️</button></div>
   <div class="chips" id="inv-chips">
     <div class="chip on" onclick="filterChip(this,'todos')">Todos</div>
     <div class="chip urgent-red" onclick="filterChip(this,'agotado')">🔴 Agotado</div>
@@ -1257,7 +1275,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
     </div>
 
     <div class="search-row" style="gap:6px;">
-      <input class="srch" id="hist-search-input" placeholder="Buscar producto, canal, SKU..." type="text" oninput="renderHistorial()">
+      <input class="srch" id="hist-search-input" placeholder="Buscar producto, canal, SKU..." type="text" oninput="renderHistD()">
       <button class="filter-btn" onclick="exportarVentasCSV()" title="Exportar CSV" style="font-size:13px;min-width:40px;">↓CSV</button>
     </div>
     <div class="chips" id="hist-chips">
@@ -1275,7 +1293,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   <!-- contenido tab clientes -->
   <div id="hist-panel-clientes" style="display:none;">
     <div class="search-row" style="margin-bottom:12px;">
-      <input class="srch" id="clientes-search-input" placeholder="Buscar por nombre o teléfono..." type="text" oninput="renderClientes()">
+      <input class="srch" id="clientes-search-input" placeholder="Buscar por nombre o teléfono..." type="text" oninput="renderClientD()">
     </div>
     <div id="clientes-lista"></div>
     <button class="btn sec" style="margin-top:12px;" onclick="mostrarFormNuevoCliente()">+ Nuevo cliente</button>
@@ -1488,7 +1506,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
     <div class="sec-title">SKUs registrados</div>
     <div class="sec-link" onclick="printAllLabels()">Imprimir todos</div>
   </div>
-  <div class="search-row"><input class="srch" placeholder="Buscar SKU o producto…" oninput="filterSkus(this.value)"></div>
+  <div class="search-row"><input class="srch" placeholder="Buscar SKU o producto…" oninput="filterSkusD(this.value)"></div>
   <div id="sku-list"></div>
   <div class="spacer"></div>
 </div>
@@ -1535,7 +1553,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
         <div class="scan-found-meta" id="sc-found-meta">—</div>
       </div>
       <div>
-        <div class="scan-found-stock" id="sc-found-stock" style="color:var(--green);">—</div>
+        <div class="scan-found-stock" id="sc-found-stock">—</div>
         <div style="font-size:9px;color:var(--muted);text-align:right;">en stock</div>
       </div>
     </div>
@@ -1793,6 +1811,13 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 function fmt(n) {
   return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
+function _debounce(fn, delay) {
+  let t; return function(...args) { clearTimeout(t); t = setTimeout(() => fn.apply(this, args), delay); };
+}
+const filterInvD    = _debounce(v => filterInv(v), 260);
+const filterSkusD   = _debounce(v => filterSkus(v), 260);
+const renderHistD   = _debounce(() => renderHistorial(), 260);
+const renderClientD = _debounce(() => renderClientes(), 260);
 function todayStr() {
   const d = new Date();
   return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
@@ -2059,7 +2084,7 @@ function goTo(id) {
   const fabIcon = document.getElementById('nav-fab-icon');
   if(fabIcon) {
     fabIcon.style.background = id === 'venta' ? 'var(--text)' : 'var(--accent)';
-    fabIcon.style.color = id === 'venta' ? '#FFFFFF' : 'var(--text)';
+    fabIcon.style.color = id === 'venta' ? 'var(--bg)' : 'var(--text)';
   }
 
   // Título dinámico en topbar
@@ -2367,27 +2392,19 @@ function renderDashboard() {
       }
     }
 
-    const urgencyStyles = {
-      red:    { bg:'rgba(216,75,75,.06)',   border:'rgba(216,75,75,.18)',    ctaBg:'var(--red)',    ctaColor:'#fff' },
-      orange: { bg:'rgba(228,106,46,.06)',  border:'rgba(228,106,46,.18)',   ctaBg:'var(--orange)', ctaColor:'#fff' },
-      blue:   { bg:'rgba(37,99,235,.05)',   border:'rgba(37,99,235,.15)',    ctaBg:'var(--blue)',   ctaColor:'#fff' },
-      green:  { bg:'rgba(30,158,99,.05)',   border:'rgba(30,158,99,.15)',    ctaBg:'var(--green)',  ctaColor:'#fff' },
-      accent: { bg:'rgba(215,240,46,.06)',  border:'rgba(215,240,46,.18)',   ctaBg:'var(--accent)', ctaColor:'var(--text)' }
-    };
-
     if (items.length === 0) {
       accionesSection.style.display = 'none';
     } else {
       accionesSection.style.display = '';
       accionesWrap.innerHTML = items.map(it => {
-        const s = urgencyStyles[it.urgency] || urgencyStyles.blue;
-        return `<div style="display:flex;align-items:center;gap:10px;padding:12px 13px;margin-bottom:7px;background:${s.bg};border:1px solid ${s.border};border-radius:12px;">
+        const u = it.urgency || 'blue';
+        return `<div class="urgency-item ${u}">
           <div style="font-size:17px;flex-shrink:0;">${it.icon}</div>
           <div style="flex:1;min-width:0;">
             <div style="font-size:13px;line-height:1.4;color:var(--text);">${it.text}</div>
             ${it.sub ? `<div style="font-size:11px;color:var(--muted);margin-top:2px;">${it.sub}</div>` : ''}
           </div>
-          <button onclick="event.stopPropagation();goTo('${it.ctaDest}')" style="background:${s.ctaBg};color:${s.ctaColor};border:none;border-radius:8px;padding:6px 11px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:'Archivo',sans-serif;white-space:nowrap;">${it.cta}</button>
+          <button onclick="event.stopPropagation();goTo('${it.ctaDest}')" class="urgency-cta ${u}">${it.cta}</button>
         </div>`;
       }).join('');
     }
@@ -5362,7 +5379,7 @@ async function cargarDatos() {
     console.error('Error cargando datos:', e);
     if(loadStep) {
       loadStep.textContent = '⚠️ Sin conexión — modo offline';
-      loadStep.style.color = '#FF4444';
+      loadStep.style.color = 'var(--red)';
     }
     await new Promise(r => setTimeout(r, 1800));
   }
