@@ -316,12 +316,16 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .chart-delta.up{color:var(--green);}
 .chart-delta.dn{color:var(--red);}
 .bars{display:flex;align-items:flex-end;gap:4px;}
-.bcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
-.b{width:100%;border-radius:4px 4px 0 0;min-height:4px;transition:height .3s ease;}
+.bcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;}
+@keyframes bar-reveal{from{clip-path:inset(100% 0 0 0)}to{clip-path:inset(0% 0 0 0)}}
+.b{width:100%;border-radius:4px 4px 0 0;min-height:4px;animation:bar-reveal .5s ease-out both;}
 .b.cur{background:var(--accent);}
 .b.pst{background:var(--sf3);}
+.b.neg{background:var(--red);opacity:.7;}
 .b.l2{background:rgba(59,255,138,.4);}
 .blbl{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted2);}
+.bval{font-family:'DM Mono',monospace;font-size:8px;font-weight:700;text-align:center;line-height:1;min-height:10px;}
+.insight-box{background:rgba(215,240,46,.07);border:1px solid rgba(215,240,46,.22);border-radius:11px;padding:11px 14px;margin-bottom:11px;font-size:12px;line-height:1.55;color:var(--text);}
 .chart-legend{display:flex;gap:14px;margin-top:10px;font-size:10px;color:var(--muted);}
 .legend-dot{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:4px;}
 
@@ -801,6 +805,8 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .ni.on .nico2{opacity:1;}
 .ni .nico2{opacity:.5;}
 .fab.p .fl,.fab.p .fs{color:var(--text);}
+/* Insight box — fondo sutil en light mode */
+.insight-box{background:rgba(180,200,0,.07);border-color:rgba(180,200,0,.25);}
 /* Chips y tabs activos — amarillo solo en activo */
 .chip.on{background:var(--accent);border-color:var(--accent);color:var(--text);}
 .pb.on{background:var(--accent);color:var(--text);border-radius:8px;}
@@ -3909,7 +3915,7 @@ function renderAnalisis(tab, btn) {
       map[v.canal].gan      += v.gan;
       map[v.canal].com      += (v.com||0);
     });
-    return Object.values(map).sort((a,b)=>b.ingresos-a.ingresos);
+    return Object.values(map).sort((a,b)=>b.gan-a.gan);
   }
 
   function kpiRow(icon,label,val,color='var(--text)') {
@@ -3920,23 +3926,33 @@ function renderAnalisis(tab, btn) {
   }
 
   function barChart(values, labels, h=70) {
-    const max = Math.max(...values, 1);
+    const positives = values.map(v => Math.max(0,v));
+    const max = Math.max(...positives, 1);
+    const maxIdx = positives.reduce((mi,v,i) => v > positives[mi] ? i : mi, 0);
+    const fmt1k = n => n >= 10000 ? '$'+Math.round(n/1000)+'k' : n >= 1000 ? '$'+(n/1000).toFixed(1)+'k' : '$'+Math.round(n);
     return `<div class="bars" style="height:${h}px;">
       ${values.map((v,i) => {
-        const px = Math.max(4, Math.round((v/max)*h));
-        const isToday = labels[i] === 'Hoy' || i === values.length-1;
+        const pxH = v < 0 ? 4 : Math.max(4, Math.round((v/max)*h));
+        const isNow  = labels[i] === 'Hoy' || i === values.length-1;
+        const isBest = i === maxIdx && v > 0;
+        const isNeg  = v < 0;
+        const showVal = v > 0 && (isBest || isNow);
+        const valColor = isNow ? 'color:var(--accent);' : 'color:var(--muted);';
         return `<div class="bcol">
-          <div class="b ${isToday?'cur':'pst'}" style="height:${px}px;"></div>
-          <div class="blbl" style="${isToday?'color:var(--accent);':''}">${labels[i]}</div>
+          <div class="bval" style="${valColor}">${showVal ? fmt1k(v) : ''}</div>
+          <div class="b ${isNeg?'neg':isNow?'cur':'pst'}" style="height:${pxH}px;animation-delay:${i*40}ms;"></div>
+          <div class="blbl" style="${isNow?'color:var(--accent);font-weight:700;':''}">${labels[i]}</div>
         </div>`;
       }).join('')}
     </div>`;
   }
 
-  function progressRows(canales, totalIngresos) {
-    const canalColor = { Sotos:'#8A7A00', WhatsApp:'var(--green)', Facebook:'var(--blue)', Sneakerheads:'var(--purple)' };
+  function progressRows(canales, totalGan) {
+    const canalColor = { Sotos:'var(--orange)', WhatsApp:'var(--green)', Facebook:'var(--blue)', Presencial:'var(--purple)' };
+    const totalG = totalGan > 0 ? totalGan : canales.reduce((s,c)=>s+c.gan,0);
     return canales.map((c,i) => {
-      const pct = totalIngresos > 0 ? Math.round((c.ingresos/totalIngresos)*100) : 0;
+      const pct = totalG > 0 ? Math.round((c.gan/totalG)*100) : 0;
+      const mrg = c.ingresos > 0 ? Math.round((c.gan/c.ingresos)*100) : 0;
       const col = canalColor[c.canal] || 'var(--muted)';
       const rank = i===0 ? '<span class="trank f">1</span>' : `<span class="trank">${i+1}</span>`;
       return `<div class="prow">
@@ -3946,29 +3962,34 @@ function renderAnalisis(tab, btn) {
           <div class="pbar-wrap"><div class="pbar" style="width:${pct}%;background:${col};"></div></div>
         </div>
         <div style="text-align:right;flex-shrink:0;">
-          <div style="font-family:'DM Mono',monospace;font-size:11px;color:${col};">$${fmt(c.ingresos)}</div>
-          <div style="font-size:10px;color:var(--muted);">${pct}% · ${c.n} vta${c.n!==1?'s':''}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:11px;color:${col};">+$${fmt(c.gan)}</div>
+          <div style="font-size:10px;color:var(--muted);">${mrg}% margen · ${c.n} vta${c.n!==1?'s':''}</div>
         </div>
       </div>`;
     }).join('');
   }
 
   function topProdRows(prods) {
+    const totalGan = prods.reduce((s,p)=>s+p.gan,0);
     return prods.map((p,i) => {
-      const roi = p.costo > 0 ? Math.round((p.gan/p.costo)*100) : 0;
       const margen = p.ingresos > 0 ? Math.round((p.gan/p.ingresos)*100) : 0;
+      const share  = totalGan > 0 ? Math.round((p.gan/totalGan)*100) : 0;
       return `<div class="trow">
         <div class="trank ${i===0?'f':''}">${i===0?'🏆':i+1}</div>
         <div class="tinfo">
           <div class="tname">${p.icon} ${p.nombre}</div>
-          <div class="tunits">${p.uds} venta${p.uds!==1?'s':''} · Ganancia $${fmt(p.gan)}</div>
+          <div class="tunits">${p.uds} venta${p.uds!==1?'s':''} · ${margen}% margen</div>
         </div>
         <div class="tamt">
-          <div class="trev">$${fmt(p.ingresos)}</div>
-          <div class="tmrg">ROI ${roi}%</div>
+          <div class="trev" style="color:var(--green);">+$${fmt(p.gan)}</div>
+          <div class="tmrg">${share}% del total</div>
         </div>
       </div>`;
     }).join('');
+  }
+
+  function insightBox(text) {
+    return `<div class="insight-box">💡 ${text}</div>`;
   }
 
   function emptyState(icon, title, sub, ctaLabel, ctaDest) {
@@ -4008,6 +4029,12 @@ function renderAnalisis(tab, btn) {
 
     const canalHoy = topCanales(hoy);
 
+    // Insight hoy: mejor franja horaria
+    const bestSlotIdx = slotVals.indexOf(Math.max(...slotVals));
+    const hoyInsight = slotVals[bestSlotIdx] > 0
+      ? `Tu mejor franja hoy fue <b>${slotLbl[bestSlotIdx]}</b> con $${fmt(slotVals[bestSlotIdx])} de ganancia.` + (canalHoy.length > 1 ? ` El canal que más te dejó fue <b>${canalHoy[0].canal}</b>.` : '')
+      : null;
+
     // Cierre de caja — agrupar ingresos cobrados por método de pago
     const porPago = {};
     hoy.forEach(v => {
@@ -4026,6 +4053,7 @@ function renderAnalisis(tab, btn) {
       ).join('');
 
     body.innerHTML = `
+      ${hoyInsight ? insightBox(hoyInsight) : ''}
       <!-- KPIs del día -->
       <div class="sgrid" style="margin-bottom:12px;">
         <div class="scard a"><span class="si">💰</span><div class="sv">$${fmt(gan)}</div><div class="sl">Ganancia hoy</div></div>
@@ -4073,7 +4101,7 @@ function renderAnalisis(tab, btn) {
       <!-- Canales hoy -->
       <div class="chart-box">
         <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Por canal</div>
-        ${progressRows(canalHoy, ing)}
+        ${progressRows(canalHoy, gan)}
       </div>
 
       <!-- Ventas del día -->
@@ -4116,7 +4144,14 @@ function renderAnalisis(tab, btn) {
       return;
     }
 
+    const bestDiaIdx = diaGan.indexOf(Math.max(...diaGan));
+    const semInsight = totalSem > 0
+      ? `Tu mejor día esta semana fue el <b>${dias[bestDiaIdx]}</b> con $${fmt(diaGan[bestDiaIdx])} de ganancia.`
+        + (canalSem.length > 1 ? ` Por <b>${canalSem[0].canal}</b> ganaste más.` : '')
+      : null;
+
     body.innerHTML = `
+      ${semInsight ? insightBox(semInsight) : ''}
       <div class="sgrid" style="margin-bottom:12px;">
         <div class="scard a"><span class="si">💰</span><div class="sv">$${fmt(totalSem)}</div><div class="sl">Ganancia semana</div></div>
         <div class="scard"><span class="si">🛍️</span><div class="sv">${nVentas}</div><div class="sl">Ventas</div></div>
@@ -4135,7 +4170,7 @@ function renderAnalisis(tab, btn) {
       </div>` : ''}
       ${canalSem.length ? `<div class="chart-box">
         <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Por canal</div>
-        ${progressRows(canalSem, totalIng)}
+        ${progressRows(canalSem, totalSem)}
       </div>` : ''}`;
     return;
   }
@@ -4167,8 +4202,18 @@ function renderAnalisis(tab, btn) {
     const canalMes = topCanales(mesMes);
     const topMes   = topProductos(mesMes);
 
-    const meses = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const mesLabel = meses[todayM];
+    const mesesNomEs = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const mesLabel = mesesNomEs[todayM];
+
+    const mejorSemIdx = semVals.indexOf(Math.max(...semVals));
+    const mesInsight = gan > 0
+      ? (() => {
+          const parts = [];
+          if(semVals[mejorSemIdx] > 0) parts.push(`Tu mejor semana fue la <b>Sem ${mejorSemIdx+1}</b> con $${fmt(semVals[mejorSemIdx])}.`);
+          if(canalMes.length > 1) parts.push(`<b>${canalMes[0].canal}</b> es tu canal más rentable este mes.`);
+          return parts.join(' ');
+        })()
+      : null;
 
     if(nV === 0) {
       body.innerHTML = emptyState('📆','Sin ventas este mes','Cuando registres ventas, acá verás cuánto ganaste y tus productos más vendidos.','Registrar venta →','venta');
@@ -4176,6 +4221,7 @@ function renderAnalisis(tab, btn) {
     }
 
     body.innerHTML = `
+      ${mesInsight ? insightBox(mesInsight) : ''}
       <div class="sgrid" style="margin-bottom:12px;">
         <div class="scard a"><span class="si">💰</span><div class="sv">$${fmt(gan)}</div><div class="sl">Ganancia ${mesLabel}</div></div>
         <div class="scard"><span class="si">🛍️</span><div class="sv">${nV}</div><div class="sl">Ventas del mes</div></div>
@@ -4220,7 +4266,7 @@ function renderAnalisis(tab, btn) {
       <!-- Canales -->
       <div class="chart-box">
         <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Por canal</div>
-        ${progressRows(canalMes, ing)}
+        ${progressRows(canalMes, gan)}
       </div>
 
       <!-- Top productos -->
@@ -4270,20 +4316,33 @@ function renderAnalisis(tab, btn) {
     const totalAcum  = ganRealMes.reduce((s,v)=>s+v,0);
     const topTotal   = topProductos(ventas, 5);
     const canalTotal = topCanales(ventas);
+    const ganTotalH  = ventas.reduce((s,v)=>s+v.gan,0);
     const ingTotal   = ventas.reduce((s,v)=>s+v.precio,0);
     const tieneGastos = gastosDB.length > 0;
 
     // Delta mes anterior (sobre ganancia real)
     let delta = '';
+    let histInsight = null;
     if(mesesOrden.length >= 2) {
       const last = ganRealMes[ganRealMes.length-1];
       const prev = ganRealMes[ganRealMes.length-2];
       const pct  = prev > 0 ? Math.round(((last-prev)/prev)*100) : 0;
       delta = `<div class="chart-delta ${pct>=0?'up':'dn'}">${pct>=0?'↑':'↓'} ${Math.abs(pct)}%</div>
                <div style="font-size:9px;color:var(--muted);">vs mes anterior</div>`;
+      const promHist = mesesOrden.length > 1
+        ? Math.round(ganRealMes.slice(0,-1).reduce((s,v)=>s+v,0) / (ganRealMes.length-1))
+        : 0;
+      if (promHist > 0) {
+        histInsight = last > promHist
+          ? `Este mes vas <b>por encima de tu promedio</b> histórico ($${fmt(promHist)}/mes). Buen ritmo.`
+          : `Tu promedio histórico es <b>$${fmt(promHist)}/mes</b>. Este mes vas por $${fmt(last)}${last < promHist ? ' — todavía quedan días.' : '.'}`;
+      }
+    } else if (ganRealMes.length === 1 && ganRealMes[0] > 0) {
+      histInsight = `Este es tu primer mes registrado. $${fmt(ganRealMes[0])} de ganancia${tieneGastos?' real':''}.`;
     }
 
     body.innerHTML = `
+      ${histInsight ? insightBox(histInsight) : ''}
       <!-- KPIs totales -->
       <div class="sgrid" style="margin-bottom:12px;">
         <div class="scard a"><span class="si">💰</span><div class="sv" style="font-size:14px;">$${fmt(totalAcum)}</div><div class="sl">${tieneGastos?'Ganancia real total':'Ganancia total'}</div></div>
@@ -4330,7 +4389,7 @@ function renderAnalisis(tab, btn) {
       <!-- Canales histórico -->
       <div class="chart-box">
         <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Canales — todo el período</div>
-        ${progressRows(canalTotal, ingTotal)}
+        ${progressRows(canalTotal, ganTotalH)}
       </div>`;
     return;
   }
