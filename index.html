@@ -229,9 +229,6 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .logo{font-family:'Archivo Black',sans-serif;font-size:19px;letter-spacing:-.6px;color:var(--text);}
 .logo span{background:var(--accent);color:var(--text);padding:0 5px;border-radius:5px;}
 .topbar-r{display:flex;align-items:center;gap:9px;}
-.local-pill{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:4px 9px;font-size:10px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;transition:border-color .2s;}
-.local-pill:hover{border-color:var(--bd2);}
-.local-pill .ldot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
 .icon-btn{width:40px;height:40px;background:var(--sf);border:1px solid var(--bd);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;position:relative;transition:border-color .2s;}
 .icon-btn:hover{border-color:var(--bd2);}
 .icon-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
@@ -786,8 +783,6 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 /* Topbar */
 .topbar .logo{color:var(--text);}
 .topbar .logo span{background:var(--accent);color:var(--text);padding:0 4px;border-radius:4px;}
-.topbar .local-pill{background:var(--sf2);border-color:var(--bd);color:var(--muted);}
-.topbar .local-pill .ldot{background:var(--text);}
 .topbar .icon-btn{background:var(--sf2);border-color:var(--bd);color:var(--text);}
 .topbar .icon-btn:hover{border-color:var(--bd2);}
 .topbar .avatar-btn{background:var(--text);color:var(--sf);}
@@ -899,8 +894,6 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
     <div id="topbar-screen-title" style="font-size:10px;color:var(--muted);margin-top:1px;display:none;letter-spacing:.6px;font-weight:500;"></div>
   </div>
   <div class="topbar-r">
-    <div class="local-pill" id="local-pill" onclick="goTo('locales')"><span class="ldot"></span><span id="local-name">Mi emprendimiento</span></div>
-    <div class="icon-btn" id="btn-refresh" onclick="refreshData()" title="Actualizar datos" aria-label="Actualizar datos" role="button" tabindex="0" style="font-size:13px;">↺</div>
     <div class="icon-btn" onclick="goTo('notifs')" aria-label="Notificaciones" role="button" tabindex="0">🔔<div class="badge-dot" id="notif-badge" style="display:none;"></div></div>
     <div class="avatar-btn" id="topbar-avatar" onclick="goTo('config')" aria-label="Mi perfil" role="button" tabindex="0">SA</div>
     <button id="topbar-logout-btn" onclick="logout()" style="display:none;background:none;border:1px solid var(--bd);border-radius:8px;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;padding:5px 10px;font-family:'Archivo',sans-serif;">Salir</button>
@@ -938,21 +931,18 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   <div id="dash-setup" style="display:none;margin-bottom:20px;"></div>
 
   <!-- 3. STATS STRIP -->
-  <div id="dash-stats-strip" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;"></div>
-  <!-- botón registrar gasto — solo dueño -->
-  <div id="dash-btn-gasto" style="display:none;margin-bottom:16px;">
-    <button onclick="abrirRegistrarGasto()" class="btn sec" style="width:100%;font-size:13px;font-weight:600;">＋ Registrar gasto</button>
-  </div>
+  <div id="dash-stats-strip" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px;"></div>
 
-  <!-- 3. ACCIONES UNIFICADAS -->
+  <!-- ACCIONES UNIFICADAS -->
   <div id="dash-acciones-section">
     <div class="sec-hdr" style="margin-bottom:8px;">
       <div class="sec-title">Atención ahora</div>
+      <div id="dash-btn-gasto" style="display:none;"><span class="sec-link" onclick="abrirRegistrarGasto()">＋ Gasto</span></div>
     </div>
     <div id="dash-acciones" style="margin-bottom:28px;"></div>
   </div>
 
-  <!-- 3. ÚLTIMA ACTIVIDAD -->
+  <!-- ÚLTIMA ACTIVIDAD -->
   <div class="sec-hdr" style="margin-bottom:12px;">
     <div class="sec-title">Última actividad</div>
     <div class="sec-link" onclick="goTo('historial')">Ver todo →</div>
@@ -965,7 +955,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 <!-- ════════════════════════════ INVENTARIO ════════════════════════════ -->
 <div class="screen" id="screen-inventario">
   <div class="ptitle">Inventario</div>
-  <div class="psub" id="inv-psub">Cargando inventario…</div>
+  <div class="psub" id="inv-psub">Tus productos y stock disponible</div>
 
   <!-- acciones rápidas: + Stock destacado, resto secundarios -->
   <div style="margin-bottom:12px;">
@@ -1240,11 +1230,11 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   </div>
 
   <div id="hist-panel-ventas">
-    <div class="psub" id="hist-psub" style="margin-bottom:14px;">Cargando…</div>
+    <div class="psub" id="hist-psub" style="margin-bottom:14px;"></div>
 
     <!-- resumen dinámico — ganancia como número principal -->
     <div style="background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:13px;">
-      <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.3px;margin-bottom:10px;" id="hist-resumen-lbl">RESUMEN — TODAS LAS VENTAS</div>
+      <div class="sec-title" style="margin-bottom:10px;" id="hist-resumen-lbl">Todas las ventas</div>
       <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:8px;">
         <!-- Ganancia: protagonista -->
         <div>
@@ -1412,29 +1402,15 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   </div>
 
   <div class="divider"></div>
-  <div class="sec-hdr"><div class="sec-title">Preferencias</div></div>
-  <div class="card">
-    <div class="tgl-row"><div><div class="tgl-lbl">Alertas de stock bajo</div><div class="tgl-sub">Notificación cuando llegue al mínimo</div></div><label class="tgl"><input type="checkbox" checked><span class="tgl-sl"></span></label></div>
-    <div class="tgl-row"><div><div class="tgl-lbl">Resumen diario</div><div class="tgl-sub">Notificación al cierre del día</div></div><label class="tgl"><input type="checkbox" checked><span class="tgl-sl"></span></label></div>
-    <div class="tgl-row"><div><div class="tgl-lbl">Mostrar costos en inventario</div><div class="tgl-sub">Solo visible para el Dueño</div></div><label class="tgl"><input type="checkbox" checked><span class="tgl-sl"></span></label></div>
-    <div class="tgl-row"><div><div class="tgl-lbl">Mostrar ganancia en ventas</div><div class="tgl-sub">En historial y confirmación</div></div><label class="tgl"><input type="checkbox" checked><span class="tgl-sl"></span></label></div>
-  </div>
-
-  <div class="divider"></div>
-  <div class="sec-hdr"><div class="sec-title">Datos del negocio</div></div>
-  <div class="card">
-    <div class="field" style="margin-bottom:0;"><label>Nombre del negocio</label><input type="text" value="Ventas Samu"></div>
-  </div>
-  <button class="btn danger" onclick="logout()" style="margin-top:8px;background:var(--rdim);border:1px solid rgba(255,68,68,.2);color:var(--red);font-family:'Archivo',sans-serif;font-size:13px;font-weight:600;">Cerrar sesión</button>
+  <button class="btn danger" onclick="logout()" style="margin-top:0;">Cerrar sesión</button>
   <div class="spacer"></div>
 </div>
 
 <!-- ════════════════════════════ NOTIFICACIONES ════════════════════════════ -->
 <div class="screen" id="screen-notifs">
-  <div class="ptitle">Notificaciones</div>
-  <div style="display:flex;justify-content:flex-end;margin-bottom:10px;"><span class="sec-link" onclick="clearNotifs()">Marcar todas como leídas</span></div>
+  <div class="ptitle">Alertas</div>
   <div class="card" id="notif-list">
-    <div style="text-align:center;padding:20px;color:var(--muted);font-size:12px;">Cargando notificaciones…</div>
+    <div style="text-align:center;padding:20px;color:var(--muted);font-size:12px;">—</div>
   </div>
   <div class="spacer"></div>
 </div>
@@ -2085,7 +2061,7 @@ function goTo(id) {
     inventario: 'Inventario', venta: 'Nueva venta', compras: 'Compras',
     'nueva-compra': 'Registrar compra', historial: 'Historial',
     analisis: 'Análisis', locales: 'Locales', config: 'Configuración',
-    notifs: 'Notificaciones', skus: 'SKUs y Etiquetas', scanner: 'Escáner'
+    notifs: 'Alertas', skus: 'SKUs y Etiquetas', scanner: 'Escáner'
   };
   const titleEl = document.getElementById('topbar-screen-title');
   if(titleEl) {
@@ -2547,11 +2523,11 @@ function renderHistorial(filtro) {
   const cntEl  = document.getElementById('hist-stat-cnt');
   const lblEl  = document.getElementById('hist-resumen-lbl');
   const psubEl = document.getElementById('hist-psub');
-  const filtroLabel = { todo:'TODAS LAS VENTAS', hoy:'HOY', semana:'ESTE MES', sotos:'SOTOS', wsp:'WHATSAPP', fb:'FACEBOOK' };
+  const filtroLabel = { todo:'Todas las ventas', hoy:'Hoy', semana:'Este mes', sotos:'Sotos', wsp:'WhatsApp', fb:'Facebook' };
   if(ganEl) { ganEl.textContent = '$'+fmt(totalGan); ganEl.style.color = totalGan >= 0 ? 'var(--green)' : 'var(--red)'; }
   if(ingEl) ingEl.textContent = '$'+fmt(totalIngresos);
   if(cntEl) cntEl.textContent = ventas.length;
-  if(lblEl) lblEl.textContent = `RESUMEN — ${filtroLabel[histFiltro] || 'FILTRO ACTIVO'}`;
+  if(lblEl) lblEl.textContent = filtroLabel[histFiltro] || 'Resultados';
   if(psubEl) psubEl.textContent = ventas.length === 0 ? 'Sin ventas en este período' : `${ventas.length} venta${ventas.length!==1?'s':''} · +$${fmt(totalGan)} de ganancia`;
 
   if(ventas.length === 0) {
