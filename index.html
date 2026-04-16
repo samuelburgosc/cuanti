@@ -1285,6 +1285,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
       <div class="chip" onclick="histSelChip(this,'sotos')">🏪 Sotos</div>
       <div class="chip" onclick="histSelChip(this,'wsp')">💬 WhatsApp</div>
       <div class="chip" onclick="histSelChip(this,'fb')">📘 Facebook</div>
+      <div class="chip" onclick="histSelChip(this,'pres')">🤝 Presencial</div>
     </div>
 
     <div id="hist-lista"></div>
@@ -2406,7 +2407,7 @@ function renderDashboard() {
       accionesSection.style.display = 'none';
     } else {
       accionesSection.style.display = '';
-      accionesWrap.innerHTML = items.map(it => {
+      accionesWrap.innerHTML = items.slice(0, 5).map(it => {
         const u = it.urgency || 'blue';
         return `<div class="urgency-item ${u}">
           <div style="font-size:17px;flex-shrink:0;">${it.icon}</div>
@@ -2542,6 +2543,7 @@ function renderHistorial(filtro) {
   if(histFiltro === 'sotos')  ventas = ventas.filter(v => v.canal === 'Sotos');
   if(histFiltro === 'wsp')    ventas = ventas.filter(v => v.canal === 'WhatsApp');
   if(histFiltro === 'fb')     ventas = ventas.filter(v => v.canal === 'Facebook');
+  if(histFiltro === 'pres')   ventas = ventas.filter(v => v.canal === 'Presencial');
   if(q) ventas = ventas.filter(v =>
     v.nombre.toLowerCase().includes(q) ||
     v.canal.toLowerCase().includes(q)  ||
@@ -2557,7 +2559,7 @@ function renderHistorial(filtro) {
   const cntEl  = document.getElementById('hist-stat-cnt');
   const lblEl  = document.getElementById('hist-resumen-lbl');
   const psubEl = document.getElementById('hist-psub');
-  const filtroLabel = { todo:'Todas las ventas', hoy:'Hoy', semana:'Este mes', sotos:'Sotos', wsp:'WhatsApp', fb:'Facebook' };
+  const filtroLabel = { todo:'Todas las ventas', hoy:'Hoy', semana:'Este mes', sotos:'Sotos', wsp:'WhatsApp', fb:'Facebook', pres:'Presencial' };
   if(ganEl) { ganEl.textContent = '$'+fmt(totalGan); ganEl.style.color = totalGan >= 0 ? 'var(--green)' : 'var(--red)'; }
   if(ingEl) ingEl.textContent = '$'+fmt(totalIngresos);
   if(cntEl) cntEl.textContent = ventas.length;
@@ -2571,6 +2573,7 @@ function renderHistorial(filtro) {
       sotos:  { icon:'🏪', title:'Sin ventas por Sotos', sub:'Cuando registres una venta por Sotos, aparecerá aquí.', cta:'Registrar venta →', dest:'venta' },
       wsp:    { icon:'💬', title:'Sin ventas por WhatsApp', sub:'Cuando registres una venta por WhatsApp, aparecerá aquí.', cta:'Registrar venta →', dest:'venta' },
       fb:     { icon:'📘', title:'Sin ventas por Facebook', sub:'Cuando registres una venta por Facebook, aparecerá aquí.', cta:'Registrar venta →', dest:'venta' },
+      pres:   { icon:'🤝', title:'Sin ventas presenciales', sub:'Cuando registres una venta presencial, aparecerá aquí.', cta:'Registrar venta →', dest:'venta' },
     };
     const m = msgs[histFiltro] || { icon:'🔍', title:'Sin resultados', sub:'Prueba con otro término de búsqueda.', cta:null };
     lista.innerHTML = `
@@ -3819,7 +3822,8 @@ function renderGastos(body) {
       <div style="text-align:center;padding:40px 20px;">
         <div style="font-size:40px;margin-bottom:12px;">💸</div>
         <div style="font-size:15px;font-weight:700;margin-bottom:8px;">Sin gastos este mes</div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:20px;">Registra tus gastos desde el Dashboard para ver la ganancia real.</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:20px;">Registra tus gastos para ver la ganancia real de tu negocio.</div>
+        <button class="btn" style="width:auto;padding:10px 24px;font-size:13px;margin:0;" onclick="abrirRegistrarGasto()">+ Registrar gasto</button>
       </div>`;
     return;
   }
@@ -3870,7 +3874,10 @@ function renderGastos(body) {
   const mesesNom = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   body.innerHTML = `
     <div style="background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:16px;">
-      <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.3px;margin-bottom:8px;">GASTOS — ${mesesNom[hoy.getMonth()].toUpperCase()} ${hoy.getFullYear()}</div>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
+        <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.3px;">GASTOS — ${mesesNom[hoy.getMonth()].toUpperCase()} ${hoy.getFullYear()}</div>
+        <button onclick="abrirRegistrarGasto()" style="background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;color:var(--text);">+ Agregar</button>
+      </div>
       <div style="font-family:'Archivo Black',sans-serif;font-size:28px;letter-spacing:-1px;color:var(--red);line-height:1;">$${fmt(totalMes)}</div>
       <div style="font-size:12px;color:var(--muted);margin-top:4px;">${gastosDelMes.length} gasto${gastosDelMes.length!==1?'s':''} registrado${gastosDelMes.length!==1?'s':''}</div>
     </div>
@@ -4436,17 +4443,13 @@ function renderAnalisis(tab, btn) {
 
     // Top valor en stock (mayor inversión inmovilizada)
     const topValor = [...skuDB].filter(s=>s.stock>0).sort((a,b)=>(b.precio*b.stock)-(a.precio*a.stock)).slice(0,5);
-    // Top ROI potencial
-    const topRoi   = [...skuDB].filter(s=>s.stock>0&&s.costo>0)
-      .map(s=>({...s, roi:Math.round(((s.precio-s.costo)/s.costo)*100)}))
-      .sort((a,b)=>b.roi-a.roi).slice(0,5);
 
     body.innerHTML = `
       <!-- KPIs de inventario -->
       <div class="sgrid" style="margin-bottom:12px;">
         <div class="scard a"><span class="si">💎</span><div class="sv" style="font-size:14px;">$${fmt(ganPotencial)}</div><div class="sl">Ganancia potencial</div></div>
         <div class="scard b"><span class="si">📦</span><div class="sv">$${fmt(totalCosto)}</div><div class="sl">Capital invertido</div></div>
-        <div class="scard g"><span class="si">📈</span><div class="sv">${roiProm}%</div><div class="sl">ROI potencial</div></div>
+        <div class="scard g"><span class="si">📈</span><div class="sv">${roiProm}%</div><div class="sl">% margen en stock</div></div>
         <div class="scard r"><span class="si">⚠️</span><div class="sv">${agotados.length+bajos.length}</div><div class="sl">Productos críticos</div></div>
       </div>
 
