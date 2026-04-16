@@ -34,6 +34,8 @@ const CATEGORIAS_GASTO = [
 
 let _dbReady = false;
 let _currentUser = null; // { id, nombre, email, rol: 'Dueño'|'Vendedor', local_id }
+let _pendingDeleteGastoId = null;
+let _pendingDeleteGastoTimer = null;
 
 // Cargar inventario desde Supabase
 async function cargarInventario() {
@@ -97,7 +99,7 @@ async function cargarVentas() {
       )
     `)
     .order('id', { ascending: false })
-    .limit(100);
+    .limit(500);
 
   if (error) { console.error('Error cargando ventas:', error); return; }
 
@@ -193,16 +195,7 @@ async function registrarVentaDB(varianteId, precio, costo, canal, pago, envio, c
   return true;
 }
 
-// Inicializar datos
-async function initDB() {
-  document.getElementById('loading-screen').style.display = 'flex';
-  await cargarInventario();
-  await cargarVentas();
-  await cargarClientes();
-  await cargarGastos();
-  _dbReady = true;
-  document.getElementById('loading-screen').style.display = 'none';
-}
+
 </script>
 <style>
 /* ─── TOKENS ─── */
@@ -485,7 +478,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
 /* ─── USER CARD ─── */
 .ucard{background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:14px;margin-bottom:9px;display:flex;align-items:center;gap:12px;}
-.uavatar{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:15px;flex-shrink:0;}
+.uavatar{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:15px;flex-shrink:0;}
 .uinfo{flex:1;}
 .uname{font-size:13px;font-weight:600;margin-bottom:2px;}
 .umeta{font-size:10px;color:var(--muted);}
@@ -1005,7 +998,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   <!-- resumen de stock dinámico -->
   <div id="inv-stock-summary" style="display:none;margin-bottom:12px;"></div>
 
-  <div class="search-row"><input class="srch" placeholder="Buscar producto o marca..." id="inv-search" oninput="filterInvD(this.value)"><button class="filter-btn" onclick="invFiltroSheet()">⚙️</button></div>
+  <div class="search-row"><input class="srch" placeholder="Buscar producto o marca..." id="inv-search" oninput="filterInvD(this.value)"></div>
   <div class="chips" id="inv-chips">
     <div class="chip on" onclick="filterChip(this,'todos')">Todos</div>
     <div class="chip urgent-red" onclick="filterChip(this,'agotado')">🔴 Agotado</div>
@@ -1584,12 +1577,12 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
     <!-- Grilla de acciones -->
     <div class="mono-lbl">¿Qué quieres hacer?</div>
     <div class="action-grid" id="sc-action-grid">
-      <div class="action-btn venta"    onclick="scAccion('venta')">   <span class="ab-icon">🛍️</span><span class="ab-lbl">Registrar venta</span></div>
-      <div class="action-btn ingreso"  onclick="scAccion('ingreso')"> <span class="ab-icon">📥</span><span class="ab-lbl">Ingreso stock</span></div>
-      <div class="action-btn devol"    onclick="scAccion('devol')">   <span class="ab-icon">↩️</span><span class="ab-lbl">Devolución</span></div>
-      <div class="action-btn ajuste"   onclick="scAccion('ajuste')">  <span class="ab-icon">✏️</span><span class="ab-lbl">Ajuste inv.</span></div>
-      <div class="action-btn precio"   onclick="scAccion('precio')">  <span class="ab-icon">💰</span><span class="ab-lbl">Ver precio</span></div>
-      <div class="action-btn transfer" onclick="scAccion('transfer')"><span class="ab-icon">🔄</span><span class="ab-lbl">Transferir</span></div>
+      <div class="action-btn venta"    role="button" aria-label="Registrar venta"   onclick="scAccion('venta')">   <span class="ab-icon">🛍️</span><span class="ab-lbl">Registrar venta</span></div>
+      <div class="action-btn ingreso"  role="button" aria-label="Ingreso de stock"  onclick="scAccion('ingreso')"> <span class="ab-icon">📥</span><span class="ab-lbl">Ingreso stock</span></div>
+      <div class="action-btn devol"    role="button" aria-label="Devolución"        onclick="scAccion('devol')">   <span class="ab-icon">↩️</span><span class="ab-lbl">Devolución</span></div>
+      <div class="action-btn ajuste"   role="button" aria-label="Ajuste inventario" onclick="scAccion('ajuste')">  <span class="ab-icon">✏️</span><span class="ab-lbl">Ajuste inv.</span></div>
+      <div class="action-btn precio"   role="button" aria-label="Ver precio"        onclick="scAccion('precio')">  <span class="ab-icon">💰</span><span class="ab-lbl">Ver precio</span></div>
+      <div class="action-btn transfer" role="button" aria-label="Transferir stock"  onclick="scAccion('transfer')"><span class="ab-icon">🔄</span><span class="ab-lbl">Transferir</span></div>
     </div>
   </div>
 
@@ -1996,11 +1989,10 @@ async function renderEquipo() {
   }).join('');
 
   // Mostrar sección Ventas solo para el dueño
-  const esVentas = _currentUser?.rol === 'Dueño';
   const ventasSection = document.getElementById('ventas-config-section');
   const ventasCard    = document.getElementById('ventas-config-card');
-  if (ventasSection) ventasSection.style.display = esVentas ? '' : 'none';
-  if (ventasCard)    ventasCard.style.display    = esVentas ? '' : 'none';
+  if (ventasSection) ventasSection.style.display = esDueno ? '' : 'none';
+  if (ventasCard)    ventasCard.style.display    = esDueno ? '' : 'none';
   const inputMax = document.getElementById('descuento-max-input');
   if (inputMax) inputMax.value = getDescuentoMaxPct();
 }
@@ -2692,7 +2684,7 @@ function histSelTab(tab) {
 // ══════════════════════════════════════════════════════
 function exportarVentasCSV() {
   const ventas = [...ventasDB].sort((a,b) => new Date(b.fecha_raw) - new Date(a.fecha_raw));
-  if (!ventas.length) { alert('No hay ventas para exportar.'); return; }
+  if (!ventas.length) { toast('No hay ventas para exportar.'); return; }
 
   const escape = v => `"${String(v ?? '').replace(/"/g,'""')}"`;
   const headers = ['Fecha','Producto','Variante','SKU','Canal','Pago','Envío','Cliente','Precio','Costo','Comisión','Ganancia'];
@@ -2808,7 +2800,15 @@ async function guardarGasto() {
 }
 
 async function eliminarGasto(id) {
-  if (!confirm('¿Eliminar este gasto?')) return;
+  if (_pendingDeleteGastoId !== id) {
+    _pendingDeleteGastoId = id;
+    clearTimeout(_pendingDeleteGastoTimer);
+    _pendingDeleteGastoTimer = setTimeout(() => { _pendingDeleteGastoId = null; }, 3000);
+    toast('Toca ✕ de nuevo para confirmar la eliminación.');
+    return;
+  }
+  _pendingDeleteGastoId = null;
+  clearTimeout(_pendingDeleteGastoTimer);
   const { error } = await sb.from('gastos_generales').delete().eq('id', id);
   if (error) { toast('Error al eliminar.', 'err'); console.error(error); return; }
   gastosDB = gastosDB.filter(g => g.id !== id);
@@ -3222,13 +3222,6 @@ function invBuscarParaStock(q) {
   }).join('');
 }
 
-function invFiltroSheet() {
-  // Scroll hacia los chips de filtro para que el usuario los vea
-  const chips = document.getElementById('inv-chips');
-  if (chips) chips.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  toast('Usa los filtros de arriba para filtrar por categoría o estado.', 'ok');
-}
-
 // Toast suave en vez de alert() nativo
 function toast(msg, tipo='ok') {
   let t = document.getElementById('_toast');
@@ -3629,7 +3622,7 @@ async function ventaConfirmar() {
 
   ventasDB.unshift({
     id: -Date.now(), sku:s.sku, nombre:s.nombre, variante:s.variante,
-    icon:s.icon, precio: precioFinal, costo:s.costo||0, com, canal, pago, envio, gan,
+    icon:s.icon, precio: precioFinal, costo:s.costo||0, com:com*cant, canal, pago, envio, gan,
     fecha: `Hoy · ${nowHHMM()}`,
     descuento_tipo:  descAbierto && descValor > 0 ? descTipo : null,
     descuento_valor: descAbierto ? descValor : 0,
@@ -5320,7 +5313,7 @@ async function scConfirmarVenta() {
   live.stock = Math.max(0, live.stock-cant);
   ventasDB.unshift({
     id:-Date.now(), sku:_scItem.sku, nombre:_scItem.nombre, variante:_scItem.variante,
-    icon:_scItem.icon, precio, costo:_scItem.costo, com, canal:_scCanal, pago, envio, gan,
+    icon:_scItem.icon, precio, costo:_scItem.costo, com:com*cant, canal:_scCanal, pago, envio, gan,
     fecha:`Hoy · ${nowHHMM()}`
   });
   renderDashboard(); renderHistorial(); updateInventarioStock();
