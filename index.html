@@ -321,6 +321,10 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .insight-box{background:rgba(215,240,46,.07);border:1px solid rgba(215,240,46,.22);border-radius:11px;padding:11px 14px;margin-bottom:11px;font-size:12px;line-height:1.55;color:var(--text);}
 .chart-legend{display:flex;gap:14px;margin-top:10px;font-size:10px;color:var(--muted);}
 .legend-dot{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:4px;}
+@keyframes tab-fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.tab-content{animation:tab-fadein .2s ease-out both;}
+@keyframes pbar-in{from{width:0!important}to{}}
+.pbar{animation:pbar-in .5s ease-out both;}
 
 /* ─── TOP ROWS ─── */
 .trow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd);}
@@ -820,8 +824,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .chart-title{color:var(--muted);}
 .sec-link{color:var(--muted);}
 .mono-lbl{color:var(--muted);letter-spacing:.3px;text-transform:none;font-size:11px;}
-.trank.f{color:var(--text);}
-.trev{color:var(--text);}
+.trev{color:var(--green);}
 .sku-code{color:var(--text);font-weight:700;}
 .sku-price-tag{color:var(--text);}
 .scan-input{color:var(--text);}
@@ -3840,7 +3843,8 @@ function addProdLote() {
   document.getElementById('nc-prods').appendChild(div);
 }
 
-function renderGastos(body) {
+function renderGastos(body, setBody) {
+  if (!setBody) setBody = html => { body.innerHTML = html; body.classList.remove('tab-content'); void body.offsetWidth; body.classList.add('tab-content'); };
   const hoy = new Date();
   const gastosDelMes = gastosDB.filter(g => {
     const d = new Date(g.fecha);
@@ -3850,13 +3854,13 @@ function renderGastos(body) {
   const totalMes = gastosDelMes.reduce((s, g) => s + g.monto, 0);
 
   if (gastosDelMes.length === 0) {
-    body.innerHTML = `
+    setBody(`
       <div style="text-align:center;padding:40px 20px;">
         <div style="font-size:40px;margin-bottom:12px;">💸</div>
         <div style="font-size:15px;font-weight:700;margin-bottom:8px;">Sin gastos este mes</div>
         <div style="font-size:12px;color:var(--muted);margin-bottom:20px;">Registra tus gastos para ver la ganancia real de tu negocio.</div>
         <button class="btn" style="width:auto;padding:10px 24px;font-size:13px;margin:0;" onclick="abrirRegistrarGasto()">+ Registrar gasto</button>
-      </div>`;
+      </div>`);
     return;
   }
 
@@ -3904,7 +3908,7 @@ function renderGastos(body) {
   }).join('');
 
   const mesesNom = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  body.innerHTML = `
+  setBody(`
     <div style="background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:16px;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
         <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.3px;">GASTOS — ${mesesNom[hoy.getMonth()].toUpperCase()} ${hoy.getFullYear()}</div>
@@ -3920,7 +3924,7 @@ function renderGastos(body) {
     <div style="background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:0 12px;margin-bottom:16px;">
       ${filas}
       <div style="height:1px;"></div>
-    </div>`;
+    </div>`);
 }
 
 // ══════════════════════════════════════════════════════
@@ -3937,7 +3941,14 @@ function renderAnalisis(tab, btn) {
   const body = document.getElementById('analisis-body');
   if(!body) return;
 
-  if (_analisisTab === 'gastos') { renderGastos(body); return; }
+  function setBody(html) {
+    body.innerHTML = html;
+    body.classList.remove('tab-content');
+    void body.offsetWidth;
+    body.classList.add('tab-content');
+  }
+
+  if (_analisisTab === 'gastos') { renderGastos(body, setBody); return; }
 
   const now   = new Date();
   const todayD = now.getDate();
@@ -4079,7 +4090,7 @@ function renderAnalisis(tab, btn) {
     const margenPct = ing > 0 ? Math.round((gan/ing)*100) : 0;
 
     if(hoy.length === 0) {
-      body.innerHTML = emptyState('🌅','Sin ventas hoy todavía','Registra una venta y acá verás cuánto ganaste hoy.','Registrar venta →','venta');
+      setBody(emptyState('🌅','Sin ventas hoy todavía','Registra una venta y acá verás cuánto ganaste hoy.','Registrar venta →','venta'));
       return;
     }
 
@@ -4118,7 +4129,7 @@ function renderAnalisis(tab, btn) {
         kpiRow(pagoIcon[p]||'💰', p, '$'+fmt(monto), 'var(--text)')
       ).join('');
 
-    body.innerHTML = `
+    setBody(`
       ${hoyInsight ? insightBox(hoyInsight) : ''}
       <!-- KPIs del día -->
       <div class="sgrid" style="margin-bottom:12px;">
@@ -4178,7 +4189,7 @@ function renderAnalisis(tab, btn) {
           <div class="tinfo"><div class="tname">${v.nombre}</div><div class="tunits">${v.fecha.split('·')[1]?.trim()||''} · ${v.canal} · ${v.pago}</div></div>
           <div class="tamt"><div class="trev">$${fmt(v.precio)}</div><div class="tmrg" style="color:var(--green);">+$${fmt(v.gan)}</div></div>
         </div>`).join('')}
-      </div>`;
+      </div>`);
     return;
   }
 
@@ -4206,7 +4217,7 @@ function renderAnalisis(tab, btn) {
     const margen   = totalIng > 0 ? Math.round((totalSem/totalIng)*100) : 0;
 
     if(nVentas === 0) {
-      body.innerHTML = emptyState('📅','Sin ventas esta semana','Registra ventas y acá verás cómo te fue en los últimos 7 días.','Registrar venta →','venta');
+      setBody(emptyState('📅','Sin ventas esta semana','Registra ventas y acá verás cómo te fue en los últimos 7 días.','Registrar venta →','venta'));
       return;
     }
 
@@ -4216,7 +4227,7 @@ function renderAnalisis(tab, btn) {
         + (canalSem.length > 1 ? ` Por <b>${canalSem[0].canal}</b> ganaste más.` : '')
       : null;
 
-    body.innerHTML = `
+    setBody(`
       ${semInsight ? insightBox(semInsight) : ''}
       <div class="sgrid" style="margin-bottom:12px;">
         <div class="scard a"><span class="si">💰</span><div class="sv">$${fmt(totalSem)}</div><div class="sl">Ganancia semana</div></div>
@@ -4237,7 +4248,7 @@ function renderAnalisis(tab, btn) {
       ${canalSem.length ? `<div class="chart-box">
         <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Por canal</div>
         ${progressRows(canalSem, totalSem)}
-      </div>` : ''}`;
+      </div>` : ''}`);
     return;
   }
 
@@ -4282,11 +4293,11 @@ function renderAnalisis(tab, btn) {
       : null;
 
     if(nV === 0) {
-      body.innerHTML = emptyState('📆','Sin ventas este mes','Cuando registres ventas, acá verás cuánto ganaste y tus productos más vendidos.','Registrar venta →','venta');
+      setBody(emptyState('📆','Sin ventas este mes','Cuando registres ventas, acá verás cuánto ganaste y tus productos más vendidos.','Registrar venta →','venta'));
       return;
     }
 
-    body.innerHTML = `
+    setBody(`
       ${mesInsight ? insightBox(mesInsight) : ''}
       <div class="sgrid" style="margin-bottom:12px;">
         <div class="scard a"><span class="si">💰</span><div class="sv">$${fmt(gan)}</div><div class="sl">Ganancia ${mesLabel}</div></div>
@@ -4340,7 +4351,7 @@ function renderAnalisis(tab, btn) {
         <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:4px;">Top productos del mes</div>
         <div style="font-size:10px;color:var(--muted);margin-bottom:12px;">Por ganancia generada</div>
         ${topProdRows(topMes)}
-      </div>` : ''}`;
+      </div>` : ''}`);
     return;
   }
 
@@ -4370,7 +4381,7 @@ function renderAnalisis(tab, btn) {
 
     const mesesOrden = Object.keys(porMes).sort();
     if(mesesOrden.length === 0) {
-      body.innerHTML = emptyState('📈','Aún no hay historial','Registra ventas y acá verás tu progreso mes a mes.','Registrar venta →','venta');
+      setBody(emptyState('📈','Aún no hay historial','Registra ventas y acá verás tu progreso mes a mes.','Registrar venta →','venta'));
       return;
     }
 
@@ -4407,7 +4418,7 @@ function renderAnalisis(tab, btn) {
       histInsight = `Este es tu primer mes registrado. $${fmt(ganRealMes[0])} de ganancia${tieneGastos?' real':''}.`;
     }
 
-    body.innerHTML = `
+    setBody(`
       ${histInsight ? insightBox(histInsight) : ''}
       <!-- KPIs totales -->
       <div class="sgrid" style="margin-bottom:12px;">
@@ -4456,7 +4467,7 @@ function renderAnalisis(tab, btn) {
       <div class="chart-box">
         <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Canales — todo el período</div>
         ${progressRows(canalTotal, ganTotalH)}
-      </div>`;
+      </div>`);
     return;
   }
 
@@ -4476,7 +4487,7 @@ function renderAnalisis(tab, btn) {
     // Top valor en stock (mayor inversión inmovilizada)
     const topValor = [...skuDB].filter(s=>s.stock>0).sort((a,b)=>(b.precio*b.stock)-(a.precio*a.stock)).slice(0,5);
 
-    body.innerHTML = `
+    setBody(`
       <!-- KPIs de inventario -->
       <div class="sgrid" style="margin-bottom:12px;">
         <div class="scard a"><span class="si">💎</span><div class="sv" style="font-size:14px;">$${fmt(ganPotencial)}</div><div class="sl">Ganancia potencial</div></div>
@@ -4528,7 +4539,7 @@ function renderAnalisis(tab, btn) {
             <div class="tamt"><div class="trev">$${fmt(val)}</div>${ganPot!==null?`<div class="tmrg" style="color:var(--green);">+$${fmt(ganPot)}</div>`:'<div class="tmrg">—</div>'}</div>
           </div>`;
         }).join('')}
-      </div>`;
+      </div>`);
     return;
   }
 }
