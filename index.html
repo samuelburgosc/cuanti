@@ -1370,6 +1370,16 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 <div class="screen" id="screen-config">
   <div class="ptitle">Configuración</div>
 
+  <!-- acceso rápido a resumen del negocio -->
+  <div class="card" onclick="goTo('locales')" style="display:flex;align-items:center;gap:13px;margin-bottom:12px;cursor:pointer;transition:border-color .15s,background .15s;" onmouseenter="this.style.borderColor='var(--bd2)';this.style.background='var(--sf2)'" onmouseleave="this.style.borderColor='var(--bd)';this.style.background='var(--sf)'">
+    <div style="width:44px;height:44px;background:var(--sf2);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🏪</div>
+    <div style="flex:1;">
+      <div style="font-size:13px;font-weight:600;margin-bottom:1px;">Mi negocio</div>
+      <div style="font-size:11px;color:var(--muted);">Ventas, stock y resumen del mes</div>
+    </div>
+    <div style="font-size:14px;color:var(--muted2);">›</div>
+  </div>
+
   <!-- perfil -->
   <div class="card" style="display:flex;align-items:center;gap:13px;margin-bottom:16px;">
     <div style="width:50px;height:50px;background:var(--accent);border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:19px;color:var(--text);flex-shrink:0;" id="config-user-avatar">SA</div>
@@ -5053,21 +5063,7 @@ async function scStartCamera() {
     _scCamActive = true;
 
     _scReader = new ZXing.BrowserMultiFormatReader();
-    const onDecode = function(result, err) {
-      if(!result || !_scCamActive) return;
-      const flash = document.getElementById('sc-flash');
-      flash.classList.add('show');
-      setTimeout(() => flash.classList.remove('show'), 280);
-      _scReader.reset();
-      scProcessCode(result.getText());
-      // Pausa 2s antes de volver a leer
-      setTimeout(() => {
-        if(_scCamActive && _scReader) {
-          _scReader.decodeFromVideoElement(video, onDecode);
-        }
-      }, 2000);
-    };
-    _scReader.decodeFromVideoElement(video, onDecode);
+    scScanLoop(video);
 
   } catch(err) {
     startBtn.textContent = '📷 Activar cámara'; startBtn.disabled = false;
@@ -5091,6 +5087,23 @@ function scStopCamera() {
   const startBtn = document.getElementById('sc-start-btn');
   startBtn.style.display=''; startBtn.textContent='📷 Activar cámara'; startBtn.disabled=false;
   document.getElementById('sc-stop-btn').style.display='none';
+}
+
+// ── Loop de escaneo (polling frame a frame — más robusto que decodeFromVideoElement) ──
+async function scScanLoop(video) {
+  if (!_scCamActive || !_scReader) return;
+  if (video.readyState >= 2 && video.videoWidth > 0) {
+    try {
+      const result = await _scReader.decodeFromImageElement(video);
+      if (result && _scCamActive) {
+        const flash = document.getElementById('sc-flash');
+        if (flash) { flash.classList.add('show'); setTimeout(() => flash.classList.remove('show'), 280); }
+        scProcessCode(result.getText());
+        await new Promise(r => setTimeout(r, 2000)); // pausa 2s entre lecturas
+      }
+    } catch(e) { /* NotFoundException — sin código en este frame, continuar */ }
+  }
+  if (_scCamActive) setTimeout(() => scScanLoop(video), 200);
 }
 
 // ── Input manual ──
