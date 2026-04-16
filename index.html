@@ -731,6 +731,15 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .scan-manual-input{flex:1;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:10px 13px;font-family:'DM Mono',monospace;font-size:14px;color:var(--accent);outline:none;letter-spacing:1px;}
 .scan-manual-input::placeholder{color:var(--muted2);font-size:12px;letter-spacing:0;}
 .scan-manual-input:focus{border-color:var(--text);}
+/* Resultados de búsqueda manual */
+#sc-search-results{background:var(--sf);border:1px solid var(--bd);border-radius:12px;margin-bottom:10px;overflow:hidden;display:none;}
+.sc-res-item{display:flex;align-items:center;gap:10px;padding:11px 13px;border-bottom:1px solid var(--bd);cursor:pointer;transition:background .1s;-webkit-tap-highlight-color:transparent;}
+.sc-res-item:last-child{border-bottom:none;}
+.sc-res-item:active,.sc-res-item:hover{background:var(--sf2);}
+.sc-res-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sc-res-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.sc-res-stock{font-family:'DM Mono',monospace;font-size:13px;font-weight:700;}
+.sc-res-sku{font-size:9px;color:var(--muted2);font-family:'DM Mono',monospace;margin-top:2px;}
 
 /* ─── CAM TOGGLE ─── */
 .cam-toggle-row{display:flex;gap:6px;margin-bottom:10px;background:var(--sf);border:1px solid var(--bd);border-radius:11px;padding:3px;}
@@ -1549,9 +1558,12 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   <!-- Manual -->
   <div id="sc-kbd-panel" style="display:none;">
     <div class="scan-manual-row">
-      <input id="sc-manual-input" class="scan-manual-input" placeholder="Escribe o escanea el SKU + Enter…" autocomplete="off" onkeydown="scHandleKey(event)">
+      <input id="sc-manual-input" class="scan-manual-input" placeholder="Busca por nombre o escaneá el código…" autocomplete="off" type="search"
+        oninput="scBuscarManual(this.value)"
+        onkeydown="scHandleKey(event)">
       <button class="btn" style="width:auto;padding:0 16px;margin:0;" onclick="scProcessManual()">→</button>
     </div>
+    <div id="sc-search-results"></div>
   </div>
 
   <!-- Producto encontrado -->
@@ -5038,6 +5050,9 @@ function scSetMode(mode) {
   document.getElementById('sc-cam-panel').style.display = isCam  ? 'block' : 'none';
   document.getElementById('sc-kbd-panel').style.display = !isCam ? 'block' : 'none';
   if(!isCam && _scCamActive) scStopCamera();
+  scLimpiarResultados();
+  const inp = document.getElementById('sc-manual-input');
+  if(inp) inp.value = '';
 }
 
 // ── Cámara ──
@@ -5115,12 +5130,63 @@ function scProcessManual() {
   const val = document.getElementById('sc-manual-input').value.trim();
   if(!val) return;
   document.getElementById('sc-manual-input').value = '';
+  scLimpiarResultados();
   scProcessCode(val);
+}
+
+function scLimpiarResultados() {
+  const res = document.getElementById('sc-search-results');
+  if(res) { res.style.display = 'none'; res.innerHTML = ''; }
+}
+
+function scBuscarManual(q) {
+  q = (q || '').trim();
+  // Si está vacío o parece un SKU numérico completo (pistola disparando) → limpiar
+  if(!q || (/^\d+$/.test(q) && q.length >= 12)) { scLimpiarResultados(); return; }
+
+  const ql = q.toLowerCase();
+  const matches = skuDB.filter(s =>
+    s.nombre.toLowerCase().includes(ql) ||
+    (s.variante && s.variante.toLowerCase().includes(ql)) ||
+    s.sku.toLowerCase().includes(q.toLowerCase())
+  ).slice(0, 7);
+
+  const res = document.getElementById('sc-search-results');
+  if(!res) return;
+
+  if(matches.length === 0) {
+    res.style.display = '';
+    res.innerHTML = `<div style="padding:14px 13px;font-size:12px;color:var(--muted);text-align:center;">Sin resultados para "${q}"</div>`;
+    return;
+  }
+
+  res.style.display = '';
+  res.innerHTML = matches.map(s => {
+    const stockColor = s.stock > 2 ? 'var(--green)' : s.stock > 0 ? 'var(--orange)' : 'var(--red)';
+    return `<div class="sc-res-item" onclick="scSeleccionarManual('${s.sku}')">
+      <div style="font-size:22px;flex-shrink:0;line-height:1;">${s.icon}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="sc-res-name">${s.nombre}</div>
+        <div class="sc-res-sub">${s.variante && s.variante !== '—' ? s.variante + ' · ' : ''}$${fmt(s.precio)}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div class="sc-res-stock" style="color:${stockColor};">${s.stock}</div>
+        <div class="sc-res-sku">${s.sku.slice(-6)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function scSeleccionarManual(sku) {
+  document.getElementById('sc-manual-input').value = '';
+  scLimpiarResultados();
+  scProcessCode(sku);
 }
 
 // ── Núcleo: procesar código ──
 function scProcessCode(code) {
   scCerrarPanel();
+  scLimpiarResultados();
   document.getElementById('sc-confirm-msg').style.display  = 'none';
   document.getElementById('sc-not-found').style.display    = 'none';
   document.getElementById('sc-found-card').classList.remove('show');
