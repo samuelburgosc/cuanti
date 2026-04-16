@@ -236,7 +236,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .icon-btn:hover{border-color:var(--bd2);}
 .icon-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .badge-dot{width:7px;height:7px;background:var(--red);border-radius:50%;position:absolute;top:4px;right:4px;border:1.5px solid var(--bg);}
-.avatar-btn{width:40px;height:40px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:12px;color:var(--bg);cursor:pointer;}
+.avatar-btn{width:40px;height:40px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:12px;color:var(--text);cursor:pointer;}
 .avatar-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
 /* ─── SCREENS ─── */
@@ -418,7 +418,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 /* ─── STEPS ─── */
 .steps{display:flex;align-items:center;gap:6px;margin-bottom:20px;}
 .sdot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;font-family:'DM Mono',monospace;border:1.5px solid var(--bd);color:var(--muted);flex-shrink:0;transition:all .2s;}
-.sdot.on{background:var(--accent);border-color:var(--accent);color:var(--bg);}
+.sdot.on{background:var(--accent);border-color:var(--accent);color:var(--text);}
 .sdot.dn{background:var(--adim);border-color:rgba(215,240,46,.3);color:var(--accent);}
 .sline{flex:1;height:1px;background:var(--bd);transition:background .2s;}
 .sline.dn{background:rgba(215,240,46,.3);}
@@ -444,7 +444,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .osub{font-size:11px;color:var(--muted);}
 .oprice{font-family:'Archivo Black',sans-serif;font-size:13px;color:var(--accent);flex-shrink:0;}
 .ochk{width:19px;height:19px;border-radius:50%;border:1.5px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;transition:all .15s;}
-.opt.sel .ochk{background:var(--accent);border-color:var(--accent);color:var(--bg);}
+.opt.sel .ochk{background:var(--accent);border-color:var(--accent);color:var(--text);}
 
 /* ─── NUEVA VENTA ─── */
 .venta-search{width:100%;background:var(--sf);border:2px solid var(--bd);border-radius:14px;padding:16px 18px;color:var(--text);font-family:'Archivo',sans-serif;font-size:17px;outline:none;transition:border-color .15s;display:block;box-sizing:border-box;margin-bottom:16px;}
@@ -479,7 +479,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .fab .fi{font-size:22px;}
 .fab .fl{font-family:'Archivo Black',sans-serif;font-size:13px;letter-spacing:-.2px;}
 .fab .fs{font-size:10px;opacity:.6;}
-.fab.p .fl,.fab.p .fs{color:var(--bg);}
+.fab.p .fl,.fab.p .fs{color:var(--text);}
 
 /* ─── USER CARD ─── */
 .ucard{background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:14px;margin-bottom:9px;display:flex;align-items:center;gap:12px;}
@@ -1066,7 +1066,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
           </div>
           <div style="display:flex;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:1px;">
             <div id="v-desc-pct-btn" onclick="ventaSelDescTipo('porcentaje')"
-              style="padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;background:var(--accent);color:var(--bg);">%</div>
+              style="padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;background:var(--accent);color:var(--text);">%</div>
             <div id="v-desc-monto-btn" onclick="ventaSelDescTipo('monto')"
               style="padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted);">$</div>
           </div>
@@ -1357,7 +1357,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
   <!-- perfil -->
   <div class="card" style="display:flex;align-items:center;gap:13px;margin-bottom:16px;">
-    <div style="width:50px;height:50px;background:var(--accent);border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:19px;color:var(--bg);flex-shrink:0;" id="config-user-avatar">SA</div>
+    <div style="width:50px;height:50px;background:var(--accent);border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:19px;color:var(--text);flex-shrink:0;" id="config-user-avatar">SA</div>
     <div style="flex:1;"><div style="font-size:14px;font-weight:600;margin-bottom:2px;" id="config-user-nombre">—</div><div style="font-size:11px;color:var(--muted);" id="config-user-email">—</div></div>
     <span class="role owner" id="config-user-rol">Dueño</span>
   </div>
@@ -3410,7 +3410,7 @@ function ventaSelDescTipo(tipo) {
   const pctBtn   = document.getElementById('v-desc-pct-btn');
   const montoBtn = document.getElementById('v-desc-monto-btn');
   if (!pctBtn || !montoBtn) return;
-  const activo   = 'background:var(--accent);color:var(--bg);';
+  const activo   = 'background:var(--accent);color:var(--text);';
   const inactivo = 'background:transparent;color:var(--muted);';
   pctBtn.style.cssText   += tipo === 'porcentaje' ? activo : inactivo;
   montoBtn.style.cssText += tipo === 'monto'      ? activo : inactivo;
