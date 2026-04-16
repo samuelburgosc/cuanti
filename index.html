@@ -589,6 +589,10 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .confirm-title{font-family:'Archivo Black',sans-serif;font-size:21px;margin-bottom:6px;letter-spacing:-.5px;}
 .confirm-sub{font-size:12px;color:var(--muted);margin-bottom:20px;}
 
+/* ─── HIST TABS ─── */
+.hist-tab{flex:1;text-align:center;padding:8px 0;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .15s;}
+.hist-tab-on{background:var(--sf);box-shadow:0 1px 4px rgba(0,0,0,.07);color:var(--text);font-weight:700;}
+
 /* ─── BOTTOM NAV ─── */
 .bottom-nav{position:sticky;bottom:0;width:100%;background:rgba(245,245,242,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--bd);display:flex;align-items:center;padding:8px 8px 16px;z-index:200;flex-shrink:0;}
 .ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 2px;min-height:44px;cursor:pointer;border-radius:10px;transition:background .15s;}
@@ -729,7 +733,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 /* ─── CAM TOGGLE ─── */
 .cam-toggle-row{display:flex;gap:6px;margin-bottom:10px;background:var(--sf);border:1px solid var(--bd);border-radius:11px;padding:3px;}
 .cam-mode-btn{flex:1;text-align:center;padding:8px 4px;border-radius:8px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;}
-.cam-mode-btn.on{background:var(--accent);color:var(--bg);}
+.cam-mode-btn.on{background:var(--accent);color:var(--text);font-weight:700;}
 .cmi{font-size:14px;}
 
 /* ─── PULSE ANIMATIONS ─── */
@@ -746,13 +750,13 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 /* ─── CARD HOVER IMPROVEMENTS ─── */
 .card{transition:border-color .2s;}
 .pcard{transition:border-color .2s,transform .1s,box-shadow .2s;}
-.pcard:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,.3);}
+.pcard:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.08);}
 .sale{transition:border-color .15s,transform .1s;}
 .sale:hover{transform:translateX(2px);}
 .ccard{transition:border-color .15s,transform .1s;}
 .ccard:hover{transform:translateY(-1px);}
-.scard{transition:border-color .15s,transform .1s,box-shadow .2s;}
-.scard:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.25);}
+.scard{transition:border-color .15s,transform .1s,box-shadow .2s,background .15s;}
+.scard:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.07);}
 
 /* ─── NOTIF ITEM ─── */
 .nitem{transition:background .15s;border-radius:9px;padding:11px 8px;}
@@ -1133,8 +1137,8 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
       <!-- ganancia grande -->
       <div style="margin:28px 0 20px;">
-        <div style="font-size:12px;color:var(--muted);font-weight:500;margin-bottom:6px;letter-spacing:.3px;">GANASTE</div>
-        <div id="vc-gan" style="font-family:'Archivo Black',sans-serif;font-size:56px;color:var(--green);letter-spacing:-3px;line-height:1;">$—</div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Ganaste</div>
+        <div id="vc-gan" style="font-family:'Archivo Black',sans-serif;font-size:58px;color:var(--green);letter-spacing:-3px;line-height:1;">$—</div>
         <div id="vc-prod" style="font-size:13px;color:var(--muted);margin-top:8px;"></div>
       </div>
 
@@ -1231,14 +1235,8 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
   <!-- tabs: Ventas / Clientes -->
   <div style="display:flex;gap:0;background:var(--sf2);border:1px solid var(--bd);border-radius:12px;padding:3px;margin-bottom:14px;">
-    <div id="hist-tab-ventas" onclick="histSelTab('ventas')"
-      style="flex:1;text-align:center;padding:7px 0;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;background:var(--sf);box-shadow:0 1px 3px rgba(0,0,0,.06);">
-      Ventas
-    </div>
-    <div id="hist-tab-clientes" onclick="histSelTab('clientes')"
-      style="flex:1;text-align:center;padding:7px 0;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);">
-      Clientes
-    </div>
+    <div id="hist-tab-ventas"   class="hist-tab hist-tab-on" onclick="histSelTab('ventas')">Ventas</div>
+    <div id="hist-tab-clientes" class="hist-tab"             onclick="histSelTab('clientes')">Clientes</div>
   </div>
 
   <div id="hist-panel-ventas">
@@ -2240,9 +2238,9 @@ function renderDashboard() {
     const mejorCanal= canales.length > 0 ? canales[0][0] : null;
 
     const statCard = (lbl, val, sub, dest) =>
-      `<div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:12px 10px;cursor:pointer;text-align:center;" onclick="goTo('${dest}')">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:5px;line-height:1.2;">${lbl}</div>
-        <div style="font-family:'DM Mono',monospace;font-size:15px;font-weight:600;color:var(--text);">${val}</div>
+      `<div style="background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:13px 10px;cursor:pointer;text-align:center;transition:border-color .15s,background .15s;" onclick="goTo('${dest}')" onmouseenter="this.style.borderColor='var(--bd2)';this.style.background='var(--sf2)'" onmouseleave="this.style.borderColor='var(--bd)';this.style.background='var(--sf)'">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;line-height:1.2;">${lbl}</div>
+        <div style="font-family:'Archivo Black',sans-serif;font-size:16px;letter-spacing:-.4px;color:var(--text);">${val}</div>
         ${sub ? `<div style="font-size:10px;color:var(--muted);margin-top:3px;">${sub}</div>` : ''}
       </div>`;
 
@@ -2657,26 +2655,11 @@ function histSelTab(tab) {
   const panelClientes = document.getElementById('hist-panel-clientes');
   if (!tabVentas) return;
 
-  if (tab === 'ventas') {
-    tabVentas.style.background   = 'var(--sf)';
-    tabVentas.style.boxShadow    = '0 1px 3px rgba(0,0,0,.06)';
-    tabVentas.style.color        = 'var(--text)';
-    tabClientes.style.background = 'transparent';
-    tabClientes.style.boxShadow  = 'none';
-    tabClientes.style.color      = 'var(--muted)';
-    panelVentas.style.display    = '';
-    panelClientes.style.display  = 'none';
-  } else {
-    tabClientes.style.background = 'var(--sf)';
-    tabClientes.style.boxShadow  = '0 1px 3px rgba(0,0,0,.06)';
-    tabClientes.style.color      = 'var(--text)';
-    tabVentas.style.background   = 'transparent';
-    tabVentas.style.boxShadow    = 'none';
-    tabVentas.style.color        = 'var(--muted)';
-    panelVentas.style.display    = 'none';
-    panelClientes.style.display  = '';
-    renderClientes();
-  }
+  tabVentas.classList.toggle('hist-tab-on', tab === 'ventas');
+  tabClientes.classList.toggle('hist-tab-on', tab === 'clientes');
+  panelVentas.style.display    = tab === 'ventas'   ? '' : 'none';
+  panelClientes.style.display  = tab === 'clientes' ? '' : 'none';
+  if (tab === 'clientes') renderClientes();
 }
 
 // ══════════════════════════════════════════════════════
