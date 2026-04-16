@@ -4147,36 +4147,20 @@ function renderAnalisis(tab, btn) {
         kpiRow(pagoIcon[p]||'💰', p, '$'+fmt(monto), 'var(--text)')
       ).join('');
 
+    const costoTotal = hoy.reduce((s,v)=>s+(v.costo||0),0);
     setBody(`
+      <!-- Hero: ganancia del día -->
+      <div style="background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:20px 18px;margin-bottom:12px;">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:700;margin-bottom:6px;">Ganancia hoy</div>
+        <div style="font-family:'Archivo Black',sans-serif;font-size:36px;letter-spacing:-.5px;color:${gan>=0?'var(--text)':'var(--red)'};">${gan>=0?'+':''}$${fmt(Math.abs(gan))}</div>
+        <div style="display:flex;gap:16px;margin-top:10px;">
+          <div style="font-size:11px;color:var(--muted);">${hoy.length} venta${hoy.length!==1?'s':''}</div>
+          <div style="font-size:11px;color:var(--muted);">${margenPct}% margen</div>
+          <div style="font-size:11px;color:var(--muted);">$${fmt(ticket)} ticket prom.</div>
+        </div>
+      </div>
+
       ${hoyInsight ? insightBox(hoyInsight) : ''}
-      <!-- KPIs del día -->
-      <div class="sgrid" style="margin-bottom:12px;">
-        <div class="scard a"><span class="si">💰</span><div class="sv">$${fmt(gan)}</div><div class="sl">Ganancia hoy</div></div>
-        <div class="scard"><span class="si">🛍️</span><div class="sv">${hoy.length}</div><div class="sl">Ventas hoy</div></div>
-        <div class="scard g"><span class="si">🎯</span><div class="sv">${margenPct}%</div><div class="sl">Margen</div></div>
-        <div class="scard b"><span class="si">🎟️</span><div class="sv">$${fmt(ticket)}</div><div class="sl">Ticket prom.</div></div>
-      </div>
-
-      <!-- Gráfico ganancia por hora -->
-      <div class="chart-box">
-        <div class="chart-hdr">
-          <div><div class="chart-title">Ganancia por franja horaria</div><div class="chart-val" style="font-size:18px;">$${fmt(gan)}</div></div>
-          <div><div class="chart-delta up">↑ ${margenPct}% margen</div></div>
-        </div>
-        ${barChart(slotVals, slotLbl, 65)}
-      </div>
-
-      <!-- P&L del día -->
-      <div class="chart-box">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Resultado del día</div>
-        ${kpiRow('💵','Ingresos brutos','$'+fmt(ing),'var(--text)')}
-        ${kpiRow('📦','Costo mercadería','−$'+fmt(hoy.reduce((s,v)=>s+(v.costo||0),0)),'var(--red)')}
-        ${com > 0 ? kpiRow('🏪','Comisiones Sotos','−$'+fmt(com),'var(--orange)') : ''}
-        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;font-weight:700;font-size:14px;">
-          <span>Ganancia neta</span>
-          <span style="font-family:'Archivo Black',sans-serif;color:${gan>=0?'var(--green)':'var(--red)'};">$${fmt(gan)}</span>
-        </div>
-      </div>
 
       <!-- Cierre de caja -->
       <div class="chart-box">
@@ -4193,20 +4177,49 @@ function renderAnalisis(tab, btn) {
         </div>` : ''}
       </div>
 
-      <!-- Canales hoy -->
-      <div class="chart-box">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Por canal</div>
-        ${progressRows(canalHoy, gan)}
-      </div>
+      <!-- Ver detalle: expandible -->
+      <button onclick="this.style.display='none';document.getElementById('hoy-detalle').style.display=''"
+        style="width:100%;padding:13px;background:var(--sf2);border:1px solid var(--bd);border-radius:12px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;margin-bottom:12px;transition:background .15s;"
+        onmouseenter="this.style.background='var(--sf3)'" onmouseleave="this.style.background='var(--sf2)'">
+        Ver detalle completo ↓
+      </button>
+      <div id="hoy-detalle" style="display:none;">
+        <!-- Gráfico por hora -->
+        <div class="chart-box">
+          <div class="chart-hdr">
+            <div><div class="chart-title">Ganancia por franja horaria</div></div>
+            <div><div class="chart-delta up">↑ ${margenPct}% margen</div></div>
+          </div>
+          ${barChart(slotVals, slotLbl, 65)}
+        </div>
 
-      <!-- Ventas del día -->
-      <div class="chart-box">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Ventas del día</div>
-        ${hoy.map(v=>`<div class="trow">
-          <div style="font-size:20px;width:28px;flex-shrink:0;">${v.icon}</div>
-          <div class="tinfo"><div class="tname">${v.nombre}</div><div class="tunits">${v.fecha.split('·')[1]?.trim()||''} · ${v.canal} · ${v.pago}</div></div>
-          <div class="tamt"><div class="trev">$${fmt(v.precio)}</div><div class="tmrg" style="color:var(--green);">+$${fmt(v.gan)}</div></div>
-        </div>`).join('')}
+        <!-- P&L -->
+        <div class="chart-box">
+          <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Resultado del día</div>
+          ${kpiRow('💵','Ingresos brutos','$'+fmt(ing),'var(--text)')}
+          ${kpiRow('📦','Costo mercadería','−$'+fmt(costoTotal),'var(--red)')}
+          ${com > 0 ? kpiRow('🏪','Comisiones Sotos','−$'+fmt(com),'var(--orange)') : ''}
+          <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;font-weight:700;font-size:14px;">
+            <span>Ganancia neta</span>
+            <span style="font-family:'Archivo Black',sans-serif;color:${gan>=0?'var(--green)':'var(--red)'};">$${fmt(gan)}</span>
+          </div>
+        </div>
+
+        <!-- Canales -->
+        ${canalHoy.length > 1 ? `<div class="chart-box">
+          <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Por canal</div>
+          ${progressRows(canalHoy, gan)}
+        </div>` : ''}
+
+        <!-- Ventas del día -->
+        <div class="chart-box">
+          <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Ventas del día</div>
+          ${hoy.map(v=>`<div class="trow">
+            <div style="font-size:20px;width:28px;flex-shrink:0;">${v.icon}</div>
+            <div class="tinfo"><div class="tname">${v.nombre}</div><div class="tunits">${v.fecha.split('·')[1]?.trim()||''} · ${v.canal} · ${v.pago}</div></div>
+            <div class="tamt"><div class="trev">$${fmt(v.precio)}</div><div class="tmrg" style="color:var(--green);">+$${fmt(v.gan)}</div></div>
+          </div>`).join('')}
+        </div>
       </div>`);
     return;
   }
@@ -5140,6 +5153,15 @@ function scInit() {
   // Por defecto arrancar en modo cámara si no hay modo activo
   const camPanel = document.getElementById('sc-cam-panel');
   if(camPanel && camPanel.style.display === '') scSetMode('cam');
+
+  // Auto-activar cámara si el permiso ya fue otorgado antes
+  if (!_scCamActive && navigator.permissions) {
+    navigator.permissions.query({ name: 'camera' }).then(res => {
+      if (res.state === 'granted' && document.getElementById('sc-cam-panel')?.style.display !== 'none') {
+        scStartCamera();
+      }
+    }).catch(() => {});
+  }
 }
 
 function scSetMode(mode) {
