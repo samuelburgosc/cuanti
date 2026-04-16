@@ -400,7 +400,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .sheet-bd{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:400;display:none;}
 .sheet{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:430px;background:var(--sf);border-radius:22px 22px 0 0;z-index:401;padding:0 18px 36px;transition:transform .3s cubic-bezier(.32,0,.67,0);}
 .sheet.open{transform:translateX(-50%) translateY(0);transition-timing-function:cubic-bezier(.33,1,.68,1);}
-.sheet-handle{width:36px;height:4px;background:var(--bd2);border-radius:2px;margin:14px auto 20px;}
+.sheet-handle{width:40px;height:4px;background:var(--bd2);border-radius:2px;margin:14px auto 20px;cursor:pointer;}
 
 /* ─── FORM ─── */
 .field{display:flex;flex-direction:column;gap:4px;margin-bottom:11px;}
@@ -849,24 +849,24 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
 <!-- ════ LOGIN ════ -->
 <div id="screen-login" style="display:none;position:fixed;inset:0;z-index:10000;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;">
-  <div style="font-family:'Archivo Black',sans-serif;font-size:36px;letter-spacing:-1.5px;color:var(--text);margin-bottom:8px;">CUAN<span style="background:var(--accent);color:var(--text);padding:0 5px;border-radius:5px;">TI</span></div>
-  <div style="font-size:13px;color:var(--muted);margin-bottom:40px;">Ingresa para continuar</div>
+  <div style="font-family:'Archivo Black',sans-serif;font-size:40px;letter-spacing:-2px;color:var(--text);margin-bottom:8px;">CUAN<span style="background:var(--accent);color:var(--text);padding:0 6px;border-radius:6px;">TI</span></div>
+  <div style="font-size:13px;color:var(--muted);margin-bottom:48px;letter-spacing:.2px;">Tu negocio, en claro.</div>
 
   <div style="width:100%;max-width:360px;">
     <div class="field" style="margin-bottom:12px;">
-      <label style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.4px;text-transform:uppercase;">Email</label>
+      <label>Email</label>
       <input id="login-email" type="email" autocomplete="email" placeholder="tu@email.com"
-             style="width:100%;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:13px 14px;font-size:14px;color:var(--text);outline:none;box-sizing:border-box;"
+             style="font-size:14px;"
              onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()">
     </div>
-    <div class="field" style="margin-bottom:20px;">
-      <label style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.4px;text-transform:uppercase;">Contraseña</label>
+    <div class="field" style="margin-bottom:24px;">
+      <label>Contraseña</label>
       <input id="login-pass" type="password" autocomplete="current-password" placeholder="••••••••"
-             style="width:100%;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:13px 14px;font-size:14px;color:var(--text);outline:none;box-sizing:border-box;"
+             style="font-size:14px;"
              onkeydown="if(event.key==='Enter')loginSubmit()">
     </div>
     <div id="login-error" style="display:none;color:var(--red);font-size:12px;margin-bottom:12px;text-align:center;"></div>
-    <button id="login-btn" class="btn" onclick="loginSubmit()" style="width:100%;font-size:15px;padding:15px;">
+    <button id="login-btn" class="btn" onclick="loginSubmit()" style="font-size:15px;padding:16px;margin-top:0;">
       Entrar →
     </button>
   </div>
@@ -2677,6 +2677,33 @@ function histSelTab(tab) {
     panelClientes.style.display  = '';
     renderClientes();
   }
+}
+
+// ══════════════════════════════════════════════════════
+//  HISTORIAL — exportar CSV
+// ══════════════════════════════════════════════════════
+function exportarVentasCSV() {
+  const ventas = [...ventasDB].sort((a,b) => new Date(b.fecha_raw) - new Date(a.fecha_raw));
+  if (!ventas.length) { alert('No hay ventas para exportar.'); return; }
+
+  const escape = v => `"${String(v ?? '').replace(/"/g,'""')}"`;
+  const headers = ['Fecha','Producto','Variante','SKU','Canal','Pago','Envío','Cliente','Precio','Costo','Comisión','Ganancia'];
+  const rows = ventas.map(v => [
+    v.fecha_raw ? new Date(v.fecha_raw).toLocaleString('es-CL') : v.fecha,
+    v.nombre, v.variante, v.sku,
+    v.canal, v.pago, v.envio,
+    v.cliente_nombre || '',
+    v.precio, v.costo, v.com, v.gan
+  ].map(escape).join(','));
+
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `cuanti-ventas-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 // ══════════════════════════════════════════════════════
