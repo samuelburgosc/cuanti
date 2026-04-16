@@ -1698,12 +1698,34 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
     <button class="btn sec" onclick="scCerrarPanel()" style="margin-top:4px;">Cerrar</button>
   </div>
 
-  <!-- Confirmación genérica -->
+  <!-- Confirmación genérica (ingreso, devolución, ajuste) -->
   <div id="sc-confirm-msg" style="display:none;text-align:center;padding:20px;background:var(--gdim);border:1px solid rgba(59,255,138,.2);border-radius:14px;margin-bottom:12px;">
     <div style="font-size:40px;margin-bottom:8px;" id="sc-confirm-icon">✅</div>
     <div style="font-family:'Archivo Black',sans-serif;font-size:16px;margin-bottom:4px;" id="sc-confirm-title">Listo</div>
     <div style="font-size:11px;color:var(--muted);" id="sc-confirm-detail">—</div>
     <button class="btn sec" onclick="scReset()" style="margin-top:14px;width:auto;padding:0 20px;">← Escanear otro</button>
+  </div>
+
+  <!-- Resultado post-venta (rich) -->
+  <div id="sc-venta-result" style="display:none;background:var(--sf);border:1px solid var(--bd);border-radius:16px;overflow:hidden;margin-bottom:12px;">
+    <div style="background:var(--gdim);border-bottom:1px solid rgba(30,158,99,.15);padding:22px 16px;text-align:center;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Ganaste</div>
+      <div id="scr-gan" style="font-family:'Archivo Black',sans-serif;font-size:54px;color:var(--green);letter-spacing:-3px;line-height:1;">$—</div>
+      <div id="scr-prod" style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.4;">—</div>
+    </div>
+    <div style="padding:14px 16px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+      <div>
+        <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Stock restante</div>
+        <div id="scr-stock" style="font-family:'DM Mono',monospace;font-size:15px;font-weight:700;">—</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Total cobrado</div>
+        <div id="scr-precio" style="font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:var(--text);">—</div>
+      </div>
+    </div>
+    <div style="padding:14px 16px 16px;">
+      <button class="btn sec" onclick="scReset()" style="margin:0;">← Escanear otro</button>
+    </div>
   </div>
 
   <div class="spacer"></div>
@@ -5181,6 +5203,7 @@ function scProcessCode(code) {
   scCerrarPanel();
   scLimpiarResultados();
   document.getElementById('sc-confirm-msg').style.display  = 'none';
+  document.getElementById('sc-venta-result').style.display = 'none';
   document.getElementById('sc-not-found').style.display    = 'none';
   document.getElementById('sc-found-card').classList.remove('show');
 
@@ -5317,7 +5340,7 @@ async function scConfirmarVenta() {
     fecha:`Hoy · ${nowHHMM()}`
   });
   renderDashboard(); renderHistorial(); updateInventarioStock();
-  scShowConfirm('🛍️','¡Venta registrada!',`${cant}× ${_scItem.nombre} · $${fmt(precio*cant)} · Ganancia $${fmt(gan)}`);
+  scShowVentaResult(gan, cant, _scItem.nombre, _scItem.variante, precio, live.stock);
 }
 
 async function scConfirmarIngreso() {
@@ -5404,6 +5427,7 @@ function scConfirmarTransfer() {
 function scShowConfirm(icon, title, detail) {
   scCerrarPanel();
   document.getElementById('sc-found-card').classList.remove('show');
+  document.getElementById('sc-venta-result').style.display = 'none';
   const msg = document.getElementById('sc-confirm-msg');
   document.getElementById('sc-confirm-icon').textContent   = icon;
   document.getElementById('sc-confirm-title').textContent  = title;
@@ -5412,6 +5436,37 @@ function scShowConfirm(icon, title, detail) {
   msg.style.borderColor = 'rgba(59,255,138,.2)';
   msg.style.display     = 'block';
   msg.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function scShowVentaResult(gan, cant, nombre, variante, precio, stock) {
+  scCerrarPanel();
+  document.getElementById('sc-found-card').classList.remove('show');
+  document.getElementById('sc-confirm-msg').style.display = 'none';
+
+  const ganEl = document.getElementById('scr-gan');
+  ganEl.textContent = '$' + fmt(Math.abs(gan));
+  ganEl.style.color = gan >= 0 ? 'var(--green)' : 'var(--red)';
+
+  const prodTxt = `${cant > 1 ? cant + '× ' : ''}${nombre}${variante && variante !== '—' ? ' · ' + variante : ''}`;
+  document.getElementById('scr-prod').textContent = prodTxt;
+
+  const stockEl = document.getElementById('scr-stock');
+  if (stock === 0) {
+    stockEl.textContent = '0 ud. — Agotado';
+    stockEl.style.color = 'var(--red)';
+  } else if (stock <= 2) {
+    stockEl.textContent = `${stock} ud. — Stock bajo`;
+    stockEl.style.color = 'var(--orange)';
+  } else {
+    stockEl.textContent = `${stock} ud.`;
+    stockEl.style.color = 'var(--green)';
+  }
+
+  document.getElementById('scr-precio').textContent = '$' + fmt(precio * cant);
+
+  const el = document.getElementById('sc-venta-result');
+  el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function scCerrarPanel() {
@@ -5424,9 +5479,11 @@ function scReset() {
   _scItem  = null;
   _scCanal = 'Sotos';
   document.getElementById('sc-found-card').classList.remove('show');
-  document.getElementById('sc-not-found').style.display   = 'none';
-  document.getElementById('sc-confirm-msg').style.display = 'none';
+  document.getElementById('sc-not-found').style.display    = 'none';
+  document.getElementById('sc-confirm-msg').style.display  = 'none';
+  document.getElementById('sc-venta-result').style.display = 'none';
   scCerrarPanel();
+  scLimpiarResultados();
   const inp = document.getElementById('sc-manual-input');
   if(inp) inp.value = '';
 }
