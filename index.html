@@ -3888,7 +3888,7 @@ async function ventaConfirmar() {
 
   // Paso 3 — resultado
   const set = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
-  set('vc-gan',  '$'+fmt(gan));
+  set('vc-gan',  (gan < 0 ? '−' : '') + '$'+fmt(Math.abs(gan)));
   set('vc-prod', `${s.nombre}${s.variante && s.variante !== '—' ? ' · '+s.variante : ''}`);
 
   // Color ganancia
@@ -3926,7 +3926,11 @@ async function ventaConfirmar() {
 
   // Acumulado del mes (incluye la venta actual)
   const ganMesTotal = ventasDB.filter(v => esVentaMes(v) && !v.nombre.startsWith('↩️')).reduce((s,v)=>s+v.gan,0);
-  set('vc-mes-total', '$'+fmt(ganMesTotal));
+  const vcMesEl = document.getElementById('vc-mes-total');
+  if(vcMesEl) {
+    vcMesEl.textContent = (ganMesTotal >= 0 ? '+' : '−') + '$' + fmt(Math.abs(ganMesTotal));
+    vcMesEl.style.color = ganMesTotal >= 0 ? 'var(--green)' : 'var(--red)';
+  }
 
   // Botón reponer stock
   const btnStock = document.getElementById('vc-btn-stock');
