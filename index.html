@@ -756,15 +756,13 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .conn-badge.err{background:var(--rdim);color:var(--red);border:1px solid rgba(255,68,68,.2);}
 .conn-badge-dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
 
-/* ─── CARD HOVER IMPROVEMENTS ─── */
+/* ─── CARD HOVER ─── */
 .card{transition:border-color .2s;}
-.pcard{transition:border-color .2s,transform .1s,box-shadow .2s;}
-.pcard:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.08);}
-.sale{transition:border-color .15s,transform .1s;}
-.sale:hover{transform:translateX(2px);}
-.ccard{transition:border-color .15s,transform .1s;}
-.ccard:hover{transform:translateY(-1px);}
-.scard{transition:border-color .15s,background .15s;}
+.pcard{transition:border-color .2s;}
+.pcard:hover{border-color:var(--bd2);}
+.sale{transition:border-color .15s;}
+.ccard{transition:border-color .15s;}
+.ccard:hover{border-color:var(--bd2);}
 
 /* ─── NOTIF ITEM ─── */
 .nitem{transition:background .15s;border-radius:9px;padding:11px 8px;}
@@ -2289,7 +2287,9 @@ function renderDashboard() {
   const gastosMes    = calcGastosMes();
   const gananciaReal = ganMes - gastosMes;
 
-  set('dash-hero-gan', '$'+fmt(gananciaReal));
+  set('dash-hero-gan', (gananciaReal < 0 ? '−' : '') + '$' + fmt(Math.abs(gananciaReal)));
+  const heroGanEl = document.getElementById('dash-hero-gan');
+  if(heroGanEl) heroGanEl.style.color = gananciaReal < 0 ? 'var(--red)' : 'var(--text)';
   set('dash-hero-mes', mesActual);
 
   const lbl = document.getElementById('dash-hero-lbl');
@@ -2366,7 +2366,7 @@ function renderDashboard() {
     const margenStrip  = ingMesStrip > 0 ? Math.round((ganMes / ingMesStrip) * 100) : null;
 
     strip.innerHTML =
-      statCard('Hoy', ventasHoy.length > 0 ? '+$'+fmt(ganHoy) : '$0', ventasHoy.length > 0 ? ventasHoy.length + ' venta' + (ventasHoy.length !== 1 ? 's' : '') : 'Sin ventas', 'historial') +
+      statCard('Hoy', ventasHoy.length > 0 ? (ganHoy>=0?'+':'−')+'$'+fmt(Math.abs(ganHoy)) : '$0', ventasHoy.length > 0 ? ventasHoy.length + ' venta' + (ventasHoy.length !== 1 ? 's' : '') : 'Sin ventas', 'historial') +
       statCard('Margen del mes', margenStrip !== null ? margenStrip + '%' : '—', margenStrip !== null ? 'de lo facturado' : 'Sin ventas', 'analisis') +
       statCard('Mejor canal', mejorCanal ? mejorCanal.split(' ')[0] : '—', mejorCanal ? '$'+fmt(porCanal[mejorCanal]) : 'Sin datos', 'analisis');
   }
@@ -4401,7 +4401,7 @@ function renderAnalisis(tab, btn) {
         <div class="chart-box">
           <div class="chart-hdr">
             <div><div class="chart-title">Ganancia por franja horaria</div></div>
-            <div><div class="chart-delta up">↑ ${margenPct}% margen</div></div>
+            <div><div class="chart-delta ${margenPct>=0?'up':'dn'}">${margenPct>=0?'↑':'↓'} ${Math.abs(margenPct)}% margen</div></div>
           </div>
           ${barChart(slotVals, slotLbl, 65, nowSlotIdx)}
         </div>
