@@ -35,7 +35,6 @@ const CATEGORIAS_GASTO = [
 let _dbReady = false;
 let _currentUser = null; // { id, nombre, email, rol: 'Dueño'|'Vendedor', local_id }
 let _pendingDeleteGastoId = null;
-let _pendingDeleteGastoTimer = null;
 
 // Cargar inventario desde Supabase
 async function cargarInventario() {
@@ -1292,6 +1291,9 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
       <div class="chip" onclick="histSelChip(this,'wsp')">💬 WhatsApp</div>
       <div class="chip" onclick="histSelChip(this,'fb')">📘 Facebook</div>
       <div class="chip" onclick="histSelChip(this,'pres')">🤝 Presencial</div>
+      <div class="chip" onclick="histSelChip(this,'transf')">📲 Transferencia</div>
+      <div class="chip" onclick="histSelChip(this,'efectivo')">💵 Efectivo</div>
+      <div class="chip" onclick="histSelChip(this,'tarjeta')">💳 Tarjeta</div>
     </div>
 
     <div id="hist-lista"></div>
@@ -1838,6 +1840,47 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
       <button class="btn" onclick="printLabel()">🖨 Imprimir</button>
       <button class="btn sec" onclick="document.getElementById('label-modal').style.display='none'" style="margin-top:8px;">Cancelar</button>
     </div>
+  </div>
+</div>
+
+<!-- ── SHEET EDITAR VENTA ── -->
+<div class="sheet-bd" id="edit-venta-bd" onclick="cerrarEditVenta()" style="display:none;"></div>
+<div class="sheet" id="edit-venta-sheet" style="display:none;">
+  <div class="sheet-handle" onclick="cerrarEditVenta()"></div>
+  <div style="padding:0 0 16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div style="font-family:'Archivo Black',sans-serif;font-size:16px;letter-spacing:-.2px;">Editar venta</div>
+      <div class="modal-close" onclick="cerrarEditVenta()" role="button" tabindex="0" aria-label="Cerrar">✕</div>
+    </div>
+    <div class="field"><label>Precio de venta</label><input id="ev-precio" type="number" inputmode="numeric" placeholder="0"></div>
+    <div class="mono-lbl" style="margin-bottom:9px;margin-top:4px;">Canal</div>
+    <div class="pill-group" id="ev-canal-grid">
+      <div class="pill" id="ev-sotos"  onclick="evSelCanal(this,'Sotos')">🏪 Sotos</div>
+      <div class="pill" id="ev-wsp"    onclick="evSelCanal(this,'WhatsApp')">💬 WhatsApp</div>
+      <div class="pill" id="ev-fb"     onclick="evSelCanal(this,'Facebook')">📘 Facebook</div>
+      <div class="pill" id="ev-pres"   onclick="evSelCanal(this,'Presencial')">🤝 Presencial</div>
+    </div>
+    <div class="mono-lbl" style="margin-bottom:9px;margin-top:4px;">Método de pago</div>
+    <div class="pill-group" id="ev-pago-grid">
+      <div class="pill" id="ev-transf" onclick="evSelPago(this,'Transferencia')">Transferencia</div>
+      <div class="pill" id="ev-efec"   onclick="evSelPago(this,'Efectivo')">Efectivo</div>
+      <div class="pill" id="ev-tdeb"   onclick="evSelPago(this,'Tarjeta débito')">T. Débito</div>
+      <div class="pill" id="ev-tcre"   onclick="evSelPago(this,'Tarjeta crédito')">T. Crédito</div>
+    </div>
+    <div id="ev-error" style="display:none;font-size:12px;color:var(--red);margin:8px 0;"></div>
+    <button class="btn" id="ev-guardar-btn" onclick="guardarEditVenta()" style="margin-top:12px;">Guardar cambios</button>
+  </div>
+</div>
+
+<!-- ── SHEET CONFIRMAR ELIMINAR GASTO ── -->
+<div class="sheet-bd" id="del-gasto-bd" onclick="cerrarDelGasto()" style="display:none;"></div>
+<div class="sheet" id="del-gasto-sheet" style="display:none;">
+  <div class="sheet-handle" onclick="cerrarDelGasto()"></div>
+  <div style="padding:0 0 8px;">
+    <div style="font-family:'Archivo Black',sans-serif;font-size:16px;margin-bottom:16px;letter-spacing:-.2px;">¿Eliminar este gasto?</div>
+    <div id="del-gasto-info" style="background:var(--sf2);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:18px;"></div>
+    <button class="btn danger" id="del-gasto-btn" onclick="confirmarDelGasto()" style="width:100%;">Eliminar gasto</button>
+    <button class="btn sec" onclick="cerrarDelGasto()" style="margin-top:8px;">Cancelar</button>
   </div>
 </div>
 
@@ -2589,7 +2632,10 @@ function renderHistorial(filtro) {
   if(histFiltro === 'sotos')  ventas = ventas.filter(v => v.canal === 'Sotos');
   if(histFiltro === 'wsp')    ventas = ventas.filter(v => v.canal === 'WhatsApp');
   if(histFiltro === 'fb')     ventas = ventas.filter(v => v.canal === 'Facebook');
-  if(histFiltro === 'pres')   ventas = ventas.filter(v => v.canal === 'Presencial');
+  if(histFiltro === 'pres')    ventas = ventas.filter(v => v.canal === 'Presencial');
+  if(histFiltro === 'transf')  ventas = ventas.filter(v => v.pago === 'Transferencia');
+  if(histFiltro === 'efectivo')ventas = ventas.filter(v => v.pago === 'Efectivo');
+  if(histFiltro === 'tarjeta') ventas = ventas.filter(v => (v.pago||'').startsWith('Tarjeta'));
   if(q) ventas = ventas.filter(v =>
     v.nombre.toLowerCase().includes(q) ||
     v.canal.toLowerCase().includes(q)  ||
@@ -2605,7 +2651,7 @@ function renderHistorial(filtro) {
   const cntEl  = document.getElementById('hist-stat-cnt');
   const lblEl  = document.getElementById('hist-resumen-lbl');
   const psubEl = document.getElementById('hist-psub');
-  const filtroLabel = { todo:'Todas las ventas', hoy:'Hoy', semana:'Este mes', sotos:'Sotos', wsp:'WhatsApp', fb:'Facebook', pres:'Presencial' };
+  const filtroLabel = { todo:'Todas las ventas', hoy:'Hoy', semana:'Este mes', sotos:'Sotos', wsp:'WhatsApp', fb:'Facebook', pres:'Presencial', transf:'Transferencia', efectivo:'Efectivo', tarjeta:'Tarjeta' };
   if(ganEl) { ganEl.textContent = '$'+fmt(totalGan); ganEl.style.color = totalGan >= 0 ? 'var(--green)' : 'var(--red)'; }
   if(ingEl) ingEl.textContent = '$'+fmt(totalIngresos);
   if(cntEl) cntEl.textContent = ventas.length;
@@ -2665,8 +2711,9 @@ function renderHistorial(filtro) {
             ? `−${v.descuento_valor}% dto.`
             : `−$${fmt(v.descuento_valor)} dto.`)
         : null;
+      const canEdit = _currentUser?.rol === 'Dueño' && !isDev;
       return `
-      <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--bd);${isDev?'opacity:.7;':''}">
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--bd);${isDev?'opacity:.7;':''}${canEdit?'cursor:pointer;':''}" ${canEdit ? `onclick="abrirEditVenta(${v.id})"` : ''}>
         <div style="width:36px;height:36px;background:${isDev?'var(--rdim)':'var(--sf2)'};border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">${v.icon}</div>
         <div style="flex:1;min-width:0;">
           <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${v.nombre}</div>
@@ -2679,6 +2726,7 @@ function renderHistorial(filtro) {
         <div style="text-align:right;flex-shrink:0;">
           <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:${v.gan>=0?'var(--green)':'var(--red)'};">${v.gan>=0?'+':''}$${fmt(v.gan)}</div>
           <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:1px;">$${fmt(Math.abs(v.precio))}</div>
+          ${canEdit ? `<div style="font-size:9px;color:var(--muted2);margin-top:2px;">Editar →</div>` : ''}
         </div>
       </div>`;
     }).join('');
@@ -2841,24 +2889,152 @@ async function guardarGasto() {
   renderDashboard();
 }
 
-async function eliminarGasto(id) {
-  if (_pendingDeleteGastoId !== id) {
-    _pendingDeleteGastoId = id;
-    clearTimeout(_pendingDeleteGastoTimer);
-    _pendingDeleteGastoTimer = setTimeout(() => { _pendingDeleteGastoId = null; }, 3000);
-    toast('Toca ✕ de nuevo para confirmar la eliminación.');
-    return;
+// ── Eliminar gasto con sheet de confirmación ──
+function eliminarGasto(id) {
+  const g = gastosDB.find(x => x.id === id);
+  if (!g) return;
+  _pendingDeleteGastoId = id;
+  const infoEl = document.getElementById('del-gasto-info');
+  if (infoEl) {
+    const cat = CATEGORIAS_GASTO.find(c => c.id === g.categoria_gasto);
+    infoEl.innerHTML = `
+      <div style="font-size:13px;font-weight:700;margin-bottom:4px;">${cat?.icon||'💸'} ${g.descripcion}</div>
+      <div style="font-size:12px;color:var(--red);font-family:'DM Mono',monospace;">−$${fmt(g.monto)}</div>
+      <div style="font-size:10px;margin-top:4px;">${g.fecha}</div>`;
   }
+  const bd = document.getElementById('del-gasto-bd');
+  const sh = document.getElementById('del-gasto-sheet');
+  if (bd) bd.style.display = '';
+  if (sh) { sh.style.display = ''; setTimeout(() => sh.classList.add('open'), 10); }
+}
+
+function cerrarDelGasto() {
   _pendingDeleteGastoId = null;
-  clearTimeout(_pendingDeleteGastoTimer);
+  const bd = document.getElementById('del-gasto-bd');
+  const sh = document.getElementById('del-gasto-sheet');
+  if (sh) sh.classList.remove('open');
+  setTimeout(() => { if (bd) bd.style.display = 'none'; if (sh) sh.style.display = 'none'; }, 300);
+}
+
+async function confirmarDelGasto() {
+  const id = _pendingDeleteGastoId;
+  if (!id) return;
+  const btn = document.getElementById('del-gasto-btn');
+  if (btn) { btn.textContent = '⏳ Eliminando…'; btn.disabled = true; }
   const { error } = await sb.from('gastos_generales').delete().eq('id', id);
-  if (error) { toast('Error al eliminar.', 'err'); console.error(error); return; }
+  if (btn) { btn.textContent = 'Eliminar gasto'; btn.disabled = false; }
+  if (error) { toast('Error al eliminar.', 'err'); return; }
   gastosDB = gastosDB.filter(g => g.id !== id);
+  cerrarDelGasto();
   toast('Gasto eliminado.', 'ok');
   renderDashboard();
-  // Re-renderizar gastos si el tab está activo
   const body = document.getElementById('analisis-body');
   if (body && _analisisTab === 'gastos') renderGastos(body);
+}
+
+// ── Editar venta desde historial (solo Dueño) ──
+let _evVentaId = null;
+let _evCanal   = 'Sotos';
+let _evPago    = 'Transferencia';
+
+function abrirEditVenta(id) {
+  const v = ventasDB.find(x => x.id === id);
+  if (!v) return;
+  _evVentaId = id;
+  _evCanal   = v.canal || 'Sotos';
+  _evPago    = v.pago  || 'Transferencia';
+
+  const precioEl = document.getElementById('ev-precio');
+  if (precioEl) precioEl.value = v.precio || '';
+
+  // Marcar canal activo
+  document.querySelectorAll('#ev-canal-grid .pill').forEach(p => p.classList.remove('sel'));
+  const canalMap = { Sotos:'ev-sotos', WhatsApp:'ev-wsp', Facebook:'ev-fb', Presencial:'ev-pres' };
+  const cBtn = document.getElementById(canalMap[_evCanal]);
+  if (cBtn) cBtn.classList.add('sel');
+
+  // Marcar pago activo
+  document.querySelectorAll('#ev-pago-grid .pill').forEach(p => p.classList.remove('sel'));
+  const pagoMap = { 'Transferencia':'ev-transf', 'Efectivo':'ev-efec', 'Tarjeta débito':'ev-tdeb', 'Tarjeta crédito':'ev-tcre' };
+  const pBtn = document.getElementById(pagoMap[_evPago]);
+  if (pBtn) pBtn.classList.add('sel');
+
+  const errEl = document.getElementById('ev-error');
+  if (errEl) errEl.style.display = 'none';
+
+  const bd = document.getElementById('edit-venta-bd');
+  const sh = document.getElementById('edit-venta-sheet');
+  if (bd) bd.style.display = '';
+  if (sh) { sh.style.display = ''; setTimeout(() => sh.classList.add('open'), 10); }
+  setTimeout(() => document.getElementById('ev-precio')?.focus(), 160);
+}
+
+function cerrarEditVenta() {
+  _evVentaId = null;
+  const bd = document.getElementById('edit-venta-bd');
+  const sh = document.getElementById('edit-venta-sheet');
+  if (sh) sh.classList.remove('open');
+  setTimeout(() => { if (bd) bd.style.display = 'none'; if (sh) sh.style.display = 'none'; }, 300);
+}
+
+function evSelCanal(el, nombre) {
+  _evCanal = nombre;
+  document.querySelectorAll('#ev-canal-grid .pill').forEach(p => p.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function evSelPago(el, nombre) {
+  _evPago = nombre;
+  document.querySelectorAll('#ev-pago-grid .pill').forEach(p => p.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+async function guardarEditVenta() {
+  if (!_evVentaId) return;
+  const v = ventasDB.find(x => x.id === _evVentaId);
+  if (!v) return;
+
+  const precio = parseInt(document.getElementById('ev-precio')?.value) || 0;
+  if (!precio) {
+    const errEl = document.getElementById('ev-error');
+    if (errEl) { errEl.textContent = 'Ingresa el precio.'; errEl.style.display = ''; }
+    return;
+  }
+
+  // Recalcular ganancia con nuevo precio y canal
+  const sku    = skuDB.find(s => s.sku === v.sku);
+  const costo  = sku?.costo || v.costo || 0;
+  const com    = _evCanal === 'Sotos' ? Math.min(Math.round(precio * 0.15), 10000) : 0;
+  const gan    = (precio - com) - costo;
+
+  const btn = document.getElementById('ev-guardar-btn');
+  if (btn) { btn.textContent = '⏳ Guardando…'; btn.disabled = true; }
+
+  const { error } = await sb.from('ventas').update({
+    canal:       _evCanal,
+    metodo_pago: _evPago,
+  }).eq('id', _evVentaId);
+
+  // Actualizar precio en detalle_ventas
+  const { error: e2 } = await sb.from('detalle_ventas').update({
+    precio_unitario: precio,
+    costo_unitario:  costo,
+  }).eq('venta_id', _evVentaId);
+
+  if (btn) { btn.textContent = 'Guardar cambios'; btn.disabled = false; }
+
+  if (error || e2) { toast('Error al guardar.', 'err'); console.error(error || e2); return; }
+
+  // Actualizar cache local
+  const idx = ventasDB.findIndex(x => x.id === _evVentaId);
+  if (idx !== -1) {
+    ventasDB[idx] = { ...ventasDB[idx], precio, canal: _evCanal, pago: _evPago, gan, com: com * (ventasDB[idx].cantidad || 1) };
+  }
+
+  cerrarEditVenta();
+  toast('Venta actualizada.', 'ok');
+  renderHistorial();
+  renderDashboard();
 }
 
 function renderClientes() {
