@@ -2569,7 +2569,7 @@ function renderDashboard() {
               <div style="font-size:10px;color:var(--muted);">${v.fecha.split(' · ').slice(1).join(' · ')} · ${v.canal}</div>
             </div>
             <div style="text-align:right;flex-shrink:0;">
-              <div style="font-size:11px;color:var(--green);font-family:'DM Mono',monospace;font-weight:600;">+$${fmt(v.gan)}</div>
+              <div style="font-size:11px;color:${v.gan>=0?'var(--green)':'var(--red)'};font-family:'DM Mono',monospace;font-weight:600;">${v.gan>=0?'+':'−'}$${fmt(Math.abs(v.gan))}</div>
               <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;">$${fmt(v.precio)}</div>
             </div>
           </div>`).join('')}`;
@@ -2674,7 +2674,7 @@ function renderHistorial(filtro) {
   const lblEl  = document.getElementById('hist-resumen-lbl');
   const psubEl = document.getElementById('hist-psub');
   const filtroLabel = { todo:'Todas las ventas', hoy:'Hoy', semana:'Este mes', sotos:'Sotos', wsp:'WhatsApp', fb:'Facebook', pres:'Presencial', transf:'Transferencia', efectivo:'Efectivo', tarjeta:'Tarjeta' };
-  if(ganEl) { ganEl.textContent = '$'+fmt(totalGan); ganEl.style.color = totalGan >= 0 ? 'var(--green)' : 'var(--red)'; }
+  if(ganEl) { ganEl.textContent = (totalGan>=0?'+':'−')+'$'+fmt(Math.abs(totalGan)); ganEl.style.color = totalGan >= 0 ? 'var(--green)' : 'var(--red)'; }
   if(ingEl) ingEl.textContent = '$'+fmt(totalIngresos);
   if(cntEl) cntEl.textContent = ventas.length;
   if(lblEl) lblEl.textContent = filtroLabel[histFiltro] || 'Resultados';
@@ -3920,7 +3920,7 @@ async function ventaConfirmar() {
     rows += row('Costo del producto', '−$'+fmt((s.costo||0)*cant));
     if(com > 0) rows += row('Comisión Sotos', '−$'+fmt(com*cant));
     rows += sep;
-    rows += row('Tu ganancia', '$'+fmt(gan), gan>=0?'var(--green)':'var(--red)');
+    rows += row('Tu ganancia', (gan>=0?'+':'−')+'$'+fmt(Math.abs(gan)), gan>=0?'var(--green)':'var(--red)');
     desgloseEl.innerHTML = rows;
   }
 
@@ -4365,7 +4365,7 @@ function renderAnalisis(tab, btn) {
       <!-- Hero: ganancia del día -->
       <div style="background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:20px 18px;margin-bottom:12px;">
         <div style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:700;margin-bottom:6px;">Ganancia hoy</div>
-        <div style="font-family:'Archivo Black',sans-serif;font-size:36px;letter-spacing:-.5px;color:${gan>=0?'var(--text)':'var(--red)'};">${gan>=0?'+':''}$${fmt(Math.abs(gan))}</div>
+        <div style="font-family:'Archivo Black',sans-serif;font-size:36px;letter-spacing:-.5px;color:${gan>=0?'var(--text)':'var(--red)'};">${gan>=0?'+':'−'}$${fmt(Math.abs(gan))}</div>
         <div style="display:flex;gap:16px;margin-top:10px;">
           <div style="font-size:11px;color:var(--muted);">${hoy.length} venta${hoy.length!==1?'s':''}</div>
           <div style="font-size:11px;color:var(--muted);">${margenPct}% margen</div>
