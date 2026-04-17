@@ -4481,7 +4481,7 @@ function renderAnalisis(tab, btn) {
       </div>
       <div class="chart-box">
         <div class="chart-hdr">
-          <div><div class="chart-title">Ganancia por día · semana actual</div><div class="chart-val" style="font-size:18px;">$${fmt(totalSem)}</div></div>
+          <div><div class="chart-title">Ganancia por día · semana actual</div><div class="chart-val" style="font-size:18px;color:${totalSem<0?'var(--red)':'var(--text)'};">${totalSem<0?'−':''}$${fmt(Math.abs(totalSem))}</div></div>
         </div>
         ${barChart(diaGan, dias, 70, (todayDow+6)%7)}
       </div>
