@@ -865,6 +865,12 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .action-btn.venta .ab-lbl{color:var(--text);font-weight:700;}
 .size-opt .so-size{color:var(--text);}
 .size-opt.on .so-size{color:var(--text);font-weight:700;}
+.sku-code{color:var(--muted);}
+.sku-price-tag{color:var(--text);}
+.scan-input{color:var(--text);}
+.scan-manual-input{color:var(--text);}
+.alert.yellow .alert-stock{color:var(--text);}
+.ni.on .nlbl{color:var(--text);font-weight:700;}
 /* Urgency items — dashboard acciones */
 .urgency-item{display:flex;align-items:center;gap:10px;padding:12px 13px;margin-bottom:7px;border-radius:12px;border:1px solid transparent;}
 .urgency-item.red{background:rgba(216,75,75,.06);border-color:rgba(216,75,75,.18);}
@@ -1087,7 +1093,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
       <div id="v-desc-toggle" onclick="ventaToggleDescuento()"
         style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--sf2);border:1px dashed var(--bd2);border-radius:10px;cursor:pointer;">
         <span style="font-size:12px;color:var(--muted);">Aplicar descuento</span>
-        <span id="v-desc-toggle-icon" style="font-size:18px;color:var(--accent);font-weight:700;line-height:1;">＋</span>
+        <span id="v-desc-toggle-icon" style="font-size:18px;color:var(--muted);font-weight:700;line-height:1;">＋</span>
       </div>
       <div id="v-desc-panel" style="display:none;margin-top:8px;">
         <div style="display:flex;gap:8px;align-items:flex-end;">
@@ -1133,7 +1139,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
       <div id="v-cliente-toggle" onclick="ventaToggleCliente()"
         style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--sf2);border:1px dashed var(--bd2);border-radius:10px;cursor:pointer;">
         <span style="font-size:12px;color:var(--muted);">¿Quién compra? (opcional)</span>
-        <span id="v-cliente-toggle-icon" style="font-size:18px;color:var(--accent);font-weight:700;line-height:1;">＋</span>
+        <span id="v-cliente-toggle-icon" style="font-size:18px;color:var(--muted);font-weight:700;line-height:1;">＋</span>
       </div>
       <div id="v-cliente-panel" style="display:none;margin-top:8px;">
         <div class="field" style="margin-bottom:0;position:relative;">
@@ -1185,7 +1191,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
       <!-- acumulado del mes -->
       <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:13px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
         <span style="font-size:13px;color:var(--muted);">Ganado este mes</span>
-        <span id="vc-mes-total" style="font-size:14px;font-family:'DM Mono',monospace;color:var(--accent);font-weight:600;">—</span>
+        <span id="vc-mes-total" style="font-size:14px;font-family:'DM Mono',monospace;color:var(--green);font-weight:600;">—</span>
       </div>
 
       <div id="vc-insight" style="margin-bottom:4px;"></div>
@@ -4024,7 +4030,7 @@ function calcCostoUnit() {
   const el    = document.getElementById('nc-costo-unit');
   if(total > 0 && uds > 0) {
     el.value = Math.round(total/uds);
-    el.style.color = 'var(--accent)';
+    el.style.color = 'var(--green)';
   } else {
     el.value = '';
     el.style.color = 'var(--muted)';
@@ -4677,12 +4683,12 @@ function renderAnalisis(tab, btn) {
           const pct = maxGan > 0 ? Math.max(0, Math.round((real/maxGan)*100)) : 0;
           const isCur = i === mesesOrden.length-1;
           return `<div class="prow" style="align-items:flex-start;padding:6px 0;">
-            <div class="pkey" style="padding-top:2px;${isCur?'color:var(--accent);font-weight:700;':''}">${m.label}</div>
+            <div class="pkey" style="padding-top:2px;${isCur?'color:var(--text);font-weight:700;':''}">${m.label}</div>
             <div style="flex:1;padding:0 8px;">
-              <div class="pbar-wrap"><div class="pbar" style="width:${pct}%;background:${isCur?'var(--accent)':'var(--muted)'};transition:width .4s;"></div></div>
+              <div class="pbar-wrap"><div class="pbar" style="width:${pct}%;background:${isCur?'var(--text)':'var(--muted)'};transition:width .4s;"></div></div>
               ${m.gastos > 0 ? `<div style="font-size:9px;color:var(--muted);margin-top:3px;">Ventas $${fmt(m.gan)} − Gastos $${fmt(m.gastos)}</div>` : ''}
             </div>
-            <div class="pval" style="color:${isCur?'var(--accent)':real>=0?'var(--muted)':'var(--red)'};">$${fmt(real)}</div>
+            <div class="pval" style="color:${isCur?'var(--text)':real>=0?'var(--muted)':'var(--red)'};">$${fmt(real)}</div>
           </div>`;
         }).join('')}
       </div>
