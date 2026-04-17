@@ -4402,7 +4402,7 @@ function renderAnalisis(tab, btn) {
           <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Ventas del día</div>
           ${hoy.map(v=>`<div class="trow">
             <div style="font-size:20px;width:28px;flex-shrink:0;">${v.icon}</div>
-            <div class="tinfo"><div class="tname">${v.nombre}</div><div class="tunits">${v.fecha.split('·')[1]?.trim()||''} · ${v.canal} · ${v.pago}</div></div>
+            <div class="tinfo"><div class="tname">${v.nombre}</div><div class="tunits">${v.fecha.split('·')[1]?.trim()||''} · ${v.canal}${v.pago&&v.pago!=='—'?' · '+v.pago:''}</div></div>
             <div class="tamt"><div class="trev">$${fmt(v.precio)}</div><div class="tmrg" style="color:var(--green);">+$${fmt(v.gan)}</div></div>
           </div>`).join('')}
         </div>
@@ -5804,14 +5804,13 @@ async function cargarDatos() {
   if(loadEl) loadEl.style.display = 'flex';
 
   try {
-    if(loadStep) loadStep.textContent = 'Cargando inventario…';
-    await cargarInventario();
-    if(loadStep) loadStep.textContent = 'Cargando ventas…';
-    await cargarVentas();
-    if(loadStep) loadStep.textContent = 'Cargando clientes…';
-    await cargarClientes();
-    if(loadStep) loadStep.textContent = 'Cargando gastos…';
-    await cargarGastos();
+    if(loadStep) loadStep.textContent = 'Cargando datos…';
+    await Promise.all([
+      cargarInventario(),
+      cargarVentas(),
+      cargarClientes(),
+      cargarGastos(),
+    ]);
     _dbReady = true;
   } catch(e) {
     console.error('Error cargando datos:', e);
