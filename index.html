@@ -2154,7 +2154,11 @@ function aplicarRol() {
   const configRolEl  = document.getElementById('config-user-rol');
   if(configNombre) configNombre.textContent = _currentUser.nombre;
   if(configEmail)  configEmail.textContent  = _currentUser.email;
-  if(configRolEl)  configRolEl.textContent  = _currentUser.rol === 'Dueño' ? 'Dueño' : 'Vendedor';
+  if(configRolEl) {
+    const esDue = _currentUser.rol === 'Dueño';
+    configRolEl.textContent = esDue ? 'Dueño' : 'Vendedor';
+    configRolEl.className = esDue ? 'role owner' : 'role seller';
+  }
 }
 
 function goTo(id) {
@@ -5025,8 +5029,7 @@ async function refreshData() {
   const btn = document.getElementById('btn-refresh');
   if(btn) { btn.style.opacity = '.4'; btn.style.pointerEvents = 'none'; }
   try {
-    await cargarInventario();
-    await cargarVentas();
+    await Promise.all([cargarInventario(), cargarVentas(), cargarGastos()]);
     _dbReady = true;
     renderDashboard();
     renderHistorial();
