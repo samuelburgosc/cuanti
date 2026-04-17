@@ -2678,7 +2678,7 @@ function renderHistorial(filtro) {
   if(ingEl) ingEl.textContent = '$'+fmt(totalIngresos);
   if(cntEl) cntEl.textContent = ventas.length;
   if(lblEl) lblEl.textContent = filtroLabel[histFiltro] || 'Resultados';
-  if(psubEl) psubEl.textContent = ventas.length === 0 ? 'Sin ventas en este período' : `${ventas.length} venta${ventas.length!==1?'s':''} · +$${fmt(totalGan)} de ganancia`;
+  if(psubEl) psubEl.textContent = ventas.length === 0 ? 'Sin ventas en este período' : `${ventas.length} venta${ventas.length!==1?'s':''} · ${totalGan>=0?'+':'−'}$${fmt(Math.abs(totalGan))} de ganancia`;
 
   if(ventas.length === 0) {
     const msgs = {
@@ -2746,7 +2746,7 @@ function renderHistorial(filtro) {
           </div>
         </div>
         <div style="text-align:right;flex-shrink:0;">
-          <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:${v.gan>=0?'var(--green)':'var(--red)'};">${v.gan>=0?'+':''}$${fmt(v.gan)}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:${v.gan>=0?'var(--green)':'var(--red)'};">${v.gan>=0?'+':'−'}$${fmt(Math.abs(v.gan))}</div>
           <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:1px;">$${fmt(Math.abs(v.precio))}</div>
           ${canEdit ? `<div style="font-size:9px;color:var(--muted2);margin-top:2px;">Editar →</div>` : ''}
         </div>
@@ -3157,7 +3157,7 @@ function renderDetalleCliente(clienteId) {
             <div style="font-size:13px;font-weight:600;">${v.nombre}</div>
             <div style="font-size:10px;color:var(--muted);margin-top:2px;">${v.fecha} · ${v.canal}</div>
           </div>
-          <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:${v.gan>=0?'var(--green)':'var(--red)'};">${v.gan>=0?'+':''}$${fmt(v.gan)}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:${v.gan>=0?'var(--green)':'var(--red)'};">${v.gan>=0?'+':'−'}$${fmt(Math.abs(v.gan))}</div>
         </div>`).join('')
     }`;
 }
