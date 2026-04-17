@@ -4474,7 +4474,7 @@ function renderAnalisis(tab, btn) {
     setBody(`
       ${semInsight ? insightBox(semInsight) : ''}
       <div class="sgrid" style="margin-bottom:12px;">
-        <div class="scard a"><span class="si">💰</span><div class="sv">$${fmt(totalSem)}</div><div class="sl">Ganancia semana</div></div>
+        <div class="scard a"><span class="si">💰</span><div class="sv" style="color:${totalSem<0?'var(--red)':'var(--text)'};">${totalSem<0?'−':''}$${fmt(Math.abs(totalSem))}</div><div class="sl">Ganancia semana</div></div>
         <div class="scard"><span class="si">🛍️</span><div class="sv">${nVentas}</div><div class="sl">Ventas</div></div>
         <div class="scard g"><span class="si">🎯</span><div class="sv">${margen}%</div><div class="sl">Margen</div></div>
         <div class="scard b"><span class="si">🎟️</span><div class="sv">$${fmt(ticket)}</div><div class="sl">Ticket prom.</div></div>
@@ -4544,7 +4544,7 @@ function renderAnalisis(tab, btn) {
     setBody(`
       ${mesInsight ? insightBox(mesInsight) : ''}
       <div class="sgrid" style="margin-bottom:12px;">
-        <div class="scard a"><span class="si">💰</span><div class="sv">$${fmt(gan)}</div><div class="sl">Ganancia ${mesLabel}</div></div>
+        <div class="scard a"><span class="si">💰</span><div class="sv" style="color:${gan<0?'var(--red)':'var(--text)'};">${gan<0?'−':''}$${fmt(Math.abs(gan))}</div><div class="sl">Ganancia ${mesLabel}</div></div>
         <div class="scard"><span class="si">🛍️</span><div class="sv">${nV}</div><div class="sl">Ventas del mes</div></div>
         <div class="scard g"><span class="si">🎯</span><div class="sv">${margen}%</div><div class="sl">Margen</div></div>
         <div class="scard b"><span class="si">🎟️</span><div class="sv">$${fmt(ticket)}</div><div class="sl">Ticket prom.</div></div>
@@ -4666,7 +4666,7 @@ function renderAnalisis(tab, btn) {
       ${histInsight ? insightBox(histInsight) : ''}
       <!-- KPIs totales -->
       <div class="sgrid" style="margin-bottom:12px;">
-        <div class="scard a"><span class="si">💰</span><div class="sv" style="font-size:14px;">$${fmt(totalAcum)}</div><div class="sl">${tieneGastos?'Ganancia real total':'Ganancia total'}</div></div>
+        <div class="scard a"><span class="si">💰</span><div class="sv" style="font-size:14px;color:${totalAcum<0?'var(--red)':'var(--text)'};">${totalAcum<0?'−':''}$${fmt(Math.abs(totalAcum))}</div><div class="sl">${tieneGastos?'Ganancia real total':'Ganancia total'}</div></div>
         <div class="scard"><span class="si">🛍️</span><div class="sv">${ventas.length}</div><div class="sl">Ventas totales</div></div>
         <div class="scard g"><span class="si">📅</span><div class="sv">${mesesOrden.length}</div><div class="sl">Meses activo</div></div>
         <div class="scard b"><span class="si">🎟️</span><div class="sv" style="font-size:14px;">$${fmt(ventas.length>0?Math.round(ingTotal/ventas.length):0)}</div><div class="sl">Ticket prom.</div></div>
