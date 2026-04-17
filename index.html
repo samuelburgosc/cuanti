@@ -3530,11 +3530,11 @@ function ventaRenderInventario(filter='') {
         <div style="font-size:12px;color:var(--muted);">No hay productos que coincidan con "${q}"</div>
       </div>`;
     } else {
-      lista.innerHTML = `<div style="text-align:center;padding:36px 0 20px;">
-        <div style="font-size:42px;margin-bottom:12px;opacity:.5;">📦</div>
-        <div style="font-family:'Archivo Black',sans-serif;font-size:16px;margin-bottom:8px;">No hay productos todavía</div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.6;max-width:240px;margin-inline:auto;">
-          Para empezar, crea un SKU con el precio y el costo de tu primer producto.
+      lista.innerHTML = `<div style="text-align:center;padding:40px 16px 24px;">
+        <div style="font-size:48px;margin-bottom:14px;">📦</div>
+        <div style="font-family:'Archivo Black',sans-serif;font-size:17px;margin-bottom:8px;letter-spacing:-.3px;">Agrega tu primer producto</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:22px;line-height:1.7;max-width:240px;margin-inline:auto;">
+          Ponle nombre, cuánto lo vendés y cuánto te costó.<br>Cuanti hace el resto.
         </div>
         <button class="btn" style="width:auto;padding:13px 28px;font-size:13px;margin:0;" onclick="goTo('skus')">
           + Crear primer producto →
@@ -4694,7 +4694,19 @@ function renderAnalisis(tab, btn) {
     // Top valor en stock (mayor inversión inmovilizada)
     const topValor = [...skuDB].filter(s=>s.stock>0).sort((a,b)=>(b.precio*b.stock)-(a.precio*a.stock)).slice(0,5);
 
+    // Insight: producto más rentable con stock disponible
+    const conStock = skuDB.filter(s => s.stock > 0 && s.costo > 0 && s.precio > s.costo);
+    const mejorMrg = conStock.length > 0
+      ? [...conStock].sort((a,b) => ((b.precio-b.costo)/b.precio) - ((a.precio-a.costo)/a.precio))[0]
+      : null;
+    const stockInsight = mejorMrg
+      ? `<b>${mejorMrg.nombre}</b> te deja el mejor margen: ${Math.round(((mejorMrg.precio-mejorMrg.costo)/mejorMrg.precio)*100)}% de ganancia por unidad. Prioriza venderlo.`
+      : agotados.length > 0
+        ? `Tienes ${agotados.length} producto${agotados.length!==1?'s':''} agotado${agotados.length!==1?'s':''}. Reponer para no perder ventas.`
+        : null;
+
     setBody(`
+      ${stockInsight ? insightBox(stockInsight) : ''}
       <!-- KPIs de inventario -->
       <div class="sgrid" style="margin-bottom:12px;">
         <div class="scard a"><span class="si">💎</span><div class="sv" style="font-size:14px;">$${fmt(ganPotencial)}</div><div class="sl">Ganancia potencial</div></div>
@@ -4953,11 +4965,13 @@ async function renderCompras() {
       .limit(30);
     if(error) throw error;
     if(!data || data.length === 0) {
-      el.innerHTML = `<div style="text-align:center;padding:32px 0;">
-        <div style="font-size:38px;margin-bottom:10px;">📦</div>
-        <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;">Sin lotes registrados</div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Registra tu primer lote de inventario.</div>
-        <button class="btn" style="width:auto;padding:10px 22px;" onclick="goTo('nueva-compra')">+ Registrar compra</button>
+      el.innerHTML = `<div style="text-align:center;padding:40px 16px 24px;">
+        <div style="font-size:48px;margin-bottom:14px;">🛒</div>
+        <div style="font-family:'Archivo Black',sans-serif;font-size:17px;margin-bottom:8px;letter-spacing:-.3px;">Sin lotes registrados</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:22px;line-height:1.7;max-width:240px;margin-inline:auto;">
+          Registra tus compras para saber cuánto te costó el stock y cuánto ganás.
+        </div>
+        <button class="btn" style="width:auto;padding:13px 28px;font-size:13px;margin:0;" onclick="goTo('nueva-compra')">+ Registrar compra →</button>
       </div>`;
       return;
     }
