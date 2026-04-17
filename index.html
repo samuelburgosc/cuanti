@@ -260,7 +260,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
 /* ─── STAT GRID ─── */
 .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px;}
-.scard{background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:13px;cursor:pointer;transition:border-color .15s,background .15s;}
+.scard{background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:13px;transition:border-color .15s,background .15s;}
 .scard:hover{border-color:var(--bd2);background:var(--sf2);}
 .scard .si{font-size:17px;margin-bottom:7px;display:block;}
 .scard .sv{font-family:'Archivo Black',sans-serif;font-size:18px;letter-spacing:-.5px;line-height:1;margin-bottom:3px;}
@@ -304,7 +304,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .chart-box{background:var(--sf);border:1px solid var(--bd);border-radius:15px;padding:16px;margin-bottom:11px;}
 .chart-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
 .chart-title{font-size:11px;color:var(--muted);margin-bottom:3px;}
-.chart-val{font-family:'Archivo Black',sans-serif;font-size:22px;letter-spacing:-.5px;color:var(--accent);}
+.chart-val{font-family:'Archivo Black',sans-serif;font-size:22px;letter-spacing:-.5px;color:var(--text);}
 .chart-delta{font-family:'DM Mono',monospace;font-size:12px;}
 .chart-delta.up{color:var(--green);}
 .chart-delta.dn{color:var(--red);}
@@ -418,9 +418,9 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .steps{display:flex;align-items:center;gap:6px;margin-bottom:20px;}
 .sdot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;font-family:'DM Mono',monospace;border:1.5px solid var(--bd);color:var(--muted);flex-shrink:0;transition:all .2s;}
 .sdot.on{background:var(--accent);border-color:var(--accent);color:var(--text);}
-.sdot.dn{background:var(--adim);border-color:rgba(215,240,46,.3);color:var(--accent);}
+.sdot.dn{background:var(--gdim);border-color:rgba(30,158,99,.25);color:var(--green);}
 .sline{flex:1;height:1px;background:var(--bd);transition:background .2s;}
-.sline.dn{background:rgba(215,240,46,.3);}
+.sline.dn{background:rgba(30,158,99,.25);}
 
 /* ─── SUMMARY ─── */
 .sum-card{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:13px;}
@@ -487,7 +487,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .uname{font-size:13px;font-weight:600;margin-bottom:2px;}
 .umeta{font-size:10px;color:var(--muted);}
 .role{font-size:9px;padding:3px 9px;border-radius:18px;font-weight:700;font-family:'DM Mono',monospace;letter-spacing:.5px;}
-.role.owner{background:var(--adim);color:var(--accent);border:1px solid rgba(215,240,46,.2);}
+.role.owner{background:var(--accent);color:var(--text);border:1px solid rgba(215,240,46,.4);}
 .role.admin{background:var(--bdim2);color:var(--blue);border:1px solid rgba(77,159,255,.2);}
 .role.seller{background:var(--sf2);color:var(--muted);border:1px solid var(--bd);}
 
@@ -764,8 +764,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .sale:hover{transform:translateX(2px);}
 .ccard{transition:border-color .15s,transform .1s;}
 .ccard:hover{transform:translateY(-1px);}
-.scard{transition:border-color .15s,transform .1s,box-shadow .2s,background .15s;}
-.scard:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.07);}
+.scard{transition:border-color .15s,background .15s;}
 
 /* ─── NOTIF ITEM ─── */
 .nitem{transition:background .15s;border-radius:9px;padding:11px 8px;}
@@ -816,7 +815,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .insight-box{background:rgba(180,200,0,.07);border-color:rgba(180,200,0,.25);}
 /* Chips y tabs activos — amarillo solo en activo */
 .chip.on{background:var(--accent);border-color:var(--accent);color:var(--text);}
-.pb.on{background:var(--accent);color:var(--text);border-radius:8px;}
+.pb.on{background:var(--accent);color:var(--text);border-radius:8px;font-weight:700;}
 /* Cards */
 .card.a{background:var(--adim);border-color:var(--bd);}
 /* Textos que antes usaban accent */
@@ -826,6 +825,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .sec-link{color:var(--muted);}
 .mono-lbl{color:var(--muted);letter-spacing:.3px;text-transform:none;font-size:11px;}
 .trev{color:var(--green);}
+.trank.f{color:var(--text);font-weight:700;}
 .sku-code{color:var(--text);font-weight:700;}
 .sku-price-tag{color:var(--text);}
 .scan-input{color:var(--text);}
@@ -853,8 +853,18 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 #dash-last-sales .sale-thumb{background:var(--sf2);}
 /* Scan */
 .scan-found-stock{color:var(--green);}
+.scan-found-sku{color:var(--muted);}
 .scan-area{background:var(--sf2);border-color:var(--bd2);}
 .scan-area.active-scan{border-color:var(--accent);background:var(--adim);}
+/* Texto sobre fondo claro — amarillo ilegible, usar colores con contraste */
+.corigen{color:var(--muted);}
+.oprice{color:var(--text);}
+.check{color:var(--green);}
+.t-l1{background:var(--accent);color:var(--text);border-color:rgba(215,240,46,.4);}
+.sku-btn.print{color:var(--muted);}
+.action-btn.venta .ab-lbl{color:var(--text);font-weight:700;}
+.size-opt .so-size{color:var(--text);}
+.size-opt.on .so-size{color:var(--text);font-weight:700;}
 /* Urgency items — dashboard acciones */
 .urgency-item{display:flex;align-items:center;gap:10px;padding:12px 13px;margin-bottom:7px;border-radius:12px;border:1px solid transparent;}
 .urgency-item.red{background:rgba(216,75,75,.06);border-color:rgba(216,75,75,.18);}
@@ -2539,7 +2549,7 @@ function renderDashboard() {
         return `
           <div style="display:flex;align-items:center;justify-content:space-between;margin:10px 0 6px;">
             <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:${esCurr ? 'var(--text)' : 'var(--muted)'};">${dia}</div>
-            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--green);font-weight:600;">+$${fmt(g.gan)}</div>
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:${g.gan>=0?'var(--green)':'var(--red)'};font-weight:600;">${g.gan>=0?'+':'−'}$${fmt(Math.abs(g.gan))}</div>
           </div>
           ${g.items.map(v => `
           <div style="display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--bd);cursor:pointer;" onclick="goTo('historial')">
@@ -2737,7 +2747,7 @@ function renderHistorial(filtro) {
     <div style="margin-bottom:4px;">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0 4px;">
         <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:${esCurr?'var(--text)':'var(--muted)'};">${dia}</div>
-        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--green);font-weight:600;">+$${fmt(g.gan)}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:${g.gan>=0?'var(--green)':'var(--red)'};font-weight:600;">${g.gan>=0?'+':'−'}$${fmt(Math.abs(g.gan))}</div>
       </div>
       <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:0 12px;">
         ${filas}
@@ -4218,11 +4228,11 @@ function renderAnalisis(tab, btn) {
         const isBest = i === maxIdx && v > 0;
         const isNeg  = v < 0;
         const showVal = v > 0 && (isBest || isNow);
-        const valColor = isNow ? 'color:var(--accent);' : 'color:var(--muted);';
+        const valColor = isNow ? 'color:var(--text);font-weight:700;' : 'color:var(--muted);';
         return `<div class="bcol">
           <div class="bval" style="${valColor}">${showVal ? fmt1k(v) : ''}</div>
           <div class="b ${isNeg?'neg':isNow?'cur':'pst'}" style="height:${pxH}px;animation-delay:${i*40}ms;"></div>
-          <div class="blbl" style="${isNow?'color:var(--accent);font-weight:700;':''}">${labels[i]}</div>
+          <div class="blbl" style="${isNow?'color:var(--text);font-weight:700;':''}">${labels[i]}</div>
         </div>`;
       }).join('')}
     </div>`;
@@ -5158,7 +5168,7 @@ async function crearSku() {
     // 2. Crear variante con el SKU
     const { data: variante, error: e2 } = await sb
       .from('variantes')
-      .insert({ sku, producto_id: prod.id, talla_color: varv, local_id: 1, stock_actual: 0, costo_ultima_compra: costo, activa: true })
+      .insert({ sku, producto_id: prod.id, talla_color: varv, local_id: _currentUser?.local_id || 1, stock_actual: 0, costo_ultima_compra: costo, activa: true })
       .select()
       .single();
     if(e2) throw e2;
