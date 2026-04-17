@@ -125,6 +125,7 @@ async function cargarVentas() {
       nombre:   d.variantes?.productos?.nombre || '—',
       variante: d.variantes?.talla_color || '—',
       icon:     iconMap[d.variantes?.productos?.categorias?.nombre] || '📦',
+      cantidad: d.cantidad,
       precio:   d.precio_unitario * d.cantidad,
       costo:    d.costo_unitario * d.cantidad,
       com, gan,
@@ -1852,7 +1853,8 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
       <div style="font-family:'Archivo Black',sans-serif;font-size:16px;letter-spacing:-.2px;">Editar venta</div>
       <div class="modal-close" onclick="cerrarEditVenta()" role="button" tabindex="0" aria-label="Cerrar">✕</div>
     </div>
-    <div class="field"><label>Precio de venta</label><input id="ev-precio" type="number" inputmode="numeric" placeholder="0"></div>
+    <div id="ev-producto-lbl" style="font-size:11px;color:var(--muted);margin-bottom:12px;"></div>
+    <div class="field"><label>Precio total cobrado</label><input id="ev-precio" type="number" inputmode="numeric" placeholder="0"></div>
     <div class="mono-lbl" style="margin-bottom:9px;margin-top:4px;">Canal</div>
     <div class="pill-group" id="ev-canal-grid">
       <div class="pill" id="ev-sotos"  onclick="evSelCanal(this,'Sotos')">🏪 Sotos</div>
@@ -2944,6 +2946,8 @@ function abrirEditVenta(id) {
   _evCanal   = v.canal || 'Sotos';
   _evPago    = v.pago  || 'Transferencia';
 
+  const lblEl = document.getElementById('ev-producto-lbl');
+  if (lblEl) lblEl.textContent = `${v.icon} ${v.nombre}${v.variante && v.variante !== '—' ? ' · ' + v.variante : ''}${v.cantidad > 1 ? ' × ' + v.cantidad : ''}`;
   const precioEl = document.getElementById('ev-precio');
   if (precioEl) precioEl.value = v.precio || '';
 
@@ -2994,32 +2998,38 @@ async function guardarEditVenta() {
   const v = ventasDB.find(x => x.id === _evVentaId);
   if (!v) return;
 
-  const precio = parseInt(document.getElementById('ev-precio')?.value) || 0;
-  if (!precio) {
+  // El usuario ve e ingresa precio total; internamente se guarda por unidad
+  const cant         = v.cantidad || 1;
+  const precioTotal  = parseInt(document.getElementById('ev-precio')?.value) || 0;
+  const precioUnit   = Math.round(precioTotal / cant);
+  if (!precioTotal) {
     const errEl = document.getElementById('ev-error');
     if (errEl) { errEl.textContent = 'Ingresa el precio.'; errEl.style.display = ''; }
     return;
   }
 
-  // Recalcular ganancia con nuevo precio y canal
+  // Recalcular ganancia con nuevo precio y canal (valores totales)
   const sku    = skuDB.find(s => s.sku === v.sku);
-  const costo  = sku?.costo || v.costo || 0;
-  const com    = _evCanal === 'Sotos' ? Math.min(Math.round(precio * 0.15), 10000) : 0;
-  const gan    = (precio - com) - costo;
+  const costoUnit = sku?.costo || Math.round((v.costo || 0) / cant);
+  const costoTotal= costoUnit * cant;
+  const comUnit   = _evCanal === 'Sotos' ? Math.min(Math.round(precioUnit * 0.15), 10000) : 0;
+  const comTotal  = comUnit * cant;
+  const gan       = precioTotal - comTotal - costoTotal;
 
   const btn = document.getElementById('ev-guardar-btn');
   if (btn) { btn.textContent = '⏳ Guardando…'; btn.disabled = true; }
 
+  // v.id = detalle_ventas.id — v.venta_id = ventas.id
   const { error } = await sb.from('ventas').update({
     canal:       _evCanal,
     metodo_pago: _evPago,
-  }).eq('id', _evVentaId);
+  }).eq('id', v.venta_id);
 
-  // Actualizar precio en detalle_ventas
+  // Actualizar precio en detalle_ventas (por unidad)
   const { error: e2 } = await sb.from('detalle_ventas').update({
-    precio_unitario: precio,
-    costo_unitario:  costo,
-  }).eq('venta_id', _evVentaId);
+    precio_unitario: precioUnit,
+    costo_unitario:  costoUnit,
+  }).eq('id', _evVentaId);
 
   if (btn) { btn.textContent = 'Guardar cambios'; btn.disabled = false; }
 
@@ -3028,7 +3038,7 @@ async function guardarEditVenta() {
   // Actualizar cache local
   const idx = ventasDB.findIndex(x => x.id === _evVentaId);
   if (idx !== -1) {
-    ventasDB[idx] = { ...ventasDB[idx], precio, canal: _evCanal, pago: _evPago, gan, com: com * (ventasDB[idx].cantidad || 1) };
+    ventasDB[idx] = { ...ventasDB[idx], precio: precioTotal, costo: costoTotal, canal: _evCanal, pago: _evPago, gan, com: comTotal };
   }
 
   cerrarEditVenta();
