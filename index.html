@@ -4226,7 +4226,7 @@ function renderAnalisis(tab, btn) {
     </div>`;
   }
 
-  function barChart(values, labels, h=70) {
+  function barChart(values, labels, h=70, nowIdx=-1) {
     const positives = values.map(v => Math.max(0,v));
     const max = Math.max(...positives, 1);
     const maxIdx = positives.reduce((mi,v,i) => v > positives[mi] ? i : mi, 0);
@@ -4234,7 +4234,7 @@ function renderAnalisis(tab, btn) {
     return `<div class="bars" style="height:${h}px;">
       ${values.map((v,i) => {
         const pxH = v < 0 ? 4 : Math.max(4, Math.round((v/max)*h));
-        const isNow  = labels[i] === 'Hoy' || i === values.length-1;
+        const isNow  = labels[i] === 'Hoy' || (nowIdx >= 0 ? i === nowIdx : i === values.length-1);
         const isBest = i === maxIdx && v > 0;
         const isNeg  = v < 0;
         const showVal = v > 0 && (isBest || isNow);
@@ -4263,7 +4263,7 @@ function renderAnalisis(tab, btn) {
           <div class="pbar-wrap"><div class="pbar" style="width:${pct}%;background:${col};"></div></div>
         </div>
         <div style="text-align:right;flex-shrink:0;">
-          <div style="font-family:'DM Mono',monospace;font-size:11px;color:${col};">+$${fmt(c.gan)}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:11px;color:${c.gan>=0?col:'var(--red)'};">${c.gan>=0?'+':'−'}$${fmt(Math.abs(c.gan))}</div>
           <div style="font-size:10px;color:var(--muted);">${mrg}% margen · ${c.n} vta${c.n!==1?'s':''}</div>
         </div>
       </div>`;
@@ -4282,7 +4282,7 @@ function renderAnalisis(tab, btn) {
           <div class="tunits">${p.uds} venta${p.uds!==1?'s':''} · ${margen}% margen</div>
         </div>
         <div class="tamt">
-          <div class="trev" style="color:var(--green);">+$${fmt(p.gan)}</div>
+          <div class="trev" style="color:${p.gan>=0?'var(--green)':'var(--red)'};">${p.gan>=0?'+':'−'}$${fmt(Math.abs(p.gan))}</div>
           <div class="tmrg">${share}% del total</div>
         </div>
       </div>`;
@@ -4327,6 +4327,9 @@ function renderAnalisis(tab, btn) {
       const hr = parseInt(tm[1]);
       return hr >= h && hr < h+3;
     }).reduce((s,v)=>s+v.gan,0));
+    // Índice del slot actual según la hora del día
+    const curHr = now.getHours();
+    const nowSlotIdx = Math.max(0, slots.reduce((best,s,i) => curHr >= s ? i : best, 0));
 
     const canalHoy = topCanales(hoy);
 
@@ -4396,7 +4399,7 @@ function renderAnalisis(tab, btn) {
             <div><div class="chart-title">Ganancia por franja horaria</div></div>
             <div><div class="chart-delta up">↑ ${margenPct}% margen</div></div>
           </div>
-          ${barChart(slotVals, slotLbl, 65)}
+          ${barChart(slotVals, slotLbl, 65, nowSlotIdx)}
         </div>
 
         <!-- P&L -->
@@ -4423,7 +4426,7 @@ function renderAnalisis(tab, btn) {
           ${hoy.map(v=>`<div class="trow">
             <div style="font-size:20px;width:28px;flex-shrink:0;">${v.icon}</div>
             <div class="tinfo"><div class="tname">${v.nombre}</div><div class="tunits">${v.fecha.split('·')[1]?.trim()||''} · ${v.canal}${v.pago&&v.pago!=='—'?' · '+v.pago:''}</div></div>
-            <div class="tamt"><div class="trev">$${fmt(v.precio)}</div><div class="tmrg" style="color:var(--green);">+$${fmt(v.gan)}</div></div>
+            <div class="tamt"><div class="trev">$${fmt(v.precio)}</div><div class="tmrg" style="color:${v.gan>=0?'var(--green)':'var(--red)'};">${v.gan>=0?'+':'−'}$${fmt(Math.abs(v.gan))}</div></div>
           </div>`).join('')}
         </div>
       </div>`);
@@ -4476,7 +4479,7 @@ function renderAnalisis(tab, btn) {
         <div class="chart-hdr">
           <div><div class="chart-title">Ganancia por día · semana actual</div><div class="chart-val" style="font-size:18px;">$${fmt(totalSem)}</div></div>
         </div>
-        ${barChart(diaGan, dias, 70)}
+        ${barChart(diaGan, dias, 70, (todayDow+6)%7)}
       </div>
       ${topSem.length ? `<div class="chart-box">
         <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Top productos</div>
@@ -4548,7 +4551,7 @@ function renderAnalisis(tab, btn) {
         <div class="chart-hdr">
           <div><div class="chart-title">Ganancia por semana</div><div class="chart-val" style="font-size:18px;">$${fmt(gan)}</div></div>
         </div>
-        ${barChart(semVals, ['Sem 1','Sem 2','Sem 3','Sem 4'], 65)}
+        ${barChart(semVals, ['Sem 1','Sem 2','Sem 3','Sem 4'], 65, Math.min(Math.floor((todayD-1)/7), 3))}
       </div>
 
       <!-- P&L del mes -->
