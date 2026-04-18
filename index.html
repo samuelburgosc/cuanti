@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>Cuanti</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23D7F02E'/%3E%3Ctext x='16' y='23' font-family='Arial Black,sans-serif' font-size='22' font-weight='900' fill='%23171717' text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E">
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -212,21 +212,21 @@ async function registrarVentaDB(varianteId, precio, costo, canal, pago, envio, c
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;}
-body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;display:flex;flex-direction:column;align-items:center;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;display:flex;flex-direction:column;align-items:center;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;}
 
 /* ─── LAYOUT ─── */
 .device{width:100%;max-width:430px;flex:1;display:flex;flex-direction:column;position:relative;}
 
 /* ─── TOPBAR ─── */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--sf);border-bottom:1px solid var(--bd);flex-shrink:0;z-index:200;}
-.logo{font-family:'Archivo Black',sans-serif;font-size:19px;letter-spacing:-.6px;color:var(--text);}
+.logo{font-family:'Barlow',sans-serif;font-weight:700;font-size:18px;letter-spacing:-.2px;color:var(--text);}
 .logo span{background:var(--accent);color:var(--text);padding:0 5px;border-radius:5px;}
 .topbar-r{display:flex;align-items:center;gap:9px;}
 .icon-btn{width:44px;height:44px;background:var(--sf);border:1px solid var(--bd);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;position:relative;transition:border-color .2s;}
 .icon-btn:hover{border-color:var(--bd2);}
 .icon-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .badge-dot{width:7px;height:7px;background:var(--red);border-radius:50%;position:absolute;top:5px;right:5px;border:1.5px solid var(--bg);}
-.avatar-btn{width:44px;height:44px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:12px;color:var(--text);cursor:pointer;}
+.avatar-btn{width:44px;height:44px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Barlow',sans-serif;font-weight:700;font-size:12px;color:var(--text);cursor:pointer;}
 .avatar-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
 /* ─── SCREENS ─── */
@@ -236,34 +236,34 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 @keyframes fu{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 
 /* ─── TYPOGRAPHY ─── */
-.ptitle{font-family:'Archivo Black',sans-serif;font-size:21px;letter-spacing:-.5px;padding:16px 0 6px;}
+.ptitle{font-family:'Barlow',sans-serif;font-weight:700;font-size:20px;letter-spacing:-.2px;padding:20px 0 6px;}
 .psub{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5;}
-.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;margin-top:0;}
-.sec-title{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;}
-.sec-link{font-size:11px;color:var(--muted);cursor:pointer;font-weight:500;}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;margin-top:4px;}
+.sec-title{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0;text-transform:none;}
+.sec-link{font-size:12px;color:var(--muted);cursor:pointer;font-weight:500;}
 .mono-lbl{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;}
 .divider{height:1px;background:var(--bd);margin:4px 0 16px;}
 
 /* ─── CARDS ─── */
-.card{background:var(--sf);border:1px solid var(--bd);border-radius:15px;padding:16px;margin-bottom:11px;}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:16px;margin-bottom:10px;}
 .card.a{background:var(--adim);border-color:var(--bd2);}
 .card.r{background:var(--rdim);border-color:rgba(255,68,68,.18);}
 .card.b{background:var(--bdim2);border-color:rgba(77,159,255,.18);}
 .card.g{background:var(--gdim);border-color:rgba(59,255,138,.18);}
 
 /* ─── HERO ─── */
-.hero{background:var(--sf);border:1px solid var(--bd);border-radius:18px;padding:24px 22px 22px;margin:12px 0 20px;cursor:pointer;transition:border-color .2s,background .2s;}
-.hero:hover{border-color:var(--bd2);background:var(--sf2);}
+.hero{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:20px 20px 18px;margin:12px 0 16px;cursor:pointer;transition:border-color .2s;}
+.hero:hover{border-color:var(--bd2);}
 .hero::after{display:none;}
-.hero-lbl{font-size:11px;font-weight:700;letter-spacing:.8px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;}
-.hero-amt{font-family:'Archivo Black',sans-serif;font-size:54px;color:var(--text);line-height:1;letter-spacing:-3px;}
+.hero-lbl{font-size:12px;font-weight:500;letter-spacing:0;color:var(--muted);text-transform:none;margin-bottom:8px;}
+.hero-amt{font-family:'Barlow',sans-serif;font-weight:700;font-size:46px;color:var(--text);line-height:1;letter-spacing:-1.5px;font-variant-numeric:tabular-nums;}
 
 /* ─── STAT GRID ─── */
 .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px;}
-.scard{background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:13px;transition:border-color .15s,background .15s;}
-.scard:hover{border-color:var(--bd2);background:var(--sf2);}
-.scard .si{font-size:17px;margin-bottom:7px;display:block;}
-.scard .sv{font-family:'Archivo Black',sans-serif;font-size:18px;letter-spacing:-.5px;line-height:1;margin-bottom:3px;}
+.scard{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:13px 14px;transition:border-color .15s;}
+.scard:hover{border-color:var(--bd2);}
+.scard .si{font-size:16px;margin-bottom:6px;display:block;}
+.scard .sv{font-family:'Barlow',sans-serif;font-weight:700;font-size:17px;letter-spacing:-.2px;line-height:1;margin-bottom:3px;font-variant-numeric:tabular-nums;}
 .scard .sl{font-size:10px;color:var(--muted);}
 .scard.a{background:var(--sf);border-color:var(--bd);}
 .scard.a .sv{color:var(--text);}
@@ -304,7 +304,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .chart-box{background:var(--sf);border:1px solid var(--bd);border-radius:15px;padding:16px;margin-bottom:11px;}
 .chart-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
 .chart-title{font-size:11px;color:var(--muted);margin-bottom:3px;}
-.chart-val{font-family:'Archivo Black',sans-serif;font-size:22px;letter-spacing:-.5px;color:var(--text);}
+.chart-val{font-family:'Barlow',sans-serif;font-weight:700;font-size:20px;letter-spacing:-.3px;color:var(--text);font-variant-numeric:tabular-nums;}
 .chart-delta{font-family:'DM Mono',monospace;font-size:12px;}
 .chart-delta.up{color:var(--green);}
 .chart-delta.dn{color:var(--red);}
@@ -329,7 +329,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 /* ─── TOP ROWS ─── */
 .trow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd);}
 .trow:last-child{border-bottom:none;}
-.trank{font-family:'Archivo Black',sans-serif;font-size:15px;color:var(--muted2);width:20px;text-align:center;flex-shrink:0;}
+.trank{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);width:20px;text-align:center;flex-shrink:0;font-weight:500;}
 .trank.f{color:var(--accent);}
 .tinfo{flex:1;min-width:0;}
 .tname{font-size:12px;font-weight:600;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -348,7 +348,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
 /* ─── SEARCH ─── */
 .search-row{display:flex;gap:7px;margin:12px 0;}
-.srch{flex:1;background:var(--sf2);border:1.5px solid var(--bd);border-radius:10px;padding:10px 13px;color:var(--text);font-family:'Archivo',sans-serif;font-size:12px;outline:none;transition:border-color .15s,background .15s;}
+.srch{flex:1;background:var(--sf2);border:1.5px solid var(--bd);border-radius:10px;padding:10px 13px;color:var(--text);font-family:'Barlow',sans-serif;font-size:12px;outline:none;transition:border-color .15s,background .15s;}
 .srch::placeholder{color:var(--muted2);}
 .srch:focus{border-color:var(--text);background:var(--sf);}
 .filter-btn{background:var(--sf2);border:1.5px solid var(--bd);border-radius:10px;padding:10px 12px;color:var(--muted);font-size:14px;cursor:pointer;transition:all .15s;}
@@ -377,7 +377,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .pname{font-size:13px;font-weight:600;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .pcode{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);}
 .pprice{text-align:right;}
-.psell{font-family:'Archivo Black',sans-serif;font-size:14px;letter-spacing:-.3px;}
+.psell{font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;letter-spacing:-.3px;}
 .pcost{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px;}
 .pmargin{font-size:9px;color:var(--green);margin-top:1px;}
 .vrow{display:flex;gap:5px;flex-wrap:wrap;}
@@ -402,10 +402,10 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
 /* ─── FORM ─── */
 .field{display:flex;flex-direction:column;gap:4px;margin-bottom:11px;}
-.field label{font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.3px;text-transform:uppercase;}
+.field label{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:0;text-transform:none;}
 .fwrap{position:relative;display:flex;align-items:center;}
 .fpfx{position:absolute;left:11px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);pointer-events:none;z-index:1;}
-.field input,.field select,.field textarea{width:100%;background:var(--sf2);border:1.5px solid var(--bd);border-radius:10px;padding:11px 13px;color:var(--text);font-family:'Archivo',sans-serif;font-size:13px;outline:none;transition:border-color .15s,background .15s;-webkit-appearance:none;}
+.field input,.field select,.field textarea{width:100%;background:var(--sf2);border:1.5px solid var(--bd);border-radius:10px;padding:11px 13px;color:var(--text);font-family:'Barlow',sans-serif;font-size:13px;outline:none;transition:border-color .15s,background .15s;-webkit-appearance:none;}
 .field input.pfx{padding-left:26px;}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--text);background:var(--sf);}
 .field input::placeholder{color:var(--muted2);}
@@ -441,12 +441,12 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .oinfo{flex:1;min-width:0;}
 .oname{font-size:13px;font-weight:600;margin-bottom:1px;}
 .osub{font-size:11px;color:var(--muted);}
-.oprice{font-family:'Archivo Black',sans-serif;font-size:13px;color:var(--accent);flex-shrink:0;}
+.oprice{font-family:'Barlow',sans-serif;font-weight:700;font-size:13px;color:var(--accent);flex-shrink:0;}
 .ochk{width:19px;height:19px;border-radius:50%;border:1.5px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;transition:all .15s;}
 .opt.sel .ochk{background:var(--accent);border-color:var(--accent);color:var(--text);}
 
 /* ─── NUEVA VENTA ─── */
-.venta-search{width:100%;background:var(--sf);border:2px solid var(--bd);border-radius:14px;padding:16px 18px;color:var(--text);font-family:'Archivo',sans-serif;font-size:17px;outline:none;transition:border-color .15s;display:block;box-sizing:border-box;margin-bottom:16px;}
+.venta-search{width:100%;background:var(--sf);border:2px solid var(--bd);border-radius:14px;padding:16px 18px;color:var(--text);font-family:'Barlow',sans-serif;font-size:17px;outline:none;transition:border-color .15s;display:block;box-sizing:border-box;margin-bottom:16px;}
 .venta-search::placeholder{color:var(--muted);}
 .venta-search:focus{border-color:var(--text);}
 .pill-group{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:4px;}
@@ -462,13 +462,13 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .vprod-name{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .vprod-sub{font-size:11px;color:var(--muted);margin-top:2px;}
 .vprod-right{text-align:right;flex-shrink:0;}
-.vprod-price{font-family:'Archivo Black',sans-serif;font-size:14px;color:var(--text);}
+.vprod-price{font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;color:var(--text);}
 .vprod-stock{font-size:11px;font-family:'DM Mono',monospace;margin-top:2px;}
 
 /* ─── PERIOD BUTTONS ─── */
-.periods{display:flex;gap:5px;margin:12px 0 14px;background:var(--sf);border:1px solid var(--bd);border-radius:11px;padding:3px;}
-.pb{flex:1;text-align:center;padding:7px 4px;border-radius:8px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;}
-.pb.on{background:var(--accent);color:var(--text);font-weight:700;}
+.periods{display:flex;gap:4px;margin:12px 0 10px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:3px;}
+.pb{flex:1;text-align:center;padding:7px 4px;border-radius:7px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;transition:all .15s;}
+.pb.on{background:var(--sf);color:var(--text);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08);}
 
 /* ─── FAB ROW ─── */
 .fabs{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px;}
@@ -476,13 +476,13 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .fab:hover{border-color:var(--bd2);}
 .fab.p{background:var(--accent);border-color:var(--accent);}
 .fab .fi{font-size:22px;}
-.fab .fl{font-family:'Archivo Black',sans-serif;font-size:13px;letter-spacing:-.2px;}
+.fab .fl{font-family:'Barlow',sans-serif;font-weight:700;font-size:13px;letter-spacing:-.2px;}
 .fab .fs{font-size:10px;opacity:.6;}
 .fab.p .fl,.fab.p .fs{color:var(--text);}
 
 /* ─── USER CARD ─── */
 .ucard{background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:14px;margin-bottom:9px;display:flex;align-items:center;gap:12px;}
-.uavatar{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:15px;flex-shrink:0;}
+.uavatar{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;flex-shrink:0;}
 .uinfo{flex:1;}
 .uname{font-size:13px;font-weight:600;margin-bottom:2px;}
 .umeta{font-size:10px;color:var(--muted);}
@@ -499,7 +499,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .cdesc{font-size:12px;font-weight:600;margin-bottom:2px;}
 .cdate{font-size:10px;color:var(--muted);}
 .ctotal{text-align:right;}
-.cmonto{font-family:'Archivo Black',sans-serif;font-size:15px;letter-spacing:-.3px;}
+.cmonto{font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;letter-spacing:-.3px;}
 .cuds{font-size:10px;color:var(--muted);margin-top:1px;}
 .croi{font-size:10px;color:var(--green);margin-top:1px;}
 .ctags{display:flex;gap:5px;flex-wrap:wrap;}
@@ -518,7 +518,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .ldot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0;}
 .ldot.l1{background:var(--accent);}
 .ldot.l2{background:var(--green);}
-.lval{font-family:'Archivo Black',sans-serif;font-size:19px;letter-spacing:-.5px;margin-bottom:2px;}
+.lval{font-family:'Barlow',sans-serif;font-weight:700;font-size:19px;letter-spacing:-.5px;margin-bottom:2px;}
 .lsub{font-size:9px;color:var(--muted);}
 
 /* ─── TRANSFER ─── */
@@ -566,26 +566,26 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .date-lbl.pst{color:var(--muted2);}
 
 /* ─── BUTTONS ─── */
-.btn{width:100%;background:var(--accent);border:none;border-radius:12px;padding:15px;font-family:'Archivo Black',sans-serif;font-size:14px;color:var(--text);cursor:pointer;transition:opacity .15s,transform .1s;margin-top:5px;letter-spacing:.2px;}
+.btn{width:100%;background:var(--accent);border:none;border-radius:12px;padding:15px;font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;color:var(--text);cursor:pointer;transition:opacity .15s,transform .1s;margin-top:5px;letter-spacing:0;}
 .btn:hover{opacity:.88;}
 .btn:active{transform:scale(.98);}
 .btn:focus-visible{outline:2px solid var(--text);outline-offset:2px;}
-.btn.sec{background:var(--sf);border:1px solid var(--bd);color:var(--text);font-family:'Archivo',sans-serif;font-weight:600;font-size:13px;}
+.btn.sec{background:var(--sf);border:1px solid var(--bd);color:var(--text);font-family:'Barlow',sans-serif;font-weight:600;font-size:13px;}
 .btn.sec:hover{border-color:var(--bd2);background:var(--sf2);}
-.btn.danger{background:var(--rdim);border:1px solid rgba(216,75,75,.25);color:var(--red);font-family:'Archivo',sans-serif;font-weight:600;font-size:13px;}
+.btn.danger{background:var(--rdim);border:1px solid rgba(216,75,75,.25);color:var(--red);font-family:'Barlow',sans-serif;font-weight:600;font-size:13px;}
 .btn.danger:hover{background:rgba(216,75,75,.12);}
 .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
 
 /* ─── EMPTY STATE ─── */
 .empty{text-align:center;padding:40px 20px;}
 .empty-icon{font-size:44px;margin-bottom:12px;opacity:.35;}
-.empty-title{font-family:'Archivo Black',sans-serif;font-size:16px;margin-bottom:6px;color:var(--muted);}
+.empty-title{font-family:'Barlow',sans-serif;font-weight:600;font-size:15px;margin-bottom:6px;color:var(--muted);}
 .empty-sub{font-size:12px;color:var(--muted2);}
 
 /* ─── CONFIRM SCREEN ─── */
 .confirm-center{text-align:center;padding:30px 0 20px;}
 .confirm-icon{font-size:56px;margin-bottom:12px;}
-.confirm-title{font-family:'Archivo Black',sans-serif;font-size:21px;margin-bottom:6px;letter-spacing:-.5px;}
+.confirm-title{font-family:'Barlow',sans-serif;font-weight:700;font-size:20px;margin-bottom:6px;letter-spacing:-.2px;}
 .confirm-sub{font-size:12px;color:var(--muted);margin-bottom:20px;}
 
 /* ─── HIST TABS ─── */
@@ -598,15 +598,15 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .ni:hover{background:var(--sf2);}
 .ni:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .ni .nico2{font-size:18px;line-height:1;transition:transform .15s;}
-.ni .nlbl{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:.3px;text-transform:uppercase;}
+.ni .nlbl{font-size:10px;font-weight:500;color:var(--muted);letter-spacing:0;text-transform:none;}
 .ni.on{background:rgba(215,240,46,.08);}
 .ni.on .nico2{transform:scale(1.08);}
 .ni.on .nlbl{color:var(--accent);}
 .nav-fab-wrap{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;margin:0 3px;padding-top:2px;}
-.nav-fab{width:50px;height:50px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px;font-family:'Archivo Black',sans-serif;box-shadow:0 4px 20px var(--aglow);color:var(--text);font-weight:900;transition:transform .18s cubic-bezier(.33,1,.68,1),box-shadow .18s;}
+.nav-fab{width:50px;height:50px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;font-family:'Barlow',sans-serif;font-weight:700;box-shadow:0 4px 20px var(--aglow);color:var(--text);transition:transform .18s cubic-bezier(.33,1,.68,1),box-shadow .18s;}
 .nav-fab-wrap:hover .nav-fab{transform:scale(1.08);box-shadow:0 8px 24px var(--aglow);}
 .nav-fab-wrap:active .nav-fab{transform:scale(.95);}
-.nav-fab-lbl{font-size:9px;font-weight:700;color:var(--text);letter-spacing:.4px;text-transform:uppercase;margin-top:1px;}
+.nav-fab-lbl{font-size:10px;font-weight:500;color:var(--muted);letter-spacing:0;margin-top:1px;}
 
 /* ─── MISC ─── */
 .spacer{height:24px;}
@@ -637,7 +637,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .label-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;}
 .label-modal{background:var(--sf);border:1px solid var(--bd2);border-radius:18px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto;}
 .label-modal-hdr{padding:18px 18px 0;display:flex;align-items:center;justify-content:space-between;}
-.label-modal-hdr h2{font-family:'Archivo Black',sans-serif;font-size:17px;letter-spacing:-.3px;}
+.label-modal-hdr h2{font-family:'Barlow',sans-serif;font-weight:700;font-size:17px;letter-spacing:-.3px;}
 .modal-close{width:44px;height:44px;background:var(--sf2);border:1px solid var(--bd);border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;flex-shrink:0;}
 .modal-close:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .label-preview-wrap{margin:14px 18px;background:#fff;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px;min-height:100px;overflow:hidden;}
@@ -721,7 +721,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 /* panel de acción expandido */
 .action-panel{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:10px;display:none;}
 .action-panel.show{display:block;}
-.action-panel-title{font-family:'Archivo Black',sans-serif;font-size:14px;letter-spacing:-.2px;margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.action-panel-title{font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;letter-spacing:-.2px;margin-bottom:12px;display:flex;align-items:center;gap:7px;}
 
 /* scanner input manual */
 .scan-manual-row{display:flex;gap:7px;margin-bottom:10px;}
@@ -805,7 +805,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .nav-fab{color:var(--text);}
 .nav-fab-lbl{color:var(--muted);}
 .ni .nlbl{color:var(--muted);}
-.ni.on .nlbl{color:var(--text);font-weight:700;}
+.ni.on .nlbl{color:var(--text);font-weight:600;}
 .ni.on .nico2{opacity:1;}
 .ni .nico2{opacity:.5;}
 .fab.p .fl,.fab.p .fs{color:var(--text);}
@@ -813,7 +813,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .insight-box{background:rgba(180,200,0,.07);border-color:rgba(180,200,0,.25);}
 /* Chips y tabs activos — amarillo solo en activo */
 .chip.on{background:var(--accent);border-color:var(--accent);color:var(--text);}
-.pb.on{background:var(--accent);color:var(--text);border-radius:8px;font-weight:700;}
+.pb.on{background:var(--sf);color:var(--text);border-radius:7px;font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08);}
 /* Cards */
 .card.a{background:var(--adim);border-color:var(--bd);}
 /* Textos que antes usaban accent */
@@ -821,7 +821,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .chart-val{color:var(--text);}
 .chart-title{color:var(--muted);}
 .sec-link{color:var(--muted);}
-.mono-lbl{color:var(--muted);letter-spacing:.3px;text-transform:none;font-size:11px;}
+.mono-lbl{color:var(--muted);letter-spacing:0;text-transform:none;font-size:11px;}
 .trev{color:var(--green);}
 .trank.f{color:var(--text);font-weight:700;}
 .sku-code{color:var(--text);font-weight:700;}
@@ -876,7 +876,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 .urgency-item.blue{background:rgba(37,99,235,.05);border-color:rgba(37,99,235,.15);}
 .urgency-item.green{background:rgba(30,158,99,.05);border-color:rgba(30,158,99,.15);}
 .urgency-item.accent{background:rgba(215,240,46,.06);border-color:rgba(215,240,46,.18);}
-.urgency-cta{border:none;border-radius:8px;padding:6px 11px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:'Archivo',sans-serif;white-space:nowrap;}
+.urgency-cta{border:none;border-radius:8px;padding:6px 11px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:'Barlow',sans-serif;white-space:nowrap;}
 .urgency-cta.red{background:var(--red);color:#fff;}
 .urgency-cta.orange{background:var(--orange);color:#fff;}
 .urgency-cta.blue{background:var(--blue);color:#fff;}
@@ -893,7 +893,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
 <!-- ════ LOGIN ════ -->
 <div id="screen-login" style="display:none;position:fixed;inset:0;z-index:10000;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;">
-  <div style="font-family:'Archivo Black',sans-serif;font-size:40px;letter-spacing:-2px;color:var(--text);margin-bottom:8px;">CUAN<span style="background:var(--accent);color:var(--text);padding:0 6px;border-radius:6px;">TI</span></div>
+  <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:34px;letter-spacing:-.5px;color:var(--text);margin-bottom:8px;">CUAN<span style="background:var(--accent);color:var(--text);padding:0 6px;border-radius:6px;">TI</span></div>
   <div style="font-size:13px;color:var(--muted);margin-bottom:48px;letter-spacing:.2px;">Tu negocio, en claro.</div>
 
   <div style="width:100%;max-width:360px;">
@@ -918,7 +918,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
 <!-- PANTALLA DE CARGA -->
 <div id="loading-screen" style="position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px;">
-  <div style="font-family:'Archivo Black',sans-serif;font-size:38px;color:var(--text);letter-spacing:-1.5px;animation:ldpop .4s cubic-bezier(.33,1,.68,1) both;">CUAN<span style="background:var(--accent);color:var(--text);padding:0 5px;border-radius:5px;">TI</span></div>
+  <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:34px;color:var(--text);letter-spacing:-.5px;animation:ldpop .4s cubic-bezier(.33,1,.68,1) both;">CUAN<span style="background:var(--accent);color:var(--text);padding:0 5px;border-radius:5px;">TI</span></div>
   <div id="loading-step" style="font-size:12px;color:var(--muted);min-height:18px;transition:opacity .3s;letter-spacing:.2px;">Cargando…</div>
   <div style="width:120px;height:3px;background:var(--sf3);border-radius:2px;overflow:hidden;position:relative;">
     <div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent,var(--accent),transparent);border-radius:2px;animation:ldbar 1.4s ease-in-out infinite;"></div>
@@ -941,7 +941,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   <div class="topbar-r">
     <div class="icon-btn" onclick="goTo('notifs')" aria-label="Notificaciones" role="button" tabindex="0">🔔<div class="badge-dot" id="notif-badge" style="display:none;"></div></div>
     <div class="avatar-btn" id="topbar-avatar" onclick="goTo('config')" aria-label="Mi perfil" role="button" tabindex="0">SA</div>
-    <button id="topbar-logout-btn" onclick="logout()" style="display:none;background:none;border:1px solid var(--bd);border-radius:8px;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;padding:5px 10px;font-family:'Archivo',sans-serif;">Salir</button>
+    <button id="topbar-logout-btn" onclick="logout()" style="display:none;background:none;border:1px solid var(--bd);border-radius:8px;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;padding:5px 10px;font-family:'Barlow',sans-serif;">Salir</button>
   </div>
 </div>
 
@@ -953,23 +953,18 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
   <!-- 1. HERO -->
   <div class="hero" onclick="goTo('analisis')">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;">
       <div class="hero-lbl" id="dash-hero-lbl">Ganancia este mes</div>
       <div id="dash-hero-badge" style="display:none;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;"></div>
     </div>
     <div class="hero-amt" id="dash-hero-gan">$—</div>
-    <div id="dash-hero-gastos-sub" style="display:none;font-size:11px;color:var(--muted);margin-top:2px;"></div>
-    <div id="dash-hero-trend" style="font-size:12px;margin-top:6px;min-height:16px;"></div>
-    <div style="font-size:11px;color:var(--muted2);margin-top:3px;" id="dash-hero-mes">—</div>
-    <div style="margin-top:14px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
-        <div style="font-size:10px;color:var(--muted);">Progreso del mes</div>
-        <div id="dash-hero-pct" style="font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);"></div>
-      </div>
-      <div style="height:5px;background:var(--sf3);border-radius:3px;overflow:hidden;">
-        <div id="dash-hero-bar" style="height:100%;background:var(--accent);border-radius:3px;transition:width .6s ease;width:0;"></div>
-      </div>
+    <div id="dash-hero-gastos-sub" style="display:none;font-size:11px;color:var(--muted);margin-top:4px;"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
+      <div id="dash-hero-trend" style="font-size:13px;"></div>
+      <div style="font-size:12px;color:var(--muted2);" id="dash-hero-mes">—</div>
     </div>
+    <div id="dash-hero-pct" style="display:none;"></div>
+    <div id="dash-hero-bar" style="display:none;"></div>
   </div>
 
   <!-- 2. SETUP / ONBOARDING (desaparece cuando está completo) -->
@@ -1004,7 +999,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
   <!-- acciones rápidas: + Stock destacado, resto secundarios -->
   <div style="margin-bottom:12px;">
-    <button onclick="invAbrirAddStock()" style="width:100%;background:var(--accent);border:none;border-radius:12px;padding:13px;font-family:'Archivo Black',sans-serif;font-size:14px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;transition:opacity .15s;" onmousedown="this.style.opacity='.88'" onmouseup="this.style.opacity='1'">
+    <button onclick="invAbrirAddStock()" style="width:100%;background:var(--accent);border:none;border-radius:12px;padding:13px;font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;transition:opacity .15s;" onmousedown="this.style.opacity='.88'" onmouseup="this.style.opacity='1'">
       <span>📥</span> Agregar stock
     </button>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
@@ -1068,7 +1063,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--bd);">
       <div id="v-prod-icon" style="font-size:30px;flex-shrink:0;">📦</div>
       <div style="flex:1;min-width:0;">
-        <div id="v-prod-nombre" style="font-family:'Archivo Black',sans-serif;font-size:19px;color:var(--text);letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1;"></div>
+        <div id="v-prod-nombre" style="font-family:'Barlow',sans-serif;font-weight:700;font-size:19px;color:var(--text);letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1;"></div>
         <div id="v-prod-meta" style="font-size:12px;color:var(--muted);margin-top:4px;"></div>
       </div>
       <span style="font-size:12px;color:var(--muted);flex-shrink:0;cursor:pointer;padding:4px 0;" onclick="ventaVolver()">cambiar</span>
@@ -1078,11 +1073,11 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
     <div class="frow" style="margin-bottom:20px;">
       <div class="field">
         <label>Precio de venta</label>
-        <div class="fwrap"><span class="fpfx">$</span><input id="v-precio" class="pfx" type="number" oninput="recalcVenta()" style="font-size:20px;font-family:'Archivo Black',sans-serif;letter-spacing:-.5px;"></div>
+        <div class="fwrap"><span class="fpfx">$</span><input id="v-precio" class="pfx" type="number" oninput="recalcVenta()" style="font-size:20px;font-family:'Barlow',sans-serif;font-weight:700;letter-spacing:-.5px;"></div>
       </div>
       <div class="field" style="max-width:90px;">
         <label>Cantidad</label>
-        <input id="v-cant" type="number" value="1" min="1" oninput="recalcVenta()" style="font-size:20px;font-family:'Archivo Black',sans-serif;text-align:center;">
+        <input id="v-cant" type="number" value="1" min="1" oninput="recalcVenta()" style="font-size:20px;font-family:'Barlow',sans-serif;font-weight:700;text-align:center;">
       </div>
     </div>
 
@@ -1156,7 +1151,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
     <!-- ganancia preview -->
     <div id="v-gan-preview" style="background:var(--gdim);border:1px solid rgba(30,158,99,.2);border-radius:12px;padding:13px 16px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;">
       <span style="font-size:13px;color:var(--muted);">Ganancia estimada</span>
-      <span id="vs-gan" style="font-family:'Archivo Black',sans-serif;font-size:20px;color:var(--green);letter-spacing:-.5px;">$—</span>
+      <span id="vs-gan" style="font-family:'Barlow',sans-serif;font-weight:700;font-size:20px;color:var(--green);letter-spacing:-.5px;">$—</span>
     </div>
 
     <button class="btn" id="venta-confirmar-btn" onclick="ventaConfirmar()">Registrar venta →</button>
@@ -1172,8 +1167,8 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
       <!-- ganancia grande -->
       <div style="margin:28px 0 20px;">
-        <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Ganaste</div>
-        <div id="vc-gan" style="font-family:'Archivo Black',sans-serif;font-size:58px;color:var(--green);letter-spacing:-3px;line-height:1;">$—</div>
+        <div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:8px;">Ganaste</div>
+        <div id="vc-gan" style="font-family:'Barlow',sans-serif;font-weight:700;font-size:46px;color:var(--green);letter-spacing:-1.5px;line-height:1;font-variant-numeric:tabular-nums;">$—</div>
         <div id="vc-prod" style="font-size:13px;color:var(--muted);margin-top:8px;"></div>
       </div>
 
@@ -1284,7 +1279,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
         <!-- Ganancia: protagonista -->
         <div>
           <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">Ganancia total</div>
-          <div style="font-family:'Archivo Black',sans-serif;font-size:28px;letter-spacing:-1px;color:var(--green);line-height:1;" class="hist-stat" id="hist-stat-gan">$0</div>
+          <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:26px;letter-spacing:-.5px;color:var(--green);line-height:1;" class="hist-stat" id="hist-stat-gan">$0</div>
         </div>
         <!-- Ventas e Ingresos: secundarios -->
         <div style="text-align:right;">
@@ -1324,7 +1319,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
     <!-- formulario crear cliente (oculto por defecto) -->
     <div id="nuevo-cliente-form" style="display:none;margin-top:12px;">
       <div class="card">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:14px;">Nuevo cliente</div>
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:14px;">Nuevo cliente</div>
         <div class="field" style="margin-bottom:10px;"><label>Nombre</label><input id="nc-nombre" type="text" placeholder="Nombre del cliente"></div>
         <div class="field" style="margin-bottom:16px;"><label>Teléfono (opcional)</label><input id="nc-telefono" type="tel" placeholder="+56 9 1234 5678"></div>
         <button class="btn" onclick="crearClienteManual()">Guardar cliente →</button>
@@ -1343,9 +1338,11 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
     <div class="pb on" onclick="renderAnalisis('hoy',this)">Hoy</div>
     <div class="pb"    onclick="renderAnalisis('semana',this)">Semana</div>
     <div class="pb"    onclick="renderAnalisis('mes',this)">Mes</div>
-    <div class="pb"    onclick="renderAnalisis('historico',this)">Histórico</div>
-    <div class="pb"    onclick="renderAnalisis('stock',this)">Stock</div>
-    <div class="pb"    onclick="renderAnalisis('gastos',this)">Gastos</div>
+    <div class="pb"    onclick="renderAnalisis('historico',this)">Todo</div>
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:4px;">
+    <div onclick="renderAnalisis('stock',document.querySelector('#analisis-tabs .pb.on'))" style="font-size:12px;color:var(--muted);cursor:pointer;font-weight:500;padding:4px 0;">Ver stock →</div>
+    <div onclick="renderAnalisis('gastos',document.querySelector('#analisis-tabs .pb.on'))" style="font-size:12px;color:var(--muted);cursor:pointer;font-weight:500;padding:4px 0;">Ver gastos →</div>
   </div>
   <div id="analisis-body"></div>
   <div class="spacer"></div>
@@ -1383,7 +1380,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   <!-- Multi-local: próximamente -->
   <div class="card" style="text-align:center;background:var(--sf2);">
     <div style="font-size:26px;margin-bottom:8px;opacity:.5;">🏪</div>
-    <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:5px;letter-spacing:-.2px;">Multi-local próximamente</div>
+    <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:5px;letter-spacing:-.2px;">Multi-local próximamente</div>
     <div style="font-size:12px;color:var(--muted);line-height:1.6;">Cuando tengas más de un local, acá podrás comparar ganancias, stock y ventas entre todos tus puntos de venta.</div>
   </div>
 
@@ -1406,7 +1403,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
   <!-- perfil -->
   <div class="card" style="display:flex;align-items:center;gap:13px;margin-bottom:16px;">
-    <div style="width:50px;height:50px;background:var(--accent);border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:'Archivo Black',sans-serif;font-size:19px;color:var(--text);flex-shrink:0;" id="config-user-avatar">SA</div>
+    <div style="width:50px;height:50px;background:var(--accent);border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:'Barlow',sans-serif;font-weight:700;font-size:19px;color:var(--text);flex-shrink:0;" id="config-user-avatar">SA</div>
     <div style="flex:1;"><div style="font-size:14px;font-weight:600;margin-bottom:2px;" id="config-user-nombre">—</div><div style="font-size:11px;color:var(--muted);" id="config-user-email">—</div></div>
     <span class="role owner" id="config-user-rol">Dueño</span>
   </div>
@@ -1417,7 +1414,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   <!-- Formulario crear vendedor (solo dueño) -->
   <div id="crear-vendedor-form" style="display:none;margin-bottom:16px;">
     <div class="card">
-      <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:14px;letter-spacing:-.2px;">Agregar vendedor</div>
+      <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:14px;letter-spacing:-.2px;">Agregar vendedor</div>
       <div class="field" style="margin-bottom:10px;"><label>Nombre</label><input id="cv-nombre" type="text" placeholder="Nombre del vendedor"></div>
       <div class="field" style="margin-bottom:10px;"><label>Email</label><input id="cv-email" type="email" placeholder="email@ejemplo.com"></div>
       <div class="field" style="margin-bottom:16px;"><label>Contraseña temporal</label><input id="cv-pass" type="text" placeholder="Mínimo 6 caracteres"></div>
@@ -1481,7 +1478,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 
   <!-- CREAR NUEVO SKU -->
   <div class="card" style="margin-bottom:20px;">
-    <div style="font-family:'Archivo Black',sans-serif;font-size:15px;margin-bottom:16px;letter-spacing:-.2px;">Nuevo SKU</div>
+    <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;margin-bottom:16px;letter-spacing:-.2px;">Nuevo SKU</div>
 
     <!-- Producto -->
     <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:10px;">Producto</div>
@@ -1722,7 +1719,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   <!-- Confirmación genérica (ingreso, devolución, ajuste) -->
   <div id="sc-confirm-msg" style="display:none;text-align:center;padding:20px;background:var(--gdim);border:1px solid rgba(59,255,138,.2);border-radius:14px;margin-bottom:12px;">
     <div style="font-size:40px;margin-bottom:8px;" id="sc-confirm-icon">✅</div>
-    <div style="font-family:'Archivo Black',sans-serif;font-size:16px;margin-bottom:4px;" id="sc-confirm-title">Listo</div>
+    <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:16px;margin-bottom:4px;" id="sc-confirm-title">Listo</div>
     <div style="font-size:11px;color:var(--muted);" id="sc-confirm-detail">—</div>
     <button class="btn sec" onclick="scReset()" style="margin-top:14px;width:auto;padding:0 20px;">← Escanear otro</button>
   </div>
@@ -1730,17 +1727,17 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   <!-- Resultado post-venta (rich) -->
   <div id="sc-venta-result" style="display:none;background:var(--sf);border:1px solid var(--bd);border-radius:16px;overflow:hidden;margin-bottom:12px;">
     <div style="background:var(--gdim);border-bottom:1px solid rgba(30,158,99,.15);padding:22px 16px;text-align:center;">
-      <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Ganaste</div>
-      <div id="scr-gan" style="font-family:'Archivo Black',sans-serif;font-size:54px;color:var(--green);letter-spacing:-3px;line-height:1;">$—</div>
+      <div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:6px;">Ganaste</div>
+      <div id="scr-gan" style="font-family:'Barlow',sans-serif;font-weight:700;font-size:46px;color:var(--green);letter-spacing:-1.5px;line-height:1;font-variant-numeric:tabular-nums;">$—</div>
       <div id="scr-prod" style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.4;">—</div>
     </div>
     <div style="padding:14px 16px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
       <div>
-        <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Stock restante</div>
+        <div style="font-size:11px;color:var(--muted);font-weight:500;margin-bottom:4px;">Stock restante</div>
         <div id="scr-stock" style="font-family:'DM Mono',monospace;font-size:15px;font-weight:700;">—</div>
       </div>
       <div style="text-align:right;">
-        <div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Total cobrado</div>
+        <div style="font-size:11px;color:var(--muted);font-weight:500;margin-bottom:4px;">Total cobrado</div>
         <div id="scr-precio" style="font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:var(--text);">—</div>
       </div>
     </div>
@@ -1763,7 +1760,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
     <div class="nav-fab-lbl">Vender</div>
   </div>
   <div class="ni"    id="nav-analisis"   onclick="goTo('analisis')"   role="button" tabindex="0" aria-label="Análisis">  <div class="nico2">📈</div><div class="nlbl">Análisis</div></div>
-  <div class="ni"    id="nav-skus"       onclick="goTo('skus')"       role="button" tabindex="0" aria-label="SKUs">      <div class="nico2">🏷️</div><div class="nlbl">SKUs</div></div>
+  <div class="ni"    id="nav-skus"       onclick="goTo('skus')"       role="button" tabindex="0" aria-label="Etiquetas">  <div class="nico2">🏷️</div><div class="nlbl">Etiquetas</div></div>
 </div>
 
 </div><!-- end device -->
@@ -1780,7 +1777,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 <div class="sheet" id="gasto-sheet" style="display:none;">
   <div class="sheet-handle"></div>
   <div style="padding:0 16px 32px;">
-    <div style="font-family:'Archivo Black',sans-serif;font-size:16px;margin-bottom:18px;letter-spacing:-.2px;">Registrar gasto</div>
+    <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:16px;margin-bottom:18px;letter-spacing:-.2px;">Registrar gasto</div>
 
     <!-- categoría -->
     <div style="margin-bottom:16px;">
@@ -1797,7 +1794,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
     <!-- monto -->
     <div class="field" style="margin-bottom:14px;">
       <label>Monto</label>
-      <div class="fwrap"><span class="fpfx">$</span><input id="gasto-monto" class="pfx" type="number" placeholder="0" style="font-size:20px;font-family:'Archivo Black',sans-serif;"></div>
+      <div class="fwrap"><span class="fpfx">$</span><input id="gasto-monto" class="pfx" type="number" placeholder="0" style="font-size:20px;font-family:'Barlow',sans-serif;font-weight:700;"></div>
     </div>
 
     <!-- fecha -->
@@ -1864,7 +1861,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
   <div class="sheet-handle" onclick="cerrarEditVenta()"></div>
   <div style="padding:0 0 16px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-      <div style="font-family:'Archivo Black',sans-serif;font-size:16px;letter-spacing:-.2px;">Editar venta</div>
+      <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:16px;letter-spacing:-.2px;">Editar venta</div>
       <div class="modal-close" onclick="cerrarEditVenta()" role="button" tabindex="0" aria-label="Cerrar">✕</div>
     </div>
     <div id="ev-producto-lbl" style="font-size:11px;color:var(--muted);margin-bottom:12px;"></div>
@@ -1893,7 +1890,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 <div class="sheet" id="del-gasto-sheet" style="display:none;">
   <div class="sheet-handle" onclick="cerrarDelGasto()"></div>
   <div style="padding:0 0 8px;">
-    <div style="font-family:'Archivo Black',sans-serif;font-size:16px;margin-bottom:16px;letter-spacing:-.2px;">¿Eliminar este gasto?</div>
+    <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:16px;margin-bottom:16px;letter-spacing:-.2px;">¿Eliminar este gasto?</div>
     <div id="del-gasto-info" style="background:var(--sf2);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:18px;"></div>
     <button class="btn danger" id="del-gasto-btn" onclick="confirmarDelGasto()" style="width:100%;">Eliminar gasto</button>
     <button class="btn sec" onclick="cerrarDelGasto()" style="margin-top:8px;">Cancelar</button>
@@ -2357,8 +2354,8 @@ function renderDashboard() {
 
     const statCard = (lbl, val, sub, dest) =>
       `<div style="background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:13px 10px;cursor:pointer;text-align:center;transition:border-color .15s,background .15s;" onclick="goTo('${dest}')" onmouseenter="this.style.borderColor='var(--bd2)';this.style.background='var(--sf2)'" onmouseleave="this.style.borderColor='var(--bd)';this.style.background='var(--sf)'">
-        <div style="font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;line-height:1.2;">${lbl}</div>
-        <div style="font-family:'Archivo Black',sans-serif;font-size:16px;letter-spacing:-.4px;color:var(--text);">${val}</div>
+        <div style="font-size:10px;font-weight:500;color:var(--muted);margin-bottom:5px;line-height:1.3;">${lbl}</div>
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;letter-spacing:-.2px;color:var(--text);font-variant-numeric:tabular-nums;">${val}</div>
         ${sub ? `<div style="font-size:10px;color:var(--muted);margin-top:3px;">${sub}</div>` : ''}
       </div>`;
 
@@ -2528,7 +2525,7 @@ function renderDashboard() {
       const tieneProductos = skuDB.length > 0;
       wrap.innerHTML = `
         <div style="padding:28px 0 16px;text-align:center;">
-          <div style="font-family:'Archivo Black',sans-serif;font-size:15px;margin-bottom:8px;letter-spacing:-.2px;">
+          <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;margin-bottom:8px;letter-spacing:-.2px;">
             ${tieneProductos ? 'Registra tu primera venta' : 'Empieza aquí'}
           </div>
           <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.6;max-width:260px;margin-inline:auto;">
@@ -2607,7 +2604,7 @@ function renderDashboard() {
       setupEl.innerHTML = `
         <div style="background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:16px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-            <div style="font-family:'Archivo Black',sans-serif;font-size:13px;letter-spacing:-.2px;">Empieza en 2 minutos</div>
+            <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:13px;letter-spacing:-.2px;">Empieza en 2 minutos</div>
             <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;">${pasosDone}/2</div>
           </div>
           <div style="background:var(--sf3);border-radius:99px;height:4px;margin-bottom:14px;overflow:hidden;">
@@ -3134,7 +3131,7 @@ function renderDetalleCliente(clienteId) {
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
       <button onclick="histSelTab('clientes')" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);">←</button>
       <div style="flex:1;">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:18px;">${cliente.nombre}</div>
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:18px;">${cliente.nombre}</div>
         ${cliente.telefono ? `<div style="font-size:12px;color:var(--muted);">${cliente.telefono}</div>` : ''}
       </div>
       ${waUrl ? `<a href="${waUrl}" target="_blank" style="background:var(--gdim);border:1px solid rgba(30,158,99,.2);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--green);text-decoration:none;font-weight:600;">WhatsApp</a>` : ''}
@@ -3388,7 +3385,7 @@ function invAbrirProducto(nombreEnc) {
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
       <div style="width:46px;height:46px;background:var(--sf2);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">${g.icon}</div>
       <div style="flex:1;min-width:0;">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:16px;letter-spacing:-.3px;margin-bottom:2px;">${nombre}</div>
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:16px;letter-spacing:-.3px;margin-bottom:2px;">${nombre}</div>
         <div style="font-size:11px;color:var(--muted);">${g.marca || ''} · $${fmt(g.precio)}${ganUnit !== null ? ` · <span style="color:${ganUnit<0?'var(--red)':'inherit'};">Te deja ${ganUnit>=0?'':'−'}$${fmt(Math.abs(ganUnit))}</span>` : ''}</div>
       </div>
     </div>
@@ -3404,7 +3401,7 @@ function invMostrarAddStock(varId, nombreEnc, varianteEnc, stockActual) {
   const variante = decodeURIComponent(varianteEnc);
   document.getElementById('inv-sheet-body').innerHTML = `
     <button onclick="invAbrirProducto('${nombreEnc}')" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;margin-bottom:16px;padding:0;">← Volver</button>
-    <div style="font-family:'Archivo Black',sans-serif;font-size:17px;letter-spacing:-.3px;margin-bottom:4px;">${nombre}</div>
+    <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:17px;letter-spacing:-.3px;margin-bottom:4px;">${nombre}</div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:22px;">${variante} · ${stockActual} ud. en stock</div>
     <div class="field" style="margin-bottom:14px;">
       <label>Unidades a agregar</label>
@@ -3441,7 +3438,7 @@ async function invGuardarStock(varId, nombreEnc, varianteEnc, stockActual) {
 // Abrir sheet para "+ Stock" desde acciones rápidas (buscar primero)
 function invAbrirAddStock() {
   document.getElementById('inv-sheet-body').innerHTML = `
-    <div style="font-family:'Archivo Black',sans-serif;font-size:17px;letter-spacing:-.3px;margin-bottom:14px;">Agregar stock</div>
+    <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:17px;letter-spacing:-.3px;margin-bottom:14px;">Agregar stock</div>
     <input id="inv-add-buscar" type="text" placeholder="Busca producto o variante…"
       style="width:100%;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:11px 14px;font-size:14px;color:var(--text);outline:none;margin-bottom:12px;"
       oninput="invBuscarParaStock(this.value)" autocomplete="off">
@@ -3556,13 +3553,13 @@ function ventaRenderInventario(filter='') {
     if(q) {
       lista.innerHTML = `<div style="text-align:center;padding:32px 0;">
         <div style="font-size:36px;margin-bottom:10px;opacity:.5;">🔍</div>
-        <div style="font-family:'Archivo Black',sans-serif;font-size:15px;margin-bottom:6px;">Sin resultados</div>
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;margin-bottom:6px;">Sin resultados</div>
         <div style="font-size:12px;color:var(--muted);">No hay productos que coincidan con "${q}"</div>
       </div>`;
     } else {
       lista.innerHTML = `<div style="text-align:center;padding:40px 16px 24px;">
         <div style="font-size:48px;margin-bottom:14px;">📦</div>
-        <div style="font-family:'Archivo Black',sans-serif;font-size:17px;margin-bottom:8px;letter-spacing:-.3px;">Agrega tu primer producto</div>
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:17px;margin-bottom:8px;letter-spacing:-.3px;">Agrega tu primer producto</div>
         <div style="font-size:12px;color:var(--muted);margin-bottom:22px;line-height:1.7;max-width:240px;margin-inline:auto;">
           Ponle nombre, cuánto lo vendés y cuánto te costó.<br>Cuanti hace el resto.
         </div>
@@ -4142,7 +4139,7 @@ function renderGastos(body, setBody) {
         <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.3px;">GASTOS — ${mesesNom[hoy.getMonth()].toUpperCase()} ${hoy.getFullYear()}</div>
         <button onclick="abrirRegistrarGasto()" style="background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;color:var(--text);">+ Agregar</button>
       </div>
-      <div style="font-family:'Archivo Black',sans-serif;font-size:28px;letter-spacing:-1px;color:var(--red);line-height:1;">$${fmt(totalMes)}</div>
+      <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:26px;letter-spacing:-.5px;color:var(--red);line-height:1;">$${fmt(totalMes)}</div>
       <div style="font-size:12px;color:var(--muted);margin-top:4px;">${gastosDelMes.length} gasto${gastosDelMes.length!==1?'s':''} registrado${gastosDelMes.length!==1?'s':''}</div>
     </div>
     <div style="background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:16px;">
@@ -4364,8 +4361,8 @@ function renderAnalisis(tab, btn) {
     setBody(`
       <!-- Hero: ganancia del día -->
       <div style="background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:20px 18px;margin-bottom:12px;">
-        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:700;margin-bottom:6px;">Ganancia hoy</div>
-        <div style="font-family:'Archivo Black',sans-serif;font-size:36px;letter-spacing:-.5px;color:${gan>=0?'var(--text)':'var(--red)'};">${gan>=0?'+':'−'}$${fmt(Math.abs(gan))}</div>
+        <div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:6px;">Ganancia hoy</div>
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:32px;letter-spacing:-.5px;font-variant-numeric:tabular-nums;color:${gan>=0?'var(--text)':'var(--red)'};">${gan>=0?'+':'−'}$${fmt(Math.abs(gan))}</div>
         <div style="display:flex;gap:16px;margin-top:10px;">
           <div style="font-size:11px;color:var(--muted);">${hoy.length} venta${hoy.length!==1?'s':''}</div>
           <div style="font-size:11px;color:var(--muted);">${margenPct}% margen</div>
@@ -4377,7 +4374,7 @@ function renderAnalisis(tab, btn) {
 
       <!-- Cierre de caja -->
       <div class="chart-box">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:4px;">Cierre de caja</div>
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;">Cierre de caja</div>
         <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">Lo que cobraste hoy, por forma de pago</div>
         ${pagoRows}
         ${efectivo > 0 ? `
@@ -4408,25 +4405,25 @@ function renderAnalisis(tab, btn) {
 
         <!-- P&L -->
         <div class="chart-box">
-          <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Resultado del día</div>
+          <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Resultado del día</div>
           ${kpiRow('💵','Ingresos brutos','$'+fmt(ing),'var(--text)')}
           ${kpiRow('📦','Costo mercadería','−$'+fmt(costoTotal),'var(--red)')}
           ${com > 0 ? kpiRow('🏪','Comisiones Sotos','−$'+fmt(com),'var(--orange)') : ''}
           <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;font-weight:700;font-size:14px;">
             <span>Ganancia neta</span>
-            <span style="font-family:'Archivo Black',sans-serif;color:${gan>=0?'var(--green)':'var(--red)'};">$${fmt(gan)}</span>
+            <span style="font-family:'Barlow',sans-serif;font-weight:700;color:${gan>=0?'var(--green)':'var(--red)'};">$${fmt(gan)}</span>
           </div>
         </div>
 
         <!-- Canales -->
         ${canalHoy.length > 1 ? `<div class="chart-box">
-          <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Por canal</div>
+          <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Por canal</div>
           ${progressRows(canalHoy, gan)}
         </div>` : ''}
 
         <!-- Ventas del día -->
         <div class="chart-box">
-          <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Ventas del día</div>
+          <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Ventas del día</div>
           ${hoy.map(v=>`<div class="trow">
             <div style="font-size:20px;width:28px;flex-shrink:0;">${v.icon}</div>
             <div class="tinfo"><div class="tname">${v.nombre}</div><div class="tunits">${v.fecha.split('·')[1]?.trim()||''} · ${v.canal}${v.pago&&v.pago!=='—'?' · '+v.pago:''}</div></div>
@@ -4486,11 +4483,11 @@ function renderAnalisis(tab, btn) {
         ${barChart(diaGan, dias, 70, (todayDow+6)%7)}
       </div>
       ${topSem.length ? `<div class="chart-box">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Top productos</div>
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Top productos</div>
         ${topProdRows(topSem)}
       </div>` : ''}
       ${canalSem.length ? `<div class="chart-box">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Por canal</div>
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Por canal</div>
         ${progressRows(canalSem, totalSem)}
       </div>` : ''}`);
     return;
@@ -4560,14 +4557,14 @@ function renderAnalisis(tab, btn) {
 
       <!-- P&L del mes -->
       <div class="chart-box">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Estado de resultados</div>
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Estado de resultados</div>
         ${kpiRow('💵','Ingresos brutos','$'+fmt(ing),'var(--text)')}
         ${kpiRow('📦','Costo mercadería','−$'+fmt(costos),'var(--red)')}
         ${coms > 0 ? kpiRow('🏪','Comisiones Sotos','−$'+fmt(coms),'var(--orange)') : ''}
         ${kpiRow('📊','Margen',margen+'%','var(--green)')}
         <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;font-weight:700;font-size:14px;border-top:1px solid var(--bd);margin-top:4px;">
           <span>Ganancia neta</span>
-          <span style="font-family:'Archivo Black',sans-serif;font-size:16px;color:${gan>=0?'var(--green)':'var(--red)'};">$${fmt(gan)}</span>
+          <span style="font-family:'Barlow',sans-serif;font-weight:700;font-size:16px;color:${gan>=0?'var(--green)':'var(--red)'};">$${fmt(gan)}</span>
         </div>
       </div>
 
@@ -4579,20 +4576,20 @@ function renderAnalisis(tab, btn) {
         const rows = Object.entries(porPagoMes).sort((a,b)=>b[1]-a[1])
           .map(([p,m])=>kpiRow(pagoIconM[p]||'💰',p,'$'+fmt(m),'var(--text)')).join('');
         return `<div class="chart-box">
-          <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Por método de pago</div>
+          <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Por método de pago</div>
           ${rows}
         </div>`;
       })()}
 
       <!-- Canales -->
       <div class="chart-box">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Por canal</div>
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Por canal</div>
         ${progressRows(canalMes, gan)}
       </div>
 
       <!-- Top productos -->
       ${topMes.length ? `<div class="chart-box">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:4px;">Top productos del mes</div>
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;">Top productos del mes</div>
         <div style="font-size:10px;color:var(--muted);margin-bottom:12px;">Por ganancia generada</div>
         ${topProdRows(topMes)}
       </div>` : ''}`);
@@ -4683,7 +4680,7 @@ function renderAnalisis(tab, btn) {
 
       <!-- Progreso mes a mes (barras horizontales) -->
       <div class="chart-box">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Mes a mes — detalle</div>
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Mes a mes — detalle</div>
         ${mesesOrden.map((k,i) => {
           const m = porMes[k];
           const real = m.gan - m.gastos;
@@ -4702,14 +4699,14 @@ function renderAnalisis(tab, btn) {
 
       <!-- Productos estrella -->
       <div class="chart-box">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:4px;">Productos estrella</div>
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;">Productos estrella</div>
         <div style="font-size:10px;color:var(--muted);margin-bottom:12px;">Por ganancia total generada</div>
         ${topProdRows(topTotal)}
       </div>
 
       <!-- Canales histórico -->
       <div class="chart-box">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Canales — todo el período</div>
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Canales — todo el período</div>
         ${progressRows(canalTotal, ganTotalH)}
       </div>`);
     return;
@@ -4754,7 +4751,7 @@ function renderAnalisis(tab, btn) {
 
       <!-- Semáforo de stock -->
       <div class="chart-box">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;">Estado del inventario</div>
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Estado del inventario</div>
         ${kpiRow('🟢','Con stock suficiente',ok.length+' SKUs','var(--green)')}
         ${kpiRow('🟡','Se te va a acabar (≤2 ud.)',bajos.length+' SKUs','var(--orange)')}
         ${kpiRow('🔴','Agotados',agotados.length+' SKUs','var(--red)')}
@@ -4764,7 +4761,7 @@ function renderAnalisis(tab, btn) {
 
       <!-- Agotados -->
       ${agotados.length ? `<div class="chart-box" style="border-color:rgba(255,68,68,.2);background:rgba(255,68,68,.03);">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;color:var(--red);">🔴 Agotados — reponer ahora</div>
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;color:var(--red);">🔴 Agotados — reponer ahora</div>
         ${agotados.map(s=>`<div class="trow">
           <div style="font-size:18px;width:26px;flex-shrink:0;">${s.icon}</div>
           <div class="tinfo"><div class="tname">${s.nombre}</div><div class="tunits">${s.variante} · $${fmt(s.precio)}</div></div>
@@ -4774,7 +4771,7 @@ function renderAnalisis(tab, btn) {
 
       <!-- Bajo stock -->
       ${bajos.length ? `<div class="chart-box" style="border-color:rgba(255,140,66,.2);">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:12px;color:var(--orange);">🟡 Se te va a acabar</div>
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;color:var(--orange);">🟡 Se te va a acabar</div>
         ${bajos.map(s=>`<div class="trow">
           <div style="font-size:18px;width:26px;flex-shrink:0;">${s.icon}</div>
           <div class="tinfo"><div class="tname">${s.nombre}</div><div class="tunits">${s.variante}</div></div>
@@ -4784,7 +4781,7 @@ function renderAnalisis(tab, btn) {
 
       <!-- Mayor valor inmovilizado -->
       <div class="chart-box">
-        <div style="font-family:'Archivo Black',sans-serif;font-size:14px;margin-bottom:3px;">Plata parada — vender primero</div>
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:3px;">Plata parada — vender primero</div>
         <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">Productos con más capital inmovilizado</div>
         ${topValor.map((s,i)=>{
           const val = s.precio*s.stock;
@@ -5004,7 +5001,7 @@ async function renderCompras() {
     if(!data || data.length === 0) {
       el.innerHTML = `<div style="text-align:center;padding:40px 16px 24px;">
         <div style="font-size:48px;margin-bottom:14px;">🛒</div>
-        <div style="font-family:'Archivo Black',sans-serif;font-size:17px;margin-bottom:8px;letter-spacing:-.3px;">Sin lotes registrados</div>
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:17px;margin-bottom:8px;letter-spacing:-.3px;">Sin lotes registrados</div>
         <div style="font-size:12px;color:var(--muted);margin-bottom:22px;line-height:1.7;max-width:240px;margin-inline:auto;">
           Registra tus compras para saber cuánto te costó el stock y cuánto ganás.
         </div>
@@ -5222,7 +5219,7 @@ function renderSkuList(filter='') {
     } else {
       list.innerHTML=`<div style="text-align:center;padding:36px 0 20px;">
         <div style="font-size:42px;margin-bottom:12px;opacity:.5;">🏷️</div>
-        <div style="font-family:'Archivo Black',sans-serif;font-size:16px;margin-bottom:8px;">Sin productos creados</div>
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:16px;margin-bottom:8px;">Sin productos creados</div>
         <div style="font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.6;max-width:240px;margin-inline:auto;">
           Completa el formulario de arriba para crear tu primer producto con SKU.
         </div>
