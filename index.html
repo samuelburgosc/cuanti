@@ -231,7 +231,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .avatar-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
 /* ─── SCREENS ─── */
-.main{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:80px;-webkit-overflow-scrolling:touch;}
+.main{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:80px;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;}
 .screen{display:none;padding:0 16px;animation:fu .18s ease both;}
 .screen.active{display:block;}
 @keyframes fu{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
@@ -397,7 +397,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 
 /* ─── BOTTOM SHEET ─── */
 .sheet-bd{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:400;display:none;}
-.sheet{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:430px;background:var(--sf);border-radius:22px 22px 0 0;z-index:401;padding:0 18px max(36px,env(safe-area-inset-bottom));transition:transform .3s cubic-bezier(.32,0,.67,0);}
+.sheet{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:430px;background:var(--sf);border-radius:22px 22px 0 0;z-index:401;padding:0 18px max(36px,env(safe-area-inset-bottom));transition:transform .3s cubic-bezier(.32,0,.67,0);max-height:85dvh;overflow-y:auto;overscroll-behavior:contain;}
 .sheet.open{transform:translateX(-50%) translateY(0);transition-timing-function:cubic-bezier(.33,1,.68,1);}
 .sheet-handle{width:40px;height:4px;background:var(--bd2);border-radius:2px;margin:14px auto 20px;cursor:pointer;}
 
@@ -411,7 +411,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--text);background:var(--sf);}
 .field input::placeholder{color:var(--muted2);}
 .field select option{background:var(--sf2);}
-@supports (-webkit-touch-callout:none){.field input,.field select,.field textarea,.srch,.scan-manual-input{font-size:16px;}}
+@media (hover:none){.field input,.field select,.field textarea,.srch,.scan-manual-input{font-size:16px;}}
 .field textarea{resize:none;min-height:68px;line-height:1.5;}
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
 
@@ -887,6 +887,17 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .main::-webkit-scrollbar{width:3px;}
 .main::-webkit-scrollbar-track{background:transparent;}
 .main::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px;}
+/* ─── MOBILE UX ─── */
+@media (hover:none){
+  .ni,.pb,.chip,.btn,.fab,.nav-fab-wrap,.icon-btn,.avatar-btn{user-select:none;-webkit-user-select:none;}
+  .pcard:active{transform:scale(.98);background:var(--sf2);}
+  .sale:active{background:var(--sf2);}
+  .urgency-item:active{opacity:.75;}
+  .chip:active:not(.on){background:var(--sf3);border-color:var(--bd2);}
+  .pb:active:not(.on){background:var(--sf3);}
+  .btn:active{opacity:.8;}
+  .nav-item:active .nav-ico{transform:scale(.92);}
+}
 </style>
 </head>
 <body>
@@ -1073,11 +1084,11 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
     <div class="frow" style="margin-bottom:20px;">
       <div class="field">
         <label>Precio de venta</label>
-        <div class="fwrap"><span class="fpfx">$</span><input id="v-precio" class="pfx" type="number" oninput="recalcVenta()" style="font-size:20px;font-family:'Barlow',sans-serif;font-weight:700;letter-spacing:-.5px;"></div>
+        <div class="fwrap"><span class="fpfx">$</span><input id="v-precio" class="pfx" type="number" inputmode="decimal" oninput="recalcVenta()" style="font-size:20px;font-family:'Barlow',sans-serif;font-weight:700;letter-spacing:-.5px;"></div>
       </div>
       <div class="field" style="max-width:90px;">
         <label>Cantidad</label>
-        <input id="v-cant" type="number" value="1" min="1" oninput="recalcVenta()" style="font-size:20px;font-family:'Barlow',sans-serif;font-weight:700;text-align:center;">
+        <input id="v-cant" type="number" inputmode="numeric" value="1" min="1" oninput="recalcVenta()" style="font-size:20px;font-family:'Barlow',sans-serif;font-weight:700;text-align:center;">
       </div>
     </div>
 
@@ -1238,8 +1249,8 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
     <div class="mono-lbl">Datos del lote</div>
     <div class="field"><label>Descripción del lote</label><input type="text" id="nc-desc" placeholder="Ej: Lote BAPE Primavera 2026"></div>
     <div class="frow">
-      <div class="field"><label>Total pagado (CLP)</label><div class="fwrap"><span class="fpfx">$</span><input id="nc-total" class="pfx" type="number" placeholder="170018" oninput="calcCostoUnit()"></div></div>
-      <div class="field"><label>Nº de unidades</label><input id="nc-uds" type="number" placeholder="10" oninput="calcCostoUnit()"></div>
+      <div class="field"><label>Total pagado (CLP)</label><div class="fwrap"><span class="fpfx">$</span><input id="nc-total" class="pfx" type="number" inputmode="decimal" placeholder="170018" oninput="calcCostoUnit()"></div></div>
+      <div class="field"><label>Nº de unidades</label><input id="nc-uds" type="number" inputmode="numeric" placeholder="10" oninput="calcCostoUnit()"></div>
     </div>
     <div class="field"><label>Costo por unidad (auto-calculado)</label><div class="fwrap"><span class="fpfx">$</span><input id="nc-costo-unit" class="pfx" type="number" placeholder="—" style="color:var(--green);font-weight:600;" readonly></div></div>
     <div class="field"><label>Destino</label>
@@ -1449,7 +1460,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
         <div class="tgl-sub">Los vendedores no pueden superar este porcentaje</div>
       </div>
       <div style="display:flex;align-items:center;gap:4px;">
-        <input id="descuento-max-input" type="number" min="0" max="100" value="0"
+        <input id="descuento-max-input" type="number" inputmode="numeric" min="0" max="100" value="0"
           style="width:52px;text-align:center;font-family:'DM Mono',monospace;font-size:14px;font-weight:600;border:1px solid var(--bd);border-radius:8px;padding:6px 4px;background:var(--sf2);"
           oninput="setDescuentoMaxPct(this.value)">
         <span style="font-size:13px;color:var(--muted);">%</span>
@@ -1502,14 +1513,14 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
     </div>
     <div class="frow">
       <div class="field"><label>Variante (talla / color)</label><input id="sku-var" type="text" placeholder="40, L, Camo…" oninput="autoSku()"></div>
-      <div class="field"><label>Nº correlativo</label><input id="sku-num" type="number" value="1" min="1" max="999" oninput="autoSku()"></div>
+      <div class="field"><label>Nº correlativo</label><input id="sku-num" type="number" inputmode="numeric" value="1" min="1" max="999" oninput="autoSku()"></div>
     </div>
 
     <!-- Precios -->
     <div style="font-size:11px;font-weight:600;color:var(--muted);margin:16px 0 10px;">Precios</div>
     <div class="frow">
-      <div class="field"><label>Precio de venta</label><div class="fwrap"><span class="fpfx">$</span><input id="sku-precio" class="pfx" type="number" placeholder="145000"></div></div>
-      <div class="field"><label>Costo unitario</label><div class="fwrap"><span class="fpfx">$</span><input id="sku-costo" class="pfx" type="number" placeholder="17002"></div></div>
+      <div class="field"><label>Precio de venta</label><div class="fwrap"><span class="fpfx">$</span><input id="sku-precio" class="pfx" type="number" inputmode="decimal" placeholder="145000"></div></div>
+      <div class="field"><label>Costo unitario</label><div class="fwrap"><span class="fpfx">$</span><input id="sku-costo" class="pfx" type="number" inputmode="decimal" placeholder="17002"></div></div>
     </div>
 
     <!-- Código -->
@@ -1623,8 +1634,8 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
       <div class="opt"     id="sc-vc-snkr"   onclick="scSelCanal(this,'Sneakerheads')"><div class="oico" style="font-size:15px;">👥</div><div class="oinfo"><div class="oname" style="font-size:11px;">Grupos</div><div class="osub">Sin comisión</div></div></div>
     </div>
     <div class="frow">
-      <div class="field"><label>Precio de venta</label><div class="fwrap"><span class="fpfx">$</span><input id="sc-precio" class="pfx" type="number" oninput="scRecalc()"></div></div>
-      <div class="field"><label>Cantidad</label><input id="sc-cant" type="number" value="1" min="1" oninput="scRecalc()"></div>
+      <div class="field"><label>Precio de venta</label><div class="fwrap"><span class="fpfx">$</span><input id="sc-precio" class="pfx" type="number" inputmode="decimal" oninput="scRecalc()"></div></div>
+      <div class="field"><label>Cantidad</label><input id="sc-cant" type="number" inputmode="numeric" value="1" min="1" oninput="scRecalc()"></div>
     </div>
     <div class="frow">
       <div class="field"><label>Pago</label><select id="sc-pago"><option>Transferencia</option><option>Efectivo</option><option>Tarjeta débito</option><option>Tarjeta crédito</option></select></div>
@@ -1644,7 +1655,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
   <div class="action-panel" id="ap-ingreso">
     <div class="action-panel-title">📥 Ingreso de stock</div>
     <div class="frow">
-      <div class="field"><label>Unidades a agregar</label><input id="sc-ing-uds" type="number" value="1" min="1"></div>
+      <div class="field"><label>Unidades a agregar</label><input id="sc-ing-uds" type="number" inputmode="numeric" value="1" min="1"></div>
       <div class="field"><label>Costo unitario (CLP)</label><div class="fwrap"><span class="fpfx">$</span><input id="sc-ing-costo" class="pfx" type="number" placeholder="0"></div></div>
     </div>
     <div class="field"><label>Motivo / Referencia (opcional)</label><input id="sc-ing-nota" type="text" placeholder="Ej: Lote marzo JP · Factura #123"></div>
