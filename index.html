@@ -264,7 +264,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .scard{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:13px 14px;transition:border-color .15s;}
 .scard:hover{border-color:var(--bd2);}
 .scard .si{font-size:16px;margin-bottom:6px;display:block;}
-.scard .sv{font-family:'Barlow',sans-serif;font-weight:700;font-size:17px;letter-spacing:-.2px;line-height:1;margin-bottom:3px;font-variant-numeric:tabular-nums;}
+.scard .sv{font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;letter-spacing:-.2px;line-height:1;margin-bottom:3px;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .scard .sl{font-size:10px;color:var(--muted);}
 .scard.a{background:var(--sf);border-color:var(--bd);}
 .scard.a .sv{color:var(--text);}
@@ -302,17 +302,18 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .sale-profit{font-size:10px;color:var(--green-fg);}
 
 /* ─── CHART ─── */
-.chart-box{background:var(--sf);border:1px solid var(--bd);border-radius:15px;padding:16px;margin-bottom:11px;}
-.chart-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
+.chart-box{background:var(--sf);border:1px solid var(--bd);border-radius:15px;padding:16px;margin-bottom:11px;overflow:hidden;}
+.chart-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:8px;}
+.chart-hdr>div:first-child{flex:1;min-width:0;}
+.chart-hdr>div:last-child{flex-shrink:0;text-align:right;}
 .chart-title{font-size:11px;color:var(--muted);margin-bottom:3px;}
-.chart-val{font-family:'Barlow',sans-serif;font-weight:700;font-size:20px;letter-spacing:-.3px;color:var(--text);font-variant-numeric:tabular-nums;}
-.chart-delta{font-family:'DM Mono',monospace;font-size:12px;}
+.chart-val{font-family:'Barlow',sans-serif;font-weight:700;font-size:18px;letter-spacing:-.3px;color:var(--text);font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.chart-delta{font-family:'DM Mono',monospace;font-size:11px;}
 .chart-delta.up{color:var(--green-fg);}
 .chart-delta.dn{color:var(--red);}
 .bars{display:flex;align-items:flex-end;gap:4px;}
 .bcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;}
-@keyframes bar-reveal{from{clip-path:inset(100% 0 0 0)}to{clip-path:inset(0% 0 0 0)}}
-.b{width:100%;border-radius:4px 4px 0 0;min-height:4px;animation:bar-reveal .5s ease-out both;}
+.b{width:100%;border-radius:4px 4px 0 0;min-height:4px;}
 .b.cur{background:var(--accent);}
 .b.pst{background:var(--sf3);}
 .b.neg{background:var(--red);opacity:.7;}
@@ -324,8 +325,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .legend-dot{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:4px;}
 @keyframes tab-fadein{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
 .tab-content{animation:tab-fadein .18s ease-out both;}
-@keyframes pbar-in{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-.pbar{transform-origin:left;animation:pbar-in .5s ease-out both;}
+.pbar{transform-origin:left;}
 
 /* ─── TOP ROWS ─── */
 .trow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd);}
@@ -972,7 +972,10 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
     <div id="dash-hero-gastos-sub" style="display:none;font-size:11px;color:var(--muted);margin-top:4px;"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
       <div id="dash-hero-trend" style="font-size:13px;"></div>
-      <div style="font-size:12px;color:var(--muted2);" id="dash-hero-mes">—</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div id="dash-local-badge" style="display:none;font-size:10px;color:var(--muted);background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:2px 8px;font-weight:500;"></div>
+        <div style="font-size:12px;color:var(--muted2);" id="dash-hero-mes">—</div>
+      </div>
     </div>
     <div id="dash-hero-pct" style="display:none;"></div>
     <div id="dash-hero-bar" style="display:none;"></div>
@@ -1984,7 +1987,7 @@ async function initAuth() {
 
 async function cargarUsuarioActual(email) {
   const { data, error } = await sb.from('usuarios')
-    .select('id, nombre, email, rol, local_id')
+    .select('id, nombre, email, rol, local_id, locales(nombre)')
     .eq('email', email)
     .eq('activo', true)
     .single();
@@ -1997,7 +2000,7 @@ async function cargarUsuarioActual(email) {
     return false;
   }
 
-  _currentUser = data;
+  _currentUser = { ...data, local_nombre: data.locales?.nombre || null };
   hideLogin();
   aplicarRol();
   return true;
@@ -2302,6 +2305,12 @@ function renderDashboard() {
 
   const lbl = document.getElementById('dash-hero-lbl');
   if (lbl) lbl.textContent = gastosMes > 0 ? 'Ganancia real este mes' : 'Ganancia este mes';
+
+  const localBadge = document.getElementById('dash-local-badge');
+  if (localBadge && _currentUser?.local_nombre) {
+    localBadge.textContent = '📍 ' + _currentUser.local_nombre;
+    localBadge.style.display = '';
+  }
 
   const gastosSubEl = document.getElementById('dash-hero-gastos-sub');
   if (gastosSubEl) {
@@ -4242,34 +4251,32 @@ function renderAnalisis(tab, btn) {
     const positives = values.map(v => Math.max(0,v));
     const max = Math.max(...positives, 1);
     const maxIdx = positives.reduce((mi,v,i) => v > positives[mi] ? i : mi, 0);
-    const fmt1k = n => n >= 10000 ? '$'+Math.round(n/1000)+'k' : n >= 1000 ? '$'+(n/1000).toFixed(1)+'k' : '$'+Math.round(n);
+    const fmtBar = n => '$' + fmt(Math.abs(Math.round(n)));
     const isNowFn = (i) => labels[i] === 'Hoy' || (nowIdx >= 0 ? i === nowIdx : i === values.length-1);
-    // Three separate rows: values on top, bars in middle (fixed height), labels below.
-    // This avoids text overflow into adjacent bars.
     const valsRow = values.map((v,i) => {
       const isNow  = isNowFn(i);
       const isBest = i === maxIdx && v > 0;
       const showVal = v > 0 && (isBest || isNow);
       const style = isNow ? 'font-weight:700;color:var(--text);' : 'color:var(--muted);';
-      return `<div style="flex:1;font-family:'DM Mono',monospace;font-size:10px;text-align:center;overflow:hidden;white-space:nowrap;${style}">${showVal ? fmt1k(v) : ''}</div>`;
+      return `<div style="flex:1;font-family:'DM Mono',monospace;font-size:9px;text-align:center;white-space:nowrap;overflow:visible;position:relative;z-index:1;${style}">${showVal ? fmtBar(v) : ''}</div>`;
     }).join('');
     const barsRow = values.map((v,i) => {
       const pxH   = v < 0 ? 4 : Math.max(4, Math.round((v/max)*h));
       const isNow = isNowFn(i);
       const isNeg = v < 0;
       return `<div style="flex:1;display:flex;align-items:flex-end;">
-        <div class="b ${isNeg?'neg':isNow?'cur':'pst'}" style="width:100%;height:${pxH}px;animation-delay:${i*40}ms;"></div>
+        <div class="b ${isNeg?'neg':isNow?'cur':'pst'}" style="width:100%;height:${pxH}px;"></div>
       </div>`;
     }).join('');
     const lblsRow = labels.map((l,i) => {
       const isNow = isNowFn(i);
       const style = isNow ? 'color:var(--text);font-weight:700;' : 'color:var(--muted2);';
-      return `<div style="flex:1;font-family:'DM Mono',monospace;font-size:10px;text-align:center;overflow:hidden;white-space:nowrap;${style}">${l}</div>`;
+      return `<div style="flex:1;font-family:'DM Mono',monospace;font-size:9px;text-align:center;overflow:hidden;white-space:nowrap;${style}">${l}</div>`;
     }).join('');
     return `<div>
-      <div style="display:flex;gap:4px;height:14px;align-items:flex-end;margin-bottom:2px;">${valsRow}</div>
-      <div style="display:flex;align-items:flex-end;gap:4px;height:${h}px;">${barsRow}</div>
-      <div style="display:flex;gap:4px;margin-top:4px;">${lblsRow}</div>
+      <div style="display:flex;gap:2px;height:16px;align-items:flex-end;margin-bottom:2px;overflow:visible;">${valsRow}</div>
+      <div style="display:flex;align-items:flex-end;gap:2px;height:${h}px;">${barsRow}</div>
+      <div style="display:flex;gap:2px;margin-top:5px;">${lblsRow}</div>
     </div>`;
   }
 
@@ -4342,7 +4349,41 @@ function renderAnalisis(tab, btn) {
     const margenPct = ing > 0 ? Math.round((gan/ing)*100) : 0;
 
     if(hoy.length === 0) {
-      setBody(emptyState('🌅','Sin ventas hoy todavía','Registra una venta y acá verás cuánto ganaste hoy.','Registrar venta →','venta'));
+      // Calcular ganancia de ayer y racha de días consecutivos
+      const ayer = new Date(todayY, todayM, todayD - 1);
+      const ayerVentas = ventas.filter(v => {
+        const fd = parseFecha(v);
+        return fd && fd.getDate() === ayer.getDate() && fd.getMonth() === ayer.getMonth() && fd.getFullYear() === ayer.getFullYear();
+      });
+      const ayerGan = ayerVentas.reduce((s,v) => s + v.gan, 0);
+
+      let streak = 0;
+      for (let i = 1; i <= 30; i++) {
+        const d = new Date(todayY, todayM, todayD - i);
+        const tieneDia = ventas.some(v => {
+          const fd = parseFecha(v);
+          return fd && fd.getDate() === d.getDate() && fd.getMonth() === d.getMonth() && fd.getFullYear() === d.getFullYear();
+        });
+        if (tieneDia) streak++;
+        else break;
+      }
+
+      const streakMsg = streak >= 2
+        ? `<div style="display:inline-flex;align-items:center;gap:5px;background:rgba(215,240,46,.1);border:1px solid rgba(215,240,46,.25);border-radius:20px;padding:4px 12px;margin-bottom:12px;font-size:11px;font-weight:600;color:var(--text);">🔥 ${streak} días seguidos vendiendo</div>`
+        : '';
+
+      const ayerMsg = ayerGan > 0
+        ? `<div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Ayer ganaste</div>
+           <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:28px;letter-spacing:-.5px;color:var(--text);margin-bottom:4px;">${ayerGan>=0?'+':'−'}$${fmt(Math.abs(ayerGan))}</div>
+           <div style="font-size:11px;color:var(--muted);margin-bottom:20px;">${ayerVentas.length} venta${ayerVentas.length!==1?'s':''} · Hoy todavía no hay registros</div>`
+        : `<div style="font-size:13px;color:var(--muted);margin-bottom:20px;">Registra tu primera venta del día para ver cuánto ganás.</div>`;
+
+      setBody(`<div style="text-align:center;padding:36px 16px 20px;">
+        <div style="font-size:38px;margin-bottom:12px;">🌅</div>
+        ${streakMsg}
+        ${ayerMsg}
+        <button class="btn" onclick="goTo('venta')" style="width:auto;padding:12px 28px;font-size:14px;">Registrar venta →</button>
+      </div>`);
       return;
     }
 
@@ -4699,11 +4740,39 @@ function renderAnalisis(tab, btn) {
       <!-- Gráfico mes a mes (ganancia real) -->
       <div class="chart-box">
         <div class="chart-hdr">
-          <div><div class="chart-title">${tieneGastos?'Ganancia real mes a mes':'Ganancia mes a mes'}</div><div class="chart-val" style="font-size:17px;color:${totalAcum<0?'var(--red)':'var(--text)'};">${totalAcum<0?'−':''}$${fmt(Math.abs(totalAcum))}</div></div>
+          <div><div class="chart-title">${tieneGastos?'Ganancia real mes a mes':'Ganancia mes a mes'}</div><div class="chart-val" style="color:${totalAcum<0?'var(--red)':'var(--text)'};">${totalAcum<0?'−':''}$${fmt(Math.abs(totalAcum))}</div></div>
           <div>${delta}</div>
         </div>
         ${barChart(ganRealMes, labPorMes, 75)}
       </div>
+
+      ${mesesOrden.length >= 2 ? (() => {
+        const cur  = ganRealMes[ganRealMes.length - 1];
+        const prev = ganRealMes[ganRealMes.length - 2];
+        const curLabel  = porMes[mesesOrden[mesesOrden.length - 1]].label;
+        const prevLabel = porMes[mesesOrden[mesesOrden.length - 2]].label;
+        const diff = cur - prev;
+        const diffPct = prev !== 0 ? Math.round(Math.abs(diff / prev) * 100) : null;
+        const up = diff >= 0;
+        return `<div class="chart-box">
+          <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Este mes vs anterior</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+            <div style="background:var(--sf2);border-radius:11px;padding:13px;">
+              <div style="font-size:10px;color:var(--muted);margin-bottom:5px;">${prevLabel}</div>
+              <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:16px;font-variant-numeric:tabular-nums;color:${prev<0?'var(--red)':'var(--muted)'};">${prev<0?'−':''}$${fmt(Math.abs(prev))}</div>
+            </div>
+            <div style="background:${up?'rgba(215,240,46,.07)':'rgba(216,75,75,.05)'};border:1px solid ${up?'rgba(215,240,46,.2)':'rgba(216,75,75,.15)'};border-radius:11px;padding:13px;">
+              <div style="font-size:10px;color:var(--muted);margin-bottom:5px;">${curLabel} <span style="font-size:9px;background:${up?'var(--gdim)':'var(--rdim)'};color:${up?'var(--green-fg)':'var(--red)'};border-radius:8px;padding:1px 5px;font-weight:700;">${up?'▲':'▼'} ${diffPct !== null ? diffPct+'%' : ''}</span></div>
+              <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:16px;font-variant-numeric:tabular-nums;color:${cur<0?'var(--red)':'var(--text)'};">${cur<0?'−':''}$${fmt(Math.abs(cur))}</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--muted);text-align:center;">
+            ${up
+              ? `Ganaste <b style="color:var(--green-fg);">$${fmt(Math.abs(diff))} más</b> que ${prevLabel}`
+              : `Ganaste <b style="color:var(--red);">$${fmt(Math.abs(diff))} menos</b> que ${prevLabel}`}
+          </div>
+        </div>`;
+      })() : ''}
 
       <!-- Progreso mes a mes (barras horizontales) -->
       <div class="chart-box">
