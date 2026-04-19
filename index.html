@@ -1001,6 +1001,23 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
   <!-- 3. STATS STRIP -->
   <div id="dash-stats-strip" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px;"></div>
 
+  <!-- CAJA HOY (visible solo si hay efectivo hoy) -->
+  <div id="dash-caja-row" style="display:none;" onclick="goTo('analisis')">
+    <div class="caja-row">
+      <div class="caja-row-left">
+        <span class="caja-row-ico">🪙</span>
+        <div>
+          <div class="caja-row-lbl">En caja hoy</div>
+          <div class="caja-row-sub">Efectivo cobrado · toca para ver detalle</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="caja-row-amt" id="dash-caja-amt">$—</div>
+        <div style="font-size:14px;color:var(--muted2);">›</div>
+      </div>
+    </div>
+  </div>
+
   <!-- ACCIONES UNIFICADAS -->
   <div id="dash-acciones-section">
     <div class="sec-hdr" style="margin-bottom:8px;">
