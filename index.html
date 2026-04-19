@@ -2643,6 +2643,22 @@ function renderDashboard() {
       }
     }
 
+    // 8. Traspasos pendientes de confirmar
+    const miLocalIdDash = _currentUser?.rol === 'Dueño' ? null : _currentUser?.local_id;
+    const transEntrantes = _transDB.filter(t =>
+      t.estado === 'pendiente' &&
+      (miLocalIdDash === null ? true : t.local_destino_id === miLocalIdDash)
+    );
+    if (transEntrantes.length > 0) {
+      items.push({
+        urgency: 'accent',
+        icon: '🔄',
+        text: `<b>${transEntrantes.length} traspaso${transEntrantes.length !== 1 ? 's' : ''}</b> pendiente${transEntrantes.length !== 1 ? 's' : ''} de confirmar`,
+        sub: 'Toca para ver y confirmar',
+        cta: 'Ver traspasos', ctaDest: 'locales'
+      });
+    }
+
     if (items.length === 0) {
       accionesSection.style.display = 'none';
     } else {
