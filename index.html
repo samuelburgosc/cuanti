@@ -5164,24 +5164,315 @@ function clearNotifs() {
 //  LOCALES — render dinámico desde skuDB + ventasDB
 // ══════════════════════════════════════════════════════
 function renderLocales() {
-  const hoy       = new Date();
-  const meses     = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  const mesNom    = meses[hoy.getMonth()];
-  const stockTotal = skuDB.reduce((s,v)=>s+v.stock, 0);
-  const skusActivos = skuDB.filter(s=>s.activa!==false).length;
-  const ventasMes  = ventasDB.filter(v => esVentaMes(v) && !v.nombre.startsWith('↩️'));
-  const ganMes     = ventasMes.reduce((s,v)=>s+v.gan, 0);
-  const gastosMes  = calcGastosMes();
-  const ganReal    = ganMes - gastosMes;
-  const nVentasMes = ventasMes.length;
+  const bodyEl = document.getElementById('locales-body');
+  if (!bodyEl) return;
+  const esDueno = _currentUser?.rol === 'Dueño';
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const mesNom = meses[new Date().getMonth()];
 
-  const set = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
-  set('locales-psub', `${mesNom} ${hoy.getFullYear()} · datos reales`);
-  set('loc-gan',      '$'+fmt(ganReal));
-  set('loc-gan-sub',  mesNom + (gastosMes > 0 ? ` (−$${fmt(gastosMes)} gastos)` : ''));
-  set('loc-ventas',   nVentasMes);
-  set('loc-stock',    stockTotal);
-  set('loc-skus',     skusActivos);
+  let html = '';
+
+  // ── Sección gestión de locales (solo Dueño) ──
+  if (esDueno) {
+    html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;">Mis locales</div>
+      <span class="sec-link" onclick="abrirNuevoLocal()">＋ Nuevo local</span>
+    </div>`;
+
+    if (_localesDB.length === 0) {
+      html += `<div class="card" style="text-align:center;padding:24px;color:var(--muted);font-size:12px;">
+        No tienes locales registrados. Crea el primero con el botón de arriba.
+      </div>`;
+    } else {
+      _localesDB.forEach(loc => {
+        const activo = loc.activo !== false;
+        const dot = loc.color || (activo ? '#D7F02E' : '#BCBCBC');
+        html += `<div class="loc-local-card" onclick="abrirEditarLocal(${loc.id})">
+          <div class="loc-local-dot" style="background:${dot};"></div>
+          <div class="loc-local-info">
+            <div class="loc-local-nombre">${loc.nombre}${!activo ? ' <span class="loc-badge-inactivo">Inactivo</span>' : ''}</div>
+            ${loc.direccion ? `<div class="loc-local-sub">${loc.direccion}</div>` : ''}
+          </div>
+          <div style="font-size:14px;color:var(--muted2);">›</div>
+        </div>`;
+      });
+    }
+    html += '<div class="divider"></div>';
+  }
+
+  // ── Sección comparativa (solo Dueño con 2+ locales activos) ──
+  const activos = _localesDB.filter(l => l.activo !== false);
+  if (esDueno && activos.length >= 2) {
+    const statsLocal = activos.map(loc => {
+      const vMes = ventasDB.filter(v => v.local_id === loc.id && esVentaMes(v) && !v.nombre.startsWith('↩️'));
+      const gan  = vMes.reduce((s,v) => s + v.gan, 0);
+      const ing  = vMes.reduce((s,v) => s + v.precio, 0);
+      const n    = vMes.length;
+      const ticket = n > 0 ? Math.round(ing / n) : 0;
+      const margen = ing > 0 ? Math.round((gan / ing) * 100) : 0;
+      return { loc, gan, ing, n, ticket, margen, vMes };
+    });
+
+    const totalGan = statsLocal.reduce((s, sl) => s + sl.gan, 0);
+
+    html += `<div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Comparación — ${mesNom}</div>`;
+
+    // KPIs lado a lado
+    html += '<div class="loc-kpi-grid">';
+    statsLocal.forEach(sl => {
+      const ganColor = sl.gan < 0 ? 'var(--red)' : 'var(--green-fg)';
+      html += `<div class="loc-kpi-card">
+        <div class="loc-kpi-hdr">${sl.loc.nombre}</div>
+        <div class="loc-kpi-row"><span class="loc-kpi-lbl">Ganancia</span><span class="loc-kpi-val" style="color:${ganColor};">${sl.gan<0?'−':''}$${fmt(Math.abs(sl.gan))}</span></div>
+        <div class="loc-kpi-row"><span class="loc-kpi-lbl">Ventas</span><span class="loc-kpi-val">${sl.n}</span></div>
+        <div class="loc-kpi-row"><span class="loc-kpi-lbl">Ticket prom.</span><span class="loc-kpi-val">$${fmt(sl.ticket)}</span></div>
+        <div class="loc-kpi-row"><span class="loc-kpi-lbl">Margen</span><span class="loc-kpi-val">${sl.margen}%</span></div>
+      </div>`;
+    });
+    html += '</div>';
+
+    // Barra de participación
+    if (totalGan > 0) {
+      const pct0 = Math.round((statsLocal[0].gan / totalGan) * 100);
+      const pct1 = 100 - pct0;
+      html += `<div class="loc-bar-wrap">
+        <div style="font-size:12px;font-weight:600;margin-bottom:2px;">Participación en ganancia</div>
+        <div class="loc-bar-track">
+          <div class="loc-bar-fill" style="width:${pct0}%;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);">
+          <span>${statsLocal[0].loc.nombre} · ${pct0}%</span>
+          <span>${statsLocal[1].loc.nombre} · ${pct1}%</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px;">${statsLocal[0].loc.nombre} generó el ${pct0}% de la ganancia este mes</div>
+      </div>`;
+    }
+
+    // Top 3 productos por local
+    const topProdsLocal = (ventas, n=3) => {
+      const map = {};
+      ventas.forEach(v => { map[v.nombre] = (map[v.nombre]||0) + v.gan; });
+      return Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,n);
+    };
+    html += '<div class="loc-prod-grid">';
+    statsLocal.forEach(sl => {
+      const tops = topProdsLocal(sl.vMes);
+      html += `<div class="loc-prod-card">
+        <div class="loc-kpi-hdr">${sl.loc.nombre} — top productos</div>
+        ${tops.length === 0
+          ? '<div style="font-size:11px;color:var(--muted);">Sin ventas este mes</div>'
+          : tops.map(([nom, gan]) => `<div class="loc-prod-item">
+              <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:6px;">${nom}</span>
+              <span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--green-fg);flex-shrink:0;">$${fmt(gan)}</span>
+            </div>`).join('')
+        }
+      </div>`;
+    });
+    html += '</div>';
+
+    // Top categorías por local
+    const topCatsLocal = (ventas, n=2) => {
+      const map = {};
+      ventas.forEach(v => { const c = v.categoria||'Otro'; map[c] = (map[c]||0) + v.gan; });
+      return Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,n);
+    };
+    const cats0 = topCatsLocal(statsLocal[0].vMes);
+    const cats1 = topCatsLocal(statsLocal[1].vMes);
+    if (cats0.length > 0 || cats1.length > 0) {
+      html += `<div class="chart-box" style="margin-bottom:14px;">
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:13px;margin-bottom:10px;">Categorías que más venden</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div>
+            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">${statsLocal[0].loc.nombre}</div>
+            ${cats0.map(([c,g])=>`<div style="font-size:11px;margin-bottom:3px;">${c} <span style="color:var(--muted);">$${fmt(g)}</span></div>`).join('')||'<div style="font-size:11px;color:var(--muted);">—</div>'}
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">${statsLocal[1].loc.nombre}</div>
+            ${cats1.map(([c,g])=>`<div style="font-size:11px;margin-bottom:3px;">${c} <span style="color:var(--muted);">$${fmt(g)}</span></div>`).join('')||'<div style="font-size:11px;color:var(--muted);">—</div>'}
+          </div>
+        </div>
+      </div>`;
+    }
+
+    // Insights automáticos
+    const insights = [];
+    const [s0, s1] = statsLocal;
+
+    if (s0.margen > 0 && s1.margen > 0 && Math.abs(s0.margen - s1.margen) >= 5) {
+      const mejor = s0.margen >= s1.margen ? s0 : s1;
+      const otro  = s0.margen >= s1.margen ? s1 : s0;
+      insights.push(`💡 El margen de <b>${mejor.loc.nombre}</b> es mejor este mes (${mejor.margen}% vs ${otro.margen}%). Revisa los costos en ${otro.loc.nombre}.`);
+    }
+
+    if (s0.n > 0 && s1.n > 0) {
+      const tops0 = topProdsLocal(s0.vMes, 1);
+      const tops1 = topProdsLocal(s1.vMes, 1);
+      if (tops0.length && tops1.length && tops0[0][0] !== tops1[0][0]) {
+        const ventasEnOtro = s1.vMes.filter(v => v.nombre === tops0[0][0]).length;
+        if (ventasEnOtro === 0) {
+          insights.push(`📦 <b>${tops0[0][0]}</b> es tu producto estrella en ${s0.loc.nombre} pero no se ha vendido en ${s1.loc.nombre} este mes. Considera llevarlo.`);
+        }
+      }
+    }
+
+    if (s0.n === 0 && s1.n > 0) {
+      insights.push(`⚠️ <b>${s0.loc.nombre}</b> no registra ventas este mes. Revisa si hay algo que resolver.`);
+    } else if (s1.n === 0 && s0.n > 0) {
+      insights.push(`⚠️ <b>${s1.loc.nombre}</b> no registra ventas este mes. Revisa si hay algo que resolver.`);
+    }
+
+    if (s0.gan > 0 && s1.gan > 0) {
+      const ratio = Math.round(Math.max(s0.gan, s1.gan) / Math.min(s0.gan, s1.gan));
+      const mayor = s0.gan >= s1.gan ? s0 : s1;
+      const menor = s0.gan >= s1.gan ? s1 : s0;
+      if (ratio >= 2) {
+        insights.push(`📊 <b>${mayor.loc.nombre}</b> ganó ${ratio}× más que ${menor.loc.nombre} este mes ($${fmt(mayor.gan)} vs $${fmt(menor.gan)}).`);
+      }
+    }
+
+    if (insights.length > 0) {
+      html += `<div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:13px;margin-bottom:8px;">Insights</div>`;
+      html += insights.slice(0,3).map(i => `<div class="loc-insight">${i}</div>`).join('');
+    }
+
+  } else if (!esDueno) {
+    // Vendedor: solo KPIs de su local
+    const vMes = ventasDB.filter(v => esVentaMes(v) && !v.nombre.startsWith('↩️'));
+    const gan  = vMes.reduce((s,v) => s + v.gan, 0);
+    const gastos = calcGastosMes();
+    const ganReal = gan - gastos;
+    html += `<div class="sgrid" style="margin-bottom:16px;">
+      <div class="scard a"><span class="si">💰</span><div class="sv">${ganReal<0?'−':''}$${fmt(Math.abs(ganReal))}</div><div class="sl">Ganancia ${mesNom}</div></div>
+      <div class="scard"><span class="si">🛍️</span><div class="sv">${vMes.length}</div><div class="sl">Ventas este mes</div></div>
+      <div class="scard"><span class="si">📦</span><div class="sv">${skuDB.reduce((s,v)=>s+v.stock,0)}</div><div class="sl">Unidades en stock</div></div>
+      <div class="scard"><span class="si">🏷️</span><div class="sv">${skuDB.filter(s=>s.activa!==false).length}</div><div class="sl">Variantes activas</div></div>
+    </div>`;
+  }
+
+  bodyEl.innerHTML = html;
+}
+
+// ── GESTIÓN DE LOCALES ─────────────────────────────────────
+let _localEditId = null;
+let _localEditActivo = true;
+let _localEditTieneVentas = false;
+
+function abrirNuevoLocal() {
+  _localEditId = null;
+  document.getElementById('local-sheet-titulo').textContent = 'Nuevo local';
+  document.getElementById('local-nombre-input').value = '';
+  document.getElementById('local-dir-input').value = '';
+  document.getElementById('local-edit-section').style.display = 'none';
+  document.getElementById('local-guardar-btn').textContent = 'Crear local →';
+  const bd = document.getElementById('local-sheet-bd');
+  const sh = document.getElementById('local-sheet');
+  if (bd) bd.style.display = '';
+  if (sh) { sh.style.display = ''; setTimeout(() => sh.classList.add('open'), 10); }
+}
+
+async function abrirEditarLocal(id) {
+  const loc = _localesDB.find(l => l.id === id);
+  if (!loc) return;
+  _localEditId = id;
+  _localEditActivo = loc.activo !== false;
+  document.getElementById('local-sheet-titulo').textContent = 'Editar local';
+  document.getElementById('local-nombre-input').value = loc.nombre || '';
+  document.getElementById('local-dir-input').value = loc.direccion || '';
+  document.getElementById('local-edit-id').value = id;
+  document.getElementById('local-guardar-btn').textContent = 'Guardar cambios →';
+
+  const { count } = await sb.from('ventas').select('id', { count: 'exact', head: true }).eq('local_id', id);
+  _localEditTieneVentas = (count || 0) > 0;
+
+  const editSec    = document.getElementById('local-edit-section');
+  const toggleBtn  = document.getElementById('local-toggle-btn');
+  const estadoSub  = document.getElementById('local-estado-sub');
+  const deleteBtn  = document.getElementById('local-delete-btn');
+  const deleteSub  = document.getElementById('local-delete-sub');
+
+  editSec.style.display = '';
+  estadoSub.textContent  = _localEditActivo ? 'Activo' : 'Inactivo';
+  toggleBtn.textContent  = _localEditActivo ? 'Desactivar' : 'Activar';
+
+  if (_localEditTieneVentas) {
+    deleteBtn.disabled = true;
+    deleteBtn.style.opacity = '.4';
+    deleteSub.textContent = 'No se puede eliminar un local con ventas registradas';
+  } else {
+    deleteBtn.disabled = false;
+    deleteBtn.style.opacity = '';
+    deleteSub.textContent = '';
+  }
+
+  const bd = document.getElementById('local-sheet-bd');
+  const sh = document.getElementById('local-sheet');
+  if (bd) bd.style.display = '';
+  if (sh) { sh.style.display = ''; setTimeout(() => sh.classList.add('open'), 10); }
+}
+
+function cerrarLocalSheet() {
+  const bd = document.getElementById('local-sheet-bd');
+  const sh = document.getElementById('local-sheet');
+  if (sh) sh.classList.remove('open');
+  setTimeout(() => {
+    if (bd) bd.style.display = 'none';
+    if (sh) sh.style.display = 'none';
+  }, 300);
+}
+
+async function guardarLocal() {
+  const nombre = (document.getElementById('local-nombre-input')?.value || '').trim();
+  const dir    = (document.getElementById('local-dir-input')?.value || '').trim();
+  if (!nombre) { toast('Ingresa un nombre para el local.', 'err'); return; }
+
+  const btn = document.getElementById('local-guardar-btn');
+  if (btn) { btn.textContent = '⏳ Guardando…'; btn.disabled = true; }
+
+  if (!_localEditId) {
+    const { data, error } = await sb.from('locales').insert({ nombre, direccion: dir || null, activo: true }).select('id, nombre, direccion, activo, color').single();
+    if (error) { toast('Error al crear el local.', 'err'); console.error(error); if(btn){btn.textContent='Crear local →';btn.disabled=false;} return; }
+    _localesDB.push(data);
+    toast(`Local "${nombre}" creado.`, 'ok');
+  } else {
+    const { error } = await sb.from('locales').update({ nombre, direccion: dir || null }).eq('id', _localEditId);
+    if (error) { toast('Error al guardar.', 'err'); console.error(error); if(btn){btn.textContent='Guardar cambios →';btn.disabled=false;} return; }
+    const idx = _localesDB.findIndex(l => l.id === _localEditId);
+    if (idx >= 0) { _localesDB[idx].nombre = nombre; _localesDB[idx].direccion = dir || null; }
+    toast('Cambios guardados.', 'ok');
+  }
+
+  cerrarLocalSheet();
+  renderLocales();
+  renderDashboard();
+  if (btn) { btn.disabled = false; }
+}
+
+async function toggleLocalActivo() {
+  if (!_localEditId) return;
+  const nuevoEstado = !_localEditActivo;
+  const { error } = await sb.from('locales').update({ activo: nuevoEstado }).eq('id', _localEditId);
+  if (error) { toast('Error al actualizar estado.', 'err'); return; }
+  const idx = _localesDB.findIndex(l => l.id === _localEditId);
+  if (idx >= 0) _localesDB[idx].activo = nuevoEstado;
+  _localEditActivo = nuevoEstado;
+  document.getElementById('local-estado-sub').textContent = nuevoEstado ? 'Activo' : 'Inactivo';
+  document.getElementById('local-toggle-btn').textContent = nuevoEstado ? 'Desactivar' : 'Activar';
+  toast(`Local ${nuevoEstado ? 'activado' : 'desactivado'}.`, 'ok');
+  renderLocales();
+  renderDashboard();
+}
+
+async function eliminarLocalConfirm() {
+  if (!_localEditId || _localEditTieneVentas) return;
+  if (!confirm('¿Eliminar este local? Esta acción no se puede deshacer.')) return;
+  const { error } = await sb.from('locales').delete().eq('id', _localEditId);
+  if (error) { toast('Error al eliminar.', 'err'); return; }
+  _localesDB = _localesDB.filter(l => l.id !== _localEditId);
+  if (_activeLocal === _localEditId) setActiveLocal(null);
+  cerrarLocalSheet();
+  toast('Local eliminado.', 'ok');
+  renderLocales();
+  renderDashboard();
 }
 
 // ══════════════════════════════════════════════════════
