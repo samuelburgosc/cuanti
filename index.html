@@ -1450,39 +1450,8 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 <!-- ════════════════════════════ LOCALES ════════════════════════════ -->
 <div class="screen" id="screen-locales">
   <div class="ptitle">Mi negocio</div>
-  <div class="psub" id="locales-psub">Resumen del local activo</div>
-
-  <!-- KPIs reales del local actual -->
-  <div class="sgrid" id="locales-kpis" style="margin-bottom:16px;">
-    <div class="scard a">
-      <span class="si">💰</span>
-      <div class="sv" id="loc-gan">$—</div>
-      <div class="sl" id="loc-gan-sub">Ganancia este mes</div>
-    </div>
-    <div class="scard">
-      <span class="si">🛍️</span>
-      <div class="sv" id="loc-ventas">—</div>
-      <div class="sl">Ventas este mes</div>
-    </div>
-    <div class="scard">
-      <span class="si">📦</span>
-      <div class="sv" id="loc-stock">—</div>
-      <div class="sl">Unidades en stock</div>
-    </div>
-    <div class="scard">
-      <span class="si">🏷️</span>
-      <div class="sv" id="loc-skus">—</div>
-      <div class="sl">Variantes activas</div>
-    </div>
-  </div>
-
-  <!-- Multi-local: próximamente -->
-  <div class="card" style="text-align:center;background:var(--sf2);">
-    <div style="font-size:26px;margin-bottom:8px;opacity:.5;">🏪</div>
-    <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:5px;letter-spacing:-.2px;">Multi-local próximamente</div>
-    <div style="font-size:12px;color:var(--muted);line-height:1.6;">Cuando tengas más de un local, acá podrás comparar ganancias, stock y ventas entre todos tus puntos de venta.</div>
-  </div>
-
+  <div class="psub" id="locales-psub">Mis locales</div>
+  <div id="locales-body"></div>
   <div class="spacer"></div>
 </div>
 
@@ -6211,5 +6180,39 @@ async function cargarDatos() {
   goTo(_currentUser.rol === 'Dueño' ? 'dashboard' : 'inventario');
 })();
 </script>
+
+<!-- ══ SHEET: CREAR / EDITAR LOCAL ══ -->
+<div class="sheet-bd" id="local-sheet-bd" onclick="cerrarLocalSheet()"></div>
+<div class="sheet" id="local-sheet">
+  <div class="sheet-handle" onclick="cerrarLocalSheet()"></div>
+  <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:17px;margin-bottom:18px;" id="local-sheet-titulo">Nuevo local</div>
+
+  <div class="field" style="margin-bottom:10px;">
+    <label>Nombre del local</label>
+    <input id="local-nombre-input" type="text" placeholder="Ej: Local Centro">
+  </div>
+  <div class="field" style="margin-bottom:18px;">
+    <label>Dirección (opcional)</label>
+    <input id="local-dir-input" type="text" placeholder="Ej: Av. Providencia 1234">
+  </div>
+
+  <!-- Solo visible al editar -->
+  <div id="local-edit-section" style="display:none;margin-bottom:18px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-top:1px solid var(--bd);">
+      <div>
+        <div style="font-size:13px;font-weight:600;">Estado del local</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;" id="local-estado-sub">Activo</div>
+      </div>
+      <button id="local-toggle-btn" class="btn sec" style="width:auto;padding:9px 16px;font-size:12px;" onclick="toggleLocalActivo()">Desactivar</button>
+    </div>
+    <div id="local-delete-wrap" style="padding-top:4px;">
+      <button id="local-delete-btn" class="btn danger" style="width:100%;font-size:12px;padding:11px;" onclick="eliminarLocalConfirm()">Eliminar local</button>
+      <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:6px;" id="local-delete-sub"></div>
+    </div>
+  </div>
+
+  <input type="hidden" id="local-edit-id" value="">
+  <button class="btn" id="local-guardar-btn" onclick="guardarLocal()" style="margin-top:4px;">Crear local →</button>
+</div>
 </body>
 </html>
