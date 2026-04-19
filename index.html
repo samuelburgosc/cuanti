@@ -1049,6 +1049,9 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
   <!-- 2. SETUP / ONBOARDING (desaparece cuando está completo) -->
   <div id="dash-setup" style="display:none;margin-bottom:20px;"></div>
 
+  <!-- LOCAL STRIP (solo Dueño con 2+ locales) -->
+  <div id="dash-local-strip" style="display:none;margin-bottom:16px;"></div>
+
   <!-- 3. STATS STRIP -->
   <div id="dash-stats-strip" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px;"></div>
 
@@ -2749,6 +2752,44 @@ function renderDashboard() {
   // Botón registrar gasto — solo dueño
   const btnGasto = document.getElementById('dash-btn-gasto');
   if (btnGasto) btnGasto.style.display = _currentUser?.rol === 'Dueño' ? '' : 'none';
+
+  // Local strip: comparación rápida entre locales (solo Dueño)
+  const stripEl = document.getElementById('dash-local-strip');
+  if (stripEl) {
+    const esDueno = _currentUser?.rol === 'Dueño';
+    const activos = _localesDB.filter(l => l.activo !== false);
+    if (esDueno && activos.length >= 2 && !_activeLocal) {
+      const cols = activos.map(loc => {
+        const ganLoc = ventasDB
+          .filter(v => v.local_id === loc.id && esVentaMes(v) && !v.nombre.startsWith('↩️'))
+          .reduce((s, v) => s + v.gan, 0);
+        const color = ganLoc < 0 ? 'var(--red)' : 'var(--text)';
+        return `<div class="local-strip-col">
+          <div class="local-strip-col-lbl">${loc.nombre}</div>
+          <div class="local-strip-col-amt" style="color:${color};">${ganLoc<0?'−':''}$${fmt(Math.abs(ganLoc))}</div>
+        </div>`;
+      });
+      const withDividers = cols.reduce((acc, col, i) =>
+        i === 0 ? [col] : [...acc, '<div class="local-strip-div"></div>', col], []
+      ).join('');
+      stripEl.style.display = '';
+      stripEl.innerHTML = `<div class="local-strip-card" onclick="goTo('locales')" role="button">
+        ${withDividers}
+        <div style="padding:10px 12px;display:flex;align-items:center;color:var(--muted2);font-size:14px;flex-shrink:0;">›</div>
+      </div>`;
+    } else if (esDueno && _activeLocal) {
+      const loc = _localesDB.find(l => l.id === _activeLocal);
+      stripEl.style.display = '';
+      stripEl.innerHTML = `<div style="display:flex;align-items:center;gap:8px;">
+        <div class="local-active-chip">🏪 ${loc?.nombre || 'Local'}
+          <button class="local-active-chip-x" onclick="setActiveLocal(null)">×</button>
+        </div>
+        <span style="font-size:11px;color:var(--muted);">Solo este local</span>
+      </div>`;
+    } else {
+      stripEl.style.display = 'none';
+    }
+  }
 
   // Fila caja: efectivo cobrado hoy
   const cajaRow = document.getElementById('dash-caja-row');
