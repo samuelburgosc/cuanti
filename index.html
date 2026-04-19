@@ -2308,6 +2308,8 @@ function mesActualStr() {
 }
 function mesActualNum() { return new Date().getMonth() + 1; }
 
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
 // Retorna el local_id a filtrar: null = sin filtro (Dueño ve todo), número = filtra por local
 function localFiltro() {
   if (_currentUser?.rol !== 'Dueño') return _currentUser?.local_id ?? null;
@@ -5190,8 +5192,8 @@ function renderLocales() {
         html += `<div class="loc-local-card" onclick="abrirEditarLocal(${loc.id})">
           <div class="loc-local-dot" style="background:${dot};"></div>
           <div class="loc-local-info">
-            <div class="loc-local-nombre">${loc.nombre}${!activo ? ' <span class="loc-badge-inactivo">Inactivo</span>' : ''}</div>
-            ${loc.direccion ? `<div class="loc-local-sub">${loc.direccion}</div>` : ''}
+            <div class="loc-local-nombre">${esc(loc.nombre)}${!activo ? ' <span class="loc-badge-inactivo">Inactivo</span>' : ''}</div>
+            ${loc.direccion ? `<div class="loc-local-sub">${esc(loc.direccion)}</div>` : ''}
           </div>
           <div style="font-size:14px;color:var(--muted2);">›</div>
         </div>`;
@@ -5203,7 +5205,7 @@ function renderLocales() {
   // ── Sección comparativa (solo Dueño con 2+ locales activos) ──
   const activos = _localesDB.filter(l => l.activo !== false);
   if (esDueno && activos.length >= 2) {
-    const statsLocal = activos.map(loc => {
+    const statsLocal = activos.slice(0, 2).map(loc => {
       const vMes = ventasDB.filter(v => v.local_id === loc.id && esVentaMes(v) && !v.nombre.startsWith('↩️'));
       const gan  = vMes.reduce((s,v) => s + v.gan, 0);
       const ing  = vMes.reduce((s,v) => s + v.precio, 0);
@@ -5222,7 +5224,7 @@ function renderLocales() {
     statsLocal.forEach(sl => {
       const ganColor = sl.gan < 0 ? 'var(--red)' : 'var(--green-fg)';
       html += `<div class="loc-kpi-card">
-        <div class="loc-kpi-hdr">${sl.loc.nombre}</div>
+        <div class="loc-kpi-hdr">${esc(sl.loc.nombre)}</div>
         <div class="loc-kpi-row"><span class="loc-kpi-lbl">Ganancia</span><span class="loc-kpi-val" style="color:${ganColor};">${sl.gan<0?'−':''}$${fmt(Math.abs(sl.gan))}</span></div>
         <div class="loc-kpi-row"><span class="loc-kpi-lbl">Ventas</span><span class="loc-kpi-val">${sl.n}</span></div>
         <div class="loc-kpi-row"><span class="loc-kpi-lbl">Ticket prom.</span><span class="loc-kpi-val">$${fmt(sl.ticket)}</span></div>
@@ -5241,10 +5243,10 @@ function renderLocales() {
           <div class="loc-bar-fill" style="width:${pct0}%;"></div>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);">
-          <span>${statsLocal[0].loc.nombre} · ${pct0}%</span>
-          <span>${statsLocal[1].loc.nombre} · ${pct1}%</span>
+          <span>${esc(statsLocal[0].loc.nombre)} · ${pct0}%</span>
+          <span>${esc(statsLocal[1].loc.nombre)} · ${pct1}%</span>
         </div>
-        <div style="font-size:11px;color:var(--muted);margin-top:6px;">${statsLocal[0].loc.nombre} generó el ${pct0}% de la ganancia este mes</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px;">${esc(statsLocal[0].loc.nombre)} generó el ${pct0}% de la ganancia este mes</div>
       </div>`;
     }
 
@@ -5258,7 +5260,7 @@ function renderLocales() {
     statsLocal.forEach(sl => {
       const tops = topProdsLocal(sl.vMes);
       html += `<div class="loc-prod-card">
-        <div class="loc-kpi-hdr">${sl.loc.nombre} — top productos</div>
+        <div class="loc-kpi-hdr">${esc(sl.loc.nombre)} — top productos</div>
         ${tops.length === 0
           ? '<div style="font-size:11px;color:var(--muted);">Sin ventas este mes</div>'
           : tops.map(([nom, gan]) => `<div class="loc-prod-item">
@@ -5283,11 +5285,11 @@ function renderLocales() {
         <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:13px;margin-bottom:10px;">Categorías que más venden</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
           <div>
-            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">${statsLocal[0].loc.nombre}</div>
+            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">${esc(statsLocal[0].loc.nombre)}</div>
             ${cats0.map(([c,g])=>`<div style="font-size:11px;margin-bottom:3px;">${c} <span style="color:var(--muted);">$${fmt(g)}</span></div>`).join('')||'<div style="font-size:11px;color:var(--muted);">—</div>'}
           </div>
           <div>
-            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">${statsLocal[1].loc.nombre}</div>
+            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">${esc(statsLocal[1].loc.nombre)}</div>
             ${cats1.map(([c,g])=>`<div style="font-size:11px;margin-bottom:3px;">${c} <span style="color:var(--muted);">$${fmt(g)}</span></div>`).join('')||'<div style="font-size:11px;color:var(--muted);">—</div>'}
           </div>
         </div>
@@ -5301,7 +5303,7 @@ function renderLocales() {
     if (s0.margen > 0 && s1.margen > 0 && Math.abs(s0.margen - s1.margen) >= 5) {
       const mejor = s0.margen >= s1.margen ? s0 : s1;
       const otro  = s0.margen >= s1.margen ? s1 : s0;
-      insights.push(`💡 El margen de <b>${mejor.loc.nombre}</b> es mejor este mes (${mejor.margen}% vs ${otro.margen}%). Revisa los costos en ${otro.loc.nombre}.`);
+      insights.push(`💡 El margen de <b>${esc(mejor.loc.nombre)}</b> es mejor este mes (${mejor.margen}% vs ${otro.margen}%). Revisa los costos en ${esc(otro.loc.nombre)}.`);
     }
 
     if (s0.n > 0 && s1.n > 0) {
@@ -5310,15 +5312,15 @@ function renderLocales() {
       if (tops0.length && tops1.length && tops0[0][0] !== tops1[0][0]) {
         const ventasEnOtro = s1.vMes.filter(v => v.nombre === tops0[0][0]).length;
         if (ventasEnOtro === 0) {
-          insights.push(`📦 <b>${tops0[0][0]}</b> es tu producto estrella en ${s0.loc.nombre} pero no se ha vendido en ${s1.loc.nombre} este mes. Considera llevarlo.`);
+          insights.push(`📦 <b>${esc(tops0[0][0])}</b> es tu producto estrella en ${esc(s0.loc.nombre)} pero no se ha vendido en ${esc(s1.loc.nombre)} este mes. Considera llevarlo.`);
         }
       }
     }
 
     if (s0.n === 0 && s1.n > 0) {
-      insights.push(`⚠️ <b>${s0.loc.nombre}</b> no registra ventas este mes. Revisa si hay algo que resolver.`);
+      insights.push(`⚠️ <b>${esc(s0.loc.nombre)}</b> no registra ventas este mes. Revisa si hay algo que resolver.`);
     } else if (s1.n === 0 && s0.n > 0) {
-      insights.push(`⚠️ <b>${s1.loc.nombre}</b> no registra ventas este mes. Revisa si hay algo que resolver.`);
+      insights.push(`⚠️ <b>${esc(s1.loc.nombre)}</b> no registra ventas este mes. Revisa si hay algo que resolver.`);
     }
 
     if (s0.gan > 0 && s1.gan > 0) {
@@ -5326,7 +5328,7 @@ function renderLocales() {
       const mayor = s0.gan >= s1.gan ? s0 : s1;
       const menor = s0.gan >= s1.gan ? s1 : s0;
       if (ratio >= 2) {
-        insights.push(`📊 <b>${mayor.loc.nombre}</b> ganó ${ratio}× más que ${menor.loc.nombre} este mes ($${fmt(mayor.gan)} vs $${fmt(menor.gan)}).`);
+        insights.push(`📊 <b>${esc(mayor.loc.nombre)}</b> ganó ${ratio}× más que ${esc(menor.loc.nombre)} este mes ($${fmt(mayor.gan)} vs $${fmt(menor.gan)}).`);
       }
     }
 
@@ -5381,7 +5383,8 @@ async function abrirEditarLocal(id) {
   document.getElementById('local-edit-id').value = id;
   document.getElementById('local-guardar-btn').textContent = 'Guardar cambios →';
 
-  const { count } = await sb.from('ventas').select('id', { count: 'exact', head: true }).eq('local_id', id);
+  const { count, error: cntErr } = await sb.from('ventas').select('id', { count: 'exact', head: true }).eq('local_id', id);
+  if (cntErr) { toast('Error al cargar datos del local.', 'err'); return; }
   _localEditTieneVentas = (count || 0) > 0;
 
   const editSec    = document.getElementById('local-edit-section');
