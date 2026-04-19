@@ -2682,6 +2682,17 @@ function renderDashboard() {
   // Botón registrar gasto — solo dueño
   const btnGasto = document.getElementById('dash-btn-gasto');
   if (btnGasto) btnGasto.style.display = _currentUser?.rol === 'Dueño' ? '' : 'none';
+
+  // Fila caja: efectivo cobrado hoy
+  const cajaRow = document.getElementById('dash-caja-row');
+  const cajaAmt = document.getElementById('dash-caja-amt');
+  if (cajaRow) {
+    const efectivoHoy = ventasDB
+      .filter(v => !v.nombre.startsWith('↩️') && v.fecha.startsWith('Hoy') && v.pago === 'Efectivo')
+      .reduce((s, v) => s + v.precio, 0);
+    cajaRow.style.display = efectivoHoy > 0 ? '' : 'none';
+    if (cajaAmt) cajaAmt.textContent = '$' + fmt(efectivoHoy);
+  }
 }
 
 // ══════════════════════════════════════════════════════
