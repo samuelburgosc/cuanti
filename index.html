@@ -5459,7 +5459,7 @@ function renderLocales() {
     html += `<div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin:16px 0 10px;">Historial de traspasos</div>`;
     histAll.forEach(t => {
       const nomProd  = t.variantes?.productos?.nombre || '—';
-      const esEnvio  = miLocalId === null ? (t.local_origen_id === _currentUser?.local_id) : (t.local_origen_id === miLocalId);
+      const esEnvio  = miLocalId === null ? (t.usuario_origen_id === _currentUser?.id) : (t.local_origen_id === miLocalId);
       const otroNom  = esEnvio ? (t.local_destino?.nombre || '—') : (t.local_origen?.nombre || '—');
       const flecha   = esEnvio ? '→' : '←';
       const badgeCls = t.estado === 'recibida' ? 'ok' : t.estado === 'pendiente' ? 'pending' : 'cancelada';
@@ -5599,6 +5599,114 @@ async function eliminarLocalConfirm() {
   cerrarLocalSheet();
   toast('Local eliminado.', 'ok');
   renderLocales();
+  renderDashboard();
+}
+
+// ── TRANSFERENCIAS ─────────────────────────────────────────
+async function confirmarTransferencia(id) {
+  const t = _transDB.find(x => x.id === id);
+  if (!t || t.estado !== 'pendiente') return;
+
+  const btn = document.querySelector(`[onclick="confirmarTransferencia(${id})"]`);
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Confirmando…'; }
+
+  // Obtener producto_id y talla_color de la variante de origen
+  let prodId = null;
+  let tallColor = null;
+  const origSku = skuDB.find(s => s.id === t.variante_id);
+  if (origSku) {
+    prodId    = origSku.producto_id;
+    tallColor = origSku.variante;
+  } else {
+    const { data: v } = await sb.from('variantes').select('producto_id, talla_color').eq('id', t.variante_id).single();
+    if (!v) {
+      toast('Error al confirmar: variante de origen no encontrada.', 'err');
+      if (btn) { btn.disabled = false; btn.textContent = '✅ Confirmar recepción'; }
+      return;
+    }
+    prodId    = v.producto_id;
+    tallColor = v.talla_color;
+  }
+
+  // Buscar variante en destino (mismo producto + talla + local destino)
+  const destSku = skuDB.find(s =>
+    s.producto_id === prodId &&
+    s.variante    === tallColor &&
+    s.local_id    === t.local_destino_id
+  );
+
+  if (destSku) {
+    const nuevoStock = destSku.stock + t.cantidad;
+    const { error: errUpd } = await sb.from('variantes').update({ stock_actual: nuevoStock }).eq('id', destSku.id);
+    if (errUpd) {
+      toast('Error al actualizar stock destino.', 'err');
+      console.error(errUpd);
+      if (btn) { btn.disabled = false; btn.textContent = '✅ Confirmar recepción'; }
+      return;
+    }
+    destSku.stock = nuevoStock;
+  } else {
+    const { error: errIns } = await sb.from('variantes').insert({
+      producto_id:         prodId,
+      talla_color:         tallColor,
+      local_id:            t.local_destino_id,
+      stock_actual:        t.cantidad,
+      stock_minimo:        0,
+      costo_ultima_compra: t.costo_unitario,
+      activa:              true,
+    });
+    if (errIns) {
+      toast('Error al crear variante en destino.', 'err');
+      console.error(errIns);
+      if (btn) { btn.disabled = false; btn.textContent = '✅ Confirmar recepción'; }
+      return;
+    }
+    await cargarInventario();
+  }
+
+  // Marcar transferencia como recibida
+  const { error: errTrans } = await sb.from('transferencias').update({
+    estado:             'recibida',
+    usuario_destino_id: _currentUser?.id,
+    fecha_confirmacion: new Date().toISOString(),
+  }).eq('id', id);
+  if (errTrans) { console.error('Error actualizando transferencia:', errTrans); }
+
+  const idx = _transDB.findIndex(x => x.id === id);
+  if (idx >= 0) {
+    _transDB[idx].estado             = 'recibida';
+    _transDB[idx].usuario_destino_id = _currentUser?.id;
+    _transDB[idx].fecha_confirmacion = new Date().toISOString();
+  }
+
+  toast('Recepción confirmada. Stock actualizado.', 'ok');
+  renderLocales();
+  renderInventario();
+  renderDashboard();
+}
+
+async function cancelarTransferencia(id) {
+  const t = _transDB.find(x => x.id === id);
+  if (!t || t.estado !== 'pendiente') return;
+  if (!confirm('¿Cancelar este traspaso? El stock volverá al local de origen.')) return;
+
+  const origSku = skuDB.find(s => s.id === t.variante_id);
+  if (origSku) {
+    const stockRestaurado = origSku.stock + t.cantidad;
+    const { error: errStock } = await sb.from('variantes').update({ stock_actual: stockRestaurado }).eq('id', t.variante_id);
+    if (errStock) { toast('Error al restaurar stock.', 'err'); return; }
+    origSku.stock = stockRestaurado;
+  }
+
+  const { error: errTrans } = await sb.from('transferencias').update({ estado: 'cancelada' }).eq('id', id);
+  if (errTrans) { toast('Error al cancelar el traspaso.', 'err'); console.error(errTrans); return; }
+
+  const idx = _transDB.findIndex(x => x.id === id);
+  if (idx >= 0) _transDB[idx].estado = 'cancelada';
+
+  toast('Traspaso cancelado. Stock restaurado.', 'ok');
+  renderLocales();
+  renderInventario();
   renderDashboard();
 }
 
