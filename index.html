@@ -3548,6 +3548,13 @@ function renderInventario() {
     // Stock total con color de urgencia
     const stockColor  = totalStock === 0 ? 'var(--red)' : totalStock <= 3 ? 'var(--orange)' : 'var(--green)';
     const stockLabel  = totalStock === 0 ? 'Agotado' : `${totalStock} ud.`;
+    const varIds = g.variantes.map(v => v.id);
+    const enTransito = _transDB
+      .filter(t => varIds.includes(t.variante_id) && t.estado === 'pendiente')
+      .reduce((s, t) => s + t.cantidad, 0);
+    const transitoBadge = enTransito > 0
+      ? `<span class="badge-transito">↗ ${enTransito} en tránsito</span>`
+      : '';
 
     // Chips de variantes (solo si hay tallas reales)
     const tieneVariantes = g.variantes.length > 1 || (g.variantes[0]?.variante && g.variantes[0].variante !== '—');
@@ -3571,7 +3578,7 @@ function renderInventario() {
         </div>
         <div class="pprice" style="text-align:right;">
           <div class="psell">$${fmt(g.precio)}</div>
-          <div style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:${stockColor};margin-top:3px;">${stockLabel}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:${stockColor};margin-top:3px;">${stockLabel}${transitoBadge}</div>
           ${ganUnit !== null ? `<div class="pmargin" style="margin-top:2px;color:${ganUnit<0?'var(--red)':''};">${ganUnit>=0?'↑':'↓'}$${fmt(Math.abs(ganUnit))}</div>` : ''}
         </div>
       </div>
