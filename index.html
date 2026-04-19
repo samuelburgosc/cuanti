@@ -2125,15 +2125,16 @@ async function renderEquipo() {
   if(listaEl) listaEl.style.display = '';
   if(formEl)  formEl.style.display  = '';
 
-  const { data, error } = await sb.from('usuarios').select('id, nombre, email, rol, activo').order('nombre');
+  const { data, error } = await sb.from('usuarios').select('id, nombre, email, rol, activo, local_id, locales(nombre)').order('nombre');
   if(error || !data) return;
 
   listaEl.innerHTML = data.map(u => {
-    const ini   = u.nombre.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
-    const esDue = u.rol === 'Dueño';
+    const ini    = u.nombre.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+    const esDue  = u.rol === 'Dueño';
+    const locNom = esDue ? 'Todos los locales' : (u.locales?.nombre || '—');
     return `<div class="ucard">
       <div class="uavatar" style="background:${esDue?'var(--accent)':'var(--sf2)'};color:${esDue?'var(--bg)':'var(--muted)'};">${ini}</div>
-      <div class="uinfo"><div class="uname">${u.nombre}</div><div class="umeta">${u.email}</div></div>
+      <div class="uinfo"><div class="uname">${u.nombre}</div><div class="umeta">${u.email} · ${locNom}</div></div>
       <span class="role ${esDue?'owner':'seller'}">${esDue?'Dueño':'Vendedor'}</span>
     </div>`;
   }).join('');
