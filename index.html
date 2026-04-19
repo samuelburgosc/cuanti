@@ -1664,6 +1664,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
       <div class="scanner-cam-dot" id="sc-dot"></div>
       <div class="scanner-flash" id="sc-flash"></div>
     </div>
+    <div id="sc-debug" style="font-size:11px;color:var(--muted);padding:6px 0;min-height:18px;text-align:center;"></div>
     <button class="btn" id="sc-start-btn" onclick="scStartCamera()" style="margin-bottom:8px;">📷 Activar cámara</button>
     <button class="btn sec" id="sc-stop-btn" onclick="scStopCamera()" style="display:none;margin-bottom:8px;border-color:rgba(255,68,68,.3);color:var(--red);">⏹ Detener cámara</button>
   </div>
@@ -6206,6 +6207,7 @@ function buildPrintSheet(items,{sn,sp,ss,size}){
 // ══════════════════════════════════════════════════════
 let _scCamActive = false;
 let _scReader    = null;
+let _scStream    = null;
 let _scLastScan  = 0;
 let _scItem      = null;   // producto actualmente encontrado
 let _scCanal     = 'Sotos';
@@ -6277,42 +6279,92 @@ async function scStartCamera() {
   const wrap     = document.getElementById('sc-cam-wrap');
   const dot      = document.getElementById('sc-dot');
   const video    = document.getElementById('sc-video');
+  const dbg      = document.getElementById('sc-debug');
 
-  startBtn.textContent = '⏳ Cargando…'; startBtn.disabled = true;
-  try { await ensureZXing(); } catch {
-    toast('No se pudo cargar el escáner — revisa tu conexión', 'err');
-    startBtn.textContent = '📷 Activar cámara'; startBtn.disabled = false; return;
-  }
-  startBtn.textContent = '⏳ Iniciando…';
+  startBtn.textContent = '⏳ Iniciando…'; startBtn.disabled = true;
+  if (dbg) dbg.textContent = '';
 
   try {
-    _scCamActive = true;
-    _scLastScan  = 0;
-    _scReader    = new ZXing.BrowserMultiFormatReader();
-
-    await _scReader.decodeFromConstraints(
-      { video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 } } },
-      video,
-      (result) => {
-        if (!_scCamActive || !result) return;
-        const now = Date.now();
-        if (now - _scLastScan < 2000) return;
-        _scLastScan = now;
-        const flash = document.getElementById('sc-flash');
-        if (flash) { flash.classList.add('show'); setTimeout(() => flash.classList.remove('show'), 280); }
-        scProcessCode(result.getText());
-      }
-    );
+    _scStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 } }
+    });
+    video.srcObject = _scStream;
+    await video.play();
 
     wrap.style.display = 'block';
     startBtn.style.display = 'none';
     stopBtn.style.display  = '';
     dot.classList.add('live');
+    _scCamActive = true;
+    _scLastScan  = 0;
+
+    if ('BarcodeDetector' in window) {
+      if (dbg) dbg.textContent = '📷 BarcodeDetector activo';
+      const detector = new BarcodeDetector({ formats: ['code_128','ean_13','ean_8','upc_a','upc_e','qr_code','data_matrix'] });
+      const loop = async () => {
+        if (!_scCamActive) return;
+        try {
+          const codes = await detector.detect(video);
+          if (codes.length > 0) {
+            const now = Date.now();
+            if (now - _scLastScan >= 2000) {
+              _scLastScan = now;
+              if (dbg) dbg.textContent = '✅ ' + codes[0].rawValue;
+              const flash = document.getElementById('sc-flash');
+              if (flash) { flash.classList.add('show'); setTimeout(() => flash.classList.remove('show'), 280); }
+              scProcessCode(codes[0].rawValue);
+            }
+          }
+        } catch(e) { if (dbg) dbg.textContent = 'err: ' + (e.message || e); }
+        if (_scCamActive) setTimeout(loop, 150);
+      };
+      loop();
+    } else {
+      if (dbg) dbg.textContent = '📷 ZXing cargando…';
+      try { await ensureZXing(); } catch {
+        if (dbg) dbg.textContent = '❌ ZXing no disponible';
+        toast('No se pudo cargar el escáner — revisa tu conexión', 'err');
+        scStopCamera(); return;
+      }
+      if (dbg) dbg.textContent = '📷 ZXing activo';
+      _scReader = new ZXing.BrowserMultiFormatReader();
+      const canvas = document.createElement('canvas');
+      const ctx    = canvas.getContext('2d');
+      const loop = () => {
+        if (!_scCamActive) return;
+        if (video.readyState >= 2 && video.videoWidth > 0) {
+          canvas.width  = video.videoWidth;
+          canvas.height = video.videoHeight;
+          ctx.drawImage(video, 0, 0);
+          try {
+            const result = _scReader.decodeFromCanvas(canvas);
+            if (result) {
+              const now = Date.now();
+              if (now - _scLastScan >= 2000) {
+                _scLastScan = now;
+                if (dbg) dbg.textContent = '✅ ' + result.getText();
+                const flash = document.getElementById('sc-flash');
+                if (flash) { flash.classList.add('show'); setTimeout(() => flash.classList.remove('show'), 280); }
+                scProcessCode(result.getText());
+              }
+            }
+          } catch(e) {
+            if (e && e.name && e.name !== 'NotFoundException' && dbg) {
+              dbg.textContent = 'ZXing err: ' + e.name;
+            }
+          }
+        }
+        if (_scCamActive) setTimeout(loop, 150);
+      };
+      loop();
+    }
 
   } catch(err) {
     _scCamActive = false;
-    if (_scReader) { try { _scReader.reset(); } catch(e) {} _scReader = null; }
-    startBtn.textContent = '📷 Activar cámara'; startBtn.disabled = false;
+    if (_scStream) { _scStream.getTracks().forEach(t => t.stop()); _scStream = null; }
+    startBtn.style.display = ''; startBtn.textContent = '📷 Activar cámara'; startBtn.disabled = false;
+    wrap.style.display = 'none'; stopBtn.style.display = 'none'; dot.classList.remove('live');
+    if (dbg) dbg.textContent = '❌ ' + (err.message || err.name);
     if(err.name === 'NotAllowedError')
       toast('Permiso de cámara denegado — actívalo en tu navegador','err');
     else if(err.name === 'NotFoundError')
@@ -6325,8 +6377,11 @@ async function scStartCamera() {
 function scStopCamera() {
   _scCamActive = false;
   if(_scReader)  { try{_scReader.reset();}catch(e){} _scReader=null; }
+  if(_scStream)  { _scStream.getTracks().forEach(t=>t.stop()); _scStream=null; }
   const video = document.getElementById('sc-video');
   if(video) video.srcObject = null;
+  const dbg = document.getElementById('sc-debug');
+  if(dbg) dbg.textContent = '';
   document.getElementById('sc-cam-wrap').style.display = 'none';
   document.getElementById('sc-dot').classList.remove('live');
   const startBtn = document.getElementById('sc-start-btn');
