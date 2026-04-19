@@ -2970,6 +2970,75 @@ async function guardarGasto() {
   renderDashboard();
 }
 
+// ── CIERRE DE CAJA ──────────────────────────────────────────
+function cajaFechaKey() {
+  const d = new Date();
+  return `cuanti_caja_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function cajaGetEstado() {
+  const raw = localStorage.getItem(cajaFechaKey());
+  if (!raw) return null;
+  if (raw === 'ok') return 'ok';
+  try { return JSON.parse(raw); } catch { return null; }
+}
+
+function renderCajaEstado() {
+  const el = document.getElementById('hoy-caja-estado');
+  if (!el) return;
+  const estado = cajaGetEstado();
+  if (estado === 'ok') {
+    el.innerHTML = `<div class="caja-badge-ok">
+      <span>✅</span>
+      <span style="flex:1;">Caja cuadrada hoy</span>
+      <button class="caja-edit-btn" onclick="localStorage.removeItem(cajaFechaKey());renderCajaEstado()">Editar</button>
+    </div>`;
+  } else if (estado && typeof estado === 'object') {
+    el.innerHTML = `<div class="caja-badge-diff">
+      <span>⚠️ Diferencia de $${fmt(estado.diff)}${estado.nota ? ' · ' + estado.nota : ''}</span>
+      <button class="caja-edit-btn" onclick="localStorage.removeItem(cajaFechaKey());renderCajaEstado()">Editar</button>
+    </div>`;
+  } else {
+    el.innerHTML = `
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="caja-btn-ok" onclick="cajaMarcarOk()">✅ Cuadró</button>
+        <button class="caja-btn-diff" onclick="cajaAbrirDiferencia()">⚠️ Hay diferencia</button>
+      </div>
+      <div id="hoy-caja-diff-form" style="display:none;margin-top:12px;">
+        <div class="field" style="margin-bottom:10px;">
+          <label>¿Cuánto falta o sobra?</label>
+          <div class="fwrap"><span class="fpfx">$</span><input id="hoy-caja-diff-monto" class="pfx" type="number" inputmode="decimal" placeholder="0"></div>
+        </div>
+        <div class="field" style="margin-bottom:12px;">
+          <label>Nota (opcional)</label>
+          <input id="hoy-caja-diff-nota" type="text" placeholder="¿Qué pasó con la diferencia?">
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn sec" style="flex:1;font-size:12px;padding:11px;" onclick="renderCajaEstado()">Cancelar</button>
+          <button class="btn" style="flex:1;font-size:12px;padding:11px;" onclick="cajaGuardarDiferencia()">Guardar →</button>
+        </div>
+      </div>`;
+  }
+}
+
+function cajaMarcarOk() {
+  localStorage.setItem(cajaFechaKey(), 'ok');
+  renderCajaEstado();
+}
+
+function cajaAbrirDiferencia() {
+  const form = document.getElementById('hoy-caja-diff-form');
+  if (form) form.style.display = '';
+}
+
+function cajaGuardarDiferencia() {
+  const monto = parseInt(document.getElementById('hoy-caja-diff-monto')?.value) || 0;
+  const nota  = (document.getElementById('hoy-caja-diff-nota')?.value || '').trim();
+  if (!monto) { toast('Ingresa el monto de la diferencia.', 'err'); return; }
+  localStorage.setItem(cajaFechaKey(), JSON.stringify({ diff: monto, nota }));
+  renderCajaEstado();
+}
+
 // ── Eliminar gasto con sheet de confirmación ──
 function eliminarGasto(id) {
   const g = gastosDB.find(x => x.id === id);
