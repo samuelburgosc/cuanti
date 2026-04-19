@@ -1810,12 +1810,29 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
   <!-- ── PANEL: TRANSFERIR ── -->
   <div class="action-panel" id="ap-transfer">
     <div class="action-panel-title">🔄 Transferir entre locales</div>
-    <div style="background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:14px;text-align:center;margin-bottom:12px;">
-      <div style="font-size:24px;margin-bottom:8px;">🏪</div>
-      <div style="font-size:13px;font-weight:600;margin-bottom:4px;">Solo tienes un local activo</div>
-      <div style="font-size:11px;color:var(--muted);line-height:1.5;">Para transferir entre locales necesitas tener más de uno configurado. La gestión multi-local estará disponible próximamente.</div>
+    <div id="ap-transfer-body">
+      <!-- Producto info -->
+      <div style="background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:11px 13px;margin-bottom:12px;">
+        <div style="font-size:12px;font-weight:600;" id="tr-prod-nombre">—</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;" id="tr-prod-stock">—</div>
+      </div>
+      <!-- Selector destino -->
+      <div class="field" style="margin-bottom:10px;">
+        <label>Local destino</label>
+        <select id="tr-destino-select" style="width:100%;"></select>
+      </div>
+      <!-- Cantidad -->
+      <div class="field" style="margin-bottom:14px;">
+        <label>Cantidad a transferir</label>
+        <input id="tr-cantidad" type="number" inputmode="numeric" min="1" value="1" style="width:100%;">
+      </div>
+      <button class="btn" id="tr-enviar-btn" onclick="scIniciarTransferencia()">Enviar →</button>
     </div>
-    <button class="btn sec" onclick="scCerrarPanel()" style="margin-top:4px;">Cerrar</button>
+    <!-- Estado: sin locales destino disponibles -->
+    <div id="ap-transfer-nolocal" style="display:none;text-align:center;padding:16px;">
+      <div style="font-size:11px;color:var(--muted);">No hay otros locales activos para transferir.</div>
+    </div>
+    <button class="btn sec" onclick="scCerrarPanel()" style="margin-top:8px;">Cancelar</button>
   </div>
 
   <!-- Confirmación genérica (ingreso, devolución, ajuste) -->
