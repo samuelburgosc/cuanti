@@ -176,8 +176,8 @@ async function cargarLocales() {
   if (_currentUser?.rol === 'Dueño') {
     const stored = localStorage.getItem('cuanti_active_local');
     if (stored) {
-      const id = parseInt(stored);
-      if (_localesDB.some(l => l.id === id)) _activeLocal = id;
+      const id = parseInt(stored, 10);
+      if (!isNaN(id) && _localesDB.some(l => l.id === id)) _activeLocal = id;
     }
   }
 }
