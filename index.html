@@ -5224,6 +5224,16 @@ function clearNotifs() {
 // ══════════════════════════════════════════════════════
 //  LOCALES — render dinámico desde skuDB + ventasDB
 // ══════════════════════════════════════════════════════
+function fmtTimeAgo(isoStr) {
+  const diff = Date.now() - new Date(isoStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60)  return `Hace ${mins || 1} min`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24)   return `Hace ${hrs}h`;
+  const days = Math.floor(hrs / 24);
+  return `Hace ${days}d`;
+}
+
 function renderLocales() {
   const bodyEl = document.getElementById('locales-body');
   if (!bodyEl) return;
@@ -5232,6 +5242,39 @@ function renderLocales() {
   const mesNom = meses[new Date().getMonth()];
 
   let html = '';
+
+  // ── Sección "Por recibir" — traspasos pendientes entrantes ──
+  const miLocalId = _currentUser?.rol === 'Dueño' ? null : _currentUser?.local_id;
+  const pendEntrantes = _transDB.filter(t =>
+    t.estado === 'pendiente' &&
+    (miLocalId === null ? true : t.local_destino_id === miLocalId)
+  );
+  if (pendEntrantes.length > 0) {
+    html += `<div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:10px;">
+      Por recibir <span style="font-size:12px;font-weight:400;color:var(--blue);margin-left:4px;">${pendEntrantes.length}</span>
+    </div>`;
+    pendEntrantes.forEach(t => {
+      const nomProd = t.variantes?.productos?.nombre || '—';
+      const varNom  = t.variantes?.talla_color || '';
+      const origen  = t.local_origen?.nombre || '—';
+      const destino = t.local_destino?.nombre || '—';
+      const esMio   = t.usuario_origen_id === _currentUser?.id || _currentUser?.rol === 'Dueño';
+      html += `<div class="trans-pending-card">
+        <div class="trans-pending-top">
+          <div>
+            <div class="trans-pending-nombre">${esc(nomProd)}${varNom ? ` · ${esc(varNom)}` : ''}</div>
+            <div class="trans-pending-meta">${t.cantidad} ud. · desde ${esc(origen)} → ${esc(destino)}</div>
+            <div class="trans-pending-meta" style="margin-top:2px;">${fmtTimeAgo(t.fecha_creacion)}</div>
+          </div>
+        </div>
+        <div class="trans-pending-actions">
+          <button class="btn" style="flex:1;padding:9px;font-size:12px;" onclick="confirmarTransferencia(${t.id})">✅ Confirmar recepción</button>
+          ${esMio ? `<button class="btn sec" style="padding:9px 12px;font-size:12px;" onclick="cancelarTransferencia(${t.id})">Cancelar</button>` : ''}
+        </div>
+      </div>`;
+    });
+    html += '<div class="divider"></div>';
+  }
 
   // ── Sección gestión de locales (solo Dueño) ──
   if (esDueno) {
@@ -5408,6 +5451,28 @@ function renderLocales() {
       <div class="scard"><span class="si">📦</span><div class="sv">${skuDB.reduce((s,v)=>s+v.stock,0)}</div><div class="sl">Unidades en stock</div></div>
       <div class="scard"><span class="si">🏷️</span><div class="sv">${skuDB.filter(s=>s.activa!==false).length}</div><div class="sl">Variantes activas</div></div>
     </div>`;
+  }
+
+  // ── Historial de traspasos ──
+  const histAll = _transDB.slice(0, 30);
+  if (histAll.length > 0) {
+    html += `<div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin:16px 0 10px;">Historial de traspasos</div>`;
+    histAll.forEach(t => {
+      const nomProd  = t.variantes?.productos?.nombre || '—';
+      const esEnvio  = miLocalId === null ? (t.local_origen_id === _currentUser?.local_id) : (t.local_origen_id === miLocalId);
+      const otroNom  = esEnvio ? (t.local_destino?.nombre || '—') : (t.local_origen?.nombre || '—');
+      const flecha   = esEnvio ? '→' : '←';
+      const badgeCls = t.estado === 'recibida' ? 'ok' : t.estado === 'pendiente' ? 'pending' : 'cancelada';
+      const badgeTxt = t.estado === 'recibida' ? '✅ Recibida' : t.estado === 'pendiente' ? '⏳ Pendiente' : '❌ Cancelada';
+      html += `<div class="trans-hist-item">
+        <div class="trans-hist-icon">${esEnvio ? '📤' : '📥'}</div>
+        <div class="trans-hist-info">
+          <div class="trans-hist-nombre">${esc(nomProd)} · ${t.cantidad} ud. ${flecha} ${esc(otroNom)}</div>
+          <div class="trans-hist-meta">${fmtTimeAgo(t.fecha_creacion)}</div>
+        </div>
+        <span class="trans-hist-badge ${badgeCls}">${badgeTxt}</span>
+      </div>`;
+    });
   }
 
   bodyEl.innerHTML = html;
