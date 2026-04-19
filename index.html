@@ -6327,7 +6327,9 @@ async function scIniciarTransferencia() {
   const destId  = parseInt(document.getElementById('tr-destino-select')?.value, 10);
   const cantidad = parseInt(document.getElementById('tr-cantidad')?.value, 10);
   if (!destId || isNaN(cantidad) || cantidad < 1) { toast('Completa todos los campos.', 'err'); return; }
-  if (cantidad > _scItem.stock) { toast(`Stock insuficiente — solo hay ${_scItem.stock} ud.`, 'err'); return; }
+  const pendSalVal = _transDB.filter(t => t.variante_id === _scItem.id && t.estado === 'pendiente').reduce((s,t)=>s+t.cantidad, 0);
+  const disponible = _scItem.stock - pendSalVal;
+  if (cantidad > disponible) { toast(`Stock disponible: ${disponible} ud.${pendSalVal > 0 ? ` (${pendSalVal} en tránsito)` : ''}.`, 'err'); return; }
 
   const btn = document.getElementById('tr-enviar-btn');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Enviando…'; }
@@ -6359,7 +6361,12 @@ async function scIniciarTransferencia() {
   // 2. Decrementar stock en origen
   const nuevoStock = _scItem.stock - cantidad;
   const { error: errStock } = await sb.from('variantes').update({ stock_actual: nuevoStock }).eq('id', _scItem.id);
-  if (errStock) { console.error('Error actualizando stock origen:', errStock); }
+  if (errStock) {
+    console.error('Error actualizando stock origen:', errStock);
+    toast('Traspaso creado pero error al descontar stock. Recarga la app.', 'err');
+    if (btn) { btn.disabled = false; btn.textContent = 'Enviar →'; }
+    return;
+  }
 
   // 3. Actualizar caches
   _transDB.unshift(trans);
