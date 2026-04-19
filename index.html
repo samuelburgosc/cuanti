@@ -5635,6 +5635,28 @@ async function confirmarTransferencia(id) {
     s.local_id    === t.local_destino_id
   );
 
+  // Marcar transferencia como recibida PRIMERO (si falla, no se toca el stock)
+  const { error: errTrans } = await sb.from('transferencias').update({
+    estado:             'recibida',
+    usuario_destino_id: _currentUser?.id,
+    fecha_confirmacion: new Date().toISOString(),
+  }).eq('id', id);
+  if (errTrans) {
+    console.error('Error actualizando transferencia:', errTrans);
+    toast('Error al registrar la confirmación.', 'err');
+    if (btn) { btn.disabled = false; btn.textContent = '✅ Confirmar recepción'; }
+    return;
+  }
+
+  // Actualizar caché _transDB
+  const idx = _transDB.findIndex(x => x.id === id);
+  if (idx >= 0) {
+    _transDB[idx].estado             = 'recibida';
+    _transDB[idx].usuario_destino_id = _currentUser?.id;
+    _transDB[idx].fecha_confirmacion = new Date().toISOString();
+  }
+
+  // Actualizar stock en destino
   if (destSku) {
     const nuevoStock = destSku.stock + t.cantidad;
     const { error: errUpd } = await sb.from('variantes').update({ stock_actual: nuevoStock }).eq('id', destSku.id);
@@ -5664,25 +5686,6 @@ async function confirmarTransferencia(id) {
     await cargarInventario();
   }
 
-  // Marcar transferencia como recibida
-  const { error: errTrans } = await sb.from('transferencias').update({
-    estado:             'recibida',
-    usuario_destino_id: _currentUser?.id,
-    fecha_confirmacion: new Date().toISOString(),
-  }).eq('id', id);
-  if (errTrans) {
-    console.error('Error actualizando transferencia:', errTrans);
-    toast('Error al registrar la confirmación.', 'err');
-    return;
-  }
-
-  const idx = _transDB.findIndex(x => x.id === id);
-  if (idx >= 0) {
-    _transDB[idx].estado             = 'recibida';
-    _transDB[idx].usuario_destino_id = _currentUser?.id;
-    _transDB[idx].fecha_confirmacion = new Date().toISOString();
-  }
-
   toast('Recepción confirmada. Stock actualizado.', 'ok');
   renderLocales();
   renderInventario();
@@ -5696,6 +5699,15 @@ async function cancelarTransferencia(id) {
   if (!puedeCanc) { toast('Solo quien inició el traspaso o el Dueño puede cancelarlo.', 'err'); return; }
   if (!confirm('¿Cancelar este traspaso? El stock volverá al local de origen.')) return;
 
+  // Marcar transferencia como cancelada PRIMERO (si falla, no se toca el stock)
+  const { error: errTrans } = await sb.from('transferencias').update({ estado: 'cancelada' }).eq('id', id);
+  if (errTrans) { toast('Error al cancelar el traspaso.', 'err'); console.error(errTrans); return; }
+
+  // Actualizar caché _transDB
+  const idx = _transDB.findIndex(x => x.id === id);
+  if (idx >= 0) _transDB[idx].estado = 'cancelada';
+
+  // Restaurar stock en origen
   const origSku = skuDB.find(s => s.id === t.variante_id);
   if (origSku) {
     const stockRestaurado = origSku.stock + t.cantidad;
@@ -5705,17 +5717,14 @@ async function cancelarTransferencia(id) {
   } else {
     // Variante not in local cache — fetch current stock from DB and restore
     const { data: vOrig } = await sb.from('variantes').select('stock_actual').eq('id', t.variante_id).single();
-    if (vOrig) {
+    if (!vOrig) {
+      toast('Variante de origen no encontrada. El traspaso fue cancelado pero el stock no pudo restaurarse.', 'err');
+      // No retornamos — el traspaso ya fue cancelado, solo informamos al usuario
+    } else {
       const { error: errStock } = await sb.from('variantes').update({ stock_actual: vOrig.stock_actual + t.cantidad }).eq('id', t.variante_id);
       if (errStock) { toast('Error al restaurar stock.', 'err'); return; }
     }
   }
-
-  const { error: errTrans } = await sb.from('transferencias').update({ estado: 'cancelada' }).eq('id', id);
-  if (errTrans) { toast('Error al cancelar el traspaso.', 'err'); console.error(errTrans); return; }
-
-  const idx = _transDB.findIndex(x => x.id === id);
-  if (idx >= 0) _transDB[idx].estado = 'cancelada';
 
   toast('Traspaso cancelado. Stock restaurado.', 'ok');
   renderLocales();
