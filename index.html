@@ -2736,7 +2736,7 @@ function renderDashboard() {
           .reduce((s, v) => s + v.gan, 0);
         const color = ganLoc < 0 ? 'var(--red)' : 'var(--text)';
         return `<div class="local-strip-col">
-          <div class="local-strip-col-lbl">${loc.nombre}</div>
+          <div class="local-strip-col-lbl">${esc(loc.nombre)}</div>
           <div class="local-strip-col-amt" style="color:${color};">${ganLoc<0?'−':''}$${fmt(Math.abs(ganLoc))}</div>
         </div>`;
       });
@@ -2752,7 +2752,7 @@ function renderDashboard() {
       const loc = _localesDB.find(l => l.id === _activeLocal);
       stripEl.style.display = '';
       stripEl.innerHTML = `<div style="display:flex;align-items:center;gap:8px;">
-        <div class="local-active-chip">🏪 ${loc?.nombre || 'Local'}
+        <div class="local-active-chip">🏪 ${esc(loc?.nombre || 'Local')}
           <button class="local-active-chip-x" onclick="setActiveLocal(null)">×</button>
         </div>
         <span style="font-size:11px;color:var(--muted);">Solo este local</span>
@@ -5264,7 +5264,7 @@ function renderLocales() {
         ${tops.length === 0
           ? '<div style="font-size:11px;color:var(--muted);">Sin ventas este mes</div>'
           : tops.map(([nom, gan]) => `<div class="loc-prod-item">
-              <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:6px;">${nom}</span>
+              <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:6px;">${esc(nom)}</span>
               <span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--green-fg);flex-shrink:0;">$${fmt(gan)}</span>
             </div>`).join('')
         }
@@ -5286,11 +5286,11 @@ function renderLocales() {
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
           <div>
             <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">${esc(statsLocal[0].loc.nombre)}</div>
-            ${cats0.map(([c,g])=>`<div style="font-size:11px;margin-bottom:3px;">${c} <span style="color:var(--muted);">$${fmt(g)}</span></div>`).join('')||'<div style="font-size:11px;color:var(--muted);">—</div>'}
+            ${cats0.map(([c,g])=>`<div style="font-size:11px;margin-bottom:3px;">${esc(c)} <span style="color:var(--muted);">$${fmt(g)}</span></div>`).join('')||'<div style="font-size:11px;color:var(--muted);">—</div>'}
           </div>
           <div>
             <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">${esc(statsLocal[1].loc.nombre)}</div>
-            ${cats1.map(([c,g])=>`<div style="font-size:11px;margin-bottom:3px;">${c} <span style="color:var(--muted);">$${fmt(g)}</span></div>`).join('')||'<div style="font-size:11px;color:var(--muted);">—</div>'}
+            ${cats1.map(([c,g])=>`<div style="font-size:11px;margin-bottom:3px;">${esc(c)} <span style="color:var(--muted);">$${fmt(g)}</span></div>`).join('')||'<div style="font-size:11px;color:var(--muted);">—</div>'}
           </div>
         </div>
       </div>`;
