@@ -165,6 +165,23 @@ async function cargarGastos() {
   gastosDB = data || [];
 }
 
+async function cargarLocales() {
+  const { data, error } = await sb
+    .from('locales')
+    .select('id, nombre, direccion, activo, color')
+    .order('id');
+  if (error) { console.error('Error cargando locales:', error); return; }
+  _localesDB = data || [];
+  // Restaurar _activeLocal desde localStorage si el usuario es Dueño
+  if (_currentUser?.rol === 'Dueño') {
+    const stored = localStorage.getItem('cuanti_active_local');
+    if (stored) {
+      const id = parseInt(stored);
+      if (_localesDB.some(l => l.id === id)) _activeLocal = id;
+    }
+  }
+}
+
 // Registrar venta en Supabase
 async function registrarVentaDB(varianteId, precio, costo, canal, pago, envio, cantidad=1, descuentoTipo=null, descuentoValor=0, clienteId=null) {
   // 1. Crear cabecera de venta
@@ -6112,6 +6129,7 @@ async function cargarDatos() {
       cargarVentas(),
       cargarClientes(),
       cargarGastos(),
+      cargarLocales(),
     ]);
     _dbReady = true;
   } catch(e) {
