@@ -35,6 +35,8 @@ const CATEGORIAS_GASTO = [
 
 let _dbReady = false;
 let _currentUser = null; // { id, nombre, email, rol: 'Dueño'|'Vendedor', local_id }
+let _activeLocal  = null;  // null = todos los locales | number = local_id específico
+let _localesDB    = [];    // [{ id, nombre, direccion, activo, color }]
 let _pendingDeleteGastoId = null;
 
 // Cargar inventario desde Supabase
@@ -887,6 +889,35 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .main::-webkit-scrollbar{width:3px;}
 .main::-webkit-scrollbar-track{background:transparent;}
 .main::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px;}
+/* ─── MULTI-LOCAL ─── */
+.local-strip-card{display:flex;align-items:stretch;background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;cursor:pointer;}
+.local-strip-col{flex:1;text-align:center;padding:11px 8px;}
+.local-strip-col-lbl{font-size:10px;font-weight:600;color:var(--muted);margin-bottom:3px;}
+.local-strip-col-amt{font-family:'DM Mono',monospace;font-size:14px;font-weight:700;}
+.local-strip-div{width:1px;background:var(--bd);margin:8px 0;flex-shrink:0;}
+.local-active-chip{display:inline-flex;align-items:center;gap:6px;background:var(--sf2);border:1px solid var(--bd);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;}
+.local-active-chip-x{background:none;border:none;font-size:16px;color:var(--muted);cursor:pointer;padding:0;line-height:1;font-family:'Barlow',sans-serif;}
+.loc-kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.loc-kpi-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;}
+.loc-kpi-hdr{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;}
+.loc-kpi-row{display:flex;justify-content:space-between;align-items:baseline;font-size:11px;margin-bottom:4px;}
+.loc-kpi-lbl{color:var(--muted);}
+.loc-kpi-val{font-family:'DM Mono',monospace;font-weight:700;font-size:12px;}
+.loc-bar-wrap{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px;}
+.loc-bar-track{height:8px;background:var(--sf3);border-radius:4px;overflow:hidden;margin:10px 0 6px;}
+.loc-bar-fill{height:100%;border-radius:4px;background:var(--accent);}
+.loc-prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.loc-prod-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;}
+.loc-prod-item{display:flex;justify-content:space-between;align-items:center;font-size:11px;padding:4px 0;border-bottom:1px solid var(--sf3);}
+.loc-prod-item:last-child{border-bottom:none;}
+.loc-insight{background:var(--sf2);border:1px solid var(--bd);border-radius:12px;padding:13px 14px;margin-bottom:8px;font-size:12px;line-height:1.5;color:var(--text);}
+.loc-local-card{display:flex;align-items:center;gap:12px;background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:13px 14px;margin-bottom:8px;cursor:pointer;}
+.loc-local-card:active{background:var(--sf2);}
+.loc-local-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.loc-local-info{flex:1;}
+.loc-local-nombre{font-size:13px;font-weight:600;margin-bottom:1px;}
+.loc-local-sub{font-size:10px;color:var(--muted);}
+.loc-badge-inactivo{font-size:9px;font-weight:700;background:var(--sf3);color:var(--muted);border-radius:20px;padding:2px 8px;}
 /* ─── CAJA ─── */
 .caja-row{display:flex;align-items:center;justify-content:space-between;background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:13px 14px;cursor:pointer;margin-bottom:14px;transition:border-color .15s;}
 .caja-row:active{background:var(--sf2);}
@@ -2284,6 +2315,22 @@ function mesActualStr() {
   return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
 }
 function mesActualNum() { return new Date().getMonth() + 1; }
+
+// Retorna el local_id a filtrar: null = sin filtro (Dueño ve todo), número = filtra por local
+function localFiltro() {
+  if (_currentUser?.rol !== 'Dueño') return _currentUser?.local_id ?? null;
+  return _activeLocal; // null cuando el dueño quiere ver todo
+}
+
+function setActiveLocal(localId) {
+  _activeLocal = localId;
+  if (localId === null) {
+    localStorage.removeItem('cuanti_active_local');
+  } else {
+    localStorage.setItem('cuanti_active_local', String(localId));
+  }
+  renderDashboard();
+}
 
 // Detectar si una venta es del mes actual (robusto, con año)
 function esVentaMes(v) {
