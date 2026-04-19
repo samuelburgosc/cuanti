@@ -37,6 +37,7 @@ let _dbReady = false;
 let _currentUser = null; // { id, nombre, email, rol: 'Dueño'|'Vendedor', local_id }
 let _activeLocal  = null;  // null = todos los locales | number = local_id específico
 let _localesDB    = [];    // [{ id, nombre, direccion, activo, color }]
+let _transDB      = [];    // transferencias pendientes y recientes
 let _pendingDeleteGastoId = null;
 
 // Cargar inventario desde Supabase
@@ -183,6 +184,22 @@ async function cargarLocales() {
       if (!isNaN(id) && _localesDB.some(l => l.id === id)) _activeLocal = id;
     }
   }
+}
+
+async function cargarTransferencias() {
+  const { data, error } = await sb
+    .from('transferencias')
+    .select(`
+      id, fecha_creacion, variante_id, local_origen_id, local_destino_id,
+      cantidad, costo_unitario, estado, usuario_origen_id, usuario_destino_id, fecha_confirmacion,
+      variantes ( talla_color, productos ( nombre ) ),
+      local_origen:locales!local_origen_id ( nombre ),
+      local_destino:locales!local_destino_id ( nombre )
+    `)
+    .order('fecha_creacion', { ascending: false })
+    .limit(100);
+  if (error) { console.error('Error cargando transferencias:', error); return; }
+  _transDB = data || [];
 }
 
 // Registrar venta en Supabase
@@ -909,6 +926,23 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .main::-webkit-scrollbar{width:3px;}
 .main::-webkit-scrollbar-track{background:transparent;}
 .main::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px;}
+/* ─── TRANSFERENCIAS ─── */
+.badge-transito{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;color:var(--blue);background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.15);border-radius:20px;padding:2px 7px;margin-left:6px;}
+.trans-pending-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:13px 14px;margin-bottom:8px;}
+.trans-pending-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
+.trans-pending-nombre{font-size:13px;font-weight:600;}
+.trans-pending-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+.trans-pending-actions{display:flex;gap:8px;margin-top:10px;}
+.trans-hist-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--sf3);}
+.trans-hist-item:last-child{border-bottom:none;}
+.trans-hist-icon{font-size:14px;flex-shrink:0;}
+.trans-hist-info{flex:1;}
+.trans-hist-nombre{font-size:12px;font-weight:600;}
+.trans-hist-meta{font-size:10px;color:var(--muted);}
+.trans-hist-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0;}
+.trans-hist-badge.ok{background:var(--gdim);color:var(--green-fg);}
+.trans-hist-badge.pending{background:rgba(37,99,235,.08);color:var(--blue);}
+.trans-hist-badge.cancelled{background:var(--sf2);color:var(--muted);}
 /* ─── MULTI-LOCAL ─── */
 .local-strip-card{display:flex;align-items:stretch;background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;cursor:pointer;}
 .local-strip-col{flex:1;text-align:center;padding:11px 8px;}
@@ -6448,6 +6482,7 @@ async function cargarDatos() {
       cargarClientes(),
       cargarGastos(),
       cargarLocales(),
+      cargarTransferencias(),
     ]);
     _dbReady = true;
   } catch(e) {
