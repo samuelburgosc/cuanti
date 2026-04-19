@@ -4564,6 +4564,11 @@ function renderAnalisis(tab, btn) {
           </div>
           <div style="font-family:'DM Mono',monospace;font-size:17px;font-weight:700;color:var(--green-fg);">$${fmt(efectivo)}</div>
         </div>` : ''}
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--bd);">
+          <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:2px;">¿Cuadró la caja?</div>
+          <div style="font-size:10px;color:var(--muted2);">Marcá si el efectivo físico coincide con lo registrado</div>
+          <div id="hoy-caja-estado"></div>
+        </div>
       </div>
 
       <!-- Ver detalle: expandible -->
@@ -4610,6 +4615,7 @@ function renderAnalisis(tab, btn) {
           </div>`).join('')}
         </div>
       </div>`);
+    renderCajaEstado();
     return;
   }
 
