@@ -5938,6 +5938,8 @@ function buildPrintSheet(items,{sn,sp,ss,size}){
 let _scCamActive = false;
 let _scReader    = null;
 let _scStream    = null;
+let _scCanvas    = null;
+let _scCtx       = null;
 let _scItem      = null;   // producto actualmente encontrado
 let _scCanal     = 'Sotos';
 
@@ -6046,6 +6048,7 @@ function scStopCamera() {
   _scCamActive = false;
   if(_scReader)  { try{_scReader.reset();}catch(e){} _scReader=null; }
   if(_scStream)  { _scStream.getTracks().forEach(t=>t.stop()); _scStream=null; }
+  _scCanvas = null; _scCtx = null;
   const video = document.getElementById('sc-video');
   if(video) video.srcObject = null;
   document.getElementById('sc-cam-wrap').style.display = 'none';
@@ -6055,17 +6058,24 @@ function scStopCamera() {
   document.getElementById('sc-stop-btn').style.display='none';
 }
 
-// ── Loop de escaneo (polling frame a frame — más robusto que decodeFromVideoElement) ──
+// ── Loop de escaneo (captura frame en canvas y decodifica) ──
 async function scScanLoop(video) {
   if (!_scCamActive || !_scReader) return;
   if (video.readyState >= 2 && video.videoWidth > 0) {
+    if (!_scCanvas) {
+      _scCanvas = document.createElement('canvas');
+      _scCtx    = _scCanvas.getContext('2d');
+    }
+    _scCanvas.width  = video.videoWidth;
+    _scCanvas.height = video.videoHeight;
+    _scCtx.drawImage(video, 0, 0);
     try {
-      const result = await _scReader.decodeFromImageElement(video);
+      const result = _scReader.decodeFromCanvas(_scCanvas);
       if (result && _scCamActive) {
         const flash = document.getElementById('sc-flash');
         if (flash) { flash.classList.add('show'); setTimeout(() => flash.classList.remove('show'), 280); }
         scProcessCode(result.getText());
-        await new Promise(r => setTimeout(r, 2000)); // pausa 2s entre lecturas
+        await new Promise(r => setTimeout(r, 2000));
       }
     } catch(e) { /* NotFoundException — sin código en este frame, continuar */ }
   }
