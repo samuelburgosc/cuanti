@@ -6207,8 +6207,7 @@ function buildPrintSheet(items,{sn,sp,ss,size}){
 let _scCamActive = false;
 let _scReader    = null;
 let _scStream    = null;
-let _scCanvas    = null;
-let _scCtx       = null;
+let _scLastScan  = 0;
 let _scItem      = null;   // producto actualmente encontrado
 let _scCanal     = 'Sotos';
 
@@ -6291,16 +6290,23 @@ async function scStartCamera() {
     _scStream = await navigator.mediaDevices.getUserMedia({
       video: { facingMode:{ ideal:'environment' }, width:{ ideal:1280 } }
     });
-    video.srcObject = _scStream;
-    await video.play();
     wrap.style.display = 'block';
     startBtn.style.display = 'none';
     stopBtn.style.display  = '';
     dot.classList.add('live');
     _scCamActive = true;
+    _scLastScan  = 0;
 
     _scReader = new ZXing.BrowserMultiFormatReader();
-    scScanLoop(video);
+    _scReader.decodeFromStream(_scStream, video, (result) => {
+      if (!_scCamActive || !result) return;
+      const now = Date.now();
+      if (now - _scLastScan < 2000) return;
+      _scLastScan = now;
+      const flash = document.getElementById('sc-flash');
+      if (flash) { flash.classList.add('show'); setTimeout(() => flash.classList.remove('show'), 280); }
+      scProcessCode(result.getText());
+    }).catch(err => console.warn('ZXing decodeFromStream error:', err));
 
   } catch(err) {
     startBtn.textContent = '📷 Activar cámara'; startBtn.disabled = false;
@@ -6317,7 +6323,6 @@ function scStopCamera() {
   _scCamActive = false;
   if(_scReader)  { try{_scReader.reset();}catch(e){} _scReader=null; }
   if(_scStream)  { _scStream.getTracks().forEach(t=>t.stop()); _scStream=null; }
-  _scCanvas = null; _scCtx = null;
   const video = document.getElementById('sc-video');
   if(video) video.srcObject = null;
   document.getElementById('sc-cam-wrap').style.display = 'none';
@@ -6325,30 +6330,6 @@ function scStopCamera() {
   const startBtn = document.getElementById('sc-start-btn');
   startBtn.style.display=''; startBtn.textContent='📷 Activar cámara'; startBtn.disabled=false;
   document.getElementById('sc-stop-btn').style.display='none';
-}
-
-// ── Loop de escaneo (captura frame en canvas y decodifica) ──
-async function scScanLoop(video) {
-  if (!_scCamActive || !_scReader) return;
-  if (video.readyState >= 2 && video.videoWidth > 0) {
-    if (!_scCanvas) {
-      _scCanvas = document.createElement('canvas');
-      _scCtx    = _scCanvas.getContext('2d');
-    }
-    _scCanvas.width  = video.videoWidth;
-    _scCanvas.height = video.videoHeight;
-    _scCtx.drawImage(video, 0, 0);
-    try {
-      const result = _scReader.decodeFromCanvas(_scCanvas);
-      if (result && _scCamActive) {
-        const flash = document.getElementById('sc-flash');
-        if (flash) { flash.classList.add('show'); setTimeout(() => flash.classList.remove('show'), 280); }
-        scProcessCode(result.getText());
-        await new Promise(r => setTimeout(r, 2000));
-      }
-    } catch(e) { /* NotFoundException — sin código en este frame, continuar */ }
-  }
-  if (_scCamActive) setTimeout(() => scScanLoop(video), 200);
 }
 
 // ── Input manual ──
