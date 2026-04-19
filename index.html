@@ -5670,7 +5670,11 @@ async function confirmarTransferencia(id) {
     usuario_destino_id: _currentUser?.id,
     fecha_confirmacion: new Date().toISOString(),
   }).eq('id', id);
-  if (errTrans) { console.error('Error actualizando transferencia:', errTrans); }
+  if (errTrans) {
+    console.error('Error actualizando transferencia:', errTrans);
+    toast('Error al registrar la confirmación.', 'err');
+    return;
+  }
 
   const idx = _transDB.findIndex(x => x.id === id);
   if (idx >= 0) {
@@ -5688,6 +5692,8 @@ async function confirmarTransferencia(id) {
 async function cancelarTransferencia(id) {
   const t = _transDB.find(x => x.id === id);
   if (!t || t.estado !== 'pendiente') return;
+  const puedeCanc = _currentUser?.rol === 'Dueño' || t.usuario_origen_id === _currentUser?.id;
+  if (!puedeCanc) { toast('Solo quien inició el traspaso o el Dueño puede cancelarlo.', 'err'); return; }
   if (!confirm('¿Cancelar este traspaso? El stock volverá al local de origen.')) return;
 
   const origSku = skuDB.find(s => s.id === t.variante_id);
@@ -5696,6 +5702,13 @@ async function cancelarTransferencia(id) {
     const { error: errStock } = await sb.from('variantes').update({ stock_actual: stockRestaurado }).eq('id', t.variante_id);
     if (errStock) { toast('Error al restaurar stock.', 'err'); return; }
     origSku.stock = stockRestaurado;
+  } else {
+    // Variante not in local cache — fetch current stock from DB and restore
+    const { data: vOrig } = await sb.from('variantes').select('stock_actual').eq('id', t.variante_id).single();
+    if (vOrig) {
+      const { error: errStock } = await sb.from('variantes').update({ stock_actual: vOrig.stock_actual + t.cantidad }).eq('id', t.variante_id);
+      if (errStock) { toast('Error al restaurar stock.', 'err'); return; }
+    }
   }
 
   const { error: errTrans } = await sb.from('transferencias').update({ estado: 'cancelada' }).eq('id', id);
