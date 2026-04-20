@@ -1562,6 +1562,32 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
   </div>
 
   <div class="divider"></div>
+  <div class="sec-hdr"><div class="sec-title">Exportar datos</div></div>
+  <div class="card">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Período (ventas y gastos)</div>
+    <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+      <button id="exp-chip-mes"      class="pill sel" onclick="setExportPeriodo('mes')">Este mes</button>
+      <button id="exp-chip-anterior" class="pill"     onclick="setExportPeriodo('anterior')">Mes anterior</button>
+      <button id="exp-chip-custom"   class="pill"     onclick="setExportPeriodo('custom')">Personalizado</button>
+    </div>
+    <div id="export-custom-row" style="display:none;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:12px;color:var(--muted);">Desde</span>
+        <input id="export-desde" type="month" style="font-size:13px;border:1px solid var(--bd);border-radius:8px;padding:5px 8px;background:var(--sf2);font-family:'DM Mono',monospace;">
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:12px;color:var(--muted);">Hasta</span>
+        <input id="export-hasta" type="month" style="font-size:13px;border:1px solid var(--bd);border-radius:8px;padding:5px 8px;background:var(--sf2);font-family:'DM Mono',monospace;">
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button class="btn" onclick="exportarVentasCSV()" style="background:var(--sf2);border-color:var(--bd);color:var(--text);font-size:13px;">↓ Ventas CSV</button>
+      <button class="btn" onclick="exportarInventarioCSV()" style="background:var(--sf2);border-color:var(--bd);color:var(--text);font-size:13px;">↓ Inventario CSV</button>
+      <button class="btn" onclick="exportarGastosCSV()" style="background:var(--sf2);border-color:var(--bd);color:var(--text);font-size:13px;">↓ Gastos CSV</button>
+    </div>
+  </div>
+
+  <div class="divider"></div>
   <button class="btn danger" onclick="logout()" style="margin-top:0;">Cerrar sesión</button>
   <div class="spacer"></div>
 </div>
@@ -2346,7 +2372,14 @@ function goTo(id) {
   }
   if(id === 'notifs')     { renderNotificaciones(); clearNotifs(); }
   if(id === 'locales')    renderLocales();
-  if(id === 'config')     renderEquipo();
+  if(id === 'config') {
+    renderEquipo();
+    const mesActual = new Date().toISOString().slice(0, 7);
+    const elD = document.getElementById('export-desde');
+    const elH = document.getElementById('export-hasta');
+    if(elD && !elD.value) elD.value = mesActual;
+    if(elH && !elH.value) elH.value = mesActual;
+  }
 
   // Apagar cámara del escáner central al salir
   if(id !== 'scanner' && _scCamActive) scStopCamera();
@@ -3029,7 +3062,7 @@ function getExportRango() {
 function setExportPeriodo(tipo) {
   _exportPeriodo = tipo;
   ['mes','anterior','custom'].forEach(t => {
-    document.getElementById('exp-chip-' + t)?.classList.toggle('on', t === tipo);
+    document.getElementById('exp-chip-' + t)?.classList.toggle('sel', t === tipo);
   });
   const customRow = document.getElementById('export-custom-row');
   if (customRow) customRow.style.display = tipo === 'custom' ? 'flex' : 'none';
@@ -3039,25 +3072,94 @@ function setExportPeriodo(tipo) {
 //  HISTORIAL — exportar CSV
 // ══════════════════════════════════════════════════════
 function exportarVentasCSV() {
-  const ventas = [...ventasDB].sort((a,b) => new Date(b.fecha_raw) - new Date(a.fecha_raw));
-  if (!ventas.length) { toast('No hay ventas para exportar.'); return; }
-
+  const { desde, hasta } = getExportRango();
   const escape = v => `"${String(v ?? '').replace(/"/g,'""')}"`;
-  const headers = ['Fecha','Producto','Variante','SKU','Canal','Pago','Envío','Cliente','Precio','Costo','Comisión','Ganancia'];
-  const rows = ventas.map(v => [
-    v.fecha_raw ? new Date(v.fecha_raw).toLocaleString('es-CL') : v.fecha,
-    v.nombre, v.variante, v.sku,
-    v.canal, v.pago, v.envio,
-    v.cliente_nombre || '',
-    v.precio, v.costo, v.com, v.gan
-  ].map(escape).join(','));
+  const localNom = id => (_localesDB || []).find(l => l.id === id)?.nombre || '—';
 
-  const csv = [headers.join(','), ...rows].join('\n');
+  const ventas = [...ventasDB]
+    .filter(v => {
+      const f = new Date(v.fecha_raw);
+      return f >= desde && f <= hasta;
+    })
+    .sort((a, b) => new Date(a.fecha_raw) - new Date(b.fecha_raw));
+
+  if (!ventas.length) { toast('No hay ventas en ese período.'); return; }
+
+  const headers = ['Fecha','Hora','Vendedor','Producto','Variante','SKU','Cantidad',
+                   'Precio','Costo','Comisión','Ganancia','Canal','Pago','Envío','Local'];
+  const rows = ventas.map(v => {
+    const f = new Date(v.fecha_raw);
+    return [
+      f.toLocaleDateString('es-CL'),
+      f.toLocaleTimeString('es-CL', { hour:'2-digit', minute:'2-digit' }),
+      v.vendedor || '—',
+      v.nombre, v.variante, v.sku,
+      v.cantidad, v.precio, v.costo, v.com, v.gan,
+      v.canal, v.pago, v.envio,
+      localNom(v.local_id)
+    ].map(escape).join(',');
+  });
+
+  const csv  = [headers.join(','), ...rows].join('\n');
   const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href     = url;
-  a.download = `cuanti-ventas-${new Date().toISOString().slice(0,10)}.csv`;
+  a.download = `cuanti-ventas-${desde.toISOString().slice(0,7)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportarInventarioCSV() {
+  if (!skuDB.length) { toast('No hay inventario cargado.'); return; }
+  const escape   = v => `"${String(v ?? '').replace(/"/g,'""')}"`;
+  const localNom = id => (_localesDB || []).find(l => l.id === id)?.nombre || '—';
+
+  const headers = ['SKU','Producto','Variante','Categoría','Local',
+                   'Stock actual','Stock mínimo','Costo','Precio venta'];
+  const rows = [...skuDB]
+    .sort((a, b) => a.nombre.localeCompare(b.nombre))
+    .map(s => [
+      s.sku, s.nombre, s.variante, s.categoria,
+      localNom(s.local_id),
+      s.stock, s.stock_minimo, s.costo, s.precio
+    ].map(escape).join(','));
+
+  const csv  = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `cuanti-inventario-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportarGastosCSV() {
+  const { desde, hasta } = getExportRango();
+  const escape   = v => `"${String(v ?? '').replace(/"/g,'""')}"`;
+  const localNom = id => (_localesDB || []).find(l => l.id === id)?.nombre || '—';
+
+  const gastos = [...gastosDB]
+    .filter(g => {
+      const f = new Date(g.fecha);
+      return f >= desde && f <= hasta;
+    })
+    .sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+
+  if (!gastos.length) { toast('No hay gastos en ese período.'); return; }
+
+  const headers = ['Fecha','Descripción','Categoría','Monto','Local'];
+  const rows = gastos.map(g => [
+    g.fecha, g.descripcion, g.categoria_gasto, g.monto, localNom(g.local_id)
+  ].map(escape).join(','));
+
+  const csv  = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `cuanti-gastos-${desde.toISOString().slice(0,7)}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }
