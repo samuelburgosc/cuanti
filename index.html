@@ -5941,11 +5941,31 @@ const C128 = (() => {
   FULL[106] = '11000111010'; // STOP
 
   function encode(text) {
-    let vals=[104], chk=104;
-    for(let i=0;i<text.length;i++){
-      const c=text.charCodeAt(i)-32;
-      if(c<0||c>95) continue;
-      vals.push(c); chk+=(i+1)*c;
+    const allDigits = /^\d+$/.test(text);
+    if (allDigits && text.length >= 4) {
+      const START_C = '11010011100';
+      const CODE_B  = '10100111100';
+      const STOP    = '11000111010';
+      const pairs   = text.length % 2 === 0 ? text : text.slice(0, -1);
+      const tail    = text.length % 2 === 1 ? text.slice(-1) : '';
+      let bits = START_C, chk = 105, pos = 1;
+      for (let i = 0; i < pairs.length; i += 2) {
+        const v = parseInt(pairs.substring(i, i+2), 10);
+        bits += FULL[v] || ''; chk += pos++ * v;
+      }
+      if (tail) {
+        bits += CODE_B; chk += pos++ * 100;
+        const c = tail.charCodeAt(0) - 32;
+        bits += FULL[c] || ''; chk += pos++ * c;
+      }
+      bits += (FULL[chk % 103] || '') + STOP + '11';
+      return bits;
+    }
+    let vals = [104], chk = 104;
+    for (let i = 0; i < text.length; i++) {
+      const c = text.charCodeAt(i) - 32;
+      if (c < 0 || c > 95) continue;
+      vals.push(c); chk += (i+1)*c;
     }
     vals.push(chk%103, 106);
     return vals.map(v=>FULL[v]||'').join('')+'11';
