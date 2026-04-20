@@ -5980,8 +5980,9 @@ const C128 = (() => {
 
   function draw(canvas, text, opts={}) {
     const {barH=40,barW=1.5,quiet=8,fontSize=9,showText=true}=opts;
+    const bw=Math.max(1,Math.round(barW)); // entero: proporciones exactas 1:2:3:4
     const bits=encode(text);
-    const totalW=Math.ceil(bits.length*barW+quiet*2);
+    const totalW=bits.length*bw+quiet*2;
     const totalH=barH+(showText?fontSize+5:0)+4;
     canvas.width=totalW; canvas.height=totalH;
     const ctx=canvas.getContext('2d');
@@ -5989,8 +5990,8 @@ const C128 = (() => {
     ctx.fillStyle='#111';
     let x=quiet;
     for(const b of bits){
-      if(b==='1') ctx.fillRect(Math.round(x),2,Math.max(1,Math.round(barW)),barH);
-      x+=barW;
+      if(b==='1') ctx.fillRect(x,2,bw,barH);
+      x+=bw;
     }
     if(showText){
       ctx.fillStyle='#444';
