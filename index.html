@@ -672,6 +672,50 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .sku-barcode-row canvas{display:block;flex:1;min-width:0;max-width:100%;height:auto;}
 .sku-price-tag{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);flex-shrink:0;white-space:nowrap;font-weight:600;}
 
+/* ─── CARGA MASIVA ─── */
+.cm-line{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:8px;}
+.cm-line-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px;}
+.cm-line-nombre{font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;color:var(--text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cm-line-variante{font-size:11px;color:var(--muted);margin-top:1px;}
+.cm-line-del{background:none;border:none;color:var(--muted2);font-size:18px;cursor:pointer;padding:0;line-height:1;flex-shrink:0;}
+.cm-line-inputs{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.cm-input-wrap{display:flex;flex-direction:column;gap:4px;}
+.cm-input-lbl{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;}
+.cm-input{width:100%;background:var(--sf2);border:1px solid var(--bd);border-radius:9px;padding:10px 12px;font-family:'DM Mono',monospace;font-size:14px;color:var(--text);outline:none;box-sizing:border-box;}
+.cm-input:focus{border-color:var(--bd2);}
+.cm-empty{text-align:center;padding:40px 0 20px;color:var(--muted);font-size:13px;}
+.cm-search{width:100%;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:11px 14px;font-size:14px;color:var(--text);outline:none;box-sizing:border-box;margin-bottom:12px;}
+.cm-search:focus{border-color:var(--bd2);}
+.cm-res-item{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--bd);cursor:pointer;}
+.cm-res-item:active{opacity:.6;}
+.cm-res-icon{width:34px;height:34px;background:var(--sf2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--muted);flex-shrink:0;}
+.cm-res-nombre{font-size:13px;font-weight:600;color:var(--text);}
+.cm-res-meta{font-size:11px;color:var(--muted);}
+.cm-tabs{display:flex;gap:6px;margin-bottom:16px;}
+.cm-tab{flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;background:var(--sf2);color:var(--muted);border:1px solid var(--bd);}
+.cm-tab.sel{background:var(--text);color:var(--bg);}
+.cm-field{margin-bottom:14px;}
+.cm-label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px;}
+.cm-sel-btn{width:100%;text-align:left;background:var(--sf2);border:1px solid var(--bd);border-radius:9px;padding:10px 14px;font-size:14px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:space-between;}
+.cm-sel-btn .placeholder{color:var(--muted);}
+.cm-sel-list{background:var(--sf2);border:1px solid var(--bd);border-radius:9px;overflow:hidden;margin-top:4px;display:none;}
+.cm-sel-list.open{display:block;}
+.cm-sel-opt{padding:10px 14px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--bd);}
+.cm-sel-opt:last-child{border-bottom:none;}
+.cm-sel-opt:active{background:var(--sf3);}
+.cm-sel-opt.sel{font-weight:600;color:var(--text);}
+.cm-new-input{width:100%;background:var(--sf);border:1px solid var(--accent);border-radius:9px;padding:10px 14px;font-size:14px;color:var(--text);outline:none;box-sizing:border-box;margin-top:6px;}
+.cm-sugerencia{font-size:12px;color:var(--muted);margin-top:4px;padding:8px 10px;background:var(--sf2);border-radius:8px;display:none;}
+.cm-sugerencia.show{display:block;}
+.cm-variantes-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.cm-variante-chip{padding:7px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.cm-variante-chip .rm{font-size:14px;color:var(--muted2);line-height:1;}
+.cm-margen-helper{display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap;}
+.cm-margen-helper span{font-size:11px;color:var(--muted);}
+.cm-margen-helper .resultado{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--text);}
+.cm-confirm-btn{width:100%;background:var(--accent);border:none;border-radius:12px;padding:14px;font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;color:var(--text);cursor:pointer;margin-top:4px;}
+.cm-confirm-btn:disabled{opacity:.35;cursor:default;}
+
 /* modal etiqueta */
 .label-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;}
 .label-modal{background:var(--sf);border:1px solid var(--bd2);border-radius:18px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto;}
@@ -1162,6 +1206,23 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
     <div class="empty-sub">Intenta con otro nombre o categoría</div>
   </div>
   <div class="spacer"></div>
+</div>
+
+<!-- ════════════════════════════ CARGA MASIVA ════════════════════════════ -->
+<div class="screen" id="screen-carga-masiva">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <button onclick="goTo('inventario')" style="background:none;border:none;font-size:22px;color:var(--text);cursor:pointer;padding:0;line-height:1;">←</button>
+    <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:18px;letter-spacing:-.3px;">Carga masiva</div>
+    <button id="cm-confirm-top" onclick="cmConfirmar()" disabled style="background:var(--accent);border:none;border-radius:9px;padding:8px 14px;font-family:'Barlow',sans-serif;font-weight:700;font-size:13px;color:var(--text);cursor:pointer;opacity:.35;">Confirmar</button>
+  </div>
+
+  <div id="cm-lote-list"></div>
+
+  <button onclick="cmAbrirSheet()" style="width:100%;background:var(--sf2);border:1px dashed var(--bd2);border-radius:12px;padding:13px;font-family:'Barlow',sans-serif;font-weight:600;font-size:14px;color:var(--muted);cursor:pointer;margin-top:4px;">+ Agregar producto</button>
+
+  <div id="cm-confirm-bottom-wrap" style="display:none;margin-top:16px;">
+    <button onclick="cmConfirmar()" class="cm-confirm-btn" id="cm-confirm-bottom">Confirmar carga →</button>
+  </div>
 </div>
 
 <!-- ════════════════════════════ NUEVA VENTA ════════════════════════════ -->
@@ -1915,6 +1976,13 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 <div class="sheet" id="inv-sheet">
   <div class="sheet-handle"></div>
   <div id="inv-sheet-body"></div>
+</div>
+
+<!-- ── BOTTOM SHEET CARGA MASIVA ── -->
+<div class="sheet-bd" id="cm-sheet-bd" onclick="cmCerrarSheet()"></div>
+<div class="sheet" id="cm-sheet">
+  <div class="sheet-handle"></div>
+  <div id="cm-sheet-body"></div>
 </div>
 
 <!-- ── SHEET REGISTRAR GASTO ── -->
