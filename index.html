@@ -4256,6 +4256,124 @@ function cmActualizarPrecio() {
   }
 }
 
+function cmGuardarNuevo() {
+  const nombre = document.getElementById('cm-nuevo-nombre')?.value.trim();
+  if (!nombre || nombre.length < 2) { toast('Escribe el nombre del producto (mín. 2 caracteres).', 'err'); return; }
+
+  const catId = _cmNuevo.catId;
+  const catNueva = _cmNuevo.catNuevaNombre;
+  if (!catId && !catNueva) { toast('Selecciona o crea una categoría.', 'err'); return; }
+
+  const marcaId = _cmNuevo.marcaId;
+  const marcaNueva = _cmNuevo.marcaNuevaNombre;
+  if (!marcaId && !marcaNueva) { toast('Selecciona o crea una marca.', 'err'); return; }
+
+  if (_cmNuevo.variantes.length === 0) { toast('Agrega al menos una variante.', 'err'); return; }
+  if (_cmNuevo.variantes.some(v => v.qty < 1)) { toast('Cada variante debe tener cantidad ≥ 1.', 'err'); return; }
+  if (!_cmNuevo.precio || _cmNuevo.precio <= 0) { toast('Ingresa el precio de venta.', 'err'); return; }
+
+  _cmNuevo.variantes.forEach(v => {
+    _cmLote.push({
+      tipo: 'nuevo',
+      varId: null, prodId: null,
+      nombre,
+      variante: v.talla_color,
+      qty: v.qty,
+      costo: v.costo,
+      _esNuevo: true,
+      _prod: {
+        nombre,
+        catId, catNuevaNombre: catNueva,
+        marcaId, marcaNuevaNombre: marcaNueva,
+        precio: _cmNuevo.precio,
+      },
+    });
+  });
+
+  cmCerrarSheet();
+  cmRenderLote();
+}
+
+async function cmConfirmar() {
+  if (_cmLote.length === 0) return;
+  const btn1 = document.getElementById('cm-confirm-top');
+  const btn2 = document.getElementById('cm-confirm-bottom');
+  if (btn1) { btn1.disabled = true; btn1.textContent = '…'; }
+  if (btn2) { btn2.disabled = true; btn2.textContent = 'Guardando…'; }
+
+  const productosCreadosMap = {};
+  let errores = 0;
+  const localId = localFiltro() ?? _currentUser?.local_id ?? 1;
+
+  for (const linea of _cmLote) {
+    if (linea.tipo === 'existente') {
+      const skuItem = skuDB.find(s => s.id === linea.varId);
+      const nuevoStock = (skuItem?.stock ?? 0) + linea.qty;
+      const { error } = await sb.from('variantes')
+        .update({ stock_actual: nuevoStock, costo_ultima_compra: linea.costo })
+        .eq('id', linea.varId);
+      if (error) { console.error('Error update variante', error); errores++; continue; }
+      if (skuItem) { skuItem.stock = nuevoStock; skuItem.costo = linea.costo; }
+    } else {
+      const p = linea._prod;
+      const keyProd = cmNormalizar(p.nombre);
+      let prodId = productosCreadosMap[keyProd];
+
+      if (!prodId) {
+        let catId = p.catId;
+        if (!catId && p.catNuevaNombre) {
+          const { data: newCat, error: eCat } = await sb.from('categorias')
+            .insert({ nombre: p.catNuevaNombre, icono: '', activa: true })
+            .select('id').single();
+          if (eCat) { console.error('Error cat:', eCat); errores++; continue; }
+          catId = newCat.id;
+        }
+
+        let marcaId = p.marcaId;
+        if (!marcaId && p.marcaNuevaNombre) {
+          const { data: newMarca, error: eMarca } = await sb.from('marcas')
+            .insert({ nombre: p.marcaNuevaNombre, activa: true })
+            .select('id').single();
+          if (eMarca) { console.error('Error marca:', eMarca); errores++; continue; }
+          marcaId = newMarca.id;
+        }
+
+        const { data: newProd, error: eProd } = await sb.from('productos')
+          .insert({ nombre: p.nombre, categoria_id: catId, marca_id: marcaId, precio_base: p.precio, activo: true })
+          .select('id').single();
+        if (eProd) { console.error('Error producto:', eProd); errores++; continue; }
+        prodId = newProd.id;
+        productosCreadosMap[keyProd] = prodId;
+      }
+
+      const { error: eVar } = await sb.from('variantes').insert({
+        producto_id: prodId,
+        talla_color: linea.variante,
+        local_id: localId,
+        stock_actual: linea.qty,
+        stock_minimo: 0,
+        costo_ultima_compra: linea.costo,
+        activa: true,
+      });
+      if (eVar) { console.error('Error variante:', eVar); errores++; continue; }
+    }
+  }
+
+  if (errores > 0) {
+    toast(`${errores} error(es) al guardar. Revisa la consola.`, 'err');
+    const b1 = document.getElementById('cm-confirm-top');
+    const b2 = document.getElementById('cm-confirm-bottom');
+    if (b1) { b1.disabled = false; b1.textContent = 'Confirmar'; b1.style.opacity = '1'; }
+    if (b2) { b2.disabled = false; b2.textContent = 'Confirmar carga →'; }
+  } else {
+    const total = _cmLote.length;
+    toast(`${total} producto${total !== 1 ? 's' : ''} ingresado${total !== 1 ? 's' : ''} al inventario`);
+    _cmLote = [];
+    await cargarInventario();
+    goTo('inventario');
+  }
+}
+
 function invAbrirSheet() {
   const bd = document.getElementById('inv-sheet-bd');
   const sh = document.getElementById('inv-sheet');
