@@ -6363,11 +6363,14 @@ async function scStartCamera() {
       if (video.videoWidth === 0) {
         await new Promise(r => video.addEventListener('loadedmetadata', r, { once: true }));
       }
-      _scReader = new ZXing.BrowserMultiFormatReader();
-      if (dbg) dbg.textContent = '📷 ZXing activo';
-      // decodeFromStream maneja internamente: adjunta stream, espera play, inicia loop
-      await _scReader.decodeFromStream(_scStream, video, onScan);
+      const hints = new Map();
+      hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+      _scReader = new ZXing.BrowserMultiFormatReader(hints);
       if (dbg) dbg.textContent = '📷 Escaneando…';
+      // Sin await — decodeFromStream corre indefinidamente hasta reset()
+      _scReader.decodeFromStream(_scStream, video, onScan).catch(e => {
+        if (_scCamActive && dbg) dbg.textContent = '❌ ' + (e.message || e.name || e);
+      });
     }
 
   } catch(err) {
