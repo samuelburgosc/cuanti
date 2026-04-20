@@ -3887,6 +3887,135 @@ function cmEliminarLinea(i) {
   cmRenderLote();
 }
 
+function cmNormalizar(str) {
+  return String(str).trim().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({ length: m + 1 }, (_, i) =>
+    Array.from({ length: n + 1 }, (_, j) => i === 0 ? j : j === 0 ? i : 0)
+  );
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++)
+      dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1]
+        : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+  return dp[m][n];
+}
+
+function cmSugerirDuplicado(inputVal, lista) {
+  const norm = cmNormalizar(inputVal);
+  if (norm.length < 2) return null;
+  let mejor = null, mejorDist = Infinity;
+  for (const item of lista) {
+    const d = levenshtein(norm, cmNormalizar(item.nombre));
+    if (d < mejorDist && d <= 2) { mejorDist = d; mejor = item; }
+  }
+  return mejor;
+}
+
+function cmAbrirSheet() {
+  const bd = document.getElementById('cm-sheet-bd');
+  const sh = document.getElementById('cm-sheet');
+  if (!bd || !sh) return;
+  bd.style.display = 'block';
+  requestAnimationFrame(() => sh.classList.add('open'));
+  cmRenderSheetInicio();
+}
+
+function cmCerrarSheet() {
+  const sh = document.getElementById('cm-sheet');
+  const bd = document.getElementById('cm-sheet-bd');
+  if (!sh) return;
+  sh.classList.remove('open');
+  setTimeout(() => { if (bd) bd.style.display = 'none'; }, 300);
+}
+
+function cmRenderSheetInicio() {
+  const body = document.getElementById('cm-sheet-body');
+  if (!body) return;
+  body.innerHTML = `
+    <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:17px;letter-spacing:-.3px;margin-bottom:14px;">Agregar producto</div>
+    <div class="cm-tabs">
+      <div class="cm-tab sel" id="cm-tab-existente" onclick="cmTabSeleccionar('existente')">Existente</div>
+      <div class="cm-tab" id="cm-tab-nuevo" onclick="cmTabSeleccionar('nuevo')">Nuevo</div>
+    </div>
+    <div id="cm-tab-content"></div>
+  `;
+  cmRenderTabExistente();
+}
+
+function cmTabSeleccionar(tab) {
+  document.getElementById('cm-tab-existente')?.classList.toggle('sel', tab === 'existente');
+  document.getElementById('cm-tab-nuevo')?.classList.toggle('sel', tab === 'nuevo');
+  if (tab === 'existente') cmRenderTabExistente();
+  else cmRenderTabNuevo();
+}
+
+function cmRenderTabExistente() {
+  const cont = document.getElementById('cm-tab-content');
+  if (!cont) return;
+  cont.innerHTML = `
+    <input class="cm-search" id="cm-buscar-input" type="text" placeholder="Busca producto o SKU…"
+      oninput="cmBuscar(this.value)" autocomplete="off">
+    <div id="cm-buscar-resultados"></div>
+  `;
+  document.getElementById('cm-buscar-input')?.focus();
+  cmBuscar('');
+}
+
+function cmBuscar(q) {
+  const cont = document.getElementById('cm-buscar-resultados');
+  if (!cont) return;
+  const norm = q.trim().toLowerCase();
+  const lf = localFiltro();
+  const resultados = skuDB.filter(s => {
+    if (lf !== null && s.local_id !== lf) return false;
+    return !norm ||
+      s.nombre.toLowerCase().includes(norm) ||
+      s.variante.toLowerCase().includes(norm) ||
+      s.sku.includes(norm);
+  }).slice(0, 30);
+
+  if (resultados.length === 0) {
+    cont.innerHTML = `<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px 0;">Sin resultados</div>`;
+    return;
+  }
+
+  cont.innerHTML = resultados.map(s => `
+    <div class="cm-res-item" onclick="cmSelExistente('${esc(s.sku)}')">
+      <div class="cm-res-icon">${esc(s.icon)}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="cm-res-nombre">${esc(s.nombre)}</div>
+        <div class="cm-res-meta">${esc(s.variante)} · SKU ${esc(s.sku)} · ${s.stock} ud.</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function cmSelExistente(sku) {
+  const s = skuDB.find(x => x.sku === sku);
+  if (!s) return;
+  const yaExiste = _cmLote.find(l => l.varId === s.id);
+  if (yaExiste) {
+    toast('Ya está en el lote — ajustá la cantidad directamente.', 'err');
+    return;
+  }
+  _cmLote.push({
+    tipo: 'existente',
+    varId: s.id,
+    prodId: s.producto_id,
+    nombre: s.nombre,
+    variante: s.variante,
+    qty: 1,
+    costo: s.costo || 0,
+    _esNuevo: false,
+  });
+  cmCerrarSheet();
+  cmRenderLote();
+}
+
 function invAbrirSheet() {
   const bd = document.getElementById('inv-sheet-bd');
   const sh = document.getElementById('inv-sheet');
