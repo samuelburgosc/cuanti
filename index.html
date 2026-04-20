@@ -6298,6 +6298,21 @@ async function scStartCamera() {
     _scCamActive = true;
     _scLastScan  = 0;
 
+    const onScan = (result, err) => {
+      if (!_scCamActive) return;
+      if (result) {
+        const now = Date.now();
+        if (now - _scLastScan >= 2000) {
+          _scLastScan = now;
+          if (dbg) dbg.textContent = '✅ ' + result.getText();
+          const flash = document.getElementById('sc-flash');
+          if (flash) { flash.classList.add('show'); setTimeout(() => flash.classList.remove('show'), 280); }
+          scProcessCode(result.getText());
+        }
+      }
+      if (err && err.name !== 'NotFoundException' && dbg) dbg.textContent = 'ZXing: ' + err.name;
+    };
+
     if ('BarcodeDetector' in window) {
       if (dbg) dbg.textContent = '📷 BarcodeDetector activo';
       const detector = new BarcodeDetector({ formats: ['code_128','ean_13','ean_8','upc_a','upc_e','qr_code','data_matrix'] });
@@ -6305,45 +6320,27 @@ async function scStartCamera() {
         if (!_scCamActive) return;
         try {
           const codes = await detector.detect(video);
-          if (codes.length > 0) {
-            const now = Date.now();
-            if (now - _scLastScan >= 2000) {
-              _scLastScan = now;
-              if (dbg) dbg.textContent = '✅ ' + codes[0].rawValue;
-              const flash = document.getElementById('sc-flash');
-              if (flash) { flash.classList.add('show'); setTimeout(() => flash.classList.remove('show'), 280); }
-              scProcessCode(codes[0].rawValue);
-            }
-          }
+          if (codes.length > 0) onScan({ getText: () => codes[0].rawValue });
         } catch(e) { if (dbg) dbg.textContent = 'err: ' + (e.message || e); }
         if (_scCamActive) setTimeout(loop, 150);
       };
       loop();
     } else {
-      if (dbg) dbg.textContent = '📷 ZXing cargando…';
+      if (dbg) dbg.textContent = '⏳ ZXing cargando…';
       try { await ensureZXing(); } catch {
         if (dbg) dbg.textContent = '❌ ZXing no disponible';
         toast('No se pudo cargar el escáner — revisa tu conexión', 'err');
         scStopCamera(); return;
       }
-      if (dbg) dbg.textContent = '📷 ZXing activo';
+      // Esperar que el video tenga dimensiones (evita canvas interno 0×0 en ZXing)
+      if (video.videoWidth === 0) {
+        await new Promise(r => video.addEventListener('loadedmetadata', r, { once: true }));
+      }
       _scReader = new ZXing.BrowserMultiFormatReader();
-      _scReader.decodeFromVideoElement(video, (result, err) => {
-        if (!_scCamActive) return;
-        if (result) {
-          const now = Date.now();
-          if (now - _scLastScan >= 2000) {
-            _scLastScan = now;
-            if (dbg) dbg.textContent = '✅ ' + result.getText();
-            const flash = document.getElementById('sc-flash');
-            if (flash) { flash.classList.add('show'); setTimeout(() => flash.classList.remove('show'), 280); }
-            scProcessCode(result.getText());
-          }
-        }
-        if (err && err.name !== 'NotFoundException' && dbg) {
-          dbg.textContent = 'ZXing: ' + err.name;
-        }
-      }).catch(e => { if (dbg) dbg.textContent = 'ZXing err: ' + (e.message || e.name); });
+      if (dbg) dbg.textContent = '📷 ZXing activo';
+      // decodeFromStream maneja internamente: adjunta stream, espera play, inicia loop
+      await _scReader.decodeFromStream(_scStream, video, onScan);
+      if (dbg) dbg.textContent = '📷 Escaneando…';
     }
 
   } catch(err) {
