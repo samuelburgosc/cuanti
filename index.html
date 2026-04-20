@@ -6328,35 +6328,22 @@ async function scStartCamera() {
       }
       if (dbg) dbg.textContent = '📷 ZXing activo';
       _scReader = new ZXing.BrowserMultiFormatReader();
-      const canvas = document.createElement('canvas');
-      const ctx    = canvas.getContext('2d');
-      const loop = () => {
+      _scReader.decodeFromVideoElement(video, (result, err) => {
         if (!_scCamActive) return;
-        if (video.readyState >= 2 && video.videoWidth > 0) {
-          canvas.width  = video.videoWidth;
-          canvas.height = video.videoHeight;
-          ctx.drawImage(video, 0, 0);
-          try {
-            const result = _scReader.decodeFromCanvas(canvas);
-            if (result) {
-              const now = Date.now();
-              if (now - _scLastScan >= 2000) {
-                _scLastScan = now;
-                if (dbg) dbg.textContent = '✅ ' + result.getText();
-                const flash = document.getElementById('sc-flash');
-                if (flash) { flash.classList.add('show'); setTimeout(() => flash.classList.remove('show'), 280); }
-                scProcessCode(result.getText());
-              }
-            }
-          } catch(e) {
-            if (e && e.name && e.name !== 'NotFoundException' && dbg) {
-              dbg.textContent = 'ZXing err: ' + e.name;
-            }
+        if (result) {
+          const now = Date.now();
+          if (now - _scLastScan >= 2000) {
+            _scLastScan = now;
+            if (dbg) dbg.textContent = '✅ ' + result.getText();
+            const flash = document.getElementById('sc-flash');
+            if (flash) { flash.classList.add('show'); setTimeout(() => flash.classList.remove('show'), 280); }
+            scProcessCode(result.getText());
           }
         }
-        if (_scCamActive) setTimeout(loop, 150);
-      };
-      loop();
+        if (err && err.name !== 'NotFoundException' && dbg) {
+          dbg.textContent = 'ZXing: ' + err.name;
+        }
+      }).catch(e => { if (dbg) dbg.textContent = 'ZXing err: ' + (e.message || e.name); });
     }
 
   } catch(err) {
