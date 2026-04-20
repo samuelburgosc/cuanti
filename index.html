@@ -4155,6 +4155,107 @@ function cmCheckDupMarca(val) {
   }
 }
 
+function cmRenderVariantesSeccion() {
+  const sec = document.getElementById('cm-variantes-seccion');
+  if (!sec) return;
+  sec.innerHTML = `
+    <div class="cm-field">
+      <div class="cm-label">Variantes *</div>
+      <div class="cm-variantes-wrap" id="cm-variantes-chips">
+        ${_cmNuevo.variantes.map((v, i) => `
+          <div class="cm-variante-chip">
+            <span>${esc(v.talla_color)}</span>
+            <span class="rm" onclick="cmEliminarVariante(${i})">×</span>
+          </div>
+        `).join('')}
+      </div>
+      <div style="display:flex;gap:8px;">
+        <input id="cm-var-input" class="cm-new-input" type="text" placeholder="ej. Talla 42 / Negro"
+          style="flex:1;" autocomplete="off">
+        <button onclick="cmAgregarVariante()" style="background:var(--sf2);border:1px solid var(--bd);border-radius:9px;padding:10px 14px;font-weight:700;font-size:13px;cursor:pointer;">+</button>
+      </div>
+    </div>
+    <div class="cm-field" id="cm-var-stock-section"></div>
+  `;
+  cmRenderVarStockSection();
+}
+
+function cmAgregarVariante() {
+  const inp = document.getElementById('cm-var-input');
+  if (!inp) return;
+  const val = inp.value.trim();
+  if (!val) return;
+  if (_cmNuevo.variantes.find(v => cmNormalizar(v.talla_color) === cmNormalizar(val))) {
+    toast('Esa variante ya existe.', 'err'); return;
+  }
+  _cmNuevo.variantes.push({ talla_color: val, qty: 1, costo: 0 });
+  inp.value = '';
+  cmRenderVariantesSeccion();
+}
+
+function cmEliminarVariante(i) {
+  _cmNuevo.variantes.splice(i, 1);
+  cmRenderVariantesSeccion();
+}
+
+function cmRenderVarStockSection() {
+  const sec = document.getElementById('cm-var-stock-section');
+  if (!sec || _cmNuevo.variantes.length === 0) { if(sec) sec.innerHTML=''; return; }
+  sec.innerHTML = `
+    <div class="cm-label">Stock y costo por variante</div>
+    ${_cmNuevo.variantes.map((v, i) => `
+      <div style="display:grid;grid-template-columns:1fr 80px 90px;gap:6px;align-items:center;margin-bottom:6px;">
+        <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(v.talla_color)}</div>
+        <input class="cm-input" type="number" inputmode="numeric" min="1" placeholder="Qty" value="${v.qty}"
+          onchange="_cmNuevo.variantes[${i}].qty = Math.max(1, parseInt(this.value)||1);">
+        <input class="cm-input" type="number" inputmode="decimal" min="0" placeholder="Costo $" value="${v.costo||''}"
+          onchange="_cmNuevo.variantes[${i}].costo = Math.max(0, parseFloat(this.value)||0); cmActualizarPrecio();">
+      </div>
+    `).join('')}
+  `;
+}
+
+function cmRenderPrecioSeccion() {
+  const sec = document.getElementById('cm-precio-seccion');
+  if (!sec) return;
+  sec.innerHTML = `
+    <div class="cm-field">
+      <div class="cm-label">Precio de venta *</div>
+      <input id="cm-precio-input" class="cm-new-input" type="number" inputmode="decimal" min="0"
+        placeholder="ej. 89.990" value="${_cmNuevo.precio || ''}"
+        oninput="_cmNuevo.precio = parseFloat(this.value)||0;">
+      <div class="cm-margen-helper">
+        <span>Costo</span>
+        <input id="cm-helper-costo" type="number" inputmode="decimal" min="0" placeholder="0"
+          style="width:70px;background:var(--sf2);border:1px solid var(--bd);border-radius:7px;padding:6px 8px;font-size:12px;color:var(--text);outline:none;"
+          oninput="cmActualizarPrecio()">
+        <span>+ Margen</span>
+        <input id="cm-helper-margen" type="number" inputmode="decimal" min="0" max="99" placeholder="0"
+          style="width:50px;background:var(--sf2);border:1px solid var(--bd);border-radius:7px;padding:6px 8px;font-size:12px;color:var(--text);outline:none;"
+          oninput="cmActualizarPrecio()">
+        <span>%</span>
+        <span>=</span>
+        <span class="resultado" id="cm-helper-resultado">$—</span>
+      </div>
+    </div>
+  `;
+}
+
+function cmActualizarPrecio() {
+  const costo = parseFloat(document.getElementById('cm-helper-costo')?.value) || 0;
+  const margen = parseFloat(document.getElementById('cm-helper-margen')?.value) || 0;
+  const res = document.getElementById('cm-helper-resultado');
+  if (!res) return;
+  if (costo > 0 && margen > 0 && margen < 100) {
+    const precio = Math.round(costo / (1 - margen / 100));
+    res.textContent = `$${precio.toLocaleString('es-CL')}`;
+    const inp = document.getElementById('cm-precio-input');
+    if (inp) { inp.value = precio; _cmNuevo.precio = precio; }
+  } else {
+    res.textContent = '$—';
+  }
+}
+
 function invAbrirSheet() {
   const bd = document.getElementById('inv-sheet-bd');
   const sh = document.getElementById('inv-sheet');
