@@ -4016,6 +4016,145 @@ function cmSelExistente(sku) {
   cmRenderLote();
 }
 
+async function cmRenderTabNuevo() {
+  const cont = document.getElementById('cm-tab-content');
+  if (!cont) return;
+  cont.innerHTML = `<div style="color:var(--muted);font-size:13px;text-align:center;padding:16px 0;">Cargando…</div>`;
+
+  const [{ data: cats }, { data: marcas }] = await Promise.all([
+    sb.from('categorias').select('id, nombre').order('nombre'),
+    sb.from('marcas').select('id, nombre').order('nombre'),
+  ]);
+
+  _cmNuevo = {
+    cats: cats || [],
+    marcas: marcas || [],
+    catId: null, catNuevaNombre: null,
+    marcaId: null, marcaNuevaNombre: null,
+    variantes: [],
+    precio: 0,
+  };
+
+  cont.innerHTML = `
+    <div class="cm-field">
+      <div class="cm-label">Nombre del producto *</div>
+      <input id="cm-nuevo-nombre" class="cm-new-input" type="text" placeholder="ej. Zapatilla Air Max" autocomplete="off">
+    </div>
+
+    <div class="cm-field">
+      <div class="cm-label">Categoría *</div>
+      <button class="cm-sel-btn" id="cm-cat-btn" onclick="cmToggleLista('cat')">
+        <span class="placeholder" id="cm-cat-txt">Seleccionar…</span><span>▾</span>
+      </button>
+      <div class="cm-sel-list" id="cm-cat-list">
+        ${(cats||[]).map(c => `<div class="cm-sel-opt" onclick="cmCatSeleccionar(${c.id}, '${esc(c.nombre)}')">${esc(c.nombre)}</div>`).join('')}
+        <div class="cm-sel-opt" style="color:var(--muted);font-style:italic;" onclick="cmMostrarNuevaCat()">+ Nueva categoría</div>
+      </div>
+      <div id="cm-nueva-cat-wrap" style="display:none;">
+        <input id="cm-nueva-cat-input" class="cm-new-input" type="text" placeholder="Nombre de categoría" oninput="cmCheckDupCat(this.value)">
+        <div class="cm-sugerencia" id="cm-cat-sug"></div>
+      </div>
+    </div>
+
+    <div class="cm-field">
+      <div class="cm-label">Marca *</div>
+      <button class="cm-sel-btn" id="cm-marca-btn" onclick="cmToggleLista('marca')">
+        <span class="placeholder" id="cm-marca-txt">Seleccionar…</span><span>▾</span>
+      </button>
+      <div class="cm-sel-list" id="cm-marca-list">
+        ${(marcas||[]).map(m => `<div class="cm-sel-opt" onclick="cmMarcaSeleccionar(${m.id}, '${esc(m.nombre)}')">${esc(m.nombre)}</div>`).join('')}
+        <div class="cm-sel-opt" style="color:var(--muted);font-style:italic;" onclick="cmMostrarNuevaMarca()">+ Nueva marca</div>
+      </div>
+      <div id="cm-nueva-marca-wrap" style="display:none;">
+        <input id="cm-nueva-marca-input" class="cm-new-input" type="text" placeholder="Nombre de marca" oninput="cmCheckDupMarca(this.value)">
+        <div class="cm-sugerencia" id="cm-marca-sug"></div>
+      </div>
+    </div>
+
+    <div id="cm-variantes-seccion"></div>
+    <div id="cm-precio-seccion"></div>
+
+    <button onclick="cmGuardarNuevo()" style="width:100%;background:var(--text);border:none;border-radius:10px;padding:12px;font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;color:var(--bg);cursor:pointer;margin-top:8px;">Agregar al lote →</button>
+  `;
+
+  cmRenderVariantesSeccion();
+  cmRenderPrecioSeccion();
+}
+
+function cmToggleLista(cual) {
+  const lista = document.getElementById(`cm-${cual}-list`);
+  if (!lista) return;
+  lista.classList.toggle('open');
+}
+
+function cmCatSeleccionar(id, nombre) {
+  _cmNuevo.catId = id;
+  _cmNuevo.catNuevaNombre = null;
+  const txt = document.getElementById('cm-cat-txt');
+  if (txt) { txt.textContent = nombre; txt.classList.remove('placeholder'); }
+  const lista = document.getElementById('cm-cat-list');
+  if (lista) lista.classList.remove('open');
+  const wrap = document.getElementById('cm-nueva-cat-wrap');
+  if (wrap) wrap.style.display = 'none';
+}
+
+function cmMarcaSeleccionar(id, nombre) {
+  _cmNuevo.marcaId = id;
+  _cmNuevo.marcaNuevaNombre = null;
+  const txt = document.getElementById('cm-marca-txt');
+  if (txt) { txt.textContent = nombre; txt.classList.remove('placeholder'); }
+  const lista = document.getElementById('cm-marca-list');
+  if (lista) lista.classList.remove('open');
+  const wrap = document.getElementById('cm-nueva-marca-wrap');
+  if (wrap) wrap.style.display = 'none';
+}
+
+function cmMostrarNuevaCat() {
+  _cmNuevo.catId = null;
+  const lista = document.getElementById('cm-cat-list');
+  if (lista) lista.classList.remove('open');
+  const wrap = document.getElementById('cm-nueva-cat-wrap');
+  if (wrap) wrap.style.display = 'block';
+  document.getElementById('cm-nueva-cat-input')?.focus();
+}
+
+function cmMostrarNuevaMarca() {
+  _cmNuevo.marcaId = null;
+  const lista = document.getElementById('cm-marca-list');
+  if (lista) lista.classList.remove('open');
+  const wrap = document.getElementById('cm-nueva-marca-wrap');
+  if (wrap) wrap.style.display = 'block';
+  document.getElementById('cm-nueva-marca-input')?.focus();
+}
+
+function cmCheckDupCat(val) {
+  const sug = document.getElementById('cm-cat-sug');
+  if (!sug) return;
+  _cmNuevo.catNuevaNombre = val.trim() || null;
+  _cmNuevo.catId = null;
+  const match = cmSugerirDuplicado(val, _cmNuevo.cats);
+  if (match) {
+    sug.innerHTML = `¿Quisiste decir <strong>${esc(match.nombre)}</strong>? <span onclick="cmCatSeleccionar(${match.id},'${esc(match.nombre)}')" style="text-decoration:underline;cursor:pointer;color:var(--blue);">Usar esta</span>`;
+    sug.classList.add('show');
+  } else {
+    sug.classList.remove('show');
+  }
+}
+
+function cmCheckDupMarca(val) {
+  const sug = document.getElementById('cm-marca-sug');
+  if (!sug) return;
+  _cmNuevo.marcaNuevaNombre = val.trim() || null;
+  _cmNuevo.marcaId = null;
+  const match = cmSugerirDuplicado(val, _cmNuevo.marcas);
+  if (match) {
+    sug.innerHTML = `¿Quisiste decir <strong>${esc(match.nombre)}</strong>? <span onclick="cmMarcaSeleccionar(${match.id},'${esc(match.nombre)}')" style="text-decoration:underline;cursor:pointer;color:var(--blue);">Usar esta</span>`;
+    sug.classList.add('show');
+  } else {
+    sug.classList.remove('show');
+  }
+}
+
 function invAbrirSheet() {
   const bd = document.getElementById('inv-sheet-bd');
   const sh = document.getElementById('inv-sheet');
