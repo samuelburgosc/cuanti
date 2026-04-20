@@ -23,6 +23,8 @@ let ventasDB   = [];
 let clientesDB = [];
 let gastosDB   = [];
 let _exportPeriodo = 'mes';
+let _cmLote = []; // [{ tipo, varId, prodId, nombre, variante, qty, costo, _esNuevo, _prod }]
+let _cmNuevo = {}; // estado temporal para el form de producto nuevo
 
 const CATEGORIAS_GASTO = [
   { id: 'arriendo',   label: 'Arriendo',   icon: '🏠' },
@@ -1178,9 +1180,10 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
     <button onclick="invAbrirAddStock()" style="width:100%;background:var(--accent);border:none;border-radius:12px;padding:13px;font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;transition:opacity .15s;" onmousedown="this.style.opacity='.88'" onmouseup="this.style.opacity='1'">
       <span>📥</span> Agregar stock
     </button>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
       <div class="inv-act-btn" onclick="goTo('skus')"><div class="inv-act-icon">📦</div><div class="inv-act-lbl">+ Producto</div></div>
       <div class="inv-act-btn" onclick="goTo('compras')"><div class="inv-act-icon">🧾</div><div class="inv-act-lbl">+ Compra</div></div>
+      <div class="inv-act-btn" onclick="goTo('carga-masiva')"><div class="inv-act-icon">📥</div><div class="inv-act-lbl">Carga masiva</div></div>
     </div>
   </div>
 
@@ -2330,8 +2333,8 @@ async function crearVendedor() {
 // ══════════════════════════════════════════════════════
 //  NAVEGACIÓN
 // ══════════════════════════════════════════════════════
-const ALL_SCREENS = ['dashboard','inventario','venta','compras','nueva-compra','historial','analisis','locales','config','notifs','skus','scanner'];
-const PANTALLAS_SOLO_DUENO = ['dashboard','historial','analisis','skus','compras','config','locales','notifs'];
+const ALL_SCREENS = ['dashboard','inventario','venta','compras','nueva-compra','historial','analisis','locales','config','notifs','skus','scanner','carga-masiva'];
+const PANTALLAS_SOLO_DUENO = ['dashboard','historial','analisis','skus','compras','config','locales','notifs','carga-masiva'];
 
 function aplicarRol() {
   if(!_currentUser) return;
@@ -2408,7 +2411,8 @@ function goTo(id) {
     inventario: 'Inventario', venta: 'Nueva venta', compras: 'Compras',
     'nueva-compra': 'Registrar compra', historial: 'Historial',
     analisis: 'Análisis', locales: 'Locales', config: 'Configuración',
-    notifs: 'Alertas', skus: 'SKUs y Etiquetas', scanner: 'Escáner'
+    notifs: 'Alertas', skus: 'SKUs y Etiquetas', scanner: 'Escáner',
+    'carga-masiva': 'Carga masiva'
   };
   const titleEl = document.getElementById('topbar-screen-title');
   if(titleEl) {
@@ -2437,6 +2441,7 @@ function goTo(id) {
   }
   if(id === 'notifs')     { renderNotificaciones(); clearNotifs(); }
   if(id === 'locales')    renderLocales();
+  if(id === 'carga-masiva') abrirCargaMasiva();
   if(id === 'config') {
     renderEquipo();
     const mesActual = new Date().toISOString().slice(0, 7);
@@ -3825,6 +3830,62 @@ function updateInventarioStock() { renderInventario(); }
 // ══════════════════════════════════════════════════════
 //  INVENTARIO — BOTTOM SHEET
 // ══════════════════════════════════════════════════════
+
+// ══════════════════════════════════════════════════════
+//  CARGA MASIVA
+// ══════════════════════════════════════════════════════
+
+function abrirCargaMasiva() {
+  _cmLote = [];
+  cmRenderLote();
+}
+
+function cmRenderLote() {
+  const list = document.getElementById('cm-lote-list');
+  const confirmTop = document.getElementById('cm-confirm-top');
+  const confirmBottomWrap = document.getElementById('cm-confirm-bottom-wrap');
+  if (!list) return;
+
+  if (_cmLote.length === 0) {
+    list.innerHTML = `<div class="cm-empty">Todavía no agregaste productos.<br>Toca "+ Agregar producto" para empezar.</div>`;
+    if (confirmTop) { confirmTop.disabled = true; confirmTop.style.opacity = '.35'; }
+    if (confirmBottomWrap) confirmBottomWrap.style.display = 'none';
+    return;
+  }
+
+  list.innerHTML = _cmLote.map((linea, i) => `
+    <div class="cm-line">
+      <div class="cm-line-header">
+        <div>
+          <div class="cm-line-nombre">${esc(linea.nombre)}</div>
+          <div class="cm-line-variante">${esc(linea.variante)}${linea._esNuevo ? ' · <em style="color:var(--accent);font-style:normal;">Nuevo</em>' : ''}</div>
+        </div>
+        <button class="cm-line-del" onclick="cmEliminarLinea(${i})">×</button>
+      </div>
+      <div class="cm-line-inputs">
+        <div class="cm-input-wrap">
+          <div class="cm-input-lbl">Cantidad</div>
+          <input class="cm-input" type="number" inputmode="numeric" min="1" value="${linea.qty}"
+            onchange="_cmLote[${i}].qty = Math.max(1, parseInt(this.value)||1); cmRenderLote();">
+        </div>
+        <div class="cm-input-wrap">
+          <div class="cm-input-lbl">Costo unit. $</div>
+          <input class="cm-input" type="number" inputmode="decimal" min="0" value="${linea.costo}"
+            onchange="_cmLote[${i}].costo = Math.max(0, parseFloat(this.value)||0); cmRenderLote();">
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  const hayInvalidas = _cmLote.some(l => l.qty < 1);
+  if (confirmTop) { confirmTop.disabled = hayInvalidas; confirmTop.style.opacity = hayInvalidas ? '.35' : '1'; }
+  if (confirmBottomWrap) confirmBottomWrap.style.display = 'block';
+}
+
+function cmEliminarLinea(i) {
+  _cmLote.splice(i, 1);
+  cmRenderLote();
+}
 
 function invAbrirSheet() {
   const bd = document.getElementById('inv-sheet-bd');
