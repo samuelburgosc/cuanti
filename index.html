@@ -64,23 +64,22 @@ async function cargarInventario() {
   (cats   || []).forEach(c => catMap[c.id]    = c);
   (marcas || []).forEach(m => marcaMap[m.id]  = m);
 
-  const iconMap = { 'Zapatillas':'👟', 'Ropa':'👕', 'Gorras':'🧢', 'Bolsos':'👜', 'Accesorios':'🎒' };
-
   skuDB = data.map(v => {
     const prod    = v.productos;
     const cat     = catMap[prod?.categoria_id]  || {};
     const marca   = marcaMap[prod?.marca_id]    || {};
     const catNom  = cat.nombre || '';
+    const nomProd = prod?.nombre || '—';
     return {
       id:           v.id,
       sku:          v.sku,
-      nombre:       prod?.nombre       || '—',
+      nombre:       nomProd,
       variante:     v.talla_color,
       precio:       prod?.precio_base  || 0,
       costo:        v.costo_ultima_compra || 0,
       stock:        v.stock_actual     || 0,
       stock_minimo: v.stock_minimo     || 2,
-      icon:         iconMap[catNom]    || '📦',
+      icon:         nomProd.charAt(0).toUpperCase(),
       categoria:    catNom,
       marca:        marca.nombre       || '',
       producto_id:  prod?.id,
@@ -108,8 +107,6 @@ async function cargarVentas() {
 
   if (error) { console.error('Error cargando ventas:', error); return; }
 
-  const iconMap = { 'Zapatillas':'👟', 'Ropa':'👕', 'Gorras':'🧢', 'Bolsos':'👜', 'Accesorios':'🎒' };
-
   ventasDB = data.map(d => {
     const com = d.ventas?.canal === 'Sotos' ? Math.min(Math.round(d.precio_unitario * 0.15), 10000) * d.cantidad : 0;
     const gan = (d.precio_unitario - d.costo_unitario) * d.cantidad - com;
@@ -130,7 +127,7 @@ async function cargarVentas() {
       sku:      d.variantes?.sku || '—',
       nombre:   d.variantes?.productos?.nombre || '—',
       variante: d.variantes?.talla_color || '—',
-      icon:     iconMap[d.variantes?.productos?.categorias?.nombre] || '📦',
+      icon:     (d.variantes?.productos?.nombre || '?').charAt(0).toUpperCase(),
       cantidad: d.cantidad,
       precio:   d.precio_unitario * d.cantidad,
       costo:    d.costo_unitario * d.cantidad,
@@ -413,7 +410,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .pcard.warn{border-color:rgba(255,68,68,.25);background:rgba(255,68,68,.03);}
 .pcard.caution{border-color:rgba(255,140,66,.25);}
 .ptop{display:flex;align-items:flex-start;gap:10px;margin-bottom:11px;}
-.pemoji{width:44px;height:44px;background:var(--sf2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0;}
+.pemoji{width:44px;height:44px;background:var(--sf2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--muted);flex-shrink:0;}
 .pinfo{flex:1;min-width:0;}
 .pbrand{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;}
 .pname{font-size:13px;font-weight:600;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -499,7 +496,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .vprod-item:last-child{border-bottom:none;}
 .vprod-item:active{opacity:.6;}
 .vprod-item.no-stock{opacity:.35;cursor:default;pointer-events:none;}
-.vprod-icon{font-size:22px;flex-shrink:0;width:30px;text-align:center;}
+.vprod-icon{font-size:14px;font-weight:700;color:var(--muted);flex-shrink:0;width:30px;text-align:center;}
 .vprod-info{flex:1;min-width:0;}
 .vprod-name{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .vprod-sub{font-size:11px;color:var(--muted);margin-top:2px;}
@@ -733,7 +730,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .scan-found-card{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:12px;display:none;}
 .scan-found-card.show{display:block;}
 .scan-found-top{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
-.scan-found-icon{font-size:32px;flex-shrink:0;}
+.scan-found-icon{width:44px;height:44px;background:var(--sf2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--muted);flex-shrink:0;}
 .scan-found-info{flex:1;min-width:0;}
 .scan-found-name{font-size:14px;font-weight:700;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .scan-found-sku{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);margin-bottom:2px;}
@@ -1196,7 +1193,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 
     <!-- producto seleccionado -->
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--bd);">
-      <div id="v-prod-icon" style="font-size:30px;flex-shrink:0;">📦</div>
+      <div id="v-prod-icon" style="width:44px;height:44px;background:var(--sf2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--muted);flex-shrink:0;"></div>
       <div style="flex:1;min-width:0;">
         <div id="v-prod-nombre" style="font-family:'Barlow',sans-serif;font-weight:700;font-size:19px;color:var(--text);letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1;"></div>
         <div id="v-prod-meta" style="font-size:12px;color:var(--muted);margin-top:4px;"></div>
@@ -1711,7 +1708,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
   <!-- Producto encontrado -->
   <div class="scan-found-card" id="sc-found-card">
     <div class="scan-found-top">
-      <div class="scan-found-icon" id="sc-found-icon">📦</div>
+      <div class="scan-found-icon" id="sc-found-icon"></div>
       <div class="scan-found-info">
         <div class="scan-found-name" id="sc-found-name">—</div>
         <div class="scan-found-sku"  id="sc-found-sku">—</div>
@@ -2756,7 +2753,7 @@ function renderDashboard() {
           </div>
           ${g.items.map(v => `
           <div style="display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--bd);cursor:pointer;" onclick="goTo('historial')">
-            <div style="width:32px;height:32px;background:var(--sf2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">${v.icon}</div>
+            <div style="width:32px;height:32px;background:var(--sf2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--muted);flex-shrink:0;">${v.icon}</div>
             <div style="flex:1;min-width:0;">
               <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${v.nombre}</div>
               <div style="font-size:10px;color:var(--muted);">${v.fecha.split(' · ').slice(1).join(' · ')} · ${v.canal}</div>
@@ -2978,7 +2975,7 @@ function renderHistorial(filtro) {
       const canEdit = _currentUser?.rol === 'Dueño' && !isDev;
       return `
       <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--bd);${isDev?'opacity:.7;':''}${canEdit?'cursor:pointer;':''}" ${canEdit ? `onclick="abrirEditVenta(${v.id})"` : ''}>
-        <div style="width:36px;height:36px;background:${isDev?'var(--rdim)':'var(--sf2)'};border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">${v.icon}</div>
+        <div style="width:36px;height:36px;background:${isDev?'var(--rdim)':'var(--sf2)'};border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--muted);flex-shrink:0;">${v.icon}</div>
         <div style="flex:1;min-width:0;">
           <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${v.nombre}</div>
           <div style="display:flex;align-items:center;gap:5px;margin-top:3px;flex-wrap:wrap;">
@@ -3382,7 +3379,7 @@ function abrirEditVenta(id) {
   _evPago    = v.pago  || 'Transferencia';
 
   const lblEl = document.getElementById('ev-producto-lbl');
-  if (lblEl) lblEl.textContent = `${v.icon} ${v.nombre}${v.variante && v.variante !== '—' ? ' · ' + v.variante : ''}${v.cantidad > 1 ? ' × ' + v.cantidad : ''}`;
+  if (lblEl) lblEl.textContent = `${v.nombre}${v.variante && v.variante !== '—' ? ' · ' + v.variante : ''}${v.cantidad > 1 ? ' × ' + v.cantidad : ''}`;
   const precioEl = document.getElementById('ev-precio');
   if (precioEl) precioEl.value = v.precio || '';
 
@@ -3808,7 +3805,7 @@ function invAbrirProducto(nombreEnc) {
 
   document.getElementById('inv-sheet-body').innerHTML = `
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
-      <div style="width:46px;height:46px;background:var(--sf2);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">${g.icon}</div>
+      <div style="width:46px;height:46px;background:var(--sf2);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--muted);flex-shrink:0;">${g.icon}</div>
       <div style="flex:1;min-width:0;">
         <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:16px;letter-spacing:-.3px;margin-bottom:2px;">${nombre}</div>
         <div style="font-size:11px;color:var(--muted);">${g.marca || ''} · $${fmt(g.precio)}${ganUnit !== null ? ` · <span style="color:${ganUnit<0?'var(--red)':'inherit'};">Te deja ${ganUnit>=0?'':'−'}$${fmt(Math.abs(ganUnit))}</span>` : ''}</div>
@@ -4718,7 +4715,7 @@ function renderAnalisis(tab, btn) {
       return `<div class="trow">
         <div class="trank ${i===0?'f':''}">${i===0?'🏆':i+1}</div>
         <div class="tinfo">
-          <div class="tname">${p.icon} ${p.nombre}</div>
+          <div class="tname">${p.nombre}</div>
           <div class="tunits">${p.uds} venta${p.uds!==1?'s':''} · ${margen}% margen</div>
         </div>
         <div class="tamt">
@@ -4903,7 +4900,7 @@ function renderAnalisis(tab, btn) {
         <div class="chart-box">
           <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Ventas del día</div>
           ${hoy.map(v=>`<div class="trow">
-            <div style="font-size:20px;width:28px;flex-shrink:0;">${v.icon}</div>
+            <div style="width:28px;height:28px;background:var(--sf2);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--muted);flex-shrink:0;">${v.icon}</div>
             <div class="tinfo"><div class="tname">${v.nombre}</div><div class="tunits">${v.fecha.split('·')[1]?.trim()||''} · ${v.canal}${v.pago&&v.pago!=='—'?' · '+v.pago:''}</div></div>
             <div class="tamt"><div class="trev">$${fmt(v.precio)}</div><div class="tmrg" style="color:${v.gan>=0?'var(--green-fg)':'var(--red)'};">${v.gan>=0?'+':'−'}$${fmt(Math.abs(v.gan))}</div></div>
           </div>`).join('')}
@@ -5270,7 +5267,7 @@ function renderAnalisis(tab, btn) {
       ${agotados.length ? `<div class="chart-box" style="border-color:rgba(255,68,68,.2);background:rgba(255,68,68,.03);">
         <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;color:var(--red);">🔴 Agotados — reponer ahora</div>
         ${agotados.map(s=>`<div class="trow">
-          <div style="font-size:18px;width:26px;flex-shrink:0;">${s.icon}</div>
+          <div style="width:26px;height:26px;background:var(--sf2);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted);flex-shrink:0;">${s.icon}</div>
           <div class="tinfo"><div class="tname">${s.nombre}</div><div class="tunits">${s.variante} · $${fmt(s.precio)}</div></div>
           <div class="tamt"><div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--red);">0 ud.</div><div class="tmrg">Costo $${fmt(s.costo)}</div></div>
         </div>`).join('')}
@@ -5280,7 +5277,7 @@ function renderAnalisis(tab, btn) {
       ${bajos.length ? `<div class="chart-box" style="border-color:rgba(255,140,66,.2);">
         <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;color:var(--orange);">🟡 Se te va a acabar</div>
         ${bajos.map(s=>`<div class="trow">
-          <div style="font-size:18px;width:26px;flex-shrink:0;">${s.icon}</div>
+          <div style="width:26px;height:26px;background:var(--sf2);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted);flex-shrink:0;">${s.icon}</div>
           <div class="tinfo"><div class="tname">${s.nombre}</div><div class="tunits">${s.variante}</div></div>
           <div class="tamt"><div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--orange);">${s.stock} ud.</div><div class="tmrg">$${fmt(s.precio)}</div></div>
         </div>`).join('')}
@@ -5295,7 +5292,7 @@ function renderAnalisis(tab, btn) {
           const ganPot = s.costo > 0 ? (s.precio - s.costo) * s.stock : null;
           return `<div class="trow">
             <div class="trank ${i===0?'f':''}">${i+1}</div>
-            <div class="tinfo"><div class="tname">${s.icon} ${s.nombre}</div><div class="tunits">${s.stock} ud. · ${s.variante}</div></div>
+            <div class="tinfo"><div class="tname">${s.nombre}</div><div class="tunits">${s.stock} ud. · ${s.variante}</div></div>
             <div class="tamt"><div class="trev">$${fmt(val)}</div>${ganPot!==null?`<div class="tmrg" style="color:var(--green-fg);">+$${fmt(ganPot)}</div>`:'<div class="tmrg">—</div>'}</div>
           </div>`;
         }).join('')}
@@ -6255,7 +6252,7 @@ function renderSkuList(filter='') {
     return `
     <div class="sku-card">
       <div class="sku-top">
-        <div style="font-size:22px;flex-shrink:0;">${s.icon}</div>
+        <div style="width:36px;height:36px;background:var(--sf2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--muted);flex-shrink:0;">${s.icon}</div>
         <div class="sku-info">
           <div class="sku-code">${s.sku}</div>
           <div class="sku-name">${s.nombre}</div>
@@ -6583,7 +6580,7 @@ function scBuscarManual(q) {
   res.innerHTML = matches.map(s => {
     const stockColor = s.stock > 2 ? 'var(--green)' : s.stock > 0 ? 'var(--orange)' : 'var(--red)';
     return `<div class="sc-res-item" onclick="scSeleccionarManual('${s.sku}')">
-      <div style="font-size:22px;flex-shrink:0;line-height:1;">${s.icon}</div>
+      <div style="width:36px;height:36px;background:var(--sf2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--muted);flex-shrink:0;">${s.icon}</div>
       <div style="flex:1;min-width:0;">
         <div class="sc-res-name">${s.nombre}</div>
         <div class="sc-res-sub">${s.variante && s.variante !== '—' ? s.variante + ' · ' : ''}$${fmt(s.precio)}</div>
