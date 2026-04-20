@@ -94,7 +94,7 @@ async function cargarVentas() {
     .from('detalle_ventas')
     .select(`
       id, cantidad, precio_unitario, costo_unitario, descuento_tipo, descuento_valor,
-      ventas ( id, fecha_hora, canal, metodo_pago, tipo_envio, estado, cliente_id, local_id, clientes ( nombre ) ),
+      ventas ( id, fecha_hora, canal, metodo_pago, tipo_envio, estado, cliente_id, local_id, usuario_id, usuarios ( nombre ), clientes ( nombre ) ),
       variantes ( sku, talla_color,
         productos ( nombre,
           categorias ( nombre, icono ),
@@ -144,6 +144,7 @@ async function cargarVentas() {
       descuento_tipo:  d.descuento_tipo  || null,
       descuento_valor: d.descuento_valor || 0,
       local_id:  d.ventas?.local_id      || null,
+      vendedor:  d.ventas?.usuarios?.nombre || '—',
       categoria: d.variantes?.productos?.categorias?.nombre || '',
     };
   });
