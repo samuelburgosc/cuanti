@@ -1195,11 +1195,6 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
     <div class="chip on" onclick="filterChip(this,'todos')">Todos</div>
     <div class="chip urgent-red" onclick="filterChip(this,'agotado')">🔴 Agotado</div>
     <div class="chip urgent-orange" onclick="filterChip(this,'bajo')">🟡 Bajo stock</div>
-    <div class="chip" onclick="filterChip(this,'zapatillas')">👟 Zapatillas</div>
-    <div class="chip" onclick="filterChip(this,'ropa')">👕 Ropa</div>
-    <div class="chip" onclick="filterChip(this,'gorras')">🧢 Gorras</div>
-    <div class="chip" onclick="filterChip(this,'bolsos')">👜 Bolsos</div>
-    <div class="chip" onclick="filterChip(this,'accesorios')">🎒 Accesorios</div>
   </div>
 
   <div id="inv-list"></div>
@@ -3707,6 +3702,24 @@ function renderInventario() {
     grupos[key].variantes.push(s);
   });
 
+  // Chips dinámicos de categoría (sincronizados con skuDB)
+  const chipsEl = document.getElementById('inv-chips');
+  if (chipsEl) {
+    const cats = [...new Set(skuDB.map(s => (s.categoria || '').toLowerCase()).filter(Boolean))].sort();
+    const activeNow = chipsEl.querySelector('.chip.on')?.dataset?.cat || 'todos';
+    // Mantener solo los 3 chips fijos + agregar categorías reales
+    while (chipsEl.children.length > 3) chipsEl.removeChild(chipsEl.lastChild);
+    cats.forEach(c => {
+      if (['agotado','bajo','todos'].includes(c)) return;
+      const div = document.createElement('div');
+      div.className = 'chip' + (activeNow === c ? ' on' : '');
+      div.dataset.cat = c;
+      div.textContent = c.charAt(0).toUpperCase() + c.slice(1);
+      div.onclick = () => filterChip(div, c);
+      chipsEl.appendChild(div);
+    });
+  }
+
   // Detectar chip activo y búsqueda
   const activeChip = document.querySelector('#inv-chips .chip.on')?.dataset?.cat || 'todos';
   const q = (document.getElementById('inv-search')?.value || '').toLowerCase();
@@ -3757,8 +3770,7 @@ function renderInventario() {
     const stockData  = minStock === 0 ? 'out' : totalStock <= 3 ? 'low' : 'ok';
 
     // Filtro chip
-    const catChips = ['zapatillas','ropa','gorras','bolsos','accesorios'];
-    if(catChips.includes(activeChip) && cat !== activeChip) return;
+    if(!['todos','bajo','agotado'].includes(activeChip) && cat !== activeChip) return;
     if(activeChip === 'bajo'    && stockData !== 'low' && stockData !== 'out') return;
     if(activeChip === 'agotado' && minStock > 0) return;
 
@@ -4428,7 +4440,10 @@ function invAbrirProducto(nombreEnc) {
       </div>
     </div>
     <div style="margin-bottom:18px;">${vpHtml}</div>
-    <button class="btn sec" onclick="goTo('nueva-compra');invCerrarSheet();" style="margin-top:4px;font-size:12px;">Registrar compra con este producto</button>`;
+    <div style="display:flex;gap:8px;">
+      <button class="btn sec" onclick="goTo('nueva-compra');invCerrarSheet();" style="flex:1;font-size:12px;">Registrar compra</button>
+      ${esDueno ? `<button class="btn sec" onclick="invMostrarEditPrecio('${encodeURIComponent(nombre)}')" style="flex:1;font-size:12px;">✏️ Editar precio</button>` : ''}
+    </div>`;
 
   invAbrirSheet();
 }
@@ -4471,6 +4486,55 @@ async function invGuardarStock(varId, nombreEnc, varianteEnc, stockActual) {
   renderInventario();
   renderDashboard();
   toast(`+${qty} ud. guardadas`);
+}
+
+// Editar precio y stock mínimo de producto
+function invMostrarEditPrecio(nombreEnc) {
+  const nombre = decodeURIComponent(nombreEnc);
+  const variantes = skuDB.filter(s => s.nombre === nombre);
+  if (!variantes.length) return;
+  const precioActual = variantes[0].precio || 0;
+  const stockMinActual = variantes[0].stock_minimo || 0;
+
+  document.getElementById('inv-sheet-body').innerHTML = `
+    <button onclick="invAbrirProducto('${nombreEnc}')" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;margin-bottom:16px;padding:0;">← Volver</button>
+    <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:17px;letter-spacing:-.3px;margin-bottom:4px;">Editar ${esc(nombre)}</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:22px;">Los cambios aplican a todas las variantes</div>
+    <div class="field" style="margin-bottom:14px;">
+      <label>Precio de venta</label>
+      <input id="inv-edit-precio" type="number" inputmode="decimal" min="0" value="${precioActual}" style="font-size:20px;font-family:'DM Mono',monospace;text-align:center;padding:12px;">
+    </div>
+    <div class="field" style="margin-bottom:20px;">
+      <label>Stock mínimo (alerta de reposición)</label>
+      <input id="inv-edit-stockmin" type="number" inputmode="numeric" min="0" value="${stockMinActual}" style="font-size:20px;font-family:'DM Mono',monospace;text-align:center;padding:12px;">
+    </div>
+    <button class="btn" onclick="invGuardarEditPrecio('${nombreEnc}')">Guardar cambios →</button>
+  `;
+  setTimeout(() => document.getElementById('inv-edit-precio')?.focus(), 350);
+}
+
+async function invGuardarEditPrecio(nombreEnc) {
+  const nombre = decodeURIComponent(nombreEnc);
+  const precio = parseFloat(document.getElementById('inv-edit-precio')?.value || '0');
+  const stockMin = parseInt(document.getElementById('inv-edit-stockmin')?.value || '0');
+  if (!precio || precio <= 0) { toast('Ingresa un precio válido', 'err'); return; }
+
+  const variantes = skuDB.filter(s => s.nombre === nombre);
+  if (!variantes.length) return;
+  const prodId = variantes[0].producto_id;
+
+  const [r1, r2] = await Promise.all([
+    sb.from('productos').update({ precio_base: precio }).eq('id', prodId),
+    sb.from('variantes').update({ stock_minimo: stockMin }).in('id', variantes.map(v => v.id)),
+  ]);
+
+  if (r1.error || r2.error) { toast('Error al guardar', 'err'); return; }
+
+  variantes.forEach(v => { v.precio = precio; v.stock_minimo = stockMin; });
+
+  invCerrarSheet();
+  renderInventario();
+  toast('Precio actualizado');
 }
 
 // Abrir sheet para "+ Stock" desde acciones rápidas (buscar primero)
