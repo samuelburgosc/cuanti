@@ -22,6 +22,7 @@ let skuDB      = [];
 let ventasDB   = [];
 let clientesDB = [];
 let gastosDB   = [];
+let _exportPeriodo = 'mes';
 
 const CATEGORIAS_GASTO = [
   { id: 'arriendo',   label: 'Arriendo',   icon: '🏠' },
@@ -2997,6 +2998,41 @@ function histSelTab(tab) {
   panelVentas.style.display    = tab === 'ventas'   ? '' : 'none';
   panelClientes.style.display  = tab === 'clientes' ? '' : 'none';
   if (tab === 'clientes') renderClientes();
+}
+
+// ══════════════════════════════════════════════════════
+//  HISTORIAL — rango de fechas para exportar
+// ══════════════════════════════════════════════════════
+function getExportRango() {
+  const hoy = new Date();
+  if (_exportPeriodo === 'mes') {
+    const desde = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    const hasta  = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0, 23, 59, 59);
+    return { desde, hasta };
+  }
+  if (_exportPeriodo === 'anterior') {
+    const desde = new Date(hoy.getFullYear(), hoy.getMonth() - 1, 1);
+    const hasta  = new Date(hoy.getFullYear(), hoy.getMonth(), 0, 23, 59, 59);
+    return { desde, hasta };
+  }
+  // custom: leer inputs
+  const desdeVal = document.getElementById('export-desde')?.value; // "YYYY-MM"
+  const hastaVal = document.getElementById('export-hasta')?.value; // "YYYY-MM"
+  const desde = desdeVal
+    ? new Date(desdeVal + '-01')
+    : new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+  const [hy, hm] = hastaVal ? hastaVal.split('-').map(Number) : [hoy.getFullYear(), hoy.getMonth() + 1];
+  const hasta = new Date(hy, hm, 0, 23, 59, 59); // último día del mes
+  return { desde, hasta };
+}
+
+function setExportPeriodo(tipo) {
+  _exportPeriodo = tipo;
+  ['mes','anterior','custom'].forEach(t => {
+    document.getElementById('exp-chip-' + t)?.classList.toggle('on', t === tipo);
+  });
+  const customRow = document.getElementById('export-custom-row');
+  if (customRow) customRow.style.display = tipo === 'custom' ? 'flex' : 'none';
 }
 
 // ══════════════════════════════════════════════════════
