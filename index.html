@@ -23,6 +23,7 @@ let ventasDB   = [];
 let clientesDB = [];
 let gastosDB   = [];
 let _exportPeriodo = 'mes';
+let _ultimaVenta = null; // { ventaId, varianteId, cantidad, stockAntes, ts }
 let _cmLote = []; // [{ tipo, varId, prodId, nombre, variante, qty, costo, _esNuevo, _prod }]
 let _cmNuevo = {}; // estado temporal para el form de producto nuevo
 
@@ -233,7 +234,55 @@ async function registrarVentaDB(varianteId, precio, costo, canal, pago, envio, c
     .eq('id', varianteId);
   if (e4) console.error('Error actualizando stock:', e4);
 
-  return true;
+  // Guardar última venta para undo
+  _ultimaVenta = {
+    ventaId:   venta.id,
+    varianteId,
+    cantidad,
+    stockAntes: (itemActual?.stock || 0),
+    ts:         Date.now(),
+  };
+
+  return venta.id;
+}
+
+const UNDO_VENTANA_MS = 5 * 60 * 1000; // 5 minutos
+
+function _renderAnularBtn(el) {
+  if (!el || !_ultimaVenta) { if(el) el.innerHTML=''; return; }
+  const segs = Math.max(0, Math.round((UNDO_VENTANA_MS - (Date.now() - _ultimaVenta.ts)) / 1000));
+  if (segs <= 0) { el.innerHTML = ''; _ultimaVenta = null; return; }
+  el.innerHTML = `<button onclick="anularUltimaVenta()" style="width:100%;background:none;border:1px solid var(--red);border-radius:10px;padding:10px;font-family:'Barlow',sans-serif;font-weight:600;font-size:13px;color:var(--red);cursor:pointer;">Anular venta (${segs}s)</button>`;
+  setTimeout(() => _renderAnularBtn(el), 1000);
+}
+
+async function anularUltimaVenta() {
+  if (!_ultimaVenta) return;
+  const { ventaId, varianteId, cantidad, stockAntes } = _ultimaVenta;
+  _ultimaVenta = null;
+
+  const [r1, r2] = await Promise.all([
+    sb.from('ventas').update({ estado: 'Anulada' }).eq('id', ventaId),
+    sb.from('variantes').update({ stock_actual: stockAntes }).eq('id', varianteId),
+  ]);
+
+  if (r1.error || r2.error) { toast('Error al anular', 'err'); return; }
+
+  const item = skuDB.find(s => s.id === varianteId);
+  if (item) item.stock = stockAntes;
+
+  const idx = ventasDB.findIndex(v => v.venta_id === ventaId || v.id === ventaId);
+  if (idx !== -1) ventasDB.splice(idx, 1);
+
+  // Limpiar botones anular
+  ['sc-anular-btn','vc-anular-btn'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '';
+  });
+
+  renderDashboard();
+  renderHistorial();
+  toast('Venta anulada — stock restaurado');
 }
 
 
@@ -1383,6 +1432,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
       <button class="btn" onclick="resetVenta()">+ Nueva venta</button>
       <button id="vc-btn-stock" class="btn sec" style="margin-top:8px;display:none;" onclick="goTo('compras')">Reponer stock →</button>
       <button class="btn sec" style="margin-top:8px;" onclick="goTo('historial')">Ver historial →</button>
+      <div id="vc-anular-btn" style="display:none;margin-top:8px;"></div>
     </div>
   </div>
 
@@ -1945,8 +1995,9 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
         <div id="scr-precio" style="font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:var(--text);">—</div>
       </div>
     </div>
-    <div style="padding:14px 16px 16px;">
+    <div style="padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px;">
       <button class="btn sec" onclick="scReset()" style="margin:0;">← Escanear otro</button>
+      <div id="sc-anular-btn"></div>
     </div>
   </div>
 
@@ -4968,6 +5019,11 @@ async function ventaConfirmar() {
 
   if(btn){ btn.textContent = 'Registrar venta →'; btn.disabled = false; }
   if(!ok){ toast('Error al guardar. Intenta de nuevo.','err'); return; }
+  // Mostrar botón anular en paso 3
+  setTimeout(() => {
+    const anularBtn = document.getElementById('vc-anular-btn');
+    if (anularBtn) { anularBtn.style.display = ''; _renderAnularBtn(anularBtn); }
+  }, 100);
 
   // Actualizar cache local
   if(liveItem) liveItem.stock = Math.max(0, liveItem.stock - cant);
@@ -7511,8 +7567,8 @@ async function scConfirmarVenta() {
   const com = _scCanal==='Sotos' ? Math.min(Math.round(precio*0.15),10000) : 0;
   const gan = (precio-com)*cant - _scItem.costo*cant;
 
-  const ok = await registrarVentaDB(live.id, precio, _scItem.costo, _scCanal, pago, envio, cant);
-  if(!ok) { toast('Error al guardar. Intenta de nuevo.','err'); return; }
+  const ventaId = await registrarVentaDB(live.id, precio, _scItem.costo, _scCanal, pago, envio, cant);
+  if(!ventaId) { toast('Error al guardar. Intenta de nuevo.','err'); return; }
 
   live.stock = Math.max(0, live.stock-cant);
   ventasDB.unshift({
@@ -7648,6 +7704,9 @@ function scShowVentaResult(gan, cant, nombre, variante, precio, stock) {
   const el = document.getElementById('sc-venta-result');
   el.style.display = 'block';
   el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  const anularBtn = document.getElementById('sc-anular-btn');
+  if (anularBtn) _renderAnularBtn(anularBtn);
 }
 
 function scCerrarPanel() {
