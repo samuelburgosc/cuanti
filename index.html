@@ -207,7 +207,8 @@ async function cargarTransferencias() {
 // Registrar venta en Supabase
 async function registrarVentaDB(varianteId, precio, costo, canal, pago, envio, cantidad=1, descuentoTipo=null, descuentoValor=0, clienteId=null) {
   // 1. Crear cabecera de venta
-  const ventaData = { canal, metodo_pago: pago, tipo_envio: envio, estado: 'Completada', local_id: _currentUser?.local_id || 1, usuario_id: _currentUser?.id || null };
+  if (!_currentUser?.local_id) { console.error('Usuario sin local_id'); toast('Error: usuario no asignado a un local.', 'err'); return false; }
+  const ventaData = { canal, metodo_pago: pago, tipo_envio: envio, estado: 'Completada', local_id: _currentUser.local_id, usuario_id: _currentUser?.id || null };
   if (clienteId) ventaData.cliente_id = clienteId;
   const { data: venta, error: e1 } = await sb
     .from('ventas')
@@ -1332,7 +1333,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
         <div style="display:flex;gap:8px;align-items:flex-end;">
           <div class="field" style="flex:1;margin-bottom:0;">
             <label>Descuento</label>
-            <input id="v-desc-valor" type="number" min="0" placeholder="0" oninput="recalcVenta()">
+            <input id="v-desc-valor" type="number" min="0" placeholder="0" inputmode="decimal" oninput="recalcVenta()">
           </div>
           <div style="display:flex;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:1px;">
             <div id="v-desc-pct-btn" onclick="ventaSelDescTipo('porcentaje')"
@@ -1484,7 +1485,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
     </div>
     <div class="field"><label>Costo por unidad (auto-calculado)</label><div class="fwrap"><span class="fpfx">$</span><input id="nc-costo-unit" class="pfx" type="number" placeholder="—" style="color:var(--green);font-weight:600;" readonly></div></div>
     <div class="field"><label>Destino</label>
-      <select id="nc-destino"><option>Mi emprendimiento</option><option>Local 1 - Familiar</option><option>Local 2 - Familiar</option><option>Ambos locales familiares</option></select>
+      <select id="nc-destino"></select>
     </div>
     <div class="field"><label>Fecha de recepción</label><input type="date" id="nc-fecha"></div>
   </div>
@@ -2484,6 +2485,13 @@ function goTo(id) {
   if(id === 'nueva-compra') {
     const fechaEl = document.getElementById('nc-fecha');
     if(fechaEl && !fechaEl.value) fechaEl.value = new Date().toISOString().slice(0,10);
+    const destSel = document.getElementById('nc-destino');
+    if(destSel && _localesDB.length > 0) {
+      destSel.innerHTML = _localesDB
+        .filter(l => l.activo !== false)
+        .map(l => `<option value="${l.id}">${esc(l.nombre)}</option>`)
+        .join('');
+    }
   }
   if(id === 'notifs')     { renderNotificaciones(); clearNotifs(); }
   if(id === 'locales')    renderLocales();
@@ -2950,10 +2958,13 @@ function renderDashboard() {
     const esDueno = _currentUser?.rol === 'Dueño';
     const activos = _localesDB.filter(l => l.activo !== false);
     if (esDueno && activos.length >= 2 && !_activeLocal) {
+      const ganPorLocal = {};
+      ventasDB.forEach(v => {
+        if (!esVentaMes(v) || v.nombre.startsWith('↩️')) return;
+        ganPorLocal[v.local_id] = (ganPorLocal[v.local_id] || 0) + v.gan;
+      });
       const cols = activos.map(loc => {
-        const ganLoc = ventasDB
-          .filter(v => v.local_id === loc.id && esVentaMes(v) && !v.nombre.startsWith('↩️'))
-          .reduce((s, v) => s + v.gan, 0);
+        const ganLoc = ganPorLocal[loc.id] || 0;
         const color = ganLoc < 0 ? 'var(--red)' : 'var(--text)';
         return `<div class="local-strip-col">
           <div class="local-strip-col-lbl">${esc(loc.nombre)}</div>
@@ -3561,7 +3572,7 @@ async function guardarEditVenta() {
 
   // Recalcular ganancia con nuevo precio y canal (valores totales)
   const sku    = skuDB.find(s => s.sku === v.sku);
-  const costoUnit = sku?.costo || Math.round((v.costo || 0) / cant);
+  const costoUnit = (sku?.costo != null && sku.costo >= 0) ? sku.costo : (cant > 0 ? Math.round((v.costo || 0) / cant) : 0);
   const costoTotal= costoUnit * cant;
   const comUnit   = _evCanal === 'Sotos' ? Math.min(Math.round(precioUnit * 0.15), 10000) : 0;
   const comTotal  = comUnit * cant;
@@ -5005,7 +5016,10 @@ async function ventaConfirmar() {
         .insert({ nombre: ventaState.clienteNombre, local_id: _currentUser?.local_id || 1, activo: true })
         .select('id, nombre, telefono')
         .single();
-      if (!eCli && nuevoCliente) {
+      if (eCli) {
+        console.error('Error creando cliente:', eCli);
+        toast('No se pudo crear el cliente, continuando sin asignarlo.', 'warn');
+      } else if (nuevoCliente) {
         clientesDB.push(nuevoCliente);
         clienteIdFinal = nuevoCliente.id;
       }
