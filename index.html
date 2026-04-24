@@ -343,11 +343,11 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .card.g{background:var(--gdim);border-color:rgba(59,255,138,.18);}
 
 /* ─── HERO ─── */
-.hero{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:20px 20px 18px;margin:12px 0 16px;cursor:pointer;transition:border-color .2s;}
-.hero:hover{border-color:var(--bd2);}
+.hero{background:transparent;border:none;border-radius:0;padding:16px 0 20px;margin:0 0 4px;cursor:pointer;}
+.hero:hover{background:transparent;}
 .hero::after{display:none;}
-.hero-lbl{font-size:12px;font-weight:500;letter-spacing:0;color:var(--muted);text-transform:none;margin-bottom:8px;}
-.hero-amt{font-family:'Barlow',sans-serif;font-weight:700;font-size:46px;color:var(--text);line-height:1;letter-spacing:-1.5px;font-variant-numeric:tabular-nums;}
+.hero-lbl{font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.hero-amt{font-family:'Barlow',sans-serif;font-weight:700;font-size:58px;color:var(--text);line-height:.95;letter-spacing:-2px;font-variant-numeric:tabular-nums;}
 
 /* ─── STAT GRID ─── */
 .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px;}
@@ -1171,8 +1171,6 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
         <div style="font-size:12px;color:var(--muted2);" id="dash-hero-mes">—</div>
       </div>
     </div>
-    <div id="dash-hero-pct" style="display:none;"></div>
-    <div id="dash-hero-bar" style="display:none;"></div>
   </div>
 
   <!-- 2. SETUP / ONBOARDING (desaparece cuando está completo) -->
@@ -1181,8 +1179,11 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
   <!-- LOCAL STRIP (solo Dueño con 2+ locales) -->
   <div id="dash-local-strip" style="display:none;margin-bottom:16px;"></div>
 
-  <!-- 3. STATS STRIP -->
-  <div id="dash-stats-strip" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px;"></div>
+  <!-- DIVIDER -->
+  <div style="height:1px;background:var(--bd);margin-bottom:16px;"></div>
+
+  <!-- 3. STATS STRIP compacto -->
+  <div id="dash-stats-strip" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;"></div>
 
   <!-- CAJA HOY (visible solo si hay efectivo hoy) -->
   <div id="dash-caja-row" style="display:none;" onclick="goTo('analisis')">
@@ -2012,7 +2013,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
     <div class="nav-fab-lbl">Vender</div>
   </div>
   <div class="ni"    id="nav-analisis"   onclick="goTo('analisis')"   role="button" tabindex="0" aria-label="Análisis">  <div class="nico2">📈</div><div class="nlbl">Análisis</div></div>
-  <div class="ni"    id="nav-skus"       onclick="goTo('skus')"       role="button" tabindex="0" aria-label="Etiquetas">  <div class="nico2">🏷️</div><div class="nlbl">Etiquetas</div></div>
+  <div class="ni"    id="nav-historial"  onclick="goTo('historial')"  role="button" tabindex="0" aria-label="Ventas">      <div class="nico2">🧾</div><div class="nlbl">Ventas</div></div>
 </div>
 
 </div><!-- end device -->
@@ -2385,12 +2386,12 @@ function aplicarRol() {
 
   // Nav: Dueño ve todo, Vendedor ve solo Stock + Vender
   const navDash    = document.getElementById('nav-dashboard');
-  const navAnalisis= document.getElementById('nav-analisis');
-  const navSkus    = document.getElementById('nav-skus');
-  const navInv     = document.getElementById('nav-inventario');
-  if(navDash)     navDash.style.display     = esDueno ? '' : 'none';
-  if(navAnalisis) navAnalisis.style.display = esDueno ? '' : 'none';
-  if(navSkus)     navSkus.style.display     = esDueno ? '' : 'none';
+  const navAnalisis  = document.getElementById('nav-analisis');
+  const navHistorial = document.getElementById('nav-historial');
+  const navInv       = document.getElementById('nav-inventario');
+  if(navDash)       navDash.style.display       = esDueno ? '' : 'none';
+  if(navAnalisis)   navAnalisis.style.display   = esDueno ? '' : 'none';
+  if(navHistorial)  navHistorial.style.display  = esDueno ? '' : 'none';
 
   // Para Vendedor: centrar los ítems visibles (Stock + FAB)
   const bottomNav = document.querySelector('.bottom-nav');
@@ -2435,7 +2436,7 @@ function goTo(id) {
   if(target) { target.classList.add('active'); document.getElementById('main-scroll').scrollTop = 0; }
 
   // Nav inferior — pestañas fijas
-  const navIds = ['dashboard','inventario','analisis','skus'];
+  const navIds = ['dashboard','inventario','analisis','historial'];
   document.querySelectorAll('.ni').forEach(n => n.classList.remove('on'));
   if(navIds.includes(id)) {
     const el = document.getElementById('nav-'+id);
@@ -2452,7 +2453,7 @@ function goTo(id) {
   const screenTitles = {
     dashboard: null, // en dashboard se oculta, solo se muestra el logo
     inventario: 'Inventario', venta: 'Nueva venta', compras: 'Compras',
-    'nueva-compra': 'Registrar compra', historial: 'Historial',
+    'nueva-compra': 'Registrar compra', historial: 'Ventas',
     analisis: 'Análisis', locales: 'Locales', config: 'Configuración',
     notifs: 'Alertas', skus: 'SKUs y Etiquetas', scanner: 'Escáner',
     'carga-masiva': 'Carga masiva'
@@ -2634,14 +2635,6 @@ function renderDashboard() {
     }
   }
 
-  // ── Hero: barra de progreso del mes ──
-  const diasEnMes = new Date(hoy.getFullYear(), hoy.getMonth()+1, 0).getDate();
-  const pctMes    = Math.round((hoy.getDate() / diasEnMes) * 100);
-  const barEl     = document.getElementById('dash-hero-bar');
-  const pctEl     = document.getElementById('dash-hero-pct');
-  if (barEl) setTimeout(() => { barEl.style.width = pctMes + '%'; }, 80);
-  if (pctEl) pctEl.textContent = `Día ${hoy.getDate()} de ${diasEnMes}`;
-
   // ── Stats strip ──
   const strip = document.getElementById('dash-stats-strip');
   if(strip) {
@@ -2652,20 +2645,22 @@ function renderDashboard() {
     const canales   = Object.entries(porCanal).sort((a,b)=>b[1]-a[1]);
     const mejorCanal= canales.length > 0 ? canales[0][0] : null;
 
-    const statCard = (lbl, val, sub, dest) =>
-      `<div style="background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:13px 10px;cursor:pointer;text-align:center;transition:border-color .15s,background .15s;" onclick="goTo('${dest}')" onmouseenter="this.style.borderColor='var(--bd2)';this.style.background='var(--sf2)'" onmouseleave="this.style.borderColor='var(--bd)';this.style.background='var(--sf)'">
-        <div style="font-size:10px;font-weight:500;color:var(--muted);margin-bottom:5px;line-height:1.3;">${lbl}</div>
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;letter-spacing:-.2px;color:var(--text);font-variant-numeric:tabular-nums;">${val}</div>
-        ${sub ? `<div style="font-size:10px;color:var(--muted);margin-top:3px;">${sub}</div>` : ''}
+    const statChip = (lbl, val, dest) =>
+      `<div onclick="goTo('${dest}')" style="display:flex;flex-direction:column;gap:2px;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:8px 12px;cursor:pointer;transition:border-color .15s;" onmouseenter="this.style.borderColor='var(--bd2)'" onmouseleave="this.style.borderColor='var(--bd)'">
+        <div style="font-size:9px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);">${lbl}</div>
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;letter-spacing:-.3px;color:var(--text);font-variant-numeric:tabular-nums;">${val}</div>
       </div>`;
 
     const ingMesStrip  = ventasMes.reduce((s,v) => s + v.precio, 0);
     const margenStrip  = ingMesStrip > 0 ? Math.round((ganMes / ingMesStrip) * 100) : null;
+    const ganHoyStr    = ventasHoy.length > 0 ? (ganHoy>=0?'+':'−')+'$'+fmt(Math.abs(ganHoy)) : '$0';
+    const margenStr    = margenStrip !== null ? margenStrip+'%' : '—';
+    const canalStr     = mejorCanal ? mejorCanal.split(' ')[0] : '—';
 
     strip.innerHTML =
-      statCard('Hoy', ventasHoy.length > 0 ? (ganHoy>=0?'+':'−')+'$'+fmt(Math.abs(ganHoy)) : '$0', ventasHoy.length > 0 ? ventasHoy.length + ' venta' + (ventasHoy.length !== 1 ? 's' : '') : 'Sin ventas', 'historial') +
-      statCard('Margen del mes', margenStrip !== null ? margenStrip + '%' : '—', margenStrip !== null ? 'de lo facturado' : 'Sin ventas', 'analisis') +
-      statCard('Mejor canal', mejorCanal ? mejorCanal.split(' ')[0] : '—', mejorCanal ? '$'+fmt(porCanal[mejorCanal]) : 'Sin datos', 'analisis');
+      statChip('Hoy', ganHoyStr, 'historial') +
+      statChip('Margen', margenStr, 'analisis') +
+      statChip('Mejor canal', canalStr, 'analisis');
   }
 
   // ── Acciones: urgencia diferenciada con CTA ──
@@ -2819,7 +2814,9 @@ function renderDashboard() {
       accionesSection.style.display = 'none';
     } else {
       accionesSection.style.display = '';
-      accionesWrap.innerHTML = items.slice(0, 5).map(it => {
+      const visibles = items.slice(0, 2);
+      const restantes = items.length - visibles.length;
+      accionesWrap.innerHTML = visibles.map(it => {
         const u = it.urgency || 'blue';
         return `<div class="urgency-item ${u}">
           <div style="font-size:17px;flex-shrink:0;">${it.icon}</div>
@@ -2829,7 +2826,9 @@ function renderDashboard() {
           </div>
           <button onclick="event.stopPropagation();goTo('${it.ctaDest}')" class="urgency-cta ${u}">${it.cta}</button>
         </div>`;
-      }).join('');
+      }).join('') + (restantes > 0
+        ? `<div style="text-align:center;padding:6px 0 2px;"><span style="font-size:11px;color:var(--muted);cursor:pointer;" onclick="goTo('analisis')">y ${restantes} alerta${restantes!==1?'s':''} más → ver análisis</span></div>`
+        : '');
     }
   }
 
