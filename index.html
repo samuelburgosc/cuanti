@@ -207,7 +207,7 @@ async function cargarTransferencias() {
 // Registrar venta en Supabase
 async function registrarVentaDB(varianteId, precio, costo, canal, pago, envio, cantidad=1, descuentoTipo=null, descuentoValor=0, clienteId=null) {
   // 1. Crear cabecera de venta
-  const ventaData = { canal, metodo_pago: pago, tipo_envio: envio, estado: 'Completada', local_id: _currentUser?.local_id || 1 };
+  const ventaData = { canal, metodo_pago: pago, tipo_envio: envio, estado: 'Completada', local_id: _currentUser?.local_id || 1, usuario_id: _currentUser?.id || null };
   if (clienteId) ventaData.cliente_id = clienteId;
   const { data: venta, error: e1 } = await sb
     .from('ventas')
