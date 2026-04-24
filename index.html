@@ -1248,11 +1248,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
   </div>
 
   <div id="inv-list"></div>
-  <div id="inv-empty" class="empty" style="display:none;">
-    <div class="empty-icon">📦</div>
-    <div class="empty-title">Sin resultados</div>
-    <div class="empty-sub">Intenta con otro nombre o categoría</div>
-  </div>
+  <div id="inv-empty" class="empty" style="display:none;"></div>
   <div class="spacer"></div>
 </div>
 
@@ -3895,7 +3891,26 @@ function renderInventario() {
   if(psub) psub.textContent = `${Object.keys(grupos).length} producto${Object.keys(grupos).length!==1?'s':''} · ${totalUds} unidades en stock`;
 
   const empty = document.getElementById('inv-empty');
-  if(empty) empty.style.display = visible === 0 ? 'block' : 'none';
+  if (empty) {
+    if (visible === 0) {
+      empty.style.display = 'block';
+      const q2 = (document.getElementById('inv-search')?.value || '');
+      const activeChip2 = document.querySelector('#inv-chips .chip.on')?.dataset?.cat || 'todos';
+      if (skuDB.length === 0) {
+        empty.innerHTML = `
+          <div class="empty-icon">📦</div>
+          <div class="empty-title">Todavía no tienes productos</div>
+          <div class="empty-sub" style="margin-bottom:16px;">Crea tu primer producto para empezar a registrar ventas y controlar tu stock.</div>
+          <button class="btn" style="width:auto;padding:10px 24px;font-size:13px;margin:0;" onclick="goTo('skus')">+ Crear primer producto →</button>`;
+      } else if (q2) {
+        empty.innerHTML = `<div class="empty-icon">🔍</div><div class="empty-title">Sin resultados</div><div class="empty-sub">No hay productos que coincidan con "${esc(q2)}"</div>`;
+      } else {
+        empty.innerHTML = `<div class="empty-icon">📦</div><div class="empty-title">Sin resultados</div><div class="empty-sub">No hay productos en esta categoría</div>`;
+      }
+    } else {
+      empty.style.display = 'none';
+    }
+  }
 }
 
 // Mantener alias para compatibilidad con llamadas existentes
@@ -6828,8 +6843,8 @@ const C128 = (() => {
   // Corrección: array literal tiene duplicado en índice 91/92, corregir 91-102
   FULL[91]  = '10101111000'; FULL[92]  = '10100011110'; FULL[93]  = '10001011110';
   FULL[94]  = '10111101000'; FULL[95]  = '10111100010'; FULL[96]  = '11110101000';
-  FULL[97]  = '11110100010'; FULL[98]  = '10111011110'; FULL[99]  = '10111101110';
-  FULL[100] = '11101011110'; // CODE B switch
+  FULL[97]  = '10111110100'; FULL[98]  = '10111101000'; FULL[99]  = '10111011110';
+  FULL[100] = '10111101110'; // CODE B switch
   FULL[101] = '11110101110'; // CODE A switch
   FULL[102] = '11010000100'; // FNC1
 
@@ -6837,7 +6852,7 @@ const C128 = (() => {
     const allDigits = /^\d+$/.test(text);
     if (allDigits && text.length >= 4) {
       const START_C = '11010011100';
-      const CODE_B  = '11101011110'; // FULL[100]
+      const CODE_B  = '10111101110'; // FULL[100]
       const STOP    = '11000111010';
       const pairs   = text.length % 2 === 0 ? text : text.slice(0, -1);
       const tail    = text.length % 2 === 1 ? text.slice(-1) : '';
