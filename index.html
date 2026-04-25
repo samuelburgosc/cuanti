@@ -1213,7 +1213,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
   <!-- ACTIVIDAD RECIENTE -->
   <div id="dash-actividad-wrap">
     <div class="sec-hdr" style="margin-bottom:12px;">
-      <div class="sec-title">Actividad reciente</div>
+      <div class="sec-title">Últimas ventas</div>
       <div style="display:flex;align-items:center;gap:12px;">
         <div id="dash-btn-gasto" style="display:none;"><span class="sec-link" onclick="abrirRegistrarGasto()">＋ Gasto</span></div>
         <span class="sec-link" onclick="goTo('scanner')" style="display:flex;align-items:center;gap:4px;">📷 Escanear</span>
@@ -1415,11 +1415,11 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
       <!-- stock restante + mes en fila compacta -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:16px;">
         <div style="background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;">
-          <div style="font-size:9px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Stock restante</div>
+          <div style="font-size:10px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Stock restante</div>
           <div id="vc-stock" style="font-family:'DM Mono',monospace;font-size:15px;font-weight:700;">—</div>
         </div>
         <div style="background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;">
-          <div style="font-size:9px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Ganado este mes</div>
+          <div style="font-size:10px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Ganado este mes</div>
           <div id="vc-mes-total" style="font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:var(--green);">—</div>
         </div>
       </div>
@@ -1520,7 +1520,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
       <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:8px;">
         <!-- Ganancia: protagonista -->
         <div>
-          <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">Ganancia total</div>
+          <div style="font-size:10px;color:var(--muted);margin-bottom:3px;" id="hist-gan-lbl">Ganancia</div>
           <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:26px;letter-spacing:-.5px;color:var(--green);line-height:1;" class="hist-stat" id="hist-stat-gan">$0</div>
         </div>
         <!-- Ventas e Ingresos: secundarios -->
@@ -1538,7 +1538,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
     <div class="chips" id="hist-chips">
       <div class="chip on" onclick="histSelChip(this,'todo')">Todo</div>
       <div class="chip" onclick="histSelChip(this,'hoy')">Hoy</div>
-      <div class="chip" onclick="histSelChip(this,'semana')">Este mes</div>
+      <div class="chip" onclick="histSelChip(this,'semana')">Esta semana</div>
       <div class="chip" onclick="histSelChip(this,'transf')">📲 Transferencia</div>
       <div class="chip" onclick="histSelChip(this,'efectivo')">💵 Efectivo</div>
       <div class="chip" onclick="histSelChip(this,'tarjeta')">💳 Tarjeta</div>
@@ -1575,14 +1575,14 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
   <div class="psub">Cuánto ganaste y qué te conviene vender</div>
   <div class="periods" id="analisis-tabs">
     <div class="pb on" onclick="renderAnalisis('hoy',this)">Hoy</div>
-    <div class="pb"    onclick="renderAnalisis('semana',this)">Semana</div>
-    <div class="pb"    onclick="renderAnalisis('mes',this)">Mes</div>
+    <div class="pb"    onclick="renderAnalisis('semana',this)">7 días</div>
+    <div class="pb"    onclick="renderAnalisis('mes',this)">Este mes</div>
     <div class="pb"    onclick="renderAnalisis('historico',this)">Todo</div>
     <div class="pb"    onclick="renderAnalisis('ventas',this)">Ventas</div>
   </div>
-  <div style="display:flex;gap:7px;margin-bottom:4px;">
-    <div onclick="renderAnalisis('stock',document.querySelector('#analisis-tabs .pb.on'))" style="display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 13px;border:1px solid var(--bd);border-radius:18px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;background:var(--sf);white-space:nowrap;transition:border-color .15s;" onmouseover="this.style.borderColor='var(--bd2)'" onmouseout="this.style.borderColor='var(--bd)'">📦 Stock</div>
-    <div onclick="renderAnalisis('gastos',document.querySelector('#analisis-tabs .pb.on'))" style="display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 13px;border:1px solid var(--bd);border-radius:18px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;background:var(--sf);white-space:nowrap;transition:border-color .15s;" onmouseover="this.style.borderColor='var(--bd2)'" onmouseout="this.style.borderColor='var(--bd)'">💸 Gastos</div>
+  <div style="display:flex;gap:7px;margin-bottom:4px;" id="analisis-extra-tabs">
+    <div id="analisis-btn-stock" onclick="_analisisExtraTab('stock')" style="display:inline-flex;align-items:center;gap:4px;min-height:36px;padding:0 13px;border:1px solid var(--bd);border-radius:18px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;background:var(--sf);white-space:nowrap;transition:all .15s;">📦 Stock</div>
+    <div id="analisis-btn-gastos" onclick="_analisisExtraTab('gastos')" style="display:inline-flex;align-items:center;gap:4px;min-height:36px;padding:0 13px;border:1px solid var(--bd);border-radius:18px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;background:var(--sf);white-space:nowrap;transition:all .15s;">💸 Gastos</div>
   </div>
   <div id="analisis-body"></div>
   <div class="spacer"></div>
@@ -1626,7 +1626,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
       <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:14px;letter-spacing:-.2px;">Agregar vendedor</div>
       <div class="field" style="margin-bottom:10px;"><label>Nombre</label><input id="cv-nombre" type="text" placeholder="Nombre del vendedor"></div>
       <div class="field" style="margin-bottom:10px;"><label>Email</label><input id="cv-email" type="email" placeholder="email@ejemplo.com"></div>
-      <div class="field" style="margin-bottom:16px;"><label>Contraseña temporal</label><input id="cv-pass" type="text" placeholder="Mínimo 6 caracteres"></div>
+      <div class="field" style="margin-bottom:16px;"><label>Contraseña de acceso</label><input id="cv-pass" type="text" placeholder="Mínimo 6 caracteres"></div>
       <button class="btn" id="cv-btn" onclick="crearVendedor()">Crear vendedor →</button>
     </div>
   </div>
@@ -2975,8 +2975,8 @@ function renderDashboard() {
 
     const statChip = (lbl, val, dest) =>
       `<div onclick="goTo('${dest}')" style="display:flex;flex-direction:column;gap:2px;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:8px 12px;cursor:pointer;transition:border-color .15s;" onmouseenter="this.style.borderColor='var(--bd2)'" onmouseleave="this.style.borderColor='var(--bd)'">
-        <div style="font-size:9px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);">${lbl}</div>
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;letter-spacing:-.3px;color:var(--text);font-variant-numeric:tabular-nums;">${val}</div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;color:var(--muted);">${lbl}</div>
+        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;letter-spacing:-.3px;color:var(--text);font-variant-numeric:tabular-nums;">${val}</div>
       </div>`;
 
     const ingMesStrip  = ventasMes.reduce((s,v) => s + v.precio, 0);
@@ -3077,7 +3077,7 @@ function renderDashboard() {
           urgency: 'accent',
           icon: '⭐',
           text: `<b>${nom}</b> te deja más plata`,
-          sub: `${mrg}% de ganancia sobre lo que cobrás · ${d.cnt} ventas`,
+          sub: `${mrg}% de ganancia sobre lo que cobras · ${d.cnt} ventas`,
           cta: 'Ver análisis', ctaDest: 'analisis'
         });
       }
@@ -3110,7 +3110,7 @@ function renderDashboard() {
         const margenMsg = margenProm >= 40
           ? `Buen margen — de cada $100 que cobras, te quedan $${margenProm}`
           : margenProm >= 20
-            ? `De cada $100 que cobrás, te quedan $${margenProm}`
+            ? `De cada $100 que cobras, te quedan $${margenProm}`
             : `Margen bajo — de cada $100 que cobras, te quedan $${margenProm}`;
         items.push({
           urgency: margenProm >= 40 ? 'green' : margenProm >= 20 ? 'blue' : 'orange',
@@ -3450,13 +3450,17 @@ function renderHistorial(filtro) {
   const ingEl  = document.getElementById('hist-stat-ing');
   const cntEl  = document.getElementById('hist-stat-cnt');
   const lblEl  = document.getElementById('hist-resumen-lbl');
+  const ganLbl = document.getElementById('hist-gan-lbl');
   const psubEl = document.getElementById('hist-psub');
-  const filtroLabel = { todo:'Todas las ventas', hoy:'Hoy', semana:'Este mes', transf:'Transferencia', efectivo:'Efectivo', tarjeta:'Tarjeta' };
+  const filtroLabel     = { todo:'Todas las ventas', hoy:'Hoy', semana:'Esta semana', transf:'Transferencia', efectivo:'Efectivo', tarjeta:'Tarjeta' };
+  const filtroGanLabel  = { todo:'Ganancia total', hoy:'Ganancia de hoy', semana:'Ganancia esta semana', transf:'Ganancia', efectivo:'Ganancia', tarjeta:'Ganancia' };
   const filtroLabelDin = histFiltro?.startsWith('canal:') ? histFiltro.slice(6) : (filtroLabel[histFiltro] || 'Resultados');
-  if(ganEl) { ganEl.textContent = (totalGan>=0?'+':'−')+'$'+fmt(Math.abs(totalGan)); ganEl.style.color = totalGan >= 0 ? 'var(--green)' : 'var(--red)'; }
-  if(ingEl) ingEl.textContent = '$'+fmt(totalIngresos);
-  if(cntEl) cntEl.textContent = ventas.length;
-  if(lblEl) lblEl.textContent = filtroLabelDin;
+  const ganLblTxt = histFiltro?.startsWith('canal:') ? 'Ganancia' : (filtroGanLabel[histFiltro] || 'Ganancia');
+  if(ganEl)  { ganEl.textContent = (totalGan>=0?'+':'−')+'$'+fmt(Math.abs(totalGan)); ganEl.style.color = totalGan >= 0 ? 'var(--green)' : 'var(--red)'; }
+  if(ingEl)  ingEl.textContent = '$'+fmt(totalIngresos);
+  if(cntEl)  cntEl.textContent = ventas.length;
+  if(lblEl)  lblEl.textContent = filtroLabelDin;
+  if(ganLbl) ganLbl.textContent = ganLblTxt;
 
   // Chips de canal dinámicos — agregar si aún no están
   const chipsEl = document.getElementById('hist-chips');
@@ -5603,7 +5607,7 @@ async function ventaConfirmar() {
       html = `<div style="background:var(--rdim);border:1px solid rgba(216,75,75,.25);border-radius:12px;padding:13px 14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;text-align:left;">
         <span style="font-size:20px;flex-shrink:0;">🔴</span>
         <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--red);">Se te agotó este producto</div>
-        <div style="font-size:11px;color:var(--muted);">Anotá para reponer en el próximo lote.</div></div></div>`;
+        <div style="font-size:11px;color:var(--muted);">Anota para reponer en el próximo lote.</div></div></div>`;
     } else if(nuevoStock <= 2) {
       html = `<div style="background:var(--odim);border:1px solid rgba(228,106,46,.25);border-radius:12px;padding:13px 14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;text-align:left;">
         <span style="font-size:20px;flex-shrink:0;">⚠️</span>
@@ -5817,11 +5821,31 @@ function renderGastos(body, setBody) {
 // ══════════════════════════════════════════════════════
 let _analisisTab = 'hoy';
 
+function _analisisExtraTab(tab) {
+  const toggle = _analisisTab === tab;
+  [['analisis-btn-stock','stock'],['analisis-btn-gastos','gastos']].forEach(([id, t]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const on = !toggle && t === tab;
+    el.style.background   = on ? 'var(--text)' : 'var(--sf)';
+    el.style.color        = on ? 'var(--accent)' : 'var(--muted)';
+    el.style.borderColor  = on ? 'var(--text)' : 'var(--bd)';
+  });
+  renderAnalisis(toggle ? 'hoy' : tab);
+}
+
 function renderAnalisis(tab, btn) {
   _analisisTab = tab || _analisisTab;
   if(btn) {
     document.querySelectorAll('#analisis-tabs .pb').forEach(b => b.classList.remove('on'));
     btn.classList.add('on');
+  }
+  // Reset extra tab buttons (Stock/Gastos) unless one of them was activated
+  if (tab !== 'stock' && tab !== 'gastos') {
+    ['analisis-btn-stock','analisis-btn-gastos'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.style.background='var(--sf)'; el.style.color='var(--muted)'; el.style.borderColor='var(--bd)'; }
+    });
   }
   const body = document.getElementById('analisis-body');
   if(!body) return;
