@@ -1227,7 +1227,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 <!-- ════════════════════════════ INVENTARIO ════════════════════════════ -->
 <div class="screen" id="screen-inventario">
   <div class="ptitle">Inventario</div>
-  <div class="psub" id="inv-psub">Tus productos y stock disponible</div>
+  <div class="psub" id="inv-psub">Todo lo que tienes para vender</div>
 
   <!-- acciones rápidas: + Stock destacado, resto secundarios -->
   <div style="margin-bottom:12px;">
@@ -1502,6 +1502,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 <!-- ════════════════════════════ HISTORIAL ════════════════════════════ -->
 <div class="screen" id="screen-historial">
   <div class="ptitle">Ventas</div>
+  <div class="psub">Todas las ventas que registraste</div>
 
   <!-- tabs: Ventas / Clientes -->
   <div style="display:flex;gap:0;background:var(--sf2);border:1px solid var(--bd);border-radius:12px;padding:3px;margin-bottom:14px;">
@@ -1574,6 +1575,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 <!-- ════════════════════════════ ANÁLISIS ════════════════════════════ -->
 <div class="screen" id="screen-analisis">
   <div class="ptitle">Resumen</div>
+  <div class="psub">Cuánto ganaste y qué te conviene vender</div>
   <div class="periods" id="analisis-tabs">
     <div class="pb on" onclick="renderAnalisis('hoy',this)">Hoy</div>
     <div class="pb"    onclick="renderAnalisis('semana',this)">Semana</div>
@@ -2914,41 +2916,67 @@ function renderDashboard() {
     if(completo) {
       setupEl.style.display = 'none';
     } else {
+      setupEl.style.display = '';
       const pasosDone = [tieneProductos, tieneVentas].filter(Boolean).length;
       const pct = Math.round((pasosDone / 2) * 100);
 
-      const pasoHecho = (titulo) => `
-        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;">
-          <div style="width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;background:var(--green);color:#fff;">✓</div>
-          <div style="font-size:12px;color:var(--muted);text-decoration:line-through;">${titulo}</div>
+      // Helpers de fila
+      const stepDone = (titulo) => `
+        <div style="display:flex;align-items:center;gap:12px;padding:11px 0;">
+          <div style="width:22px;height:22px;border-radius:50%;background:var(--text);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span style="font-size:9px;font-weight:700;color:var(--accent);">✓</span>
+          </div>
+          <div style="font-size:12px;color:rgba(23,23,23,.45);text-decoration:line-through;font-weight:600;">${titulo}</div>
         </div>`;
 
-      const pasoActivo = (titulo, sub, dest, btnLabel) => `
-        <div style="background:var(--sf2);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-top:4px;">
-          <div style="font-size:13px;font-weight:700;margin-bottom:4px;">${titulo}</div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.5;">${sub}</div>
-          <button class="btn" style="margin:0;padding:12px 20px;width:auto;font-size:13px;" onclick="goTo('${dest}')">${btnLabel}</button>
+      const stepActive = (num, titulo, desc, dest, btnLabel) => `
+        <div style="padding:12px 0;">
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div style="width:22px;height:22px;border-radius:50%;background:var(--text);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">
+              <span style="font-size:9px;font-weight:700;color:var(--accent);">${num}</span>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;">${titulo}</div>
+              <div style="font-size:11px;color:rgba(23,23,23,.6);line-height:1.5;margin-bottom:10px;">${desc}</div>
+              <button onclick="goTo('${dest}')" style="background:var(--text);color:var(--accent);border:none;border-radius:8px;padding:9px 16px;font-family:'Barlow',sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:-.1px;">${btnLabel} →</button>
+            </div>
+          </div>
         </div>`;
 
-      setupEl.style.display = '';
-      const tituloSetup = !tieneProductos
-        ? 'Para ver tus ganancias, empieza acá'
-        : '¡Ya tienes productos! Registra tu primera venta';
-      const subSetup = !tieneProductos
-        ? 'Agrega el primer producto que vendés: ponle nombre, precio de venta y cuánto te costó.'
-        : 'Elige el producto que vendiste y el canal. Cuanti te dice cuánto ganaste en el momento.';
+      const stepLocked = (num, titulo) => `
+        <div style="display:flex;align-items:center;gap:12px;padding:11px 0;opacity:.35;">
+          <div style="width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(23,23,23,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span style="font-size:9px;font-weight:700;color:rgba(23,23,23,.6);">${num}</span>
+          </div>
+          <div style="font-size:12px;font-weight:600;color:rgba(23,23,23,.6);">${titulo}</div>
+        </div>`;
+
+      const sep = `<div style="border-top:1px solid rgba(23,23,23,.1);"></div>`;
+
+      const paso1Html = tieneProductos
+        ? stepDone('Agrega tu primer producto')
+        : stepActive(1, 'Agrega tu primer producto', 'Ponle nombre, precio de venta y cuánto te costó comprar cada uno.', 'skus', 'Agregar producto');
+
+      const paso2Html = tieneProductos && !tieneVentas
+        ? stepActive(2, 'Registra tu primera venta', 'Elige el producto, el canal y listo. Cuanti calcula la ganancia al instante.', 'venta', 'Registrar venta')
+        : tieneVentas
+          ? stepDone('Registra tu primera venta')
+          : stepLocked(2, 'Registra tu primera venta');
+
+      const paso3Html = stepLocked(3, 'Mira cuánto ganaste');
+
       setupEl.innerHTML = `
-        <div style="background:var(--accent);border-radius:14px;padding:16px;margin-bottom:16px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-            <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:13px;letter-spacing:-.2px;color:var(--text);">${tituloSetup}</div>
-            <div style="font-size:10px;color:rgba(23,23,23,.5);font-family:'DM Mono',monospace;">${pasosDone}/2</div>
+        <div style="background:var(--accent);border-radius:14px;padding:14px 16px 12px;margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:13px;color:var(--text);">Empieza en 3 pasos</div>
+            <div style="font-size:10px;color:rgba(23,23,23,.45);font-family:'DM Mono',monospace;">${pasosDone}/2 completados</div>
           </div>
-          <div style="font-size:12px;color:rgba(23,23,23,.65);line-height:1.5;margin-bottom:14px;">${subSetup}</div>
-          <div style="background:rgba(23,23,23,.15);border-radius:99px;height:3px;margin-bottom:14px;overflow:hidden;">
-            <div style="background:var(--text);height:100%;border-radius:99px;width:${pct}%;transition:width .4s;"></div>
+          <div style="background:rgba(23,23,23,.15);border-radius:99px;height:3px;margin-bottom:2px;overflow:hidden;">
+            <div style="background:var(--text);height:100%;border-radius:99px;width:${pct}%;transition:width .5s;"></div>
           </div>
-          ${tieneProductos ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><div style="width:18px;height:18px;border-radius:50%;background:var(--text);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--accent);font-weight:700;">✓</div><div style="font-size:12px;color:rgba(23,23,23,.6);text-decoration:line-through;">Crear primer producto</div></div>` : ''}
-          <button class="btn" style="margin:0;background:var(--text);color:var(--accent);border-color:var(--text);font-size:13px;" onclick="goTo('${tieneProductos ? 'venta' : 'skus'}')">${tieneProductos ? 'Registrar primera venta →' : '+ Agregar primer producto →'}</button>
+          <div>
+            ${paso1Html}${sep}${paso2Html}${sep}${paso3Html}
+          </div>
         </div>`;
     }
   }
@@ -3095,7 +3123,11 @@ function renderHistorial(filtro) {
   if(psubEl) psubEl.textContent = ventas.length === 0 ? 'Sin ventas en este período' : `${ventas.length} venta${ventas.length!==1?'s':''} · ${totalGan>=0?'+':'−'}$${fmt(Math.abs(totalGan))} de ganancia`;
 
   if(ventas.length === 0) {
+    const sinVentasGlobal = ventasDB.filter(v => !v.nombre.startsWith('↩️')).length === 0;
     const msgs = {
+      todo:   sinVentasGlobal
+                ? { icon:'🧾', title:'Todavía no tienes ventas', sub:'Aquí verás cada venta que registres, cuánto ganaste y por qué canal. Empieza ahora.', cta:'Registrar primera venta →', dest:'venta' }
+                : { icon:'🔍', title:'Sin resultados', sub:'Prueba con otro término de búsqueda.', cta:null },
       hoy:    { icon:'🌅', title:'Sin ventas hoy todavía', sub:'Registra una venta y acá verás cuánto ganaste.', cta:'Registrar venta →', dest:'venta' },
       semana: { icon:'📅', title:'Sin ventas este mes', sub:'Cuando registres ventas del mes aparecerán acá.', cta:'Registrar venta →', dest:'venta' },
       sotos:  { icon:'🏪', title:'Sin ventas por Sotos', sub:'Cuando registres una venta por Sotos, aparecerá aquí.', cta:'Registrar venta →', dest:'venta' },
@@ -5576,6 +5608,33 @@ function renderAnalisis(tab, btn) {
     const margenPct = ing > 0 ? Math.round((gan/ing)*100) : 0;
 
     if(hoy.length === 0) {
+      // Sin ninguna venta todavía — explicar qué hace esta pantalla
+      if(ventas.length === 0) {
+        setBody(`<div style="text-align:center;padding:48px 16px 24px;">
+          <div style="font-size:40px;margin-bottom:16px;">📊</div>
+          <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:16px;margin-bottom:10px;letter-spacing:-.3px;">Aquí ves cuánto ganaste</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:24px;max-width:260px;margin-inline:auto;">
+            Ganancias por día, semana y mes. Los productos que más te dejan. Los canales que más venden. Todo en un lugar.
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:28px;text-align:left;max-width:280px;margin-inline:auto;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="font-size:18px;">💰</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.4;"><strong style="color:var(--text);">Ganancia real</strong> — precio menos costo, sin engaños</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="font-size:18px;">📦</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.4;"><strong style="color:var(--text);">Por producto</strong> — qué te deja más plata</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="font-size:18px;">📈</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.4;"><strong style="color:var(--text);">Tendencias</strong> — si vas mejor o peor que antes</div>
+            </div>
+          </div>
+          <button class="btn" onclick="goTo('venta')" style="width:auto;padding:12px 28px;font-size:14px;">Registrar primera venta →</button>
+        </div>`);
+        return;
+      }
+
       // Calcular ganancia de ayer y racha de días consecutivos
       const ayer = new Date(todayY, todayM, todayD - 1);
       const ayerVentas = ventas.filter(v => {
@@ -5603,7 +5662,7 @@ function renderAnalisis(tab, btn) {
         ? `<div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Ayer ganaste</div>
            <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:28px;letter-spacing:-.5px;color:var(--text);margin-bottom:4px;">${ayerGan>=0?'+':'−'}$${fmt(Math.abs(ayerGan))}</div>
            <div style="font-size:11px;color:var(--muted);margin-bottom:20px;">${ayerVentas.length} venta${ayerVentas.length!==1?'s':''} · Hoy todavía no hay registros</div>`
-        : `<div style="font-size:13px;color:var(--muted);margin-bottom:20px;">Registra tu primera venta del día para ver cuánto ganás.</div>`;
+        : `<div style="font-size:13px;color:var(--muted);margin-bottom:20px;">Registra tu primera venta del día para ver cuánto ganas.</div>`;
 
       setBody(`<div style="text-align:center;padding:36px 16px 20px;">
         <div style="font-size:38px;margin-bottom:12px;">🌅</div>
