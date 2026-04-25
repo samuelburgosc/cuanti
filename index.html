@@ -1164,7 +1164,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
       <div id="dash-hero-badge" style="display:none;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;"></div>
     </div>
     <div class="hero-amt" id="dash-hero-gan">$—</div>
-    <div id="dash-hero-firsttime-sub" style="display:none;font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5;">Acá vas a ver cuánto ganás en tiempo real cada vez que registres una venta.</div>
+    <div id="dash-hero-firsttime-sub" style="display:none;font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5;">Aquí verás cuánto ganas en tiempo real cada vez que registres una venta.</div>
     <div id="dash-hero-gastos-sub" style="display:none;font-size:11px;color:var(--muted);margin-top:4px;"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
       <div id="dash-hero-trend" style="font-size:13px;"></div>
@@ -1216,6 +1216,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
       <div class="sec-title">Actividad reciente</div>
       <div style="display:flex;align-items:center;gap:12px;">
         <div id="dash-btn-gasto" style="display:none;"><span class="sec-link" onclick="abrirRegistrarGasto()">＋ Gasto</span></div>
+        <span class="sec-link" onclick="goTo('scanner')" style="display:flex;align-items:center;gap:4px;">📷 Escanear</span>
         <div class="sec-link" onclick="goTo('historial')">Ver ventas →</div>
       </div>
     </div>
@@ -2051,6 +2052,45 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
   <div id="cm-sheet-body"></div>
 </div>
 
+<!-- ── SHEET PRODUCTO RÁPIDO ── -->
+<div class="sheet-bd" id="qprod-sheet-bd" onclick="cerrarQuickProd()" style="display:none;"></div>
+<div class="sheet" id="qprod-sheet" style="display:none;">
+  <div class="sheet-handle"></div>
+  <div style="padding:0 16px 32px;">
+    <div style="font-family:'Archivo Black',sans-serif;font-size:16px;margin-bottom:4px;">Nuevo producto</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:20px;">Lo básico para empezar. Puedes editar los detalles después.</div>
+
+    <div class="field" style="margin-bottom:14px;">
+      <label>Nombre del producto</label>
+      <input id="qp-nombre" type="text" placeholder="ej. Polera negra talla M" maxlength="60"
+        onkeydown="if(event.key==='Enter')document.getElementById('qp-precio').focus()">
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+      <div class="field">
+        <label>Precio de venta</label>
+        <div class="fwrap"><span class="fpfx">$</span><input id="qp-precio" class="pfx" type="number" inputmode="numeric" placeholder="0"
+          onkeydown="if(event.key==='Enter')document.getElementById('qp-costo').focus()"></div>
+      </div>
+      <div class="field">
+        <label>Costo unitario</label>
+        <div class="fwrap"><span class="fpfx">$</span><input id="qp-costo" class="pfx" type="number" inputmode="numeric" placeholder="0"
+          onkeydown="if(event.key==='Enter')document.getElementById('qp-stock').focus()"></div>
+      </div>
+    </div>
+
+    <div class="field" style="margin-bottom:20px;">
+      <label>Stock inicial (unidades)</label>
+      <input id="qp-stock" type="number" inputmode="numeric" placeholder="0" min="0"
+        onkeydown="if(event.key==='Enter')guardarQuickProd()">
+    </div>
+
+    <div id="qp-error" style="display:none;color:var(--red);font-size:12px;margin-bottom:10px;"></div>
+    <button class="btn" onclick="guardarQuickProd()">Crear producto →</button>
+    <button class="btn sec" onclick="cerrarQuickProd();goTo('skus');" style="margin-top:8px;font-size:12px;">Ver todos los productos →</button>
+  </div>
+</div>
+
 <!-- ── SHEET CANALES DE VENTA ── -->
 <div class="sheet-bd" id="canales-sheet-bd" onclick="cerrarCanalSheet()" style="display:none;"></div>
 <div class="sheet" id="canales-sheet" style="display:none;">
@@ -2376,6 +2416,92 @@ function agregarCanalConfig() {
   if (chk) { chk.checked = false; _toggleMktInput('config-canal-com-row'); }
   _renderCanalList('config-canales-list');
   _renderCanalList('canales-list');
+}
+
+// ── QUICK PRODUCT ADD ──────────────────────────────────────────
+function abrirQuickProdSheet() {
+  ['qp-nombre','qp-precio','qp-costo','qp-stock'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  const errEl = document.getElementById('qp-error');
+  if (errEl) errEl.style.display = 'none';
+  const bd = document.getElementById('qprod-sheet-bd');
+  const sh = document.getElementById('qprod-sheet');
+  if (bd) { bd.style.display = 'block'; requestAnimationFrame(() => bd.classList.add('open')); }
+  if (sh) { sh.style.display = 'block'; requestAnimationFrame(() => sh.classList.add('open')); }
+  setTimeout(() => document.getElementById('qp-nombre')?.focus(), 300);
+}
+
+function cerrarQuickProd() {
+  const bd = document.getElementById('qprod-sheet-bd');
+  const sh = document.getElementById('qprod-sheet');
+  if (bd) { bd.classList.remove('open'); setTimeout(() => { bd.style.display = 'none'; }, 280); }
+  if (sh) { sh.classList.remove('open'); setTimeout(() => { sh.style.display = 'none'; }, 280); }
+}
+
+async function guardarQuickProd() {
+  const nombre = (document.getElementById('qp-nombre')?.value || '').trim();
+  const precio = parseInt(document.getElementById('qp-precio')?.value) || 0;
+  const costo  = parseInt(document.getElementById('qp-costo')?.value) || 0;
+  const stock  = parseInt(document.getElementById('qp-stock')?.value) || 0;
+
+  const errEl = document.getElementById('qp-error');
+  if (!nombre) {
+    if (errEl) { errEl.textContent = 'Escribe el nombre del producto.'; errEl.style.display = ''; }
+    document.getElementById('qp-nombre')?.focus();
+    return;
+  }
+  if (!precio) {
+    if (errEl) { errEl.textContent = 'Ingresa el precio de venta.'; errEl.style.display = ''; }
+    document.getElementById('qp-precio')?.focus();
+    return;
+  }
+  if (errEl) errEl.style.display = 'none';
+
+  const btn = document.querySelector('#qprod-sheet .btn');
+  if (btn) { btn.textContent = '⏳ Guardando…'; btn.disabled = true; }
+
+  const localId = _currentUser?.local_id || 1;
+
+  // Buscar o crear categoría por defecto
+  const { data: catData } = await sb.from('categorias').select('id').eq('activa', true).limit(1).single();
+  const catId = catData?.id || null;
+
+  // Crear producto
+  const { data: prod, error: eProd } = await sb
+    .from('productos')
+    .insert({ nombre, categoria_id: catId, precio_base: precio, tiene_tallas: false, activo: true })
+    .select('id')
+    .single();
+
+  if (eProd || !prod) {
+    if (btn) { btn.textContent = 'Crear producto →'; btn.disabled = false; }
+    if (errEl) { errEl.textContent = 'Error al crear el producto. Intenta de nuevo.'; errEl.style.display = ''; }
+    console.error('Error creando producto:', eProd);
+    return;
+  }
+
+  // Crear variante (sin talla)
+  const sku = 'P-' + Date.now().toString(36).toUpperCase().slice(-6) + '-001';
+  const { error: eVar } = await sb.from('variantes').insert({
+    sku, producto_id: prod.id, talla_color: '—', local_id: localId,
+    stock_actual: stock, stock_minimo: 0, costo_ultima_compra: costo, activa: true
+  });
+
+  if (btn) { btn.textContent = 'Crear producto →'; btn.disabled = false; }
+
+  if (eVar) {
+    if (errEl) { errEl.textContent = 'Error al crear la variante. Intenta de nuevo.'; errEl.style.display = ''; }
+    console.error('Error creando variante:', eVar);
+    return;
+  }
+
+  await cargarInventario();
+  cerrarQuickProd();
+  toast(`¡${nombre} creado!`, 'ok');
+  renderDashboard();
+  renderInventario();
 }
 
 // ══════════════════════════════════════════════════════
@@ -2930,7 +3056,7 @@ function renderDashboard() {
       items.push({
         urgency: 'green',
         icon: '📈',
-        text: `Por <b>${mejor}</b> ganás más plata por venta`,
+        text: `Por <b>${mejor}</b> ganas más plata por venta`,
         sub: `Promedio $${fmt(ganProm)} de ganancia · ${porCanalCnt[mejor]} ventas`,
         cta: 'Analizar', ctaDest: 'analisis'
       });
@@ -2982,10 +3108,10 @@ function renderDashboard() {
       const margenProm = Math.round((ganMes / ingMes) * 100);
       if (margenProm > 0) {
         const margenMsg = margenProm >= 40
-          ? `Buen margen — de cada $100 que cobrás, te quedan $${margenProm}`
+          ? `Buen margen — de cada $100 que cobras, te quedan $${margenProm}`
           : margenProm >= 20
             ? `De cada $100 que cobrás, te quedan $${margenProm}`
-            : `Margen bajo — de cada $100 que cobrás, te quedan $${margenProm}`;
+            : `Margen bajo — de cada $100 que cobras, te quedan $${margenProm}`;
         items.push({
           urgency: margenProm >= 40 ? 'green' : margenProm >= 20 ? 'blue' : 'orange',
           icon: margenProm >= 40 ? '💚' : margenProm >= 20 ? '📊' : '⚠️',
@@ -3097,12 +3223,13 @@ function renderDashboard() {
     const tieneVentas    = ventasDB.filter(v => !v.nombre.startsWith('↩️')).length > 0;
     const completo       = tieneProductos && tieneVentas;
 
-    if(completo) {
+    const setupDone = !!localStorage.getItem('cuanti_setup_done');
+    if(completo && setupDone) {
       setupEl.style.display = 'none';
     } else {
       setupEl.style.display = '';
-      const pasosDone = [tieneProductos, tieneVentas].filter(Boolean).length;
-      const pct = Math.round((pasosDone / 2) * 100);
+      const pasosDone = [tieneProductos, tieneVentas, completo && setupDone].filter(Boolean).length;
+      const pct = Math.round((pasosDone / 3) * 100);
 
       // Helpers de fila
       const stepDone = (titulo) => `
@@ -3139,7 +3266,18 @@ function renderDashboard() {
 
       const paso1Html = tieneProductos
         ? stepDone('Agrega tu primer producto')
-        : stepActive(1, 'Agrega tu primer producto', 'Ponle nombre, precio de venta y cuánto te costó comprar cada uno.', 'skus', 'Agregar producto');
+        : `<div style="padding:12px 0;">
+            <div style="display:flex;align-items:flex-start;gap:12px;">
+              <div style="width:22px;height:22px;border-radius:50%;background:var(--text);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">
+                <span style="font-size:9px;font-weight:700;color:var(--accent);">1</span>
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;">Agrega tu primer producto</div>
+                <div style="font-size:11px;color:rgba(23,23,23,.6);line-height:1.5;margin-bottom:10px;">Nombre, precio de venta y cuánto te costó. En un minuto.</div>
+                <button onclick="abrirQuickProdSheet()" style="background:var(--text);color:var(--accent);border:none;border-radius:8px;padding:9px 16px;font-family:'Barlow',sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:-.1px;">Agregar producto →</button>
+              </div>
+            </div>
+          </div>`;
 
       const paso2Html = tieneProductos && !tieneVentas
         ? stepActive(2, 'Registra tu primera venta', 'Elige el producto, el canal y listo. Cuanti calcula la ganancia al instante.', 'venta', 'Registrar venta')
@@ -3147,13 +3285,26 @@ function renderDashboard() {
           ? stepDone('Registra tu primera venta')
           : stepLocked(2, 'Registra tu primera venta');
 
-      const paso3Html = stepLocked(3, 'Mira cuánto ganaste');
+      const paso3Html = completo
+        ? `<div style="padding:12px 0;">
+            <div style="display:flex;align-items:flex-start;gap:12px;">
+              <div style="width:22px;height:22px;border-radius:50%;background:var(--text);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">
+                <span style="font-size:9px;font-weight:700;color:var(--accent);">3</span>
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;">Mira cuánto ganaste</div>
+                <div style="font-size:11px;color:rgba(23,23,23,.6);line-height:1.5;margin-bottom:10px;">Todo listo. Revisa tus ganancias, qué productos te convienen y cuánto llevas este mes.</div>
+                <button onclick="localStorage.setItem('cuanti_setup_done','1');goTo('analisis');" style="background:var(--text);color:var(--accent);border:none;border-radius:8px;padding:9px 16px;font-family:'Barlow',sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:-.1px;">Ver análisis →</button>
+              </div>
+            </div>
+          </div>`
+        : stepLocked(3, 'Mira cuánto ganaste');
 
       setupEl.innerHTML = `
         <div style="background:var(--accent);border-radius:14px;padding:14px 16px 12px;margin-bottom:16px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
             <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:13px;color:var(--text);">Empieza en 3 pasos</div>
-            <div style="font-size:10px;color:rgba(23,23,23,.45);font-family:'DM Mono',monospace;">${pasosDone}/2 completados</div>
+            <div style="font-size:10px;color:rgba(23,23,23,.45);font-family:'DM Mono',monospace;">${pasosDone}/3 completados</div>
           </div>
           <div style="background:rgba(23,23,23,.15);border-radius:99px;height:3px;margin-bottom:2px;overflow:hidden;">
             <div style="background:var(--text);height:100%;border-radius:99px;width:${pct}%;transition:width .5s;"></div>
@@ -5022,9 +5173,9 @@ function ventaRenderInventario(filter='') {
         <div style="font-size:48px;margin-bottom:14px;">📦</div>
         <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:17px;margin-bottom:8px;letter-spacing:-.3px;">Agrega tu primer producto</div>
         <div style="font-size:12px;color:var(--muted);margin-bottom:22px;line-height:1.7;max-width:240px;margin-inline:auto;">
-          Ponle nombre, cuánto lo vendés y cuánto te costó.<br>Cuanti hace el resto.
+          Ponle nombre, cuánto lo vendes y cuánto te costó.<br>Cuanti hace el resto.
         </div>
-        <button class="btn" style="width:auto;padding:13px 28px;font-size:13px;margin:0;" onclick="goTo('skus')">
+        <button class="btn" style="width:auto;padding:13px 28px;font-size:13px;margin:0;" onclick="abrirQuickProdSheet()">
           + Crear primer producto →
         </button>
       </div>`;
@@ -7117,7 +7268,7 @@ async function renderCompras() {
         <div style="font-size:48px;margin-bottom:14px;">🛒</div>
         <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:17px;margin-bottom:8px;letter-spacing:-.3px;">Sin lotes registrados</div>
         <div style="font-size:12px;color:var(--muted);margin-bottom:22px;line-height:1.7;max-width:240px;margin-inline:auto;">
-          Registra tus compras para saber cuánto te costó el stock y cuánto ganás.
+          Registra tus compras para saber cuánto te costó el stock y cuánto ganas.
         </div>
         <button class="btn" style="width:auto;padding:13px 28px;font-size:13px;margin:0;" onclick="goTo('nueva-compra')">+ Registrar compra →</button>
       </div>`;
