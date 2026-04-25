@@ -1438,24 +1438,24 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 <!-- ════════════════════════════ COMPRAS ════════════════════════════ -->
 <div class="screen" id="screen-compras">
   <div class="ptitle">Compras</div>
-  <div class="psub" id="compras-psub">Registro de lotes de inventario</div>
+  <div class="psub" id="compras-psub">Lo que compraste para tu negocio</div>
 
   <!-- acceso rápido al escáner para ingreso de stock -->
   <div class="card a" style="display:flex;align-items:center;gap:12px;margin-bottom:12px;cursor:pointer;" onclick="scGoIngreso()">
     <div style="font-size:28px;">📷</div>
     <div style="flex:1;">
-      <div style="font-size:13px;font-weight:700;margin-bottom:2px;">Escanear para ingresar stock</div>
-      <div style="font-size:11px;color:var(--muted);">Llega un lote — escanea cada producto directamente</div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:2px;">Llegó mercadería — escanear</div>
+      <div style="font-size:11px;color:var(--muted);">Escanea cada producto para agregar al inventario</div>
     </div>
     <div style="font-size:14px;color:var(--text);">→</div>
   </div>
 
   <div class="fabs">
-    <div class="fab p" onclick="goTo('nueva-compra')"><div class="fi">📥</div><div class="fl">Registrar compra</div><div class="fs">Nuevo lote</div></div>
-    <div class="fab" onclick="goTo('scanner');setTimeout(()=>scAccion('transfer'),400)"><div class="fi">🔄</div><div class="fl">Transferir stock</div><div class="fs">Escanea y transfiere</div></div>
+    <div class="fab p" onclick="goTo('nueva-compra')"><div class="fi">📥</div><div class="fl">Registrar compra</div><div class="fs">¿Compraste algo nuevo?</div></div>
+    <div class="fab" onclick="goTo('scanner');setTimeout(()=>scAccion('transfer'),400)"><div class="fi">🔄</div><div class="fl">Mover entre locales</div><div class="fs">Traslado de productos</div></div>
   </div>
 
-  <div class="sec-hdr" style="margin-bottom:8px;"><div class="sec-title">Historial de lotes</div></div>
+  <div class="sec-hdr" style="margin-bottom:8px;"><div class="sec-title">Tus compras</div></div>
   <div id="compras-lista"><div style="text-align:center;padding:20px;color:var(--muted);font-size:12px;">Cargando…</div></div>
   <div class="spacer"></div>
 </div>
@@ -1463,32 +1463,32 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 <!-- ════════════════════════════ NUEVA COMPRA ════════════════════════════ -->
 <div class="screen" id="screen-nueva-compra">
   <div class="ptitle">Registrar compra</div>
-  <div class="psub">Nuevo lote de inventario</div>
+  <div class="psub">¿Compraste algo para tu negocio? Registralo acá</div>
 
   <div class="card">
-    <div class="mono-lbl">Origen de la compra</div>
+    <div class="mono-lbl">¿Dónde compraste?</div>
     <div class="opt sel" id="nc-jp" onclick="selOrigen('jp')"><div class="oico">🇯🇵</div><div class="oinfo"><div class="oname">Amazon Japón</div><div class="osub">Importación directa · cobro en CLP</div></div><div class="ochk">✓</div></div>
     <div class="opt" id="nc-local" onclick="selOrigen('local')" style="margin-bottom:0;"><div class="oico">🏪</div><div class="oinfo"><div class="oname">Proveedor local</div><div class="osub">Santiago · pago directo en pesos</div></div><div class="ochk"></div></div>
   </div>
 
   <div class="card">
-    <div class="mono-lbl">Datos del lote</div>
-    <div class="field"><label>Descripción del lote</label><input type="text" id="nc-desc" placeholder="Ej: Lote BAPE Primavera 2026"></div>
+    <div class="mono-lbl">Detalles de la compra</div>
+    <div class="field"><label>¿Cómo la llamarías?</label><input type="text" id="nc-desc" placeholder="Ej: Zapatillas verano, Ropa nueva..."></div>
     <div class="frow">
       <div class="field"><label>Total pagado (CLP)</label><div class="fwrap"><span class="fpfx">$</span><input id="nc-total" class="pfx" type="number" inputmode="decimal" placeholder="170018" oninput="calcCostoUnit()"></div></div>
-      <div class="field"><label>Nº de unidades</label><input id="nc-uds" type="number" inputmode="numeric" placeholder="10" oninput="calcCostoUnit()"></div>
+      <div class="field"><label>Cantidad de productos</label><input id="nc-uds" type="number" inputmode="numeric" placeholder="10" oninput="calcCostoUnit()"></div>
     </div>
-    <div class="field"><label>Costo por unidad (auto-calculado)</label><div class="fwrap"><span class="fpfx">$</span><input id="nc-costo-unit" class="pfx" type="number" placeholder="—" style="color:var(--green);font-weight:600;" readonly></div></div>
-    <div class="field"><label>Destino</label>
+    <div class="field"><label>Costo por producto (se calcula solo)</label><div class="fwrap"><span class="fpfx">$</span><input id="nc-costo-unit" class="pfx" type="number" placeholder="—" style="color:var(--green);font-weight:600;" readonly></div></div>
+    <div class="field"><label>¿A qué local llega?</label>
       <select id="nc-destino"></select>
     </div>
-    <div class="field"><label>Fecha de recepción</label><input type="date" id="nc-fecha"></div>
+    <div class="field"><label>Fecha en que llegó</label><input type="date" id="nc-fecha"></div>
   </div>
 
   <div class="card">
-    <div class="mono-lbl">Productos del lote</div>
+    <div class="mono-lbl">¿Qué compraste?</div>
     <div id="nc-prods"></div>
-    <div class="opt" style="border-style:dashed;justify-content:center;gap:8px;color:var(--muted);margin-bottom:0;" onclick="addProdLote()"><span style="font-size:19px;">+</span><span style="font-size:12px;font-weight:600;">Agregar producto al lote</span></div>
+    <div class="opt" style="border-style:dashed;justify-content:center;gap:8px;color:var(--muted);margin-bottom:0;" onclick="addProdLote()"><span style="font-size:19px;">+</span><span style="font-size:12px;font-weight:600;">+ Agregar producto</span></div>
   </div>
 
   <button class="btn" id="btn-guardar-compra" onclick="guardarCompra()">Guardar compra →</button>
@@ -1528,7 +1528,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 
     <div class="search-row" style="gap:6px;">
       <input class="srch" id="hist-search-input" placeholder="Buscar producto, canal, SKU..." type="text" oninput="renderHistD()">
-      <button class="filter-btn" onclick="exportarVentasCSV()" title="Exportar CSV" style="font-size:13px;min-width:40px;">↓CSV</button>
+      <button class="filter-btn" onclick="exportarVentasCSV()" title="Exportar ventas" style="font-size:13px;min-width:40px;">↓ Exportar</button>
     </div>
     <div class="chips" id="hist-chips">
       <div class="chip on" onclick="histSelChip(this,'todo')">Todo</div>
@@ -1683,9 +1683,9 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
       </div>
     </div>
     <div style="display:flex;flex-direction:column;gap:8px;">
-      <button class="btn" onclick="exportarVentasCSV()" style="background:var(--sf2);border-color:var(--bd);color:var(--text);font-size:13px;">↓ Ventas CSV</button>
-      <button class="btn" onclick="exportarInventarioCSV()" style="background:var(--sf2);border-color:var(--bd);color:var(--text);font-size:13px;">↓ Inventario CSV</button>
-      <button class="btn" onclick="exportarGastosCSV()" style="background:var(--sf2);border-color:var(--bd);color:var(--text);font-size:13px;">↓ Gastos CSV</button>
+      <button class="btn" onclick="exportarVentasCSV()" style="background:var(--sf2);border-color:var(--bd);color:var(--text);font-size:13px;">↓ Descargar ventas</button>
+      <button class="btn" onclick="exportarInventarioCSV()" style="background:var(--sf2);border-color:var(--bd);color:var(--text);font-size:13px;">↓ Descargar inventario</button>
+      <button class="btn" onclick="exportarGastosCSV()" style="background:var(--sf2);border-color:var(--bd);color:var(--text);font-size:13px;">↓ Descargar gastos</button>
     </div>
   </div>
 
@@ -1698,19 +1698,23 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 <div class="screen" id="screen-notifs">
   <div class="ptitle">Alertas</div>
   <div class="card" id="notif-list">
-    <div style="text-align:center;padding:20px;color:var(--muted);font-size:12px;">—</div>
+    <div style="text-align:center;padding:28px 16px;color:var(--muted);font-size:13px;">
+      <div style="font-size:28px;margin-bottom:10px;">✅</div>
+      <div style="font-weight:600;color:var(--text);margin-bottom:4px;">Todo en orden</div>
+      <div style="font-size:12px;">Cuando haya stock bajo o novedades importantes, aparecen acá.</div>
+    </div>
   </div>
   <div class="spacer"></div>
 </div>
 
 <!-- ════════════════════════════ SKU & ETIQUETAS ════════════════════════════ -->
 <div class="screen" id="screen-skus">
-  <div class="ptitle">SKUs y Etiquetas</div>
-  <div class="psub">Crea códigos, genera etiquetas e imprime</div>
+  <div class="ptitle">Productos y Etiquetas</div>
+  <div class="psub">Crea tu código, genera la etiqueta e imprime</div>
 
-  <!-- CREAR NUEVO SKU -->
+  <!-- CREAR NUEVO PRODUCTO -->
   <div class="card" style="margin-bottom:20px;">
-    <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;margin-bottom:16px;letter-spacing:-.2px;">Nuevo SKU</div>
+    <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;margin-bottom:16px;letter-spacing:-.2px;">Nuevo producto</div>
 
     <!-- Producto -->
     <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:10px;">Producto</div>
@@ -1734,7 +1738,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
     </div>
     <div class="frow">
       <div class="field"><label>Variante (talla / color)</label><input id="sku-var" type="text" placeholder="40, L, Camo…" oninput="autoSku()"></div>
-      <div class="field"><label>Nº correlativo</label><input id="sku-num" type="number" inputmode="numeric" value="1" min="1" max="999" oninput="autoSku()"></div>
+      <div class="field"><label>Número</label><input id="sku-num" type="number" inputmode="numeric" value="1" min="1" max="999" oninput="autoSku()"></div>
     </div>
 
     <!-- Precios -->
@@ -1749,7 +1753,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
     <div class="field" style="margin-bottom:12px;">
       <div style="display:flex;gap:7px;">
         <input id="sku-final" type="text" placeholder="BAPE-BAG-CAMO-001" style="font-family:'DM Mono',monospace;color:var(--text);font-weight:600;">
-        <button class="sku-btn" onclick="autoSku()" style="white-space:nowrap;border-radius:9px;padding:0 12px;flex-shrink:0;">↺ Auto</button>
+        <button class="sku-btn" onclick="autoSku()" style="white-space:nowrap;border-radius:9px;padding:0 12px;flex-shrink:0;">↺ Generar</button>
       </div>
     </div>
 
@@ -1761,12 +1765,12 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
       <div id="bc-preview-price" style="font-size:11pt;font-weight:900;color:#111;font-family:Arial,sans-serif;"></div>
     </div>
 
-    <button class="btn" id="btn-crear-sku" onclick="crearSku()">Crear SKU →</button>
+    <button class="btn" id="btn-crear-sku" onclick="crearSku()">Crear producto →</button>
   </div>
 
   <!-- LISTA DE SKUs -->
   <div class="sec-hdr" style="margin-top:4px;">
-    <div class="sec-title">SKUs registrados</div>
+    <div class="sec-title">Tus productos</div>
     <div class="sec-link" onclick="printAllLabels()">Imprimir todos</div>
   </div>
   <div class="search-row"><input class="srch" placeholder="Buscar SKU o producto…" oninput="filterSkusD(this.value)"></div>
@@ -1831,18 +1835,18 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
       <div class="action-btn venta"    role="button" aria-label="Registrar venta"   onclick="scAccion('venta')">   <span class="ab-icon">🛍️</span><span class="ab-lbl">Registrar venta</span></div>
       <div class="action-btn ingreso"  role="button" aria-label="Ingreso de stock"  onclick="scAccion('ingreso')"> <span class="ab-icon">📥</span><span class="ab-lbl">Ingreso stock</span></div>
       <div class="action-btn devol"    role="button" aria-label="Devolución"        onclick="scAccion('devol')">   <span class="ab-icon">↩️</span><span class="ab-lbl">Devolución</span></div>
-      <div class="action-btn ajuste"   role="button" aria-label="Ajuste inventario" onclick="scAccion('ajuste')">  <span class="ab-icon">✏️</span><span class="ab-lbl">Ajuste inv.</span></div>
+      <div class="action-btn ajuste"   role="button" aria-label="Corregir stock"    onclick="scAccion('ajuste')">  <span class="ab-icon">✏️</span><span class="ab-lbl">Corregir stock</span></div>
       <div class="action-btn precio"   role="button" aria-label="Ver precio"        onclick="scAccion('precio')">  <span class="ab-icon">💰</span><span class="ab-lbl">Ver precio</span></div>
-      <div class="action-btn transfer" role="button" aria-label="Transferir stock"  onclick="scAccion('transfer')"><span class="ab-icon">🔄</span><span class="ab-lbl">Transferir</span></div>
+      <div class="action-btn transfer" role="button" aria-label="Mover a otro local" onclick="scAccion('transfer')"><span class="ab-icon">🔄</span><span class="ab-lbl">Mover local</span></div>
     </div>
   </div>
 
   <!-- Producto no encontrado -->
   <div id="sc-not-found" style="display:none;text-align:center;padding:20px;background:var(--rdim);border:1px solid rgba(255,68,68,.18);border-radius:14px;margin-bottom:12px;">
-    <div style="font-size:32px;margin-bottom:8px;">❓</div>
-    <div style="font-size:13px;font-weight:700;margin-bottom:4px;" id="sc-not-found-sku">SKU no registrado</div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">Este código no existe en tu inventario</div>
-    <button class="btn" style="margin:0;" onclick="goTo('skus')">+ Crear SKU →</button>
+    <div style="font-size:32px;margin-bottom:8px;">🔍</div>
+    <div style="font-size:13px;font-weight:700;margin-bottom:4px;" id="sc-not-found-sku">Producto no encontrado</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">Este código no está en tu inventario. ¿Es un producto nuevo?</div>
+    <button class="btn" style="margin:0;" onclick="goTo('skus')">+ Crear producto →</button>
   </div>
 
   <!-- ── PANEL: VENTA ── -->
@@ -2453,7 +2457,7 @@ function goTo(id) {
     inventario: 'Inventario', venta: 'Nueva venta', compras: 'Compras',
     'nueva-compra': 'Registrar compra', historial: 'Ventas',
     analisis: 'Análisis', locales: 'Locales', config: 'Configuración',
-    notifs: 'Alertas', skus: 'SKUs y Etiquetas', scanner: 'Escáner',
+    notifs: 'Alertas', skus: 'Productos y Etiquetas', scanner: 'Escáner',
     'carga-masiva': 'Carga masiva'
   };
   const titleEl = document.getElementById('topbar-screen-title');
@@ -6995,7 +6999,7 @@ async function crearSku() {
     console.error('Error creando SKU:', e);
     toast('Error al guardar. Intenta de nuevo.','err');
   } finally {
-    if(btn){ btn.textContent='Crear SKU →'; btn.disabled=false; }
+    if(btn){ btn.textContent='Crear producto →'; btn.disabled=false; }
   }
 }
 
