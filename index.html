@@ -558,8 +558,9 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
 .vprod-stock{font-size:12px;font-family:'DM Mono',monospace;margin-top:2px;}
 
 /* ─── PERIOD BUTTONS ─── */
-.periods{display:flex;gap:4px;margin:12px 0 10px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:3px;}
-.pb{flex:1;text-align:center;padding:11px 4px;min-height:44px;display:flex;align-items:center;justify-content:center;border-radius:7px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;transition:all .15s;}
+.periods{display:flex;gap:4px;margin:12px 0 10px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:3px;overflow-x:auto;scrollbar-width:none;}
+.periods::-webkit-scrollbar{display:none;}
+.pb{flex:1;flex-shrink:0;text-align:center;padding:11px 8px;min-height:44px;display:flex;align-items:center;justify-content:center;border-radius:7px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;}
 .pb.on{background:var(--sf);color:var(--text);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08);}
 
 /* ─── FAB ROW ─── */
@@ -1173,7 +1174,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
 <div class="topbar">
   <div>
     <div class="logo">CUAN<span>TI</span></div>
-    <div id="topbar-screen-title" style="font-size:10px;color:var(--muted);margin-top:1px;display:none;letter-spacing:.6px;font-weight:500;"></div>
+    <div id="topbar-screen-title" style="font-size:11px;color:var(--muted);margin-top:1px;display:none;letter-spacing:.5px;font-weight:600;"></div>
   </div>
   <div class="topbar-r">
     <div class="icon-btn" onclick="goTo('notifs')" aria-label="Notificaciones" role="button" tabindex="0">🔔<div class="badge-dot" id="notif-badge" style="display:none;"></div></div>
@@ -1605,15 +1606,12 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
   <div class="ptitle">Análisis</div>
   <div class="psub">Cuánto ganaste y qué te conviene vender</div>
   <div class="periods" id="analisis-tabs">
-    <div class="pb on" onclick="renderAnalisis('hoy',this)">Hoy</div>
-    <div class="pb"    onclick="renderAnalisis('semana',this)">7 días</div>
-    <div class="pb"    onclick="renderAnalisis('mes',this)">Este mes</div>
-    <div class="pb"    onclick="renderAnalisis('historico',this)">Todo</div>
-    <div class="pb"    onclick="renderAnalisis('ventas',this)">Ventas</div>
-  </div>
-  <div style="display:flex;gap:7px;margin-bottom:4px;" id="analisis-extra-tabs">
-    <div id="analisis-btn-stock" onclick="_analisisExtraTab('stock')" style="display:inline-flex;align-items:center;gap:4px;min-height:36px;padding:0 13px;border:1px solid var(--bd);border-radius:18px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;background:var(--sf);white-space:nowrap;transition:all .15s;">📦 Stock</div>
-    <div id="analisis-btn-gastos" onclick="_analisisExtraTab('gastos')" style="display:inline-flex;align-items:center;gap:4px;min-height:36px;padding:0 13px;border:1px solid var(--bd);border-radius:18px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;background:var(--sf);white-space:nowrap;transition:all .15s;">💸 Gastos</div>
+    <div class="pb on" data-tab="hoy"      onclick="renderAnalisis('hoy',this)">Hoy</div>
+    <div class="pb"    data-tab="semana"   onclick="renderAnalisis('semana',this)">7 días</div>
+    <div class="pb"    data-tab="mes"      onclick="renderAnalisis('mes',this)">Mes</div>
+    <div class="pb"    data-tab="historico" onclick="renderAnalisis('historico',this)">Todo</div>
+    <div class="pb"    data-tab="stock"    onclick="renderAnalisis('stock',this)">Stock</div>
+    <div class="pb"    data-tab="gastos"   onclick="renderAnalisis('gastos',this)">Gastos</div>
   </div>
   <div id="analisis-body"></div>
   <div class="spacer"></div>
@@ -2748,10 +2746,12 @@ function aplicarRol() {
   if(logoutBtn) logoutBtn.style.display = esDueno ? 'none' : '';
 
   // Avatar con iniciales del usuario actual
-  const avatarEl = document.getElementById('topbar-avatar');
-  if(avatarEl && _currentUser.nombre) {
+  if(_currentUser.nombre) {
     const iniciales = _currentUser.nombre.trim().split(/\s+/).map(p => p[0]).join('').slice(0,2).toUpperCase();
-    avatarEl.textContent = iniciales;
+    const avatarEl   = document.getElementById('topbar-avatar');
+    const configAvEl = document.getElementById('config-user-avatar');
+    if(avatarEl)   avatarEl.textContent   = iniciales;
+    if(configAvEl) configAvEl.textContent = iniciales;
   }
 
   // Mostrar datos del usuario en Config
@@ -2815,10 +2815,8 @@ function goTo(id) {
   if(id === 'historial')  renderHistorial();
   if(id === 'inventario') renderInventario();
   if(id === 'analisis')   {
-    // Si venía de historial, resetear al tab Hoy
-    if (_analisisTab === 'ventas') _analisisTab = 'hoy';
     document.querySelectorAll('#analisis-tabs .pb').forEach(b => {
-      b.classList.toggle('on', b.textContent.toLowerCase().startsWith(_analisisTab === 'historico' ? 'hist' : _analisisTab));
+      b.classList.toggle('on', b.dataset.tab === _analisisTab);
     });
     renderAnalisis();
   }
@@ -5852,31 +5850,12 @@ function renderGastos(body, setBody) {
 // ══════════════════════════════════════════════════════
 let _analisisTab = 'hoy';
 
-function _analisisExtraTab(tab) {
-  const toggle = _analisisTab === tab;
-  [['analisis-btn-stock','stock'],['analisis-btn-gastos','gastos']].forEach(([id, t]) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const on = !toggle && t === tab;
-    el.style.background   = on ? 'var(--text)' : 'var(--sf)';
-    el.style.color        = on ? 'var(--accent)' : 'var(--muted)';
-    el.style.borderColor  = on ? 'var(--text)' : 'var(--bd)';
-  });
-  renderAnalisis(toggle ? 'hoy' : tab);
-}
 
 function renderAnalisis(tab, btn) {
   _analisisTab = tab || _analisisTab;
   if(btn) {
     document.querySelectorAll('#analisis-tabs .pb').forEach(b => b.classList.remove('on'));
     btn.classList.add('on');
-  }
-  // Reset extra tab buttons (Stock/Gastos) unless one of them was activated
-  if (tab !== 'stock' && tab !== 'gastos') {
-    ['analisis-btn-stock','analisis-btn-gastos'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) { el.style.background='var(--sf)'; el.style.color='var(--muted)'; el.style.borderColor='var(--bd)'; }
-    });
   }
   const body = document.getElementById('analisis-body');
   if(!body) return;
@@ -5888,15 +5867,6 @@ function renderAnalisis(tab, btn) {
     body.classList.add('tab-content');
   }
 
-  if (_analisisTab === 'ventas') {
-    // Historial de ventas como sub-vista de Análisis
-    document.querySelectorAll('#analisis-tabs .pb').forEach(b => b.classList.remove('on'));
-    if(btn) btn.classList.add('on');
-    _analisisTab = 'ventas';
-    // Navegar a historial (que resalta nav-analisis)
-    goTo('historial');
-    return;
-  }
   if (_analisisTab === 'gastos') { renderGastos(body, setBody); return; }
 
   const now   = new Date();
