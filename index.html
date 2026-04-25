@@ -111,8 +111,9 @@ async function cargarVentas() {
   if (error) { console.error('Error cargando ventas:', error); return; }
 
   ventasDB = data.map(d => {
-    const com = 0;
-    const gan = (d.precio_unitario - d.costo_unitario) * d.cantidad;
+    const _canal = d.ventas?.canal || '';
+    const com = calcComisionMonto(d.precio_unitario, d.cantidad, _canal);
+    const gan = (d.precio_unitario - d.costo_unitario) * d.cantidad - com;
     const fecha = new Date(d.ventas?.fecha_hora);
     const hoy   = new Date();
     const ayer  = new Date(); ayer.setDate(ayer.getDate()-1);
@@ -1390,6 +1391,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
       <span id="vs-gan" style="font-family:'Barlow',sans-serif;font-weight:700;font-size:20px;color:var(--green);letter-spacing:-.5px;">$—</span>
     </div>
 
+    <div id="v-com-note" style="display:none;font-size:11px;color:var(--muted);text-align:center;margin-top:-12px;margin-bottom:14px;"></div>
     <button class="btn" id="venta-confirmar-btn" onclick="ventaConfirmar()">Registrar venta →</button>
     <button class="btn sec" onclick="ventaVolver()" style="margin-top:8px;">← Cambiar producto</button>
   </div>
@@ -1664,11 +1666,20 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
   <div class="card">
     <div style="font-size:13px;color:var(--muted);margin-bottom:14px;">Configura dónde vendes. Estos canales aparecen al registrar ventas.</div>
     <div id="config-canales-list" style="margin-bottom:14px;"></div>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <input id="config-canal-input" type="text" placeholder="Nuevo canal..." maxlength="30"
-        style="flex:1;border:1px solid var(--bd);border-radius:10px;padding:9px 12px;font-size:13px;background:var(--sf2);font-family:'Archivo',sans-serif;"
+    <div style="margin-bottom:2px;">
+      <input id="config-canal-input" type="text" placeholder="Nombre del canal (ej. MercadoLibre)" maxlength="30"
+        style="width:100%;box-sizing:border-box;border:1px solid var(--bd);border-radius:10px;padding:9px 12px;font-size:13px;background:var(--sf2);font-family:'Archivo',sans-serif;margin-bottom:8px;"
         onkeydown="if(event.key==='Enter')agregarCanalConfig()">
-      <button onclick="agregarCanalConfig()" style="background:var(--accent);border:none;border-radius:10px;padding:9px 14px;font-size:13px;font-weight:700;font-family:'Archivo',sans-serif;cursor:pointer;">+ Agregar</button>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;margin-bottom:8px;">
+        <input type="checkbox" id="config-canal-es-mkt" onchange="_toggleMktInput('config-canal-com-row')" style="width:16px;height:16px;accent-color:var(--accent);">
+        ¿Este canal cobra comisión por venta?
+      </label>
+      <div id="config-canal-com-row" style="display:none;align-items:center;gap:8px;margin-bottom:10px;">
+        <span style="font-size:12px;color:var(--muted);white-space:nowrap;">Comisión</span>
+        <input id="config-canal-com-pct" type="number" min="0" max="50" placeholder="0" style="width:64px;border:1px solid var(--bd);border-radius:8px;padding:7px 8px;font-size:14px;font-family:'DM Mono',monospace;background:var(--sf2);text-align:center;">
+        <span style="font-size:12px;color:var(--muted);">% por venta</span>
+      </div>
+      <button onclick="agregarCanalConfig()" style="width:100%;background:var(--accent);border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:700;font-family:'Archivo',sans-serif;cursor:pointer;">+ Agregar canal</button>
     </div>
   </div>
 
@@ -2048,12 +2059,21 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
     </div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">¿Dónde vendes? Estos canales aparecerán al registrar ventas.</div>
     <div id="canales-list" style="margin-bottom:14px;"></div>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <input id="canal-nuevo-input" type="text" placeholder="Nombre del canal" maxlength="30"
-        style="flex:1;border:1px solid var(--bd);border-radius:10px;padding:10px 12px;font-size:13px;background:var(--sf2);font-family:'Archivo',sans-serif;"
+    <div style="margin-bottom:10px;">
+      <input id="canal-nuevo-input" type="text" placeholder="Nombre del canal (ej. MercadoLibre)" maxlength="30"
+        style="width:100%;box-sizing:border-box;border:1px solid var(--bd);border-radius:10px;padding:10px 12px;font-size:13px;background:var(--sf2);font-family:'Archivo',sans-serif;margin-bottom:8px;"
         onkeydown="if(event.key==='Enter')agregarCanalNuevo()">
-      <button onclick="agregarCanalNuevo()" style="background:var(--accent);border:none;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;font-family:'Archivo',sans-serif;cursor:pointer;">+ Agregar</button>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;margin-bottom:8px;">
+        <input type="checkbox" id="canal-es-mkt" onchange="_toggleMktInput('canal-com-row')" style="width:16px;height:16px;accent-color:var(--accent);">
+        ¿Este canal cobra comisión por venta?
+      </label>
+      <div id="canal-com-row" style="display:none;align-items:center;gap:8px;margin-bottom:8px;">
+        <span style="font-size:12px;color:var(--muted);white-space:nowrap;">Comisión</span>
+        <input id="canal-com-pct" type="number" min="0" max="50" placeholder="0" style="width:64px;border:1px solid var(--bd);border-radius:8px;padding:7px 8px;font-size:14px;font-family:'DM Mono',monospace;background:var(--sf2);text-align:center;">
+        <span style="font-size:12px;color:var(--muted);">% por venta</span>
+      </div>
     </div>
+    <button onclick="agregarCanalNuevo()" style="width:100%;background:var(--accent);border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;font-family:'Archivo',sans-serif;cursor:pointer;">+ Agregar canal</button>
   </div>
 </div>
 
@@ -2244,6 +2264,17 @@ function canalColor(nombre) {
   return ['var(--blue)','var(--green)','var(--orange)','var(--purple)','var(--muted)'][h];
 }
 
+function getMktComisiones() {
+  try { const s = localStorage.getItem('cuanti_mkt_com'); if (s) return JSON.parse(s); } catch(e) {}
+  return {};
+}
+function saveMktComisiones(obj) { localStorage.setItem('cuanti_mkt_com', JSON.stringify(obj)); }
+function getComisionPct(canal) { return getMktComisiones()[canal] || 0; }
+function calcComisionMonto(precioFinal, cant, canal) {
+  const pct = getComisionPct(canal);
+  return pct > 0 ? Math.round(precioFinal * cant * pct / 100) : 0;
+}
+
 function abrirGestionCanales() {
   _renderCanalList('canales-list');
   const bd = document.getElementById('canales-sheet-bd');
@@ -2268,45 +2299,78 @@ function _renderCanalList(containerId) {
   const list = document.getElementById(containerId);
   if (!list) return;
   const canales = getCanales();
-  list.innerHTML = canales.map((c, i) => `
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--sf3);">
+  const mkt = getMktComisiones();
+  list.innerHTML = canales.map((c, i) => {
+    const pct = mkt[c] || 0;
+    const badge = pct > 0
+      ? `<span style="font-size:10px;font-family:'DM Mono',monospace;background:var(--sf3);border-radius:6px;padding:2px 6px;margin-left:6px;color:var(--muted);">${pct}%</span>`
+      : '';
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--sf3);">
       <div style="display:flex;align-items:center;gap:8px;">
         <span style="font-size:15px;">${canalEmoji(c)}</span>
-        <span style="font-size:13px;font-family:'Archivo',sans-serif;color:var(--text);">${c}</span>
+        <span style="font-size:13px;font-family:'Archivo',sans-serif;color:var(--text);">${c}</span>${badge}
       </div>
       ${canales.length > 1
-        ? `<button onclick="eliminarCanal(${i},'${containerId}')" style="background:none;border:none;color:var(--muted);font-size:17px;cursor:pointer;padding:4px 8px;line-height:1;">×</button>`
+        ? `<button onclick="eliminarCanal(${i})" style="background:none;border:none;color:var(--muted);font-size:17px;cursor:pointer;padding:4px 8px;line-height:1;">×</button>`
         : `<span style="font-size:11px;color:var(--muted2);">último</span>`}
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
-function eliminarCanal(idx, containerId) {
+function eliminarCanal(idx) {
   const canales = getCanales();
   if (canales.length <= 1) return;
+  const nombre = canales[idx];
   canales.splice(idx, 1);
   saveCanales(canales);
+  const mkt = getMktComisiones();
+  delete mkt[nombre];
+  saveMktComisiones(mkt);
   _renderCanalList('canales-list');
   _renderCanalList('config-canales-list');
 }
 
-function agregarCanalNuevo() {
-  const inp = document.getElementById('canal-nuevo-input');
-  const nombre = (inp?.value || '').trim();
-  if (!nombre) return;
+function _toggleMktInput(rowId) {
+  const row = document.getElementById(rowId);
+  if (!row) return;
+  const chk = row.previousElementSibling?.querySelector('input[type=checkbox]') ||
+              row.parentElement?.querySelector('input[type=checkbox]');
+  row.style.display = chk?.checked ? 'flex' : 'none';
+}
+
+function _guardarCanalConComision(nombre, pctStr) {
   const canales = getCanales();
   if (!canales.includes(nombre)) { canales.push(nombre); saveCanales(canales); }
+  const pct = parseFloat(pctStr) || 0;
+  if (pct > 0) {
+    const mkt = getMktComisiones();
+    mkt[nombre] = pct;
+    saveMktComisiones(mkt);
+  }
+}
+
+function agregarCanalNuevo() {
+  const inp  = document.getElementById('canal-nuevo-input');
+  const nombre = (inp?.value || '').trim();
+  if (!nombre) return;
+  const chk  = document.getElementById('canal-es-mkt');
+  const pct  = chk?.checked ? (document.getElementById('canal-com-pct')?.value || '0') : '0';
+  _guardarCanalConComision(nombre, pct);
   if (inp) inp.value = '';
+  if (chk) { chk.checked = false; _toggleMktInput('canal-com-row'); }
   _renderCanalList('canales-list');
   _renderCanalList('config-canales-list');
 }
 
 function agregarCanalConfig() {
-  const inp = document.getElementById('config-canal-input');
+  const inp  = document.getElementById('config-canal-input');
   const nombre = (inp?.value || '').trim();
   if (!nombre) return;
-  const canales = getCanales();
-  if (!canales.includes(nombre)) { canales.push(nombre); saveCanales(canales); }
+  const chk  = document.getElementById('config-canal-es-mkt');
+  const pct  = chk?.checked ? (document.getElementById('config-canal-com-pct')?.value || '0') : '0';
+  _guardarCanalConComision(nombre, pct);
   if (inp) inp.value = '';
+  if (chk) { chk.checked = false; _toggleMktInput('config-canal-com-row'); }
   _renderCanalList('config-canales-list');
   _renderCanalList('canales-list');
 }
@@ -3783,9 +3847,8 @@ async function guardarEditVenta() {
   const sku    = skuDB.find(s => s.sku === v.sku);
   const costoUnit = (sku?.costo != null && sku.costo >= 0) ? sku.costo : (cant > 0 ? Math.round((v.costo || 0) / cant) : 0);
   const costoTotal= costoUnit * cant;
-  const comUnit   = 0;
-  const comTotal  = 0;
-  const gan       = precioTotal - costoTotal;
+  const comTotal  = calcComisionMonto(precioUnit, cant, _evCanal);
+  const gan       = precioTotal - costoTotal - comTotal;
 
   const btn = document.getElementById('ev-guardar-btn');
   if (btn) { btn.textContent = '⏳ Guardando…'; btn.disabled = true; }
@@ -5178,8 +5241,8 @@ function recalcVenta() {
     }
   }
 
-  const com  = 0;
-  const gan  = precioFinal * cant - costo * cant;
+  const com  = calcComisionMonto(precioFinal, cant, canal);
+  const gan  = precioFinal * cant - costo * cant - com;
 
   const ganEl   = document.getElementById('vs-gan');
   const preview = document.getElementById('v-gan-preview');
@@ -5189,6 +5252,17 @@ function recalcVenta() {
   ganEl.style.color = negativo ? 'var(--red)' : 'var(--green)';
   preview.style.background  = negativo ? 'var(--rdim)' : 'var(--gdim)';
   preview.style.borderColor = negativo ? 'rgba(216,75,75,.2)' : 'rgba(30,158,99,.2)';
+
+  const comNoteEl = document.getElementById('v-com-note');
+  if (comNoteEl) {
+    if (com > 0) {
+      const pct = getComisionPct(canal);
+      comNoteEl.textContent = `Incluye comisión ${canal} ${pct}% (−$${fmt(com)})`;
+      comNoteEl.style.display = '';
+    } else {
+      comNoteEl.style.display = 'none';
+    }
+  }
 }
 
 // Confirmar venta
@@ -5234,9 +5308,9 @@ async function ventaConfirmar() {
   const liveStock = liveItem ? liveItem.stock : 0;
   if(cant > liveStock) { toast(`Solo quedan ${liveStock} unidad${liveStock!==1?'es':''} disponibles.`,'err'); return; }
 
-  const com  = 0;
+  const com  = calcComisionMonto(precioFinal, cant, canal);
   const neto = precioFinal * cant;
-  const gan  = neto - (s.costo||0) * cant;
+  const gan  = neto - (s.costo||0) * cant - com;
 
   // Si genera pérdida y el usuario no confirmó aún, mostrar advertencia inline
   if (gan < 0 && s.costo > 0) {
@@ -5344,6 +5418,10 @@ async function ventaConfirmar() {
       rows += row(descLbl, '−$'+fmt(descMonto), 'var(--orange)');
     }
     rows += row('Costo del producto', '−$'+fmt((s.costo||0)*cant));
+    if (com > 0) {
+      const comPct = getComisionPct(canal);
+      rows += row(`Comisión ${canal} (${comPct}%)`, '−$'+fmt(com), 'var(--orange)');
+    }
     desgloseEl.innerHTML = rows;
   }
 
@@ -7829,10 +7907,20 @@ function scRecalc() {
   const precio = parseInt(document.getElementById('sc-precio').value)||0;
   const cant   = Math.max(1, parseInt(document.getElementById('sc-cant').value)||1);
   const costo  = _scItem ? _scItem.costo : 0;
-  const gan    = precio * cant - costo * cant;
+  const com    = calcComisionMonto(precio, cant, _scCanal);
+  const gan    = precio * cant - costo * cant - com;
   const set    = (id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
   const comRow = document.getElementById('sc-com-row');
-  if (comRow) comRow.style.display = 'none';
+  if (comRow) {
+    if (com > 0) {
+      const pct = getComisionPct(_scCanal);
+      comRow.style.display = '';
+      const comEl = document.getElementById('sc-com');
+      if (comEl) comEl.textContent = `−$${fmt(com)} (${pct}%)`;
+    } else {
+      comRow.style.display = 'none';
+    }
+  }
   set('sc-costo-lbl', costo>0?`−$${fmt(costo*cant)}`:'—');
   set('sc-gan',       precio>0?`$${fmt(gan)}`:'—');
   const ganEl = document.getElementById('sc-gan');
@@ -7851,8 +7939,8 @@ async function scConfirmarVenta() {
   const live = skuDB.find(s=>s.sku===_scItem.sku);
   if(!live || live.stock < cant) { toast(`Solo hay ${live?.stock||0} unidad${live?.stock!==1?'es':''} disponibles.`,'err'); return; }
 
-  const com = 0;
-  const gan = precio*cant - _scItem.costo*cant;
+  const com = calcComisionMonto(precio, cant, _scCanal);
+  const gan = precio*cant - _scItem.costo*cant - com;
 
   const ventaId = await registrarVentaDB(live.id, precio, _scItem.costo, _scCanal, pago, envio, cant);
   if(!ventaId) { toast('Error al guardar. Intenta de nuevo.','err'); return; }
