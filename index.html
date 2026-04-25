@@ -907,6 +907,28 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;dis
 /* ─── IMPROVED EMPTY STATE ─── */
 .empty{animation:fu .25s ease both;}
 
+/* ─── DESKTOP (PC / tablet ancha) ─── */
+@media (min-width: 640px) {
+  body {
+    background: #E0DED6;
+    background-image: radial-gradient(circle, rgba(23,23,23,.07) 1px, transparent 1px);
+    background-size: 20px 20px;
+    padding: 28px 0;
+    justify-content: center;
+  }
+  .device {
+    border: 1px solid var(--bd);
+    border-radius: 20px;
+    box-shadow: 0 8px 40px rgba(0,0,0,.10), 0 1px 4px rgba(0,0,0,.06);
+    overflow: clip; /* redondea esquinas sin romper position:sticky */
+  }
+  /* Scrollbar del área de contenido */
+  .main::-webkit-scrollbar { width: 5px; }
+  .main::-webkit-scrollbar-track { background: transparent; }
+  .main::-webkit-scrollbar-thumb { background: var(--bd2); border-radius: 3px; }
+  .main::-webkit-scrollbar-thumb:hover { background: var(--muted2); }
+}
+
 /* ─── PRINT STYLES ─── */
 @media print {
   body > *:not(.print-labels){ display:none !important; }
