@@ -1603,8 +1603,13 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
 <!-- ════════════════════════════ ANÁLISIS ════════════════════════════ -->
 <!-- ════════════════════════════ ANÁLISIS ════════════════════════════ -->
 <div class="screen" id="screen-analisis">
-  <div class="ptitle">Análisis</div>
-  <div class="psub">Cuánto ganaste y qué te conviene vender</div>
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0;">
+    <div>
+      <div class="ptitle">Análisis</div>
+      <div class="psub">Cuánto ganaste y qué te conviene vender</div>
+    </div>
+    <span class="sec-link" onclick="goTo('historial')" style="margin-top:6px;flex-shrink:0;">Historial →</span>
+  </div>
   <div class="periods" id="analisis-tabs">
     <div class="pb on" data-tab="hoy"      onclick="renderAnalisis('hoy',this)">Hoy</div>
     <div class="pb"    data-tab="semana"   onclick="renderAnalisis('semana',this)">7 días</div>
