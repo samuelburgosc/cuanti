@@ -111,8 +111,8 @@ async function cargarVentas() {
   if (error) { console.error('Error cargando ventas:', error); return; }
 
   ventasDB = data.map(d => {
-    const com = d.ventas?.canal === 'Sotos' ? Math.min(Math.round(d.precio_unitario * 0.15), 10000) * d.cantidad : 0;
-    const gan = (d.precio_unitario - d.costo_unitario) * d.cantidad - com;
+    const com = 0;
+    const gan = (d.precio_unitario - d.costo_unitario) * d.cantidad;
     const fecha = new Date(d.ventas?.fecha_hora);
     const hoy   = new Date();
     const ayer  = new Date(); ayer.setDate(ayer.getDate()-1);
@@ -1349,12 +1349,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
     <!-- canal -->
     <div style="margin-bottom:18px;">
       <div class="mono-lbl" style="margin-bottom:9px;">Canal</div>
-      <div class="pill-group" id="canal-grid">
-        <div class="pill sel" id="vc-sotos"  onclick="selCanalV(this,'Sotos')">🏪 Sotos</div>
-        <div class="pill"     id="vc-wsp"    onclick="selCanalV(this,'WhatsApp')">💬 WhatsApp</div>
-        <div class="pill"     id="vc-fb"     onclick="selCanalV(this,'Facebook')">📘 Facebook</div>
-        <div class="pill"     id="vc-pres"   onclick="selCanalV(this,'Presencial')">🤝 Presencial</div>
-      </div>
+      <div class="pill-group" id="canal-grid"></div>
     </div>
 
     <!-- método de pago -->
@@ -1538,10 +1533,6 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
       <div class="chip on" onclick="histSelChip(this,'todo')">Todo</div>
       <div class="chip" onclick="histSelChip(this,'hoy')">Hoy</div>
       <div class="chip" onclick="histSelChip(this,'semana')">Este mes</div>
-      <div class="chip" onclick="histSelChip(this,'sotos')">🏪 Sotos</div>
-      <div class="chip" onclick="histSelChip(this,'wsp')">💬 WhatsApp</div>
-      <div class="chip" onclick="histSelChip(this,'fb')">📘 Facebook</div>
-      <div class="chip" onclick="histSelChip(this,'pres')">🤝 Presencial</div>
       <div class="chip" onclick="histSelChip(this,'transf')">📲 Transferencia</div>
       <div class="chip" onclick="histSelChip(this,'efectivo')">💵 Efectivo</div>
       <div class="chip" onclick="histSelChip(this,'tarjeta')">💳 Tarjeta</div>
@@ -1665,6 +1656,19 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
           oninput="setDescuentoMaxPct(this.value)">
         <span style="font-size:13px;color:var(--muted);">%</span>
       </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="sec-hdr"><div class="sec-title">Canales de venta</div></div>
+  <div class="card">
+    <div style="font-size:13px;color:var(--muted);margin-bottom:14px;">Configura dónde vendes. Estos canales aparecen al registrar ventas.</div>
+    <div id="config-canales-list" style="margin-bottom:14px;"></div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input id="config-canal-input" type="text" placeholder="Nuevo canal..." maxlength="30"
+        style="flex:1;border:1px solid var(--bd);border-radius:10px;padding:9px 12px;font-size:13px;background:var(--sf2);font-family:'Archivo',sans-serif;"
+        onkeydown="if(event.key==='Enter')agregarCanalConfig()">
+      <button onclick="agregarCanalConfig()" style="background:var(--accent);border:none;border-radius:10px;padding:9px 14px;font-size:13px;font-weight:700;font-family:'Archivo',sans-serif;cursor:pointer;">+ Agregar</button>
     </div>
   </div>
 
@@ -1858,12 +1862,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
   <div class="action-panel" id="ap-venta">
     <div class="action-panel-title">🛍️ Registrar venta</div>
     <div class="mono-lbl">Canal de venta</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;" id="sc-canal-grid">
-      <div class="opt sel" id="sc-vc-sotos"  onclick="scSelCanal(this,'Sotos')">      <div class="oico" style="font-size:15px;">🏪</div><div class="oinfo"><div class="oname" style="font-size:11px;">Sotos</div><div class="osub">15% · tope $10k</div></div></div>
-      <div class="opt"     id="sc-vc-wsp"    onclick="scSelCanal(this,'WhatsApp')">   <div class="oico" style="font-size:15px;">💬</div><div class="oinfo"><div class="oname" style="font-size:11px;">WhatsApp</div><div class="osub">Sin comisión</div></div></div>
-      <div class="opt"     id="sc-vc-fb"     onclick="scSelCanal(this,'Facebook')">   <div class="oico" style="font-size:15px;">📘</div><div class="oinfo"><div class="oname" style="font-size:11px;">Facebook</div><div class="osub">Sin comisión</div></div></div>
-      <div class="opt"     id="sc-vc-snkr"   onclick="scSelCanal(this,'Sneakerheads')"><div class="oico" style="font-size:15px;">👥</div><div class="oinfo"><div class="oname" style="font-size:11px;">Grupos</div><div class="osub">Sin comisión</div></div></div>
-    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;" id="sc-canal-grid"></div>
     <div class="frow">
       <div class="field"><label>Precio de venta</label><div class="fwrap"><span class="fpfx">$</span><input id="sc-precio" class="pfx" type="number" inputmode="decimal" oninput="scRecalc()"></div></div>
       <div class="field"><label>Cantidad</label><input id="sc-cant" type="number" inputmode="numeric" value="1" min="1" oninput="scRecalc()"></div>
@@ -1874,7 +1873,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
     </div>
     <!-- resumen vivo -->
     <div class="sum-card">
-      <div class="srow"><span class="sk" id="sc-com-lbl">Comisión Sotos</span><span class="sv r" id="sc-com">—</span></div>
+      <div class="srow" id="sc-com-row" style="display:none;"><span class="sk">Comisión</span><span class="sv r" id="sc-com">—</span></div>
       <div class="srow"><span class="sk">Costo</span><span class="sv r" id="sc-costo-lbl">—</span></div>
       <div class="srow tot"><span class="sk">Ganancia neta</span><span class="sv g" style="font-size:15px;" id="sc-gan">—</span></div>
     </div>
@@ -1941,7 +1940,6 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
       <div class="srow"><span class="sk">Precio de venta</span><span class="sv" id="scp-venta">—</span></div>
       <div class="srow"><span class="sk">Costo unitario</span><span class="sv r" id="scp-costo">—</span></div>
       <div class="srow"><span class="sk">Ganancia bruta</span><span class="sv g" id="scp-gan">—</span></div>
-      <div class="srow"><span class="sk">Si vendes en Sotos</span><span class="sv" id="scp-sotos">—</span></div>
       <div class="srow tot"><span class="sk">Margen</span><span class="sv g" style="font-size:15px;" id="scp-margen">—</span></div>
     </div>
     <button class="btn sec" onclick="scCerrarPanel()" style="margin-top:4px;">Cerrar</button>
@@ -2039,6 +2037,26 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
   <div id="cm-sheet-body"></div>
 </div>
 
+<!-- ── SHEET CANALES DE VENTA ── -->
+<div class="sheet-bd" id="canales-sheet-bd" onclick="cerrarCanalSheet()" style="display:none;"></div>
+<div class="sheet" id="canales-sheet" style="display:none;">
+  <div class="sheet-handle"></div>
+  <div style="padding:0 16px 32px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+      <div style="font-family:'Archivo Black',sans-serif;font-size:16px;">Canales de venta</div>
+      <button onclick="cerrarCanalSheet()" style="background:none;border:none;font-size:20px;color:var(--muted);cursor:pointer;padding:4px;">×</button>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">¿Dónde vendes? Estos canales aparecerán al registrar ventas.</div>
+    <div id="canales-list" style="margin-bottom:14px;"></div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input id="canal-nuevo-input" type="text" placeholder="Nombre del canal" maxlength="30"
+        style="flex:1;border:1px solid var(--bd);border-radius:10px;padding:10px 12px;font-size:13px;background:var(--sf2);font-family:'Archivo',sans-serif;"
+        onkeydown="if(event.key==='Enter')agregarCanalNuevo()">
+      <button onclick="agregarCanalNuevo()" style="background:var(--accent);border:none;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;font-family:'Archivo',sans-serif;cursor:pointer;">+ Agregar</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── SHEET REGISTRAR GASTO ── -->
 <div class="sheet-bd" id="gasto-sheet-bd" onclick="cerrarRegistrarGasto()" style="display:none;"></div>
 <div class="sheet" id="gasto-sheet" style="display:none;">
@@ -2134,12 +2152,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
     <div id="ev-producto-lbl" style="font-size:11px;color:var(--muted);margin-bottom:12px;"></div>
     <div class="field"><label>Precio total cobrado</label><input id="ev-precio" type="number" inputmode="numeric" placeholder="0"></div>
     <div class="mono-lbl" style="margin-bottom:9px;margin-top:4px;">Canal</div>
-    <div class="pill-group" id="ev-canal-grid">
-      <div class="pill" id="ev-sotos"  onclick="evSelCanal(this,'Sotos')">🏪 Sotos</div>
-      <div class="pill" id="ev-wsp"    onclick="evSelCanal(this,'WhatsApp')">💬 WhatsApp</div>
-      <div class="pill" id="ev-fb"     onclick="evSelCanal(this,'Facebook')">📘 Facebook</div>
-      <div class="pill" id="ev-pres"   onclick="evSelCanal(this,'Presencial')">🤝 Presencial</div>
-    </div>
+    <div class="pill-group" id="ev-canal-grid"></div>
     <div class="mono-lbl" style="margin-bottom:9px;margin-top:4px;">Método de pago</div>
     <div class="pill-group" id="ev-pago-grid">
       <div class="pill" id="ev-transf" onclick="evSelPago(this,'Transferencia')">Transferencia</div>
@@ -2196,6 +2209,106 @@ function safeEncode(obj) {
 }
 function safeDecode(str) {
   try { return JSON.parse(decodeURIComponent(str)); } catch(e) { return null; }
+}
+
+// ── Canales de venta dinámicos ──
+const CANALES_DEFAULT = ['WhatsApp', 'Instagram', 'Presencial'];
+function getCanales() {
+  try {
+    const s = localStorage.getItem('cuanti_canales');
+    if (s) { const arr = JSON.parse(s); if (Array.isArray(arr) && arr.length) return arr; }
+  } catch(e) {}
+  return [...CANALES_DEFAULT];
+}
+function saveCanales(arr) {
+  localStorage.setItem('cuanti_canales', JSON.stringify(arr));
+}
+function canalEmoji(nombre) {
+  const map = {
+    'WhatsApp':'💬','Instagram':'📸','Facebook':'📘','TikTok':'🎵',
+    'Presencial':'🤝','Feria':'⛺','Tienda online':'🌐',
+    'MercadoLibre':'📦','Marketplace':'🛒','Otra tienda':'🏪',
+    'Devolución':'↩️'
+  };
+  return map[nombre] || '🏷️';
+}
+function canalColor(nombre) {
+  const map = {
+    'WhatsApp':'var(--green)','Instagram':'var(--purple)','Facebook':'var(--blue)',
+    'TikTok':'var(--text)','Presencial':'var(--muted)','Feria':'var(--orange)',
+    'Tienda online':'var(--blue)','MercadoLibre':'var(--orange)','Marketplace':'var(--orange)',
+  };
+  if (map[nombre]) return map[nombre];
+  // hash para canales custom
+  let h = 0; for (const c of nombre) h = (h * 31 + c.charCodeAt(0)) % 5;
+  return ['var(--blue)','var(--green)','var(--orange)','var(--purple)','var(--muted)'][h];
+}
+
+function abrirGestionCanales() {
+  _renderCanalList('canales-list');
+  const bd = document.getElementById('canales-sheet-bd');
+  const sh = document.getElementById('canales-sheet');
+  if (bd) { bd.style.display = 'block'; requestAnimationFrame(() => bd.classList.add('open')); }
+  if (sh) { sh.style.display = 'block'; requestAnimationFrame(() => sh.classList.add('open')); }
+}
+
+function cerrarCanalSheet() {
+  const bd = document.getElementById('canales-sheet-bd');
+  const sh = document.getElementById('canales-sheet');
+  if (bd) { bd.classList.remove('open'); setTimeout(() => { bd.style.display = 'none'; }, 280); }
+  if (sh) { sh.classList.remove('open'); setTimeout(() => { sh.style.display = 'none'; }, 280); }
+  // re-render pills en grids activos
+  const cActivo = ventaState?.canal || getCanales()[0];
+  renderCanalPills('canal-grid', cActivo, 'selCanalV');
+  renderCanalPills('ev-canal-grid', _evCanal || getCanales()[0], 'evSelCanal');
+  renderCanalPills('sc-canal-grid', _scCanal || getCanales()[0], 'scSelCanal');
+}
+
+function _renderCanalList(containerId) {
+  const list = document.getElementById(containerId);
+  if (!list) return;
+  const canales = getCanales();
+  list.innerHTML = canales.map((c, i) => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--sf3);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:15px;">${canalEmoji(c)}</span>
+        <span style="font-size:13px;font-family:'Archivo',sans-serif;color:var(--text);">${c}</span>
+      </div>
+      ${canales.length > 1
+        ? `<button onclick="eliminarCanal(${i},'${containerId}')" style="background:none;border:none;color:var(--muted);font-size:17px;cursor:pointer;padding:4px 8px;line-height:1;">×</button>`
+        : `<span style="font-size:11px;color:var(--muted2);">último</span>`}
+    </div>`).join('');
+}
+
+function eliminarCanal(idx, containerId) {
+  const canales = getCanales();
+  if (canales.length <= 1) return;
+  canales.splice(idx, 1);
+  saveCanales(canales);
+  _renderCanalList('canales-list');
+  _renderCanalList('config-canales-list');
+}
+
+function agregarCanalNuevo() {
+  const inp = document.getElementById('canal-nuevo-input');
+  const nombre = (inp?.value || '').trim();
+  if (!nombre) return;
+  const canales = getCanales();
+  if (!canales.includes(nombre)) { canales.push(nombre); saveCanales(canales); }
+  if (inp) inp.value = '';
+  _renderCanalList('canales-list');
+  _renderCanalList('config-canales-list');
+}
+
+function agregarCanalConfig() {
+  const inp = document.getElementById('config-canal-input');
+  const nombre = (inp?.value || '').trim();
+  if (!nombre) return;
+  const canales = getCanales();
+  if (!canales.includes(nombre)) { canales.push(nombre); saveCanales(canales); }
+  if (inp) inp.value = '';
+  _renderCanalList('config-canales-list');
+  _renderCanalList('canales-list');
 }
 
 // ══════════════════════════════════════════════════════
@@ -2499,6 +2612,7 @@ function goTo(id) {
   }
   if(id === 'notifs')     { renderNotificaciones(); clearNotifs(); }
   if(id === 'locales')    renderLocales();
+  if(id === 'config')     _renderCanalList('config-canales-list');
   if(id === 'carga-masiva') abrirCargaMasiva();
   if(id === 'config') {
     renderEquipo();
@@ -3093,10 +3207,11 @@ function renderHistorial(filtro) {
   let ventas = [...ventasDB];
   if(histFiltro === 'hoy')    ventas = ventas.filter(v => v.fecha.startsWith('Hoy'));
   if(histFiltro === 'semana') ventas = ventas.filter(v => esVentaMes(v));
-  if(histFiltro === 'sotos')  ventas = ventas.filter(v => v.canal === 'Sotos');
-  if(histFiltro === 'wsp')    ventas = ventas.filter(v => v.canal === 'WhatsApp');
-  if(histFiltro === 'fb')     ventas = ventas.filter(v => v.canal === 'Facebook');
-  if(histFiltro === 'pres')    ventas = ventas.filter(v => v.canal === 'Presencial');
+  // Filtro por canal dinámico — histFiltro puede ser 'canal:NombreCanal'
+  if(histFiltro && histFiltro.startsWith('canal:')) {
+    const canalFiltro = histFiltro.slice(6);
+    ventas = ventas.filter(v => v.canal === canalFiltro);
+  }
   if(histFiltro === 'transf')  ventas = ventas.filter(v => v.pago === 'Transferencia');
   if(histFiltro === 'efectivo')ventas = ventas.filter(v => v.pago === 'Efectivo');
   if(histFiltro === 'tarjeta') ventas = ventas.filter(v => (v.pago||'').startsWith('Tarjeta'));
@@ -3115,11 +3230,31 @@ function renderHistorial(filtro) {
   const cntEl  = document.getElementById('hist-stat-cnt');
   const lblEl  = document.getElementById('hist-resumen-lbl');
   const psubEl = document.getElementById('hist-psub');
-  const filtroLabel = { todo:'Todas las ventas', hoy:'Hoy', semana:'Este mes', sotos:'Sotos', wsp:'WhatsApp', fb:'Facebook', pres:'Presencial', transf:'Transferencia', efectivo:'Efectivo', tarjeta:'Tarjeta' };
+  const filtroLabel = { todo:'Todas las ventas', hoy:'Hoy', semana:'Este mes', transf:'Transferencia', efectivo:'Efectivo', tarjeta:'Tarjeta' };
+  const filtroLabelDin = histFiltro?.startsWith('canal:') ? histFiltro.slice(6) : (filtroLabel[histFiltro] || 'Resultados');
   if(ganEl) { ganEl.textContent = (totalGan>=0?'+':'−')+'$'+fmt(Math.abs(totalGan)); ganEl.style.color = totalGan >= 0 ? 'var(--green)' : 'var(--red)'; }
   if(ingEl) ingEl.textContent = '$'+fmt(totalIngresos);
   if(cntEl) cntEl.textContent = ventas.length;
-  if(lblEl) lblEl.textContent = filtroLabel[histFiltro] || 'Resultados';
+  if(lblEl) lblEl.textContent = filtroLabelDin;
+
+  // Chips de canal dinámicos — agregar si aún no están
+  const chipsEl = document.getElementById('hist-chips');
+  if (chipsEl && !chipsEl.dataset.canalesCargados) {
+    chipsEl.dataset.canalesCargados = '1';
+    const canalesUsados = [...new Set(ventasDB.filter(v=>!v.nombre.startsWith('↩️')).map(v=>v.canal).filter(Boolean))];
+    const canalesConfig = getCanales();
+    const todos = [...new Set([...canalesConfig, ...canalesUsados])].filter(c => c !== 'Devolución');
+    todos.forEach(c => {
+      if (!chipsEl.querySelector(`[data-canal-chip="${CSS.escape(c)}"]`)) {
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.dataset.canalChip = c;
+        chip.textContent = `${canalEmoji(c)} ${c}`;
+        chip.onclick = () => histSelChip(chip, 'canal:'+c);
+        chipsEl.appendChild(chip);
+      }
+    });
+  }
   if(psubEl) psubEl.textContent = ventas.length === 0 ? 'Sin ventas en este período' : `${ventas.length} venta${ventas.length!==1?'s':''} · ${totalGan>=0?'+':'−'}$${fmt(Math.abs(totalGan))} de ganancia`;
 
   if(ventas.length === 0) {
@@ -3130,11 +3265,11 @@ function renderHistorial(filtro) {
                 : { icon:'🔍', title:'Sin resultados', sub:'Prueba con otro término de búsqueda.', cta:null },
       hoy:    { icon:'🌅', title:'Sin ventas hoy todavía', sub:'Registra una venta y acá verás cuánto ganaste.', cta:'Registrar venta →', dest:'venta' },
       semana: { icon:'📅', title:'Sin ventas este mes', sub:'Cuando registres ventas del mes aparecerán acá.', cta:'Registrar venta →', dest:'venta' },
-      sotos:  { icon:'🏪', title:'Sin ventas por Sotos', sub:'Cuando registres una venta por Sotos, aparecerá aquí.', cta:'Registrar venta →', dest:'venta' },
-      wsp:    { icon:'💬', title:'Sin ventas por WhatsApp', sub:'Cuando registres una venta por WhatsApp, aparecerá aquí.', cta:'Registrar venta →', dest:'venta' },
-      fb:     { icon:'📘', title:'Sin ventas por Facebook', sub:'Cuando registres una venta por Facebook, aparecerá aquí.', cta:'Registrar venta →', dest:'venta' },
-      pres:   { icon:'🤝', title:'Sin ventas presenciales', sub:'Cuando registres una venta presencial, aparecerá aquí.', cta:'Registrar venta →', dest:'venta' },
     };
+    if (histFiltro?.startsWith('canal:')) {
+      const cn = histFiltro.slice(6);
+      msgs[histFiltro] = { icon:canalEmoji(cn), title:`Sin ventas por ${cn}`, sub:`Cuando registres una venta por ${cn}, aparecerá aquí.`, cta:'Registrar venta →', dest:'venta' };
+    }
     const m = msgs[histFiltro] || { icon:'🔍', title:'Sin resultados', sub:'Prueba con otro término de búsqueda.', cta:null };
     lista.innerHTML = `
       <div class="empty" style="padding:32px 10px;">
@@ -3575,14 +3710,14 @@ async function confirmarDelGasto() {
 
 // ── Editar venta desde historial (solo Dueño) ──
 let _evVentaId = null;
-let _evCanal   = 'Sotos';
+let _evCanal   = '';
 let _evPago    = 'Transferencia';
 
 function abrirEditVenta(id) {
   const v = ventasDB.find(x => x.id === id);
   if (!v) return;
   _evVentaId = id;
-  _evCanal   = v.canal || 'Sotos';
+  _evCanal   = v.canal || getCanales()[0] || 'Presencial';
   _evPago    = v.pago  || 'Transferencia';
 
   const lblEl = document.getElementById('ev-producto-lbl');
@@ -3590,11 +3725,8 @@ function abrirEditVenta(id) {
   const precioEl = document.getElementById('ev-precio');
   if (precioEl) precioEl.value = v.precio || '';
 
-  // Marcar canal activo
-  document.querySelectorAll('#ev-canal-grid .pill').forEach(p => p.classList.remove('sel'));
-  const canalMap = { Sotos:'ev-sotos', WhatsApp:'ev-wsp', Facebook:'ev-fb', Presencial:'ev-pres' };
-  const cBtn = document.getElementById(canalMap[_evCanal]);
-  if (cBtn) cBtn.classList.add('sel');
+  // Marcar canal activo — dinámico
+  renderCanalPills('ev-canal-grid', _evCanal, 'evSelCanal');
 
   // Marcar pago activo
   document.querySelectorAll('#ev-pago-grid .pill').forEach(p => p.classList.remove('sel'));
@@ -3651,9 +3783,9 @@ async function guardarEditVenta() {
   const sku    = skuDB.find(s => s.sku === v.sku);
   const costoUnit = (sku?.costo != null && sku.costo >= 0) ? sku.costo : (cant > 0 ? Math.round((v.costo || 0) / cant) : 0);
   const costoTotal= costoUnit * cant;
-  const comUnit   = _evCanal === 'Sotos' ? Math.min(Math.round(precioUnit * 0.15), 10000) : 0;
-  const comTotal  = comUnit * cant;
-  const gan       = precioTotal - comTotal - costoTotal;
+  const comUnit   = 0;
+  const comTotal  = 0;
+  const gan       = precioTotal - costoTotal;
 
   const btn = document.getElementById('ev-guardar-btn');
   if (btn) { btn.textContent = '⏳ Guardando…'; btn.disabled = true; }
@@ -4883,11 +5015,10 @@ function ventaSelProduct(s) {
   document.getElementById('v-cant').value              = 1;
   document.getElementById('v-cant').max                = fresh.stock;
 
-  // Resetear canal → Sotos
-  ventaState.canal = 'Sotos';
-  document.querySelectorAll('#canal-grid .pill').forEach(p => p.classList.remove('sel'));
-  const sotosBtn = document.getElementById('vc-sotos');
-  if(sotosBtn) sotosBtn.classList.add('sel');
+  // Resetear canal → primer canal configurado
+  const _canales = getCanales();
+  ventaState.canal = _canales[0] || 'Presencial';
+  renderCanalPills('canal-grid', ventaState.canal, 'selCanalV');
 
   // Resetear pago → Transferencia
   ventaState.pago = 'Transferencia';
@@ -4897,6 +5028,23 @@ function ventaSelProduct(s) {
 
   recalcVenta();
   ventaSetPaso(2);
+}
+
+function renderCanalPills(gridId, selected, callbackFn) {
+  const grid = document.getElementById(gridId);
+  if (!grid) return;
+  const canales = getCanales();
+  grid.innerHTML = canales.map(c => {
+    const sel = c === selected ? ' sel' : '';
+    const esc = c.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return `<div class="pill${sel}" data-canal="${esc}" onclick="_onCanalPill(this,'${gridId}','${esc}','${callbackFn}')">${canalEmoji(c)} ${c}</div>`;
+  }).join('') + `<div class="pill" onclick="abrirGestionCanales()" style="opacity:.55;font-size:11px;">＋ Canal</div>`;
+}
+function _onCanalPill(el, gridId, nombre, callbackFn) {
+  document.querySelectorAll('#'+gridId+' .pill').forEach(p => p.classList.remove('sel'));
+  el.classList.add('sel');
+  const fns = { selCanalV, evSelCanal, scSelCanal };
+  if (fns[callbackFn]) fns[callbackFn](el, nombre);
 }
 
 function selCanalV(el, nombre) {
@@ -5030,8 +5178,8 @@ function recalcVenta() {
     }
   }
 
-  const com  = canal === 'Sotos' ? Math.min(Math.round(precioFinal * 0.15), 10000) : 0;
-  const gan  = (precioFinal - com) * cant - costo * cant;
+  const com  = 0;
+  const gan  = precioFinal * cant - costo * cant;
 
   const ganEl   = document.getElementById('vs-gan');
   const preview = document.getElementById('v-gan-preview');
@@ -5086,8 +5234,8 @@ async function ventaConfirmar() {
   const liveStock = liveItem ? liveItem.stock : 0;
   if(cant > liveStock) { toast(`Solo quedan ${liveStock} unidad${liveStock!==1?'es':''} disponibles.`,'err'); return; }
 
-  const com  = canal==='Sotos' ? Math.min(Math.round(precioFinal*0.15), 10000) : 0;
-  const neto = (precioFinal - com) * cant;
+  const com  = 0;
+  const neto = precioFinal * cant;
   const gan  = neto - (s.costo||0) * cant;
 
   // Si genera pérdida y el usuario no confirmó aún, mostrar advertencia inline
@@ -5095,7 +5243,7 @@ async function ventaConfirmar() {
     const btn2 = document.getElementById('venta-confirmar-btn');
     if (btn2 && !btn2.dataset.perdidaConfirmada) {
       btn2.dataset.perdidaConfirmada = '1';
-      btn2.textContent = `⚠️ Perdés $${fmt(Math.abs(gan))} — toca de nuevo para confirmar`;
+      btn2.textContent = `⚠️ Pierdes $${fmt(Math.abs(gan))} — toca de nuevo para confirmar`;
       btn2.style.background = 'var(--red)';
       btn2.style.color = '#fff';
       setTimeout(() => {
@@ -5196,7 +5344,6 @@ async function ventaConfirmar() {
       rows += row(descLbl, '−$'+fmt(descMonto), 'var(--orange)');
     }
     rows += row('Costo del producto', '−$'+fmt((s.costo||0)*cant));
-    if(com > 0) rows += row('Comisión Sotos', '−$'+fmt(com*cant));
     desgloseEl.innerHTML = rows;
   }
 
@@ -5232,11 +5379,11 @@ async function ventaConfirmar() {
         <span style="font-size:20px;flex-shrink:0;">💚</span>
         <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--green);">Este producto te deja buena plata</div>
         <div style="font-size:11px;color:var(--muted);">Ganaste el ${margenPct}% de lo que cobraste. Sigue vendiéndolo.</div></div></div>`;
-    } else if(canal !== 'Sotos' && gan > 0) {
+    } else if(gan > 0) {
       html = `<div style="background:var(--gdim);border:1px solid rgba(30,158,99,.2);border-radius:12px;padding:13px 14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;text-align:left;">
         <span style="font-size:20px;flex-shrink:0;">✓</span>
-        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--green);">Sin comisión — plata completa para vos</div>
-        <div style="font-size:11px;color:var(--muted);">Por ${canal} te quedás con todo lo que ganás.</div></div></div>`;
+        <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--green);">¡Venta registrada!</div>
+        <div style="font-size:11px;color:var(--muted);">Por ${canal} · ganancia: $${fmt(gan)}.</div></div></div>`;
     } else if(gan < 0) {
       html = `<div style="background:var(--rdim);border:1px solid rgba(216,75,75,.25);border-radius:12px;padding:13px 14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;text-align:left;">
         <span style="font-size:20px;flex-shrink:0;">⚠️</span>
@@ -5278,7 +5425,8 @@ function resetVenta() {
   ventaState.clienteNombre = null;
 
   ventaState.sku   = null;
-  ventaState.canal = 'Sotos';
+  const _primerCanal = getCanales()[0] || 'Presencial';
+  ventaState.canal = _primerCanal;
   ventaState.pago  = 'Transferencia';
 
   const inp = document.getElementById('venta-scan-input');
@@ -5286,10 +5434,8 @@ function resetVenta() {
   const res = document.getElementById('venta-resultados');
   if(res) res.textContent = '';
 
-  // Canal → Sotos
-  document.querySelectorAll('#canal-grid .pill').forEach(p => p.classList.remove('sel'));
-  const sotosBtn = document.getElementById('vc-sotos');
-  if(sotosBtn) sotosBtn.classList.add('sel');
+  // Canal → primer canal configurado
+  renderCanalPills('canal-grid', _primerCanal, 'selCanalV');
 
   // Pago → Transferencia
   document.querySelectorAll('#pago-grid .pill').forEach(p => p.classList.remove('sel'));
@@ -5541,14 +5687,14 @@ function renderAnalisis(tab, btn) {
 
   function progressRows(canales, totalGan) {
     // barCol = color for pbar background (can be brighter), textCol = color for text (must pass WCAG AA)
-    const barCol  = { Sotos:'var(--orange)', WhatsApp:'var(--green)',    Facebook:'var(--blue)', Presencial:'var(--purple)' };
-    const textCol = { Sotos:'var(--orange)', WhatsApp:'var(--green-fg)', Facebook:'var(--blue)', Presencial:'var(--purple)' };
+    const barCol  = {};
+    const textCol = {};
     const totalG = totalGan > 0 ? totalGan : canales.reduce((s,c)=>s+c.gan,0);
     return canales.map((c,i) => {
       const pct  = totalG > 0 ? Math.round((c.gan/totalG)*100) : 0;
       const mrg  = c.ingresos > 0 ? Math.round((c.gan/c.ingresos)*100) : 0;
-      const bg   = barCol[c.canal]  || 'var(--muted2)';
-      const tc   = textCol[c.canal] || 'var(--muted)';
+      const bg   = canalColor(c.canal);
+      const tc   = canalColor(c.canal);
       const rank = i===0 ? '<span class="trank f">1</span>' : `<span class="trank">${i+1}</span>`;
       return `<div class="prow">
         ${rank}
@@ -7258,7 +7404,7 @@ let _scReader    = null;
 let _scStream    = null;
 let _scLastScan  = 0;
 let _scItem      = null;   // producto actualmente encontrado
-let _scCanal     = 'Sotos';
+let _scCanal     = '';
 
 // Acción pendiente post-escaneo (para flujos dirigidos desde otras pantallas)
 let _scPendingAccion = null;
@@ -7496,7 +7642,8 @@ function scProcessCode(code) {
   if(!item) { scShowNotFound(code); return; }
 
   _scItem  = item;
-  _scCanal = 'Sotos';
+  _scCanal = getCanales()[0] || 'Presencial';
+  renderCanalPills('sc-canal-grid', _scCanal, 'scSelCanal');
 
   // Rellenar card
   document.getElementById('sc-found-icon').textContent  = item.icon;
@@ -7596,14 +7743,11 @@ function scAccion(tipo) {
   if(tipo === 'precio') {
     const p  = _scItem.precio || 0;
     const c  = _scItem.costo  || 0;
-    const com = Math.min(Math.round(p*0.15), 10000);
     const gan = p - c;
-    const ganSotos = p - com - c;
     const margen = p > 0 ? Math.round(((p-c)/p)*100) : 0;
     document.getElementById('scp-venta').textContent  = p ? '$'+fmt(p) : '—';
     document.getElementById('scp-costo').textContent  = c ? '−$'+fmt(c) : '—';
     document.getElementById('scp-gan').textContent    = p&&c ? '$'+fmt(gan) : '—';
-    document.getElementById('scp-sotos').textContent  = p&&c ? '$'+fmt(ganSotos)+' neto' : '—';
     document.getElementById('scp-margen').textContent = c > 0 ? margen+'%' : '—';
   }
 
@@ -7685,19 +7829,14 @@ function scRecalc() {
   const precio = parseInt(document.getElementById('sc-precio').value)||0;
   const cant   = Math.max(1, parseInt(document.getElementById('sc-cant').value)||1);
   const costo  = _scItem ? _scItem.costo : 0;
-  let com=0, comLbl='Sin comisión';
-  if(_scCanal==='Sotos'){
-    com    = Math.min(Math.round(precio*0.15),10000);
-    comLbl = `Sotos (${precio>0?(Math.min(precio*0.15,10000)/precio*100).toFixed(1):15}%)`;
-  }
-  const gan = (precio-com)*cant - costo*cant;
-  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
-  set('sc-com-lbl',  comLbl);
-  set('sc-com',      com>0?`−$${fmt(com*cant)}`:'Sin comisión');
-  set('sc-costo-lbl',costo>0?`−$${fmt(costo*cant)}`:'—');
-  set('sc-gan',      precio>0?`$${fmt(gan)}`:'—');
-  const ganEl=document.getElementById('sc-gan');
-  if(ganEl) ganEl.className=gan>=0?'sv g':'sv r';
+  const gan    = precio * cant - costo * cant;
+  const set    = (id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  const comRow = document.getElementById('sc-com-row');
+  if (comRow) comRow.style.display = 'none';
+  set('sc-costo-lbl', costo>0?`−$${fmt(costo*cant)}`:'—');
+  set('sc-gan',       precio>0?`$${fmt(gan)}`:'—');
+  const ganEl = document.getElementById('sc-gan');
+  if(ganEl) ganEl.className = gan>=0?'sv g':'sv r';
 }
 
 // ── Confirmaciones ──
@@ -7712,8 +7851,8 @@ async function scConfirmarVenta() {
   const live = skuDB.find(s=>s.sku===_scItem.sku);
   if(!live || live.stock < cant) { toast(`Solo hay ${live?.stock||0} unidad${live?.stock!==1?'es':''} disponibles.`,'err'); return; }
 
-  const com = _scCanal==='Sotos' ? Math.min(Math.round(precio*0.15),10000) : 0;
-  const gan = (precio-com)*cant - _scItem.costo*cant;
+  const com = 0;
+  const gan = precio*cant - _scItem.costo*cant;
 
   const ventaId = await registrarVentaDB(live.id, precio, _scItem.costo, _scCanal, pago, envio, cant);
   if(!ventaId) { toast('Error al guardar. Intenta de nuevo.','err'); return; }
@@ -7865,7 +8004,7 @@ function scCerrarPanel() {
 
 function scReset() {
   _scItem  = null;
-  _scCanal = 'Sotos';
+  _scCanal = getCanales()[0] || 'Presencial';
   document.getElementById('sc-found-card').classList.remove('show');
   document.getElementById('sc-not-found').style.display    = 'none';
   document.getElementById('sc-confirm-msg').style.display  = 'none';
