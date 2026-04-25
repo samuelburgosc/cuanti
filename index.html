@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23D7F02E'/%3E%3Ctext x='16' y='23' font-family='Arial Black,sans-serif' font-size='22' font-weight='900' fill='%23171717' text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ══════════════════════════════════════════════════════
@@ -254,7 +254,7 @@ function _renderAnularBtn(el) {
   if (!el || !_ultimaVenta) { if(el) el.innerHTML=''; return; }
   const segs = Math.max(0, Math.round((UNDO_VENTANA_MS - (Date.now() - _ultimaVenta.ts)) / 1000));
   if (segs <= 0) { el.innerHTML = ''; _ultimaVenta = null; return; }
-  el.innerHTML = `<button onclick="anularUltimaVenta()" style="width:100%;background:none;border:1px solid var(--red);border-radius:10px;padding:10px;font-family:'Barlow',sans-serif;font-weight:600;font-size:13px;color:var(--red);cursor:pointer;">Anular venta (${segs}s)</button>`;
+  el.innerHTML = `<button onclick="anularUltimaVenta()" style="width:100%;background:none;border:1px solid var(--red);border-radius:10px;padding:10px;font-family:'Archivo',sans-serif;font-weight:600;font-size:13px;color:var(--red);cursor:pointer;">Anular venta (${segs}s)</button>`;
   setTimeout(() => _renderAnularBtn(el), 1000);
 }
 
@@ -300,25 +300,25 @@ async function anularUltimaVenta() {
   --orange:#E46A2E;--odim:rgba(228,106,46,.07);
   --green:#1E9E63;--green-fg:#0F7A42;--gdim:rgba(30,158,99,.07);
   --purple:#B47FFF;--pdim:rgba(180,127,255,.08);
-  --text:#171717;--muted:#595959;--muted2:#737373;
+  --text:#171717;--muted:#7A7A7A;--muted2:#BCBCBC;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;}
-body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;display:flex;flex-direction:column;align-items:center;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;}
+body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;display:flex;flex-direction:column;align-items:center;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;}
 
 /* ─── LAYOUT ─── */
 .device{width:100%;max-width:430px;flex:1;display:flex;flex-direction:column;position:relative;}
 
 /* ─── TOPBAR ─── */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--sf);border-bottom:1px solid var(--bd);flex-shrink:0;z-index:200;}
-.logo{font-family:'Barlow',sans-serif;font-weight:700;font-size:18px;letter-spacing:-.2px;color:var(--text);}
+.logo{font-family:'Archivo Black',sans-serif;font-size:18px;letter-spacing:-.2px;color:var(--text);}
 .logo span{background:var(--accent);color:var(--text);padding:0 5px;border-radius:5px;}
 .topbar-r{display:flex;align-items:center;gap:9px;}
 .icon-btn{width:44px;height:44px;background:var(--sf);border:1px solid var(--bd);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;position:relative;transition:border-color .2s;}
 .icon-btn:hover{border-color:var(--bd2);}
 .icon-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .badge-dot{width:7px;height:7px;background:var(--red);border-radius:50%;position:absolute;top:5px;right:5px;border:1.5px solid var(--bg);}
-.avatar-btn{width:44px;height:44px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Barlow',sans-serif;font-weight:700;font-size:12px;color:var(--text);cursor:pointer;}
+.avatar-btn{width:44px;height:44px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Archivo',sans-serif;font-weight:700;font-size:12px;color:var(--text);cursor:pointer;}
 .avatar-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
 /* ─── SCREENS ─── */
@@ -328,7 +328,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 @keyframes fu{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 
 /* ─── TYPOGRAPHY ─── */
-.ptitle{font-family:'Barlow',sans-serif;font-weight:700;font-size:20px;letter-spacing:-.2px;padding:20px 0 6px;}
+.ptitle{font-family:'Archivo Black',sans-serif;font-size:20px;letter-spacing:-.2px;padding:20px 0 6px;}
 .psub{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5;}
 .sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;margin-top:4px;}
 .sec-title{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0;text-transform:none;}
@@ -348,14 +348,14 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .hero:hover{background:transparent;}
 .hero::after{display:none;}
 .hero-lbl{font-size:12px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--muted);margin-bottom:8px;}
-.hero-amt{font-family:'Barlow',sans-serif;font-weight:700;font-size:66px;color:var(--text);line-height:.92;letter-spacing:-3px;font-variant-numeric:tabular-nums;}
+.hero-amt{font-family:'Archivo Black',sans-serif;font-size:66px;color:var(--text);line-height:.92;letter-spacing:-3px;font-variant-numeric:tabular-nums;}
 
 /* ─── STAT GRID ─── */
 .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px;}
 .scard{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:13px 14px;transition:border-color .15s;}
 .scard:hover{border-color:var(--bd2);}
 .scard .si{font-size:16px;margin-bottom:6px;display:block;}
-.scard .sv{font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;letter-spacing:-.2px;line-height:1;margin-bottom:3px;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.scard .sv{font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;letter-spacing:-.2px;line-height:1;margin-bottom:3px;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .scard .sl{font-size:10px;color:var(--muted);}
 .scard.a{background:var(--sf);border-color:var(--bd);}
 .scard.a .sv{color:var(--text);}
@@ -388,8 +388,8 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .sale-name{font-size:12px;font-weight:600;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .sale-meta{font-size:10px;color:var(--muted);}
 .sale-r{text-align:right;flex-shrink:0;}
-.sale-amt{font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);font-weight:500;margin-bottom:2px;}
-.sale-ch{font-size:9px;color:var(--muted);background:var(--sf2);border-radius:4px;padding:2px 6px;display:inline-block;}
+.sale-amt{font-family:'DM Mono',monospace;font-size:13px;color:var(--text);font-weight:500;margin-bottom:2px;}
+.sale-ch{font-size:10px;color:var(--muted);background:var(--sf2);border-radius:4px;padding:2px 6px;display:inline-block;}
 .sale-profit{font-size:10px;color:var(--green-fg);}
 
 /* ─── CHART ─── */
@@ -398,7 +398,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .chart-hdr>div:first-child{flex:1;min-width:0;}
 .chart-hdr>div:last-child{flex-shrink:0;text-align:right;}
 .chart-title{font-size:11px;color:var(--muted);margin-bottom:3px;}
-.chart-val{font-family:'Barlow',sans-serif;font-weight:700;font-size:18px;letter-spacing:-.3px;color:var(--text);font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.chart-val{font-family:'Archivo Black',sans-serif;font-size:18px;letter-spacing:-.3px;color:var(--text);font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .chart-delta{font-family:'DM Mono',monospace;font-size:11px;}
 .chart-delta.up{color:var(--green-fg);}
 .chart-delta.dn{color:var(--red);}
@@ -440,7 +440,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 
 /* ─── SEARCH ─── */
 .search-row{display:flex;gap:7px;margin:12px 0;}
-.srch{flex:1;background:var(--sf2);border:1.5px solid var(--bd);border-radius:10px;padding:10px 13px;color:var(--text);font-family:'Barlow',sans-serif;font-size:12px;outline:none;transition:border-color .15s,background .15s;}
+.srch{flex:1;background:var(--sf2);border:1.5px solid var(--bd);border-radius:10px;padding:10px 13px;color:var(--text);font-family:'Archivo',sans-serif;font-size:12px;outline:none;transition:border-color .15s,background .15s;}
 .srch::placeholder{color:var(--muted2);}
 .srch:focus{border-color:var(--text);background:var(--sf);}
 .filter-btn{background:var(--sf2);border:1.5px solid var(--bd);border-radius:10px;padding:10px 12px;color:var(--muted);font-size:14px;cursor:pointer;transition:all .15s;}
@@ -465,13 +465,13 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .ptop{display:flex;align-items:flex-start;gap:10px;margin-bottom:11px;}
 .pemoji{width:44px;height:44px;background:var(--sf2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--muted);flex-shrink:0;}
 .pinfo{flex:1;min-width:0;}
-.pbrand{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;}
+.pbrand{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;}
 .pname{font-size:13px;font-weight:600;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.pcode{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);}
+.pcode{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);}
 .pprice{text-align:right;}
-.psell{font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;letter-spacing:-.3px;}
-.pcost{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px;}
-.pmargin{font-size:9px;color:var(--green-fg);margin-top:1px;}
+.psell{font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;letter-spacing:-.3px;}
+.pcost{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:1px;}
+.pmargin{font-size:10px;color:var(--green-fg);margin-top:1px;}
 .vrow{display:flex;gap:5px;flex-wrap:wrap;}
 .vp{background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:3px 8px;font-size:10px;font-family:'DM Mono',monospace;display:flex;align-items:center;gap:3px;}
 .vp.ok .vs{color:var(--green-fg);}
@@ -497,7 +497,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .field label{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:0;text-transform:none;}
 .fwrap{position:relative;display:flex;align-items:center;}
 .fpfx{position:absolute;left:11px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);pointer-events:none;z-index:1;}
-.field input,.field select,.field textarea{width:100%;background:var(--sf2);border:1.5px solid var(--bd);border-radius:10px;padding:11px 13px;color:var(--text);font-family:'Barlow',sans-serif;font-size:13px;outline:none;transition:border-color .15s,background .15s;-webkit-appearance:none;}
+.field input,.field select,.field textarea{width:100%;background:var(--sf2);border:1.5px solid var(--bd);border-radius:10px;padding:11px 13px;color:var(--text);font-family:'Archivo',sans-serif;font-size:13px;outline:none;transition:border-color .15s,background .15s;-webkit-appearance:none;}
 .field input.pfx{padding-left:26px;}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--text);background:var(--sf);}
 .field input::placeholder{color:var(--muted2);}
@@ -533,12 +533,12 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .oinfo{flex:1;min-width:0;}
 .oname{font-size:13px;font-weight:600;margin-bottom:1px;}
 .osub{font-size:11px;color:var(--muted);}
-.oprice{font-family:'Barlow',sans-serif;font-weight:700;font-size:13px;color:var(--accent);flex-shrink:0;}
+.oprice{font-family:'Archivo',sans-serif;font-weight:700;font-size:13px;color:var(--accent);flex-shrink:0;}
 .ochk{width:19px;height:19px;border-radius:50%;border:1.5px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;transition:all .15s;}
 .opt.sel .ochk{background:var(--accent);border-color:var(--accent);color:var(--text);}
 
 /* ─── NUEVA VENTA ─── */
-.venta-search{width:100%;background:var(--sf);border:2px solid var(--bd);border-radius:14px;padding:16px 18px;color:var(--text);font-family:'Barlow',sans-serif;font-size:17px;outline:none;transition:border-color .15s;display:block;box-sizing:border-box;margin-bottom:16px;}
+.venta-search{width:100%;background:var(--sf);border:2px solid var(--bd);border-radius:14px;padding:16px 18px;color:var(--text);font-family:'Archivo',sans-serif;font-size:17px;outline:none;transition:border-color .15s;display:block;box-sizing:border-box;margin-bottom:16px;}
 .venta-search::placeholder{color:var(--muted);}
 .venta-search:focus{border-color:var(--text);}
 .pill-group{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:4px;}
@@ -554,7 +554,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .vprod-name{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .vprod-sub{font-size:11px;color:var(--muted);margin-top:2px;}
 .vprod-right{text-align:right;flex-shrink:0;}
-.vprod-price{font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;color:var(--text);}
+.vprod-price{font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;color:var(--text);}
 .vprod-stock{font-size:11px;font-family:'DM Mono',monospace;margin-top:2px;}
 
 /* ─── PERIOD BUTTONS ─── */
@@ -568,17 +568,17 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .fab:hover{border-color:var(--bd2);}
 .fab.p{background:var(--accent);border-color:var(--accent);}
 .fab .fi{font-size:22px;}
-.fab .fl{font-family:'Barlow',sans-serif;font-weight:700;font-size:13px;letter-spacing:-.2px;}
+.fab .fl{font-family:'Archivo',sans-serif;font-weight:700;font-size:13px;letter-spacing:-.2px;}
 .fab .fs{font-size:10px;opacity:.6;}
 .fab.p .fl,.fab.p .fs{color:var(--text);}
 
 /* ─── USER CARD ─── */
 .ucard{background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:14px;margin-bottom:9px;display:flex;align-items:center;gap:12px;}
-.uavatar{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;flex-shrink:0;}
+.uavatar{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;flex-shrink:0;}
 .uinfo{flex:1;}
 .uname{font-size:13px;font-weight:600;margin-bottom:2px;}
 .umeta{font-size:10px;color:var(--muted);}
-.role{font-size:9px;padding:3px 9px;border-radius:18px;font-weight:700;font-family:'DM Mono',monospace;letter-spacing:.5px;}
+.role{font-size:10px;padding:3px 9px;border-radius:18px;font-weight:700;font-family:'DM Mono',monospace;letter-spacing:.5px;}
 .role.owner{background:var(--accent);color:var(--text);border:1px solid rgba(215,240,46,.4);}
 .role.admin{background:var(--bdim2);color:var(--blue);border:1px solid rgba(77,159,255,.2);}
 .role.seller{background:var(--sf2);color:var(--muted);border:1px solid var(--bd);}
@@ -587,15 +587,15 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .ccard{background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:14px;margin-bottom:9px;cursor:pointer;transition:border-color .15s;}
 .ccard:hover{border-color:var(--bd2);}
 .ccard-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:9px;}
-.corigen{font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;}
+.corigen{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;}
 .cdesc{font-size:12px;font-weight:600;margin-bottom:2px;}
 .cdate{font-size:10px;color:var(--muted);}
 .ctotal{text-align:right;}
-.cmonto{font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;letter-spacing:-.3px;}
+.cmonto{font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;letter-spacing:-.3px;}
 .cuds{font-size:10px;color:var(--muted);margin-top:1px;}
 .croi{font-size:10px;color:var(--green-fg);margin-top:1px;}
 .ctags{display:flex;gap:5px;flex-wrap:wrap;}
-.ctag{font-size:9px;padding:2px 7px;border-radius:5px;font-family:'DM Mono',monospace;}
+.ctag{font-size:10px;padding:2px 7px;border-radius:5px;font-family:'DM Mono',monospace;}
 .t-jp{background:rgba(255,140,66,.12);color:var(--orange);border:1px solid rgba(255,140,66,.2);}
 .t-local{background:var(--bdim2);color:var(--blue);border:1px solid rgba(77,159,255,.2);}
 .t-l1{background:var(--adim);color:var(--accent);border:1px solid rgba(215,240,46,.2);}
@@ -604,14 +604,14 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 /* ─── LOCAL COMPARE ─── */
 .lcmp{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:11px;}
 .lcard{background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:14px;}
-.lcard.l1{border-top:2px solid var(--accent);}
-.lcard.l2{border-top:2px solid var(--green);}
+.lcard.l1{border-color:var(--accent);}
+.lcard.l2{border-color:var(--green);}
 .lname{font-size:10px;font-weight:600;margin-bottom:9px;display:flex;align-items:center;gap:5px;}
 .ldot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0;}
 .ldot.l1{background:var(--accent);}
 .ldot.l2{background:var(--green);}
-.lval{font-family:'Barlow',sans-serif;font-weight:700;font-size:19px;letter-spacing:-.5px;margin-bottom:2px;}
-.lsub{font-size:9px;color:var(--muted);}
+.lval{font-family:'Archivo Black',sans-serif;font-size:19px;letter-spacing:-.5px;margin-bottom:2px;}
+.lsub{font-size:10px;color:var(--muted);}
 
 /* ─── TRANSFER ─── */
 .tcard{background:var(--sf2);border:1px solid var(--bd);border-radius:11px;padding:13px;display:flex;align-items:center;gap:9px;margin-bottom:7px;}
@@ -634,7 +634,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 
 /* ─── PERMISSION TABLE ─── */
 .perm-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:4px;}
-.perm-table th{font-size:9px;color:var(--muted);font-weight:600;letter-spacing:.5px;text-transform:uppercase;padding:6px 4px;text-align:center;border-bottom:1px solid var(--bd);}
+.perm-table th{font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.5px;text-transform:uppercase;padding:6px 4px;text-align:center;border-bottom:1px solid var(--bd);}
 .perm-table th:first-child{text-align:left;padding-left:0;}
 .perm-table td{padding:9px 4px;text-align:center;border-bottom:1px solid var(--bd);}
 .perm-table td:first-child{text-align:left;font-size:12px;font-weight:500;padding-left:0;}
@@ -649,35 +649,35 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .ntext{flex:1;}
 .ntitle{font-size:12px;font-weight:600;margin-bottom:2px;}
 .ndesc{font-size:10px;color:var(--muted);line-height:1.5;}
-.ntime{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);flex-shrink:0;}
+.ntime{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);flex-shrink:0;}
 .unread{width:7px;height:7px;background:var(--accent);border-radius:50%;flex-shrink:0;margin-top:4px;}
 
 /* ─── DATE LABEL ─── */
-.date-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;margin:8px 0 8px;padding:0;font-weight:600;}
+.date-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;margin:8px 0 8px;padding:0;font-weight:600;}
 .date-lbl.cur{color:var(--text);}
 .date-lbl.pst{color:var(--muted2);}
 
 /* ─── BUTTONS ─── */
-.btn{width:100%;background:var(--accent);border:none;border-radius:12px;padding:15px;font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;color:var(--text);cursor:pointer;transition:opacity .15s,transform .1s;margin-top:5px;letter-spacing:0;}
+.btn{width:100%;background:var(--accent);border:none;border-radius:12px;padding:15px;font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;color:var(--text);cursor:pointer;transition:opacity .15s,transform .1s;margin-top:5px;letter-spacing:0;}
 .btn:hover{opacity:.88;}
 .btn:active{transform:scale(.98);}
 .btn:focus-visible{outline:2px solid var(--text);outline-offset:2px;}
-.btn.sec{background:var(--sf);border:1px solid var(--bd);color:var(--text);font-family:'Barlow',sans-serif;font-weight:600;font-size:13px;}
+.btn.sec{background:var(--sf);border:1px solid var(--bd);color:var(--text);font-family:'Archivo',sans-serif;font-weight:600;font-size:13px;}
 .btn.sec:hover{border-color:var(--bd2);background:var(--sf2);}
-.btn.danger{background:var(--rdim);border:1px solid rgba(216,75,75,.25);color:var(--red);font-family:'Barlow',sans-serif;font-weight:600;font-size:13px;}
+.btn.danger{background:var(--rdim);border:1px solid rgba(216,75,75,.25);color:var(--red);font-family:'Archivo',sans-serif;font-weight:600;font-size:13px;}
 .btn.danger:hover{background:rgba(216,75,75,.12);}
 .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
 
 /* ─── EMPTY STATE ─── */
 .empty{text-align:center;padding:40px 20px;}
 .empty-icon{font-size:44px;margin-bottom:12px;opacity:.35;}
-.empty-title{font-family:'Barlow',sans-serif;font-weight:600;font-size:15px;margin-bottom:6px;color:var(--muted);}
+.empty-title{font-family:'Archivo Black',sans-serif;font-size:15px;margin-bottom:6px;color:var(--text);}
 .empty-sub{font-size:12px;color:var(--muted2);}
 
 /* ─── CONFIRM SCREEN ─── */
 .confirm-center{text-align:center;padding:30px 0 20px;}
 .confirm-icon{font-size:56px;margin-bottom:12px;}
-.confirm-title{font-family:'Barlow',sans-serif;font-weight:700;font-size:20px;margin-bottom:6px;letter-spacing:-.2px;}
+.confirm-title{font-family:'Archivo Black',sans-serif;font-size:20px;margin-bottom:6px;letter-spacing:-.2px;}
 .confirm-sub{font-size:12px;color:var(--muted);margin-bottom:20px;}
 
 /* ─── HIST TABS ─── */
@@ -695,7 +695,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .ni.on .nico2{transform:none;}
 .ni.on .nlbl{color:var(--text);font-weight:700;}
 .nav-fab-wrap{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;margin:0 3px;padding-top:2px;}
-.nav-fab{width:50px;height:50px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;font-family:'Barlow',sans-serif;font-weight:700;box-shadow:0 4px 20px var(--aglow);color:var(--text);transition:transform .18s cubic-bezier(.33,1,.68,1),box-shadow .18s;}
+.nav-fab{width:50px;height:50px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;font-family:'Archivo',sans-serif;font-weight:700;box-shadow:0 4px 20px var(--aglow);color:var(--text);transition:transform .18s cubic-bezier(.33,1,.68,1),box-shadow .18s;}
 .nav-fab-wrap:hover .nav-fab{transform:scale(1.08);box-shadow:0 8px 24px var(--aglow);}
 .nav-fab-wrap:active .nav-fab{transform:scale(.95);}
 .nav-fab-lbl{font-size:10px;font-weight:500;color:var(--muted);letter-spacing:0;margin-top:1px;}
@@ -728,7 +728,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 /* ─── CARGA MASIVA ─── */
 .cm-line{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:8px;}
 .cm-line-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px;}
-.cm-line-nombre{font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;color:var(--text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cm-line-nombre{font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;color:var(--text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .cm-line-variante{font-size:11px;color:var(--muted);margin-top:1px;}
 .cm-line-del{background:none;border:none;color:var(--muted2);font-size:18px;cursor:pointer;padding:0;line-height:1;flex-shrink:0;}
 .cm-line-inputs{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
@@ -766,14 +766,14 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .cm-margen-helper{display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap;}
 .cm-margen-helper span{font-size:11px;color:var(--muted);}
 .cm-margen-helper .resultado{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--text);}
-.cm-confirm-btn{width:100%;background:var(--accent);border:none;border-radius:12px;padding:14px;font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;color:var(--text);cursor:pointer;margin-top:4px;}
+.cm-confirm-btn{width:100%;background:var(--accent);border:none;border-radius:12px;padding:14px;font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;color:var(--text);cursor:pointer;margin-top:4px;}
 .cm-confirm-btn:disabled{opacity:.35;cursor:default;}
 
 /* modal etiqueta */
 .label-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;}
 .label-modal{background:var(--sf);border:1px solid var(--bd2);border-radius:18px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto;}
 .label-modal-hdr{padding:18px 18px 0;display:flex;align-items:center;justify-content:space-between;}
-.label-modal-hdr h2{font-family:'Barlow',sans-serif;font-weight:700;font-size:17px;letter-spacing:-.3px;}
+.label-modal-hdr h2{font-family:'Archivo',sans-serif;font-weight:700;font-size:17px;letter-spacing:-.3px;}
 .modal-close{width:44px;height:44px;background:var(--sf2);border:1px solid var(--bd);border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;flex-shrink:0;}
 .modal-close:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .label-preview-wrap{margin:14px 18px;background:#fff;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px;min-height:100px;overflow:hidden;}
@@ -857,7 +857,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 /* panel de acción expandido */
 .action-panel{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:10px;display:none;}
 .action-panel.show{display:block;}
-.action-panel-title{font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;letter-spacing:-.2px;margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.action-panel-title{font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;letter-spacing:-.2px;margin-bottom:12px;display:flex;align-items:center;gap:7px;}
 
 /* scanner input manual */
 .scan-manual-row{display:flex;gap:7px;margin-bottom:10px;}
@@ -1011,7 +1011,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .urgency-item.blue{}
 .urgency-item.green{}
 .urgency-item.accent{}
-.urgency-cta{border:1px solid var(--bd);border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:'Barlow',sans-serif;white-space:nowrap;background:var(--sf);color:var(--text);}
+.urgency-cta{border:1px solid var(--bd);border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:'Archivo',sans-serif;white-space:nowrap;background:var(--sf);color:var(--text);}
 .urgency-cta.red{border-color:rgba(216,75,75,.3);color:var(--red);background:rgba(216,75,75,.05);}
 .urgency-cta.orange{border-color:rgba(228,106,46,.3);color:var(--orange);background:rgba(228,106,46,.05);}
 .urgency-cta.blue{border-color:rgba(37,99,235,.25);color:var(--blue);background:rgba(37,99,235,.04);}
@@ -1046,7 +1046,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .local-strip-col-amt{font-family:'DM Mono',monospace;font-size:14px;font-weight:700;}
 .local-strip-div{width:1px;background:var(--bd);margin:8px 0;flex-shrink:0;}
 .local-active-chip{display:inline-flex;align-items:center;gap:6px;background:var(--sf2);border:1px solid var(--bd);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;}
-.local-active-chip-x{background:none;border:none;font-size:16px;color:var(--muted);cursor:pointer;padding:0;line-height:1;font-family:'Barlow',sans-serif;}
+.local-active-chip-x{background:none;border:none;font-size:16px;color:var(--muted);cursor:pointer;padding:0;line-height:1;font-family:'Archivo',sans-serif;}
 .loc-kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
 .loc-kpi-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;}
 .loc-kpi-hdr{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;}
@@ -1076,12 +1076,12 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .caja-row-lbl{font-size:12px;font-weight:600;color:var(--text);margin-bottom:1px;}
 .caja-row-sub{font-size:10px;color:var(--muted);}
 .caja-row-amt{font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:var(--green-fg);}
-.caja-btn-ok{flex:1;background:var(--gdim);border:1px solid rgba(30,158,99,.2);border-radius:10px;padding:11px 8px;font-family:'Barlow',sans-serif;font-size:12px;font-weight:700;color:var(--green-fg);cursor:pointer;transition:opacity .15s;}
-.caja-btn-diff{flex:1;background:var(--rdim);border:1px solid rgba(216,75,75,.2);border-radius:10px;padding:11px 8px;font-family:'Barlow',sans-serif;font-size:12px;font-weight:700;color:var(--red);cursor:pointer;transition:opacity .15s;}
+.caja-btn-ok{flex:1;background:var(--gdim);border:1px solid rgba(30,158,99,.2);border-radius:10px;padding:11px 8px;font-family:'Archivo',sans-serif;font-size:12px;font-weight:700;color:var(--green-fg);cursor:pointer;transition:opacity .15s;}
+.caja-btn-diff{flex:1;background:var(--rdim);border:1px solid rgba(216,75,75,.2);border-radius:10px;padding:11px 8px;font-family:'Archivo',sans-serif;font-size:12px;font-weight:700;color:var(--red);cursor:pointer;transition:opacity .15s;}
 .caja-btn-ok:active,.caja-btn-diff:active{opacity:.75;}
 .caja-badge-ok{display:flex;align-items:center;gap:6px;background:var(--gdim);border:1px solid rgba(30,158,99,.2);border-radius:10px;padding:10px 13px;font-size:12px;font-weight:600;color:var(--green-fg);margin-top:12px;}
 .caja-badge-diff{display:flex;align-items:center;justify-content:space-between;background:var(--rdim);border:1px solid rgba(216,75,75,.18);border-radius:10px;padding:10px 13px;font-size:12px;font-weight:600;color:var(--red);margin-top:12px;}
-.caja-edit-btn{background:none;border:none;font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline;padding:0;font-family:'Barlow',sans-serif;}
+.caja-edit-btn{background:none;border:none;font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline;padding:0;font-family:'Archivo',sans-serif;}
 /* ─── MOBILE UX ─── */
 @media (hover:none){
   .ni,.pb,.chip,.btn,.fab,.nav-fab-wrap,.icon-btn,.avatar-btn{user-select:none;-webkit-user-select:none;}
@@ -1099,7 +1099,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 
 <!-- ════ LOGIN ════ -->
 <div id="screen-login" style="display:none;position:fixed;inset:0;z-index:10000;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;">
-  <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:34px;letter-spacing:-.5px;color:var(--text);margin-bottom:8px;">CUAN<span style="background:var(--accent);color:var(--text);padding:0 6px;border-radius:6px;">TI</span></div>
+  <div style="font-family:'Archivo Black',sans-serif;font-size:34px;letter-spacing:-.5px;color:var(--text);margin-bottom:8px;">CUAN<span style="background:var(--accent);color:var(--text);padding:0 6px;border-radius:6px;">TI</span></div>
   <div style="font-size:13px;color:var(--muted);margin-bottom:48px;letter-spacing:.2px;">Tu negocio, en claro.</div>
 
   <div style="width:100%;max-width:360px;">
@@ -1124,7 +1124,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 
 <!-- PANTALLA DE CARGA -->
 <div id="loading-screen" style="position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px;">
-  <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:34px;color:var(--text);letter-spacing:-.5px;animation:ldpop .4s cubic-bezier(.33,1,.68,1) both;">CUAN<span style="background:var(--accent);color:var(--text);padding:0 5px;border-radius:5px;">TI</span></div>
+  <div style="font-family:'Archivo Black',sans-serif;font-size:34px;color:var(--text);letter-spacing:-.5px;animation:ldpop .4s cubic-bezier(.33,1,.68,1) both;">CUAN<span style="background:var(--accent);color:var(--text);padding:0 5px;border-radius:5px;">TI</span></div>
   <div id="loading-step" style="font-size:12px;color:var(--muted);min-height:18px;transition:opacity .3s;letter-spacing:.2px;">Cargando…</div>
   <div style="width:120px;height:3px;background:var(--sf3);border-radius:2px;overflow:hidden;position:relative;">
     <div style="position:absolute;inset:0;background:linear-gradient(90deg,transparent,var(--accent),transparent);border-radius:2px;animation:ldbar 1.4s ease-in-out infinite;"></div>
@@ -1147,7 +1147,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
   <div class="topbar-r">
     <div class="icon-btn" onclick="goTo('notifs')" aria-label="Notificaciones" role="button" tabindex="0">🔔<div class="badge-dot" id="notif-badge" style="display:none;"></div></div>
     <div class="avatar-btn" id="topbar-avatar" onclick="goTo('config')" aria-label="Mi perfil" role="button" tabindex="0">SA</div>
-    <button id="topbar-logout-btn" onclick="logout()" style="display:none;background:none;border:1px solid var(--bd);border-radius:8px;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;padding:5px 10px;font-family:'Barlow',sans-serif;">Salir</button>
+    <button id="topbar-logout-btn" onclick="logout()" style="display:none;background:none;border:1px solid var(--bd);border-radius:8px;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;padding:5px 10px;font-family:'Archivo',sans-serif;">Salir</button>
   </div>
 </div>
 
@@ -1233,7 +1233,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 
   <!-- acciones rápidas: + Stock destacado, resto secundarios -->
   <div style="margin-bottom:12px;">
-    <button onclick="invAbrirAddStock()" style="width:100%;background:var(--accent);border:none;border-radius:12px;padding:13px;font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;transition:opacity .15s;" onmousedown="this.style.opacity='.88'" onmouseup="this.style.opacity='1'">
+    <button onclick="invAbrirAddStock()" style="width:100%;background:var(--accent);border:none;border-radius:12px;padding:13px;font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;transition:opacity .15s;" onmousedown="this.style.opacity='.88'" onmouseup="this.style.opacity='1'">
       <span>📥</span> Agregar stock
     </button>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
@@ -1262,13 +1262,13 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 <div class="screen" id="screen-carga-masiva">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
     <button onclick="goTo('inventario')" style="background:none;border:none;font-size:22px;color:var(--text);cursor:pointer;padding:0;line-height:1;">←</button>
-    <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:18px;letter-spacing:-.3px;">Carga masiva</div>
-    <button id="cm-confirm-top" onclick="cmConfirmar()" disabled style="background:var(--accent);border:none;border-radius:9px;padding:8px 14px;font-family:'Barlow',sans-serif;font-weight:700;font-size:13px;color:var(--text);cursor:pointer;opacity:.35;">Confirmar</button>
+    <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:18px;letter-spacing:-.3px;">Carga masiva</div>
+    <button id="cm-confirm-top" onclick="cmConfirmar()" disabled style="background:var(--accent);border:none;border-radius:9px;padding:8px 14px;font-family:'Archivo',sans-serif;font-weight:700;font-size:13px;color:var(--text);cursor:pointer;opacity:.35;">Confirmar</button>
   </div>
 
   <div id="cm-lote-list"></div>
 
-  <button onclick="cmAbrirSheet()" style="width:100%;background:var(--sf2);border:1px dashed var(--bd2);border-radius:12px;padding:13px;font-family:'Barlow',sans-serif;font-weight:600;font-size:14px;color:var(--muted);cursor:pointer;margin-top:4px;">+ Agregar producto</button>
+  <button onclick="cmAbrirSheet()" style="width:100%;background:var(--sf2);border:1px dashed var(--bd2);border-radius:12px;padding:13px;font-family:'Archivo',sans-serif;font-weight:600;font-size:14px;color:var(--muted);cursor:pointer;margin-top:4px;">+ Agregar producto</button>
 
   <div id="cm-confirm-bottom-wrap" style="display:none;margin-top:16px;">
     <button onclick="cmConfirmar()" class="cm-confirm-btn" id="cm-confirm-bottom">Confirmar carga →</button>
@@ -1306,7 +1306,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--bd);">
       <div id="v-prod-icon" style="width:44px;height:44px;background:var(--sf2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--muted);flex-shrink:0;"></div>
       <div style="flex:1;min-width:0;">
-        <div id="v-prod-nombre" style="font-family:'Barlow',sans-serif;font-weight:700;font-size:19px;color:var(--text);letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1;"></div>
+        <div id="v-prod-nombre" style="font-family:'Archivo',sans-serif;font-weight:700;font-size:19px;color:var(--text);letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1;"></div>
         <div id="v-prod-meta" style="font-size:12px;color:var(--muted);margin-top:4px;"></div>
       </div>
       <span style="font-size:12px;color:var(--muted);flex-shrink:0;cursor:pointer;padding:4px 0;" onclick="ventaVolver()">cambiar</span>
@@ -1316,11 +1316,11 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
     <div class="frow" style="margin-bottom:20px;">
       <div class="field">
         <label>Precio de venta</label>
-        <div class="fwrap"><span class="fpfx">$</span><input id="v-precio" class="pfx" type="number" inputmode="decimal" oninput="recalcVenta()" style="font-size:20px;font-family:'Barlow',sans-serif;font-weight:700;letter-spacing:-.5px;"></div>
+        <div class="fwrap"><span class="fpfx">$</span><input id="v-precio" class="pfx" type="number" inputmode="decimal" oninput="recalcVenta()" style="font-size:20px;font-family:'Archivo',sans-serif;font-weight:700;letter-spacing:-.5px;"></div>
       </div>
       <div class="field" style="max-width:90px;">
         <label>Cantidad</label>
-        <input id="v-cant" type="number" inputmode="numeric" value="1" min="1" oninput="recalcVenta()" style="font-size:20px;font-family:'Barlow',sans-serif;font-weight:700;text-align:center;">
+        <input id="v-cant" type="number" inputmode="numeric" value="1" min="1" oninput="recalcVenta()" style="font-size:20px;font-family:'Archivo',sans-serif;font-weight:700;text-align:center;">
       </div>
     </div>
 
@@ -1389,7 +1389,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
     <!-- ganancia preview -->
     <div id="v-gan-preview" style="background:var(--gdim);border:1px solid rgba(30,158,99,.2);border-radius:12px;padding:13px 16px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;">
       <span style="font-size:13px;color:var(--muted);">Ganancia estimada</span>
-      <span id="vs-gan" style="font-family:'Barlow',sans-serif;font-weight:700;font-size:20px;color:var(--green);letter-spacing:-.5px;">$—</span>
+      <span id="vs-gan" style="font-family:'Archivo',sans-serif;font-weight:700;font-size:20px;color:var(--green);letter-spacing:-.5px;">$—</span>
     </div>
 
     <div id="v-com-note" style="display:none;font-size:11px;color:var(--muted);text-align:center;margin-top:-12px;margin-bottom:14px;"></div>
@@ -1404,7 +1404,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
       <!-- Confirmación + ganancia WOW -->
       <div style="text-align:center;padding-bottom:24px;border-bottom:1px solid var(--bd);margin-bottom:20px;">
         <div style="font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Venta registrada</div>
-        <div id="vc-gan" style="font-family:'Barlow',sans-serif;font-weight:700;font-size:58px;color:var(--green);letter-spacing:-2px;line-height:.95;font-variant-numeric:tabular-nums;">$—</div>
+        <div id="vc-gan" style="font-family:'Archivo Black',sans-serif;font-size:58px;color:var(--green);letter-spacing:-2px;line-height:.95;font-variant-numeric:tabular-nums;">$—</div>
         <div style="font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-top:10px;">ganaste con esta venta</div>
         <div id="vc-prod" style="font-size:12px;color:var(--muted2);margin-top:6px;"></div>
       </div>
@@ -1521,7 +1521,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
         <!-- Ganancia: protagonista -->
         <div>
           <div style="font-size:10px;color:var(--muted);margin-bottom:3px;" id="hist-gan-lbl">Ganancia</div>
-          <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:26px;letter-spacing:-.5px;color:var(--green);line-height:1;" class="hist-stat" id="hist-stat-gan">$0</div>
+          <div style="font-family:'Archivo Black',sans-serif;font-size:26px;letter-spacing:-.5px;color:var(--green);line-height:1;" class="hist-stat" id="hist-stat-gan">$0</div>
         </div>
         <!-- Ventas e Ingresos: secundarios -->
         <div style="text-align:right;">
@@ -1557,7 +1557,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
     <!-- formulario crear cliente (oculto por defecto) -->
     <div id="nuevo-cliente-form" style="display:none;margin-top:12px;">
       <div class="card">
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:14px;">Nuevo cliente</div>
+        <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:14px;">Nuevo cliente</div>
         <div class="field" style="margin-bottom:10px;"><label>Nombre</label><input id="nc-nombre" type="text" placeholder="Nombre del cliente"></div>
         <div class="field" style="margin-bottom:16px;"><label>Teléfono (opcional)</label><input id="nc-telefono" type="tel" placeholder="+56 9 1234 5678"></div>
         <button class="btn" onclick="crearClienteManual()">Guardar cliente →</button>
@@ -1612,7 +1612,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 
   <!-- perfil -->
   <div class="card" style="display:flex;align-items:center;gap:13px;margin-bottom:16px;">
-    <div style="width:50px;height:50px;background:var(--accent);border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:'Barlow',sans-serif;font-weight:700;font-size:19px;color:var(--text);flex-shrink:0;" id="config-user-avatar">SA</div>
+    <div style="width:50px;height:50px;background:var(--accent);border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:'Archivo',sans-serif;font-weight:700;font-size:19px;color:var(--text);flex-shrink:0;" id="config-user-avatar">SA</div>
     <div style="flex:1;"><div style="font-size:14px;font-weight:600;margin-bottom:2px;" id="config-user-nombre">—</div><div style="font-size:11px;color:var(--muted);" id="config-user-email">—</div></div>
     <span class="role owner" id="config-user-rol">Dueño</span>
   </div>
@@ -1623,7 +1623,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
   <!-- Formulario crear vendedor (solo dueño) -->
   <div id="crear-vendedor-form" style="display:none;margin-bottom:16px;">
     <div class="card">
-      <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:14px;letter-spacing:-.2px;">Agregar vendedor</div>
+      <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:14px;letter-spacing:-.2px;">Agregar vendedor</div>
       <div class="field" style="margin-bottom:10px;"><label>Nombre</label><input id="cv-nombre" type="text" placeholder="Nombre del vendedor"></div>
       <div class="field" style="margin-bottom:10px;"><label>Email</label><input id="cv-email" type="email" placeholder="email@ejemplo.com"></div>
       <div class="field" style="margin-bottom:16px;"><label>Contraseña de acceso</label><input id="cv-pass" type="text" placeholder="Mínimo 6 caracteres"></div>
@@ -1739,7 +1739,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 
   <!-- CREAR NUEVO PRODUCTO -->
   <div class="card" style="margin-bottom:20px;">
-    <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;margin-bottom:16px;letter-spacing:-.2px;">Nuevo producto</div>
+    <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;margin-bottom:16px;letter-spacing:-.2px;">Nuevo producto</div>
 
     <!-- Producto -->
     <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:10px;">Producto</div>
@@ -1992,7 +1992,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
   <!-- Confirmación genérica (ingreso, devolución, ajuste) -->
   <div id="sc-confirm-msg" style="display:none;text-align:center;padding:20px;background:var(--gdim);border:1px solid rgba(59,255,138,.2);border-radius:14px;margin-bottom:12px;">
     <div style="font-size:40px;margin-bottom:8px;" id="sc-confirm-icon">✅</div>
-    <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:16px;margin-bottom:4px;" id="sc-confirm-title">Listo</div>
+    <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;margin-bottom:4px;" id="sc-confirm-title">Listo</div>
     <div style="font-size:11px;color:var(--muted);" id="sc-confirm-detail">—</div>
     <button class="btn sec" onclick="scReset()" style="margin-top:14px;width:auto;padding:0 20px;">← Escanear otro</button>
   </div>
@@ -2001,7 +2001,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
   <div id="sc-venta-result" style="display:none;background:var(--sf);border:1px solid var(--bd);border-radius:16px;overflow:hidden;margin-bottom:12px;">
     <div style="background:var(--gdim);border-bottom:1px solid rgba(30,158,99,.15);padding:22px 16px;text-align:center;">
       <div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:6px;">Ganaste</div>
-      <div id="scr-gan" style="font-family:'Barlow',sans-serif;font-weight:700;font-size:46px;color:var(--green);letter-spacing:-1.5px;line-height:1;font-variant-numeric:tabular-nums;">$—</div>
+      <div id="scr-gan" style="font-family:'Archivo',sans-serif;font-weight:700;font-size:46px;color:var(--green);letter-spacing:-1.5px;line-height:1;font-variant-numeric:tabular-nums;">$—</div>
       <div id="scr-prod" style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.4;">—</div>
     </div>
     <div style="padding:14px 16px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
@@ -2125,7 +2125,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 <div class="sheet" id="gasto-sheet" style="display:none;">
   <div class="sheet-handle"></div>
   <div style="padding:0 16px 32px;">
-    <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:16px;margin-bottom:18px;letter-spacing:-.2px;">Registrar gasto</div>
+    <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;margin-bottom:18px;letter-spacing:-.2px;">Registrar gasto</div>
 
     <!-- categoría -->
     <div style="margin-bottom:16px;">
@@ -2142,7 +2142,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
     <!-- monto -->
     <div class="field" style="margin-bottom:14px;">
       <label>Monto</label>
-      <div class="fwrap"><span class="fpfx">$</span><input id="gasto-monto" class="pfx" type="number" placeholder="0" style="font-size:20px;font-family:'Barlow',sans-serif;font-weight:700;"></div>
+      <div class="fwrap"><span class="fpfx">$</span><input id="gasto-monto" class="pfx" type="number" placeholder="0" style="font-size:20px;font-family:'Archivo',sans-serif;font-weight:700;"></div>
     </div>
 
     <!-- fecha -->
@@ -2209,7 +2209,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
   <div class="sheet-handle" onclick="cerrarEditVenta()"></div>
   <div style="padding:0 0 16px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-      <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:16px;letter-spacing:-.2px;">Editar venta</div>
+      <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;letter-spacing:-.2px;">Editar venta</div>
       <div class="modal-close" onclick="cerrarEditVenta()" role="button" tabindex="0" aria-label="Cerrar">✕</div>
     </div>
     <div id="ev-producto-lbl" style="font-size:11px;color:var(--muted);margin-bottom:12px;"></div>
@@ -2233,7 +2233,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 <div class="sheet" id="del-gasto-sheet" style="display:none;">
   <div class="sheet-handle" onclick="cerrarDelGasto()"></div>
   <div style="padding:0 0 8px;">
-    <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:16px;margin-bottom:16px;letter-spacing:-.2px;">¿Eliminar este gasto?</div>
+    <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;margin-bottom:16px;letter-spacing:-.2px;">¿Eliminar este gasto?</div>
     <div id="del-gasto-info" style="background:var(--sf2);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:18px;"></div>
     <button class="btn danger" id="del-gasto-btn" onclick="confirmarDelGasto()" style="width:100%;">Eliminar gasto</button>
     <button class="btn sec" onclick="cerrarDelGasto()" style="margin-top:8px;">Cancelar</button>
@@ -2976,7 +2976,7 @@ function renderDashboard() {
     const statChip = (lbl, val, dest) =>
       `<div onclick="goTo('${dest}')" style="display:flex;flex-direction:column;gap:2px;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:8px 12px;cursor:pointer;transition:border-color .15s;" onmouseenter="this.style.borderColor='var(--bd2)'" onmouseleave="this.style.borderColor='var(--bd)'">
         <div style="font-size:10px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;color:var(--muted);">${lbl}</div>
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;letter-spacing:-.3px;color:var(--text);font-variant-numeric:tabular-nums;">${val}</div>
+        <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;letter-spacing:-.3px;color:var(--text);font-variant-numeric:tabular-nums;">${val}</div>
       </div>`;
 
     const ingMesStrip  = ventasMes.reduce((s,v) => s + v.precio, 0);
@@ -3174,7 +3174,7 @@ function renderDashboard() {
           </div>
         </div>` : `
         <div style="padding:28px 0 16px;text-align:center;">
-          <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;margin-bottom:8px;letter-spacing:-.2px;">Empieza acá</div>
+          <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;margin-bottom:8px;letter-spacing:-.2px;">Empieza acá</div>
           <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.6;max-width:260px;margin-inline:auto;">
             Agrega tu primer producto al inventario y empieza a registrar ventas.
           </div>
@@ -3249,7 +3249,7 @@ function renderDashboard() {
             <div style="flex:1;">
               <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;">${titulo}</div>
               <div style="font-size:11px;color:rgba(23,23,23,.6);line-height:1.5;margin-bottom:10px;">${desc}</div>
-              <button onclick="goTo('${dest}')" style="background:var(--text);color:var(--accent);border:none;border-radius:8px;padding:9px 16px;font-family:'Barlow',sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:-.1px;">${btnLabel} →</button>
+              <button onclick="goTo('${dest}')" style="background:var(--text);color:var(--accent);border:none;border-radius:8px;padding:9px 16px;font-family:'Archivo',sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:-.1px;">${btnLabel} →</button>
             </div>
           </div>
         </div>`;
@@ -3274,7 +3274,7 @@ function renderDashboard() {
               <div style="flex:1;">
                 <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;">Agrega tu primer producto</div>
                 <div style="font-size:11px;color:rgba(23,23,23,.6);line-height:1.5;margin-bottom:10px;">Nombre, precio de venta y cuánto te costó. En un minuto.</div>
-                <button onclick="abrirQuickProdSheet()" style="background:var(--text);color:var(--accent);border:none;border-radius:8px;padding:9px 16px;font-family:'Barlow',sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:-.1px;">Agregar producto →</button>
+                <button onclick="abrirQuickProdSheet()" style="background:var(--text);color:var(--accent);border:none;border-radius:8px;padding:9px 16px;font-family:'Archivo',sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:-.1px;">Agregar producto →</button>
               </div>
             </div>
           </div>`;
@@ -3294,7 +3294,7 @@ function renderDashboard() {
               <div style="flex:1;">
                 <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;">Mira cuánto ganaste</div>
                 <div style="font-size:11px;color:rgba(23,23,23,.6);line-height:1.5;margin-bottom:10px;">Todo listo. Revisa tus ganancias, qué productos te convienen y cuánto llevas este mes.</div>
-                <button onclick="localStorage.setItem('cuanti_setup_done','1');goTo('analisis');" style="background:var(--text);color:var(--accent);border:none;border-radius:8px;padding:9px 16px;font-family:'Barlow',sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:-.1px;">Ver análisis →</button>
+                <button onclick="localStorage.setItem('cuanti_setup_done','1');goTo('analisis');" style="background:var(--text);color:var(--accent);border:none;border-radius:8px;padding:9px 16px;font-family:'Archivo',sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:-.1px;">Ver análisis →</button>
               </div>
             </div>
           </div>`
@@ -3303,7 +3303,7 @@ function renderDashboard() {
       setupEl.innerHTML = `
         <div style="background:var(--accent);border-radius:14px;padding:14px 16px 12px;margin-bottom:16px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-            <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:13px;color:var(--text);">Empieza en 3 pasos</div>
+            <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:13px;color:var(--text);">Empieza en 3 pasos</div>
             <div style="font-size:10px;color:rgba(23,23,23,.45);font-family:'DM Mono',monospace;">${pasosDone}/3 completados</div>
           </div>
           <div style="background:rgba(23,23,23,.15);border-radius:99px;height:3px;margin-bottom:2px;overflow:hidden;">
@@ -4109,7 +4109,7 @@ function renderDetalleCliente(clienteId) {
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
       <button onclick="histSelTab('clientes')" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);">←</button>
       <div style="flex:1;">
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:18px;">${cliente.nombre}</div>
+        <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:18px;">${cliente.nombre}</div>
         ${cliente.telefono ? `<div style="font-size:12px;color:var(--muted);">${cliente.telefono}</div>` : ''}
       </div>
       ${waUrl ? `<a href="${waUrl}" target="_blank" style="background:var(--gdim);border:1px solid rgba(30,158,99,.2);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--green);text-decoration:none;font-weight:600;">WhatsApp</a>` : ''}
@@ -4462,7 +4462,7 @@ function cmRenderSheetInicio() {
   const body = document.getElementById('cm-sheet-body');
   if (!body) return;
   body.innerHTML = `
-    <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:17px;letter-spacing:-.3px;margin-bottom:14px;">Agregar producto</div>
+    <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:17px;letter-spacing:-.3px;margin-bottom:14px;">Agregar producto</div>
     <div class="cm-tabs">
       <div class="cm-tab sel" id="cm-tab-existente" onclick="cmTabSeleccionar('existente')">Existente</div>
       <div class="cm-tab" id="cm-tab-nuevo" onclick="cmTabSeleccionar('nuevo')">Nuevo</div>
@@ -4600,7 +4600,7 @@ async function cmRenderTabNuevo() {
     <div id="cm-variantes-seccion"></div>
     <div id="cm-precio-seccion"></div>
 
-    <button onclick="cmGuardarNuevo()" style="width:100%;background:var(--text);border:none;border-radius:10px;padding:12px;font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;color:var(--bg);cursor:pointer;margin-top:8px;">Agregar al lote →</button>
+    <button onclick="cmGuardarNuevo()" style="width:100%;background:var(--text);border:none;border-radius:10px;padding:12px;font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;color:var(--bg);cursor:pointer;margin-top:8px;">Agregar al lote →</button>
   `;
 
   cmRenderVariantesSeccion();
@@ -4949,7 +4949,7 @@ function invAbrirProducto(nombreEnc) {
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
       <div style="width:46px;height:46px;background:var(--sf2);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--muted);flex-shrink:0;">${g.icon}</div>
       <div style="flex:1;min-width:0;">
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:16px;letter-spacing:-.3px;margin-bottom:2px;">${nombre}</div>
+        <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;letter-spacing:-.3px;margin-bottom:2px;">${nombre}</div>
         <div style="font-size:11px;color:var(--muted);">${g.marca || ''} · $${fmt(g.precio)}${ganUnit !== null ? ` · <span style="color:${ganUnit<0?'var(--red)':'inherit'};">Te deja ${ganUnit>=0?'':'−'}$${fmt(Math.abs(ganUnit))}</span>` : ''}</div>
       </div>
     </div>
@@ -4968,7 +4968,7 @@ function invMostrarAddStock(varId, nombreEnc, varianteEnc, stockActual) {
   const variante = decodeURIComponent(varianteEnc);
   document.getElementById('inv-sheet-body').innerHTML = `
     <button onclick="invAbrirProducto('${nombreEnc}')" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;margin-bottom:16px;padding:0;">← Volver</button>
-    <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:17px;letter-spacing:-.3px;margin-bottom:4px;">${nombre}</div>
+    <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:17px;letter-spacing:-.3px;margin-bottom:4px;">${nombre}</div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:22px;">${variante} · ${stockActual} ud. en stock</div>
     <div class="field" style="margin-bottom:14px;">
       <label>Unidades a agregar</label>
@@ -5012,7 +5012,7 @@ function invMostrarEditPrecio(nombreEnc) {
 
   document.getElementById('inv-sheet-body').innerHTML = `
     <button onclick="invAbrirProducto('${nombreEnc}')" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;margin-bottom:16px;padding:0;">← Volver</button>
-    <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:17px;letter-spacing:-.3px;margin-bottom:4px;">Editar ${esc(nombre)}</div>
+    <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:17px;letter-spacing:-.3px;margin-bottom:4px;">Editar ${esc(nombre)}</div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:22px;">Los cambios aplican a todas las variantes</div>
     <div class="field" style="margin-bottom:14px;">
       <label>Precio de venta</label>
@@ -5054,7 +5054,7 @@ async function invGuardarEditPrecio(nombreEnc) {
 // Abrir sheet para "+ Stock" desde acciones rápidas (buscar primero)
 function invAbrirAddStock() {
   document.getElementById('inv-sheet-body').innerHTML = `
-    <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:17px;letter-spacing:-.3px;margin-bottom:14px;">Agregar stock</div>
+    <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:17px;letter-spacing:-.3px;margin-bottom:14px;">Agregar stock</div>
     <input id="inv-add-buscar" type="text" placeholder="Busca producto o variante…"
       style="width:100%;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:11px 14px;font-size:14px;color:var(--text);outline:none;margin-bottom:12px;"
       oninput="invBuscarParaStock(this.value)" autocomplete="off">
@@ -5169,13 +5169,13 @@ function ventaRenderInventario(filter='') {
     if(q) {
       lista.innerHTML = `<div style="text-align:center;padding:32px 0;">
         <div style="font-size:36px;margin-bottom:10px;opacity:.5;">🔍</div>
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;margin-bottom:6px;">Sin resultados</div>
+        <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;margin-bottom:6px;">Sin resultados</div>
         <div style="font-size:12px;color:var(--muted);">No hay productos que coincidan con "${q}"</div>
       </div>`;
     } else {
       lista.innerHTML = `<div style="text-align:center;padding:40px 16px 24px;">
         <div style="font-size:48px;margin-bottom:14px;">📦</div>
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:17px;margin-bottom:8px;letter-spacing:-.3px;">Agrega tu primer producto</div>
+        <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:17px;margin-bottom:8px;letter-spacing:-.3px;">Agrega tu primer producto</div>
         <div style="font-size:12px;color:var(--muted);margin-bottom:22px;line-height:1.7;max-width:240px;margin-inline:auto;">
           Ponle nombre, cuánto lo vendes y cuánto te costó.<br>Cuanti hace el resto.
         </div>
@@ -5803,7 +5803,7 @@ function renderGastos(body, setBody) {
         <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.3px;">GASTOS — ${mesesNom[hoy.getMonth()].toUpperCase()} ${hoy.getFullYear()}</div>
         <button onclick="abrirRegistrarGasto()" style="background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;color:var(--text);">+ Agregar</button>
       </div>
-      <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:26px;letter-spacing:-.5px;color:var(--red);line-height:1;">$${fmt(totalMes)}</div>
+      <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:26px;letter-spacing:-.5px;color:var(--red);line-height:1;">$${fmt(totalMes)}</div>
       <div style="font-size:12px;color:var(--muted);margin-top:4px;">${gastosDelMes.length} gasto${gastosDelMes.length!==1?'s':''} registrado${gastosDelMes.length!==1?'s':''}</div>
     </div>
     <div style="background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:16px;">
@@ -6026,7 +6026,7 @@ function renderAnalisis(tab, btn) {
       if(ventas.length === 0) {
         setBody(`<div style="text-align:center;padding:48px 16px 24px;">
           <div style="font-size:40px;margin-bottom:16px;">📊</div>
-          <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:16px;margin-bottom:10px;letter-spacing:-.3px;">Aquí ves cuánto ganaste</div>
+          <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;margin-bottom:10px;letter-spacing:-.3px;">Aquí ves cuánto ganaste</div>
           <div style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:24px;max-width:260px;margin-inline:auto;">
             Ganancias por día, semana y mes. Los productos que más te dejan. Los canales que más venden. Todo en un lugar.
           </div>
@@ -6074,7 +6074,7 @@ function renderAnalisis(tab, btn) {
 
       const ayerMsg = ayerGan > 0
         ? `<div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Ayer ganaste</div>
-           <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:28px;letter-spacing:-.5px;color:var(--text);margin-bottom:4px;">${ayerGan>=0?'+':'−'}$${fmt(Math.abs(ayerGan))}</div>
+           <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:28px;letter-spacing:-.5px;color:var(--text);margin-bottom:4px;">${ayerGan>=0?'+':'−'}$${fmt(Math.abs(ayerGan))}</div>
            <div style="font-size:11px;color:var(--muted);margin-bottom:20px;">${ayerVentas.length} venta${ayerVentas.length!==1?'s':''} · Hoy todavía no hay registros</div>`
         : `<div style="font-size:13px;color:var(--muted);margin-bottom:20px;">Registra tu primera venta del día para ver cuánto ganas.</div>`;
 
@@ -6130,7 +6130,7 @@ function renderAnalisis(tab, btn) {
       <!-- Hero: ganancia del día -->
       <div style="background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:20px 18px;margin-bottom:12px;">
         <div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:6px;">Ganancia hoy</div>
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:32px;letter-spacing:-.5px;font-variant-numeric:tabular-nums;color:${gan>=0?'var(--text)':'var(--red)'};">${gan>=0?'+':'−'}$${fmt(Math.abs(gan))}</div>
+        <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:32px;letter-spacing:-.5px;font-variant-numeric:tabular-nums;color:${gan>=0?'var(--text)':'var(--red)'};">${gan>=0?'+':'−'}$${fmt(Math.abs(gan))}</div>
         <div style="display:flex;gap:16px;margin-top:10px;">
           <div style="font-size:11px;color:var(--muted);">${hoy.length} venta${hoy.length!==1?'s':''}</div>
           <div style="font-size:11px;color:var(--muted);">${margenPct}% margen</div>
@@ -6142,7 +6142,7 @@ function renderAnalisis(tab, btn) {
 
       <!-- Cierre de caja -->
       <div class="chart-box">
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;">Cierre de caja</div>
+        <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;">Cierre de caja</div>
         <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">Lo que cobraste hoy, por forma de pago</div>
         ${pagoRows}
         ${efectivo > 0 ? `
@@ -6178,25 +6178,25 @@ function renderAnalisis(tab, btn) {
 
         <!-- P&L -->
         <div class="chart-box">
-          <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Resultado del día</div>
+          <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Resultado del día</div>
           ${kpiRow('💵','Ingresos brutos','$'+fmt(ing),'var(--text)')}
           ${kpiRow('📦','Costo mercadería','−$'+fmt(costoTotal),'var(--red)')}
           ${com > 0 ? kpiRow('🏪','Comisiones Sotos','−$'+fmt(com),'var(--orange)') : ''}
           <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;font-weight:700;font-size:14px;">
             <span>Ganancia neta</span>
-            <span style="font-family:'Barlow',sans-serif;font-weight:700;color:${gan>=0?'var(--green-fg)':'var(--red)'};">$${fmt(gan)}</span>
+            <span style="font-family:'Archivo',sans-serif;font-weight:700;color:${gan>=0?'var(--green-fg)':'var(--red)'};">$${fmt(gan)}</span>
           </div>
         </div>
 
         <!-- Canales -->
         ${canalHoy.length > 1 ? `<div class="chart-box">
-          <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Por canal</div>
+          <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Por canal</div>
           ${progressRows(canalHoy, gan)}
         </div>` : ''}
 
         <!-- Ventas del día -->
         <div class="chart-box">
-          <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Ventas del día</div>
+          <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Ventas del día</div>
           ${hoy.map(v=>`<div class="trow">
             <div style="width:28px;height:28px;background:var(--sf2);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--muted);flex-shrink:0;">${v.icon}</div>
             <div class="tinfo"><div class="tname">${v.nombre}</div><div class="tunits">${v.fecha.split('·')[1]?.trim()||''} · ${v.canal}${v.pago&&v.pago!=='—'?' · '+v.pago:''}</div></div>
@@ -6257,11 +6257,11 @@ function renderAnalisis(tab, btn) {
         ${barChart(diaGan, dias, 70, (todayDow+6)%7)}
       </div>
       ${topSem.length ? `<div class="chart-box">
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Top productos</div>
+        <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Top productos</div>
         ${topProdRows(topSem)}
       </div>` : ''}
       ${canalSem.length ? `<div class="chart-box">
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Por canal</div>
+        <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Por canal</div>
         ${progressRows(canalSem, totalSem)}
       </div>` : ''}`);
     return;
@@ -6331,14 +6331,14 @@ function renderAnalisis(tab, btn) {
 
       <!-- P&L del mes -->
       <div class="chart-box">
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Estado de resultados</div>
+        <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Estado de resultados</div>
         ${kpiRow('💵','Ingresos brutos','$'+fmt(ing),'var(--text)')}
         ${kpiRow('📦','Costo mercadería','−$'+fmt(costos),'var(--red)')}
         ${coms > 0 ? kpiRow('🏪','Comisiones Sotos','−$'+fmt(coms),'var(--orange)') : ''}
         ${kpiRow('📊','Margen',margen+'%','var(--green-fg)')}
         <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;font-weight:700;font-size:14px;border-top:1px solid var(--bd);margin-top:4px;">
           <span>Ganancia neta</span>
-          <span style="font-family:'Barlow',sans-serif;font-weight:700;font-size:16px;color:${gan>=0?'var(--green-fg)':'var(--red)'};">$${fmt(gan)}</span>
+          <span style="font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;color:${gan>=0?'var(--green-fg)':'var(--red)'};">$${fmt(gan)}</span>
         </div>
       </div>
 
@@ -6350,20 +6350,20 @@ function renderAnalisis(tab, btn) {
         const rows = Object.entries(porPagoMes).sort((a,b)=>b[1]-a[1])
           .map(([p,m])=>kpiRow(pagoIconM[p]||'💰',p,'$'+fmt(m),'var(--text)')).join('');
         return `<div class="chart-box">
-          <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Por método de pago</div>
+          <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Por método de pago</div>
           ${rows}
         </div>`;
       })()}
 
       <!-- Canales -->
       <div class="chart-box">
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Por canal</div>
+        <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Por canal</div>
         ${progressRows(canalMes, gan)}
       </div>
 
       <!-- Top productos -->
       ${topMes.length ? `<div class="chart-box">
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;">Top productos del mes</div>
+        <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;">Top productos del mes</div>
         <div style="font-size:10px;color:var(--muted);margin-bottom:12px;">Por ganancia generada</div>
         ${topProdRows(topMes)}
       </div>` : ''}`);
@@ -6461,15 +6461,15 @@ function renderAnalisis(tab, btn) {
         const diffPct = prev !== 0 ? Math.round(Math.abs(diff / prev) * 100) : null;
         const up = diff >= 0;
         return `<div class="chart-box">
-          <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Este mes vs anterior</div>
+          <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Este mes vs anterior</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
             <div style="background:var(--sf2);border-radius:11px;padding:13px;">
               <div style="font-size:10px;color:var(--muted);margin-bottom:5px;">${prevLabel}</div>
-              <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:16px;font-variant-numeric:tabular-nums;color:${prev<0?'var(--red)':'var(--muted)'};">${prev<0?'−':''}$${fmt(Math.abs(prev))}</div>
+              <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;font-variant-numeric:tabular-nums;color:${prev<0?'var(--red)':'var(--muted)'};">${prev<0?'−':''}$${fmt(Math.abs(prev))}</div>
             </div>
             <div style="background:${up?'rgba(215,240,46,.07)':'rgba(216,75,75,.05)'};border:1px solid ${up?'rgba(215,240,46,.2)':'rgba(216,75,75,.15)'};border-radius:11px;padding:13px;">
               <div style="font-size:10px;color:var(--muted);margin-bottom:5px;">${curLabel} <span style="font-size:9px;background:${up?'var(--gdim)':'var(--rdim)'};color:${up?'var(--green-fg)':'var(--red)'};border-radius:8px;padding:1px 5px;font-weight:700;">${up?'▲':'▼'} ${diffPct !== null ? diffPct+'%' : ''}</span></div>
-              <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:16px;font-variant-numeric:tabular-nums;color:${cur<0?'var(--red)':'var(--text)'};">${cur<0?'−':''}$${fmt(Math.abs(cur))}</div>
+              <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;font-variant-numeric:tabular-nums;color:${cur<0?'var(--red)':'var(--text)'};">${cur<0?'−':''}$${fmt(Math.abs(cur))}</div>
             </div>
           </div>
           <div style="font-size:12px;color:var(--muted);text-align:center;">
@@ -6482,7 +6482,7 @@ function renderAnalisis(tab, btn) {
 
       <!-- Progreso mes a mes (barras horizontales) -->
       <div class="chart-box">
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Mes a mes — detalle</div>
+        <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Mes a mes — detalle</div>
         ${mesesOrden.map((k,i) => {
           const m = porMes[k];
           const real = m.gan - m.gastos;
@@ -6501,14 +6501,14 @@ function renderAnalisis(tab, btn) {
 
       <!-- Productos estrella -->
       <div class="chart-box">
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;">Productos estrella</div>
+        <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;">Productos estrella</div>
         <div style="font-size:10px;color:var(--muted);margin-bottom:12px;">Por ganancia total generada</div>
         ${topProdRows(topTotal)}
       </div>
 
       <!-- Canales histórico -->
       <div class="chart-box">
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Canales — todo el período</div>
+        <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Canales — todo el período</div>
         ${progressRows(canalTotal, ganTotalH)}
       </div>`);
     return;
@@ -6553,7 +6553,7 @@ function renderAnalisis(tab, btn) {
 
       <!-- Semáforo de stock -->
       <div class="chart-box">
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Estado del inventario</div>
+        <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Estado del inventario</div>
         ${kpiRow('🟢','Con stock suficiente',ok.length+' SKUs','var(--green-fg)')}
         ${kpiRow('🟡','Se te va a acabar (≤2 ud.)',bajos.length+' SKUs','var(--orange)')}
         ${kpiRow('🔴','Agotados',agotados.length+' SKUs','var(--red)')}
@@ -6563,7 +6563,7 @@ function renderAnalisis(tab, btn) {
 
       <!-- Agotados -->
       ${agotados.length ? `<div class="chart-box" style="border-color:rgba(255,68,68,.2);background:rgba(255,68,68,.03);">
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;color:var(--red);">🔴 Agotados — reponer ahora</div>
+        <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;color:var(--red);">🔴 Agotados — reponer ahora</div>
         ${agotados.map(s=>`<div class="trow">
           <div style="width:26px;height:26px;background:var(--sf2);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted);flex-shrink:0;">${s.icon}</div>
           <div class="tinfo"><div class="tname">${s.nombre}</div><div class="tunits">${s.variante} · $${fmt(s.precio)}</div></div>
@@ -6573,7 +6573,7 @@ function renderAnalisis(tab, btn) {
 
       <!-- Bajo stock -->
       ${bajos.length ? `<div class="chart-box" style="border-color:rgba(255,140,66,.2);">
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;color:var(--orange);">🟡 Se te va a acabar</div>
+        <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;color:var(--orange);">🟡 Se te va a acabar</div>
         ${bajos.map(s=>`<div class="trow">
           <div style="width:26px;height:26px;background:var(--sf2);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted);flex-shrink:0;">${s.icon}</div>
           <div class="tinfo"><div class="tname">${s.nombre}</div><div class="tunits">${s.variante}</div></div>
@@ -6583,7 +6583,7 @@ function renderAnalisis(tab, btn) {
 
       <!-- Mayor valor inmovilizado -->
       <div class="chart-box">
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:3px;">Plata parada — vender primero</div>
+        <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:3px;">Plata parada — vender primero</div>
         <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">Productos con más capital inmovilizado</div>
         ${topValor.map((s,i)=>{
           const val = s.precio*s.stock;
@@ -6701,7 +6701,7 @@ function renderLocales() {
     (miLocalId === null ? true : t.local_destino_id === miLocalId)
   );
   if (pendEntrantes.length > 0) {
-    html += `<div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:10px;">
+    html += `<div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:10px;">
       Por recibir <span style="font-size:12px;font-weight:400;color:var(--blue);margin-left:4px;">${pendEntrantes.length}</span>
     </div>`;
     pendEntrantes.forEach(t => {
@@ -6730,7 +6730,7 @@ function renderLocales() {
   // ── Sección gestión de locales (solo Dueño) ──
   if (esDueno) {
     html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-      <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;">Mis locales</div>
+      <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;">Mis locales</div>
       <span class="sec-link" onclick="abrirNuevoLocal()">＋ Nuevo local</span>
     </div>`;
 
@@ -6770,7 +6770,7 @@ function renderLocales() {
 
     const totalGan = statsLocal.reduce((s, sl) => s + sl.gan, 0);
 
-    html += `<div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Comparación — ${mesNom}</div>`;
+    html += `<div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Comparación — ${mesNom}</div>`;
 
     // KPIs lado a lado
     html += '<div class="loc-kpi-grid">';
@@ -6835,7 +6835,7 @@ function renderLocales() {
     const cats1 = topCatsLocal(statsLocal[1].vMes);
     if (cats0.length > 0 || cats1.length > 0) {
       html += `<div class="chart-box" style="margin-bottom:14px;">
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:13px;margin-bottom:10px;">Categorías que más venden</div>
+        <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:13px;margin-bottom:10px;">Categorías que más venden</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
           <div>
             <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">${esc(statsLocal[0].loc.nombre)}</div>
@@ -6886,7 +6886,7 @@ function renderLocales() {
     }
 
     if (insights.length > 0) {
-      html += `<div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:13px;margin-bottom:8px;">Insights</div>`;
+      html += `<div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:13px;margin-bottom:8px;">Insights</div>`;
       html += insights.slice(0,3).map(i => `<div class="loc-insight">${i}</div>`).join('');
     }
 
@@ -6907,7 +6907,7 @@ function renderLocales() {
   // ── Historial de traspasos ──
   const histAll = _transDB.slice(0, 30);
   if (histAll.length > 0) {
-    html += `<div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:14px;margin:16px 0 10px;">Historial de traspasos</div>`;
+    html += `<div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin:16px 0 10px;">Historial de traspasos</div>`;
     histAll.forEach(t => {
       const nomProd  = t.variantes?.productos?.nombre || '—';
       const esEnvio  = miLocalId === null ? (t.usuario_origen_id === _currentUser?.id) : (t.local_origen_id === miLocalId);
@@ -7290,7 +7290,7 @@ async function renderCompras() {
     if(!data || data.length === 0) {
       el.innerHTML = `<div style="text-align:center;padding:40px 16px 24px;">
         <div style="font-size:48px;margin-bottom:14px;">🛒</div>
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:17px;margin-bottom:8px;letter-spacing:-.3px;">Sin lotes registrados</div>
+        <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:17px;margin-bottom:8px;letter-spacing:-.3px;">Sin lotes registrados</div>
         <div style="font-size:12px;color:var(--muted);margin-bottom:22px;line-height:1.7;max-width:240px;margin-inline:auto;">
           Registra tus compras para saber cuánto te costó el stock y cuánto ganas.
         </div>
@@ -7536,7 +7536,7 @@ function renderSkuList(filter='') {
     } else {
       list.innerHTML=`<div style="text-align:center;padding:36px 0 20px;">
         <div style="font-size:42px;margin-bottom:12px;opacity:.5;">🏷️</div>
-        <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:16px;margin-bottom:8px;">Sin productos creados</div>
+        <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;margin-bottom:8px;">Sin productos creados</div>
         <div style="font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.6;max-width:240px;margin-inline:auto;">
           Completa el formulario de arriba para crear tu primer producto con SKU.
         </div>
@@ -8353,7 +8353,7 @@ async function cargarDatos() {
 <div class="sheet-bd" id="local-sheet-bd" onclick="cerrarLocalSheet()"></div>
 <div class="sheet" id="local-sheet">
   <div class="sheet-handle" onclick="cerrarLocalSheet()"></div>
-  <div style="font-family:'Barlow',sans-serif;font-weight:700;font-size:17px;margin-bottom:18px;" id="local-sheet-titulo">Nuevo local</div>
+  <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:17px;margin-bottom:18px;" id="local-sheet-titulo">Nuevo local</div>
 
   <div class="field" style="margin-bottom:10px;">
     <label>Nombre del local</label>
