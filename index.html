@@ -1498,7 +1498,10 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 
 <!-- ════════════════════════════ HISTORIAL ════════════════════════════ -->
 <div class="screen" id="screen-historial">
-  <div class="ptitle">Ventas</div>
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+    <button onclick="goTo('analisis')" style="background:none;border:none;font-size:13px;color:var(--muted);cursor:pointer;padding:4px 0;font-family:'Archivo',sans-serif;">← Análisis</button>
+  </div>
+  <div class="ptitle" style="margin-top:0;">Ventas</div>
   <div class="psub">Todas las ventas que registraste</div>
 
   <!-- tabs: Ventas / Clientes -->
@@ -1567,13 +1570,14 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 <!-- ════════════════════════════ ANÁLISIS ════════════════════════════ -->
 <!-- ════════════════════════════ ANÁLISIS ════════════════════════════ -->
 <div class="screen" id="screen-analisis">
-  <div class="ptitle">Resumen</div>
+  <div class="ptitle">Análisis</div>
   <div class="psub">Cuánto ganaste y qué te conviene vender</div>
   <div class="periods" id="analisis-tabs">
     <div class="pb on" onclick="renderAnalisis('hoy',this)">Hoy</div>
     <div class="pb"    onclick="renderAnalisis('semana',this)">Semana</div>
     <div class="pb"    onclick="renderAnalisis('mes',this)">Mes</div>
     <div class="pb"    onclick="renderAnalisis('historico',this)">Todo</div>
+    <div class="pb"    onclick="renderAnalisis('ventas',this)">Ventas</div>
   </div>
   <div style="display:flex;gap:7px;margin-bottom:4px;">
     <div onclick="renderAnalisis('stock',document.querySelector('#analisis-tabs .pb.on'))" style="display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 13px;border:1px solid var(--bd);border-radius:18px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;background:var(--sf);white-space:nowrap;transition:border-color .15s;" onmouseover="this.style.borderColor='var(--bd2)'" onmouseout="this.style.borderColor='var(--bd)'">📦 Stock</div>
@@ -2022,14 +2026,13 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 
 <!-- ── BOTTOM NAV ── -->
 <div class="bottom-nav">
-  <div class="ni on" id="nav-dashboard"  onclick="goTo('dashboard')"  role="button" tabindex="0" aria-label="Inicio"> <div class="nico2">🏠</div><div class="nlbl">Inicio</div></div>
-  <div class="ni"    id="nav-inventario" onclick="goTo('inventario')" role="button" tabindex="0" aria-label="Stock"><div class="nico2">📦</div><div class="nlbl">Stock</div></div>
+  <div class="ni on" id="nav-dashboard"  onclick="goTo('dashboard')"  role="button" tabindex="0" aria-label="Inicio"> <div class="nico2">🏠</div><div class="nlbl">Hoy</div></div>
+  <div class="ni"    id="nav-inventario" onclick="goTo('inventario')" role="button" tabindex="0" aria-label="Productos"><div class="nico2">📦</div><div class="nlbl">Productos</div></div>
   <div class="nav-fab-wrap" id="nav-fab-venta" onclick="goTo('venta')" role="button" tabindex="0" aria-label="Nueva venta">
     <div class="nav-fab" id="nav-fab-icon">+</div>
     <div class="nav-fab-lbl">Vender</div>
   </div>
-  <div class="ni"    id="nav-analisis"   onclick="goTo('analisis')"   role="button" tabindex="0" aria-label="Resumen">  <div class="nico2">📈</div><div class="nlbl">Resumen</div></div>
-  <div class="ni"    id="nav-historial"  onclick="goTo('historial')"  role="button" tabindex="0" aria-label="Ventas">      <div class="nico2">🧾</div><div class="nlbl">Ventas</div></div>
+  <div class="ni"    id="nav-analisis"   onclick="goTo('analisis')"   role="button" tabindex="0" aria-label="Análisis">  <div class="nico2">📊</div><div class="nlbl">Análisis</div></div>
 </div>
 
 </div><!-- end device -->
@@ -2619,11 +2622,12 @@ function goTo(id) {
   const target = document.getElementById('screen-'+id);
   if(target) { target.classList.add('active'); document.getElementById('main-scroll').scrollTop = 0; }
 
-  // Nav inferior — pestañas fijas
-  const navIds = ['dashboard','inventario','analisis','historial'];
+  // Nav inferior — historial vive bajo Análisis
+  const navMap = { dashboard:'dashboard', inventario:'inventario', analisis:'analisis', historial:'analisis' };
   document.querySelectorAll('.ni').forEach(n => n.classList.remove('on'));
-  if(navIds.includes(id)) {
-    const el = document.getElementById('nav-'+id);
+  const navTarget = navMap[id];
+  if(navTarget) {
+    const el = document.getElementById('nav-'+navTarget);
     if(el) el.classList.add('on');
   }
   // FAB central: resalta cuando estás en venta
@@ -2638,7 +2642,7 @@ function goTo(id) {
     dashboard: null, // en dashboard se oculta, solo se muestra el logo
     inventario: 'Inventario', venta: 'Nueva venta', compras: 'Compras',
     'nueva-compra': 'Registrar compra', historial: 'Ventas',
-    analisis: 'Resumen', locales: 'Locales', config: 'Configuración',
+    analisis: 'Análisis', locales: 'Locales', config: 'Configuración',
     notifs: 'Alertas', skus: 'Productos y Etiquetas', scanner: 'Escáner',
     'carga-masiva': 'Carga masiva'
   };
@@ -2654,6 +2658,8 @@ function goTo(id) {
   if(id === 'historial')  renderHistorial();
   if(id === 'inventario') renderInventario();
   if(id === 'analisis')   {
+    // Si venía de historial, resetear al tab Hoy
+    if (_analisisTab === 'ventas') _analisisTab = 'hoy';
     document.querySelectorAll('#analisis-tabs .pb').forEach(b => {
       b.classList.toggle('on', b.textContent.toLowerCase().startsWith(_analisisTab === 'historico' ? 'hist' : _analisisTab));
     });
@@ -5676,6 +5682,15 @@ function renderAnalisis(tab, btn) {
     body.classList.add('tab-content');
   }
 
+  if (_analisisTab === 'ventas') {
+    // Historial de ventas como sub-vista de Análisis
+    document.querySelectorAll('#analisis-tabs .pb').forEach(b => b.classList.remove('on'));
+    if(btn) btn.classList.add('on');
+    _analisisTab = 'ventas';
+    // Navegar a historial (que resalta nav-analisis)
+    goTo('historial');
+    return;
+  }
   if (_analisisTab === 'gastos') { renderGastos(body, setBody); return; }
 
   const now   = new Date();
