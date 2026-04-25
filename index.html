@@ -346,7 +346,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .hero{background:transparent;border:none;border-radius:0;padding:16px 0 20px;margin:0 0 4px;cursor:pointer;}
 .hero:hover{background:transparent;}
 .hero::after{display:none;}
-.hero-lbl{font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.hero-lbl{font-size:12px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--muted);margin-bottom:8px;}
 .hero-amt{font-family:'Barlow',sans-serif;font-weight:700;font-size:66px;color:var(--text);line-height:.92;letter-spacing:-3px;font-variant-numeric:tabular-nums;}
 
 /* ─── STAT GRID ─── */
@@ -690,9 +690,9 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .ni:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .ni .nico2{font-size:18px;line-height:1;transition:transform .15s;}
 .ni .nlbl{font-size:10px;font-weight:500;color:var(--muted);letter-spacing:0;text-transform:none;}
-.ni.on{background:rgba(215,240,46,.08);}
-.ni.on .nico2{transform:scale(1.08);}
-.ni.on .nlbl{color:var(--accent);}
+.ni.on{background:transparent;}
+.ni.on .nico2{transform:none;}
+.ni.on .nlbl{color:var(--text);font-weight:700;}
 .nav-fab-wrap{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;margin:0 3px;padding-top:2px;}
 .nav-fab{width:50px;height:50px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;font-family:'Barlow',sans-serif;font-weight:700;box-shadow:0 4px 20px var(--aglow);color:var(--text);transition:transform .18s cubic-bezier(.33,1,.68,1),box-shadow .18s;}
 .nav-fab-wrap:hover .nav-fab{transform:scale(1.08);box-shadow:0 8px 24px var(--aglow);}
@@ -942,7 +942,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .ni .nlbl{color:var(--muted);}
 .ni.on .nlbl{color:var(--text);font-weight:600;}
 .ni.on .nico2{opacity:1;}
-.ni .nico2{opacity:.5;}
+.ni .nico2{opacity:.65;}
 .fab.p .fl,.fab.p .fs{color:var(--text);}
 /* Insight box — fondo sutil en light mode */
 .insight-box{background:rgba(180,200,0,.07);border-color:rgba(180,200,0,.25);}
@@ -1004,18 +1004,18 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 .alert.yellow .alert-stock{color:var(--text);}
 .ni.on .nlbl{color:var(--text);font-weight:700;}
 /* Urgency items — dashboard acciones */
-.urgency-item{display:flex;align-items:center;gap:10px;padding:12px 13px;margin-bottom:7px;border-radius:12px;border:1px solid transparent;}
-.urgency-item.red{background:rgba(216,75,75,.06);border-color:rgba(216,75,75,.18);}
-.urgency-item.orange{background:rgba(228,106,46,.06);border-color:rgba(228,106,46,.18);}
-.urgency-item.blue{background:rgba(37,99,235,.05);border-color:rgba(37,99,235,.15);}
-.urgency-item.green{background:rgba(30,158,99,.05);border-color:rgba(30,158,99,.15);}
-.urgency-item.accent{background:rgba(215,240,46,.06);border-color:rgba(215,240,46,.18);}
-.urgency-cta{border:none;border-radius:8px;padding:6px 11px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:'Barlow',sans-serif;white-space:nowrap;}
-.urgency-cta.red{background:var(--red);color:#fff;}
-.urgency-cta.orange{background:var(--orange);color:#fff;}
-.urgency-cta.blue{background:var(--blue);color:#fff;}
-.urgency-cta.green{background:var(--green);color:#fff;}
-.urgency-cta.accent{background:var(--accent);color:var(--text);}
+.urgency-item{display:flex;align-items:center;gap:10px;padding:11px 0;margin-bottom:0;border-radius:0;border:none;border-bottom:1px solid var(--sf3);background:transparent;}
+.urgency-item.red{}
+.urgency-item.orange{}
+.urgency-item.blue{}
+.urgency-item.green{}
+.urgency-item.accent{}
+.urgency-cta{border:1px solid var(--bd);border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:'Barlow',sans-serif;white-space:nowrap;background:var(--sf);color:var(--text);}
+.urgency-cta.red{border-color:rgba(216,75,75,.3);color:var(--red);background:rgba(216,75,75,.05);}
+.urgency-cta.orange{border-color:rgba(228,106,46,.3);color:var(--orange);background:rgba(228,106,46,.05);}
+.urgency-cta.blue{border-color:rgba(37,99,235,.25);color:var(--blue);background:rgba(37,99,235,.04);}
+.urgency-cta.green{border-color:rgba(30,158,99,.25);color:var(--green);background:rgba(30,158,99,.04);}
+.urgency-cta.accent{border-color:var(--accent);color:var(--text);background:var(--accent);}
 /* Scrollbar */
 .main{scrollbar-width:thin;scrollbar-color:var(--bd2) transparent;}
 .main::-webkit-scrollbar{width:3px;}
@@ -1205,10 +1205,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 
   <!-- ACCIONES UNIFICADAS -->
   <div id="dash-acciones-section">
-    <div class="sec-hdr" style="margin-bottom:8px;">
-      <div class="sec-title">Atención ahora</div>
-      <div id="dash-btn-gasto" style="display:none;"><span class="sec-link" onclick="abrirRegistrarGasto()">＋ Gasto</span></div>
-    </div>
+    <div class="sec-hdr" style="margin-bottom:8px;"></div>
     <div id="dash-acciones" style="margin-bottom:28px;"></div>
   </div>
 
@@ -1216,7 +1213,10 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
   <div id="dash-actividad-wrap">
     <div class="sec-hdr" style="margin-bottom:12px;">
       <div class="sec-title">Actividad reciente</div>
-      <div class="sec-link" onclick="goTo('historial')">Ver ventas →</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div id="dash-btn-gasto" style="display:none;"><span class="sec-link" onclick="abrirRegistrarGasto()">＋ Gasto</span></div>
+        <div class="sec-link" onclick="goTo('historial')">Ver ventas →</div>
+      </div>
     </div>
     <div id="dash-last-sales" style="margin-bottom:8px;"></div>
   </div>
@@ -1573,7 +1573,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
 <!-- ════════════════════════════ ANÁLISIS ════════════════════════════ -->
 <!-- ════════════════════════════ ANÁLISIS ════════════════════════════ -->
 <div class="screen" id="screen-analisis">
-  <div class="ptitle">Análisis</div>
+  <div class="ptitle">Resumen</div>
   <div class="periods" id="analisis-tabs">
     <div class="pb on" onclick="renderAnalisis('hoy',this)">Hoy</div>
     <div class="pb"    onclick="renderAnalisis('semana',this)">Semana</div>
@@ -2017,7 +2017,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;disp
     <div class="nav-fab" id="nav-fab-icon">+</div>
     <div class="nav-fab-lbl">Vender</div>
   </div>
-  <div class="ni"    id="nav-analisis"   onclick="goTo('analisis')"   role="button" tabindex="0" aria-label="Análisis">  <div class="nico2">📈</div><div class="nlbl">Análisis</div></div>
+  <div class="ni"    id="nav-analisis"   onclick="goTo('analisis')"   role="button" tabindex="0" aria-label="Resumen">  <div class="nico2">📈</div><div class="nlbl">Resumen</div></div>
   <div class="ni"    id="nav-historial"  onclick="goTo('historial')"  role="button" tabindex="0" aria-label="Ventas">      <div class="nico2">🧾</div><div class="nlbl">Ventas</div></div>
 </div>
 
@@ -2459,7 +2459,7 @@ function goTo(id) {
     dashboard: null, // en dashboard se oculta, solo se muestra el logo
     inventario: 'Inventario', venta: 'Nueva venta', compras: 'Compras',
     'nueva-compra': 'Registrar compra', historial: 'Ventas',
-    analisis: 'Análisis', locales: 'Locales', config: 'Configuración',
+    analisis: 'Resumen', locales: 'Locales', config: 'Configuración',
     notifs: 'Alertas', skus: 'Productos y Etiquetas', scanner: 'Escáner',
     'carga-masiva': 'Carga masiva'
   };
