@@ -17,4 +17,9 @@ html = html.replace('__SUPABASE_KEY__', SUPABASE_KEY);
 if (!fs.existsSync('dist')) fs.mkdirSync('dist');
 fs.writeFileSync('dist/index.html', html);
 
+// Copiar archivos estáticos al dist
+['manifest.json', 'sw.js'].forEach(f => {
+  if (fs.existsSync(f)) fs.copyFileSync(f, `dist/${f}`);
+});
+
 console.log('✓ Build completado — index.html generado en dist/');
