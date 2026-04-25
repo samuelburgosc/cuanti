@@ -18,7 +18,7 @@ if (!fs.existsSync('dist')) fs.mkdirSync('dist');
 fs.writeFileSync('dist/index.html', html);
 
 // Copiar archivos estáticos al dist
-['manifest.json', 'sw.js'].forEach(f => {
+['manifest.json', 'sw.js', 'icon-192.svg', 'icon-512.svg'].forEach(f => {
   if (fs.existsSync(f)) fs.copyFileSync(f, `dist/${f}`);
 });
 
