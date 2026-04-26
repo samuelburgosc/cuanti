@@ -1306,7 +1306,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
 <!-- ════════════════════════════ CARGA MASIVA ════════════════════════════ -->
 <div class="screen" id="screen-carga-masiva">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-    <button onclick="goTo('compras')" style="background:none;border:none;font-size:22px;color:var(--text);cursor:pointer;padding:0;line-height:1;">←</button>
+    <button onclick="goTo(_prevScreen||'compras')" style="background:none;border:none;font-size:22px;color:var(--text);cursor:pointer;padding:0;line-height:1;">←</button>
     <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:18px;letter-spacing:-.3px;">Ingresar compra</div>
     <button id="cm-confirm-top" onclick="cmConfirmar()" disabled style="background:var(--accent);border:none;border-radius:9px;padding:8px 14px;font-family:'Archivo',sans-serif;font-weight:700;font-size:13px;color:var(--text);cursor:pointer;opacity:.35;">Confirmar</button>
   </div>
@@ -2885,11 +2885,16 @@ function cerrarMas() {
   document.getElementById('nav-mas')?.classList.remove('on');
 }
 
+let _prevScreen = 'dashboard';
+let _activeScreen = 'dashboard';
+
 function goTo(id) {
   // Control de acceso por rol
   if(_currentUser && _currentUser.rol !== 'Dueño' && PANTALLAS_SOLO_DUENO.includes(id)) {
     id = 'inventario';
   }
+  _prevScreen = _activeScreen;
+  _activeScreen = id;
   ALL_SCREENS.forEach(s => {
     const el = document.getElementById('screen-'+s);
     if(el) el.classList.remove('active');
@@ -5927,8 +5932,35 @@ function renderGastos(body, setBody) {
     </div>`;
   }).join('');
 
+  // Calcular ganancia de ventas del mes para el contexto
+  const ventasDelMes = ventasDB.filter(v => esVentaMes(v) && !v.nombre.startsWith('↩️'));
+  const ganVentasMes = ventasDelMes.reduce((s,v) => s+v.gan, 0);
+  const gananciaRealMes = ganVentasMes - totalMes;
+
   const mesesNom = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+  // Tarjeta resumen resultado del mes (solo cuando hay ventas Y gastos)
+  const resumenCard = ganVentasMes > 0 ? `
+    <div style="background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:12px;">
+      <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.3px;margin-bottom:12px;">RESULTADO ${mesesNom[hoy.getMonth()].toUpperCase()} ${hoy.getFullYear()}</div>
+      <div style="display:flex;flex-direction:column;gap:0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--sf3);">
+          <span style="font-size:12px;color:var(--muted);">Ganancia de ventas</span>
+          <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--green);">+$${fmt(ganVentasMes)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--sf3);">
+          <span style="font-size:12px;color:var(--muted);">Gastos del mes</span>
+          <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--red);">−$${fmt(totalMes)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;">
+          <span style="font-size:13px;font-weight:700;color:var(--text);">Ganancia real</span>
+          <span style="font-family:'Archivo Black',sans-serif;font-size:18px;letter-spacing:-.3px;color:${gananciaRealMes>=0?'var(--green)':'var(--red)'};">${gananciaRealMes>=0?'':'-'}$${fmt(Math.abs(gananciaRealMes))}</span>
+        </div>
+      </div>
+    </div>` : '';
+
   setBody(`
+    ${resumenCard}
     <div style="background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:16px;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
         <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.3px;">GASTOS — ${mesesNom[hoy.getMonth()].toUpperCase()} ${hoy.getFullYear()}</div>
@@ -6433,17 +6465,21 @@ function renderAnalisis(tab, btn) {
       </div>
 
       <!-- P&L del mes -->
-      <div class="chart-box">
-        <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Estado de resultados</div>
-        ${kpiRow('💵','Ingresos brutos','$'+fmt(ing),'var(--text)')}
-        ${kpiRow('📦','Costo mercadería','−$'+fmt(costos),'var(--red)')}
-        ${coms > 0 ? kpiRow('🏪','Comisiones Sotos','−$'+fmt(coms),'var(--orange)') : ''}
-        ${kpiRow('📊','Margen',margen+'%','var(--green-fg)')}
-        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;font-weight:700;font-size:14px;border-top:1px solid var(--bd);margin-top:4px;">
-          <span>Ganancia neta</span>
-          <span style="font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;color:${gan>=0?'var(--green-fg)':'var(--red)'};">$${fmt(gan)}</span>
-        </div>
-      </div>
+      ${(() => {
+        const gastosMesTab = calcGastosMes();
+        const ganReal = gan - gastosMesTab;
+        return `<div class="chart-box">
+          <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:12px;">Estado de resultados</div>
+          ${kpiRow('💵','Ingresos brutos','$'+fmt(ing),'var(--text)')}
+          ${kpiRow('📦','Costo mercadería','−$'+fmt(costos),'var(--red)')}
+          ${coms > 0 ? kpiRow('🏪','Comisiones Sotos','−$'+fmt(coms),'var(--orange)') : ''}
+          ${gastosMesTab > 0 ? kpiRow('🧾','Gastos del negocio','−$'+fmt(gastosMesTab),'var(--red)') : ''}
+          <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;font-weight:700;font-size:14px;border-top:1px solid var(--bd);margin-top:4px;">
+            <span>${gastosMesTab > 0 ? 'Ganancia real' : 'Ganancia neta'}</span>
+            <span style="font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;color:${ganReal>=0?'var(--green-fg)':'var(--red)'};">$${fmt(ganReal)}</span>
+          </div>
+        </div>`;
+      })()}
 
       <!-- Por método de pago -->
       ${(() => {
