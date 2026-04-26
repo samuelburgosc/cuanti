@@ -1306,8 +1306,8 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
 <!-- ════════════════════════════ CARGA MASIVA ════════════════════════════ -->
 <div class="screen" id="screen-carga-masiva">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-    <button onclick="goTo('inventario')" style="background:none;border:none;font-size:22px;color:var(--text);cursor:pointer;padding:0;line-height:1;">←</button>
-    <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:18px;letter-spacing:-.3px;">Agregar stock</div>
+    <button onclick="goTo('compras')" style="background:none;border:none;font-size:22px;color:var(--text);cursor:pointer;padding:0;line-height:1;">←</button>
+    <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:18px;letter-spacing:-.3px;">Ingresar compra</div>
     <button id="cm-confirm-top" onclick="cmConfirmar()" disabled style="background:var(--accent);border:none;border-radius:9px;padding:8px 14px;font-family:'Archivo',sans-serif;font-weight:700;font-size:13px;color:var(--text);cursor:pointer;opacity:.35;">Confirmar</button>
   </div>
 
@@ -1315,8 +1315,21 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
 
   <button onclick="cmAbrirSheet()" style="width:100%;background:var(--sf2);border:1px dashed var(--bd2);border-radius:12px;padding:13px;font-family:'Archivo',sans-serif;font-weight:600;font-size:14px;color:var(--muted);cursor:pointer;margin-top:4px;">+ Agregar producto</button>
 
+  <!-- Detalles opcionales de la compra -->
+  <div id="cm-detalles-toggle" onclick="cmToggleDetalles()" style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;cursor:pointer;margin-top:12px;">
+    <span style="font-size:12px;font-weight:600;color:var(--muted);">Detalles de la compra</span>
+    <span id="cm-detalles-icon" style="font-size:11px;color:var(--muted2);">descripción · total · fecha  ›</span>
+  </div>
+  <div id="cm-detalles-panel" style="display:none;padding-top:4px;">
+    <div class="card" style="margin-bottom:0;">
+      <div class="field"><label>Descripción (opcional)</label><input type="text" id="cm-desc" placeholder="Ej: Zapatillas verano, Ropa nueva…"></div>
+      <div class="field"><label>Total pagado (CLP)</label><div class="fwrap"><span class="fpfx">$</span><input id="cm-total" class="pfx" type="number" inputmode="decimal" placeholder="170.000"></div></div>
+      <div class="field" style="margin-bottom:0;"><label>Fecha de la compra</label><input type="date" id="cm-fecha"></div>
+    </div>
+  </div>
+
   <div id="cm-confirm-bottom-wrap" style="display:none;margin-top:16px;">
-    <button onclick="cmConfirmar()" class="cm-confirm-btn" id="cm-confirm-bottom">Confirmar carga →</button>
+    <button onclick="cmConfirmar()" class="cm-confirm-btn" id="cm-confirm-bottom">Confirmar →</button>
   </div>
 </div>
 
@@ -1507,7 +1520,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
   </div>
 
   <div class="fabs">
-    <div class="fab p" onclick="goTo('nueva-compra')"><div class="fi">📥</div><div class="fl">Registrar compra</div><div class="fs">¿Compraste algo nuevo?</div></div>
+    <div class="fab p" onclick="goTo('carga-masiva')"><div class="fi">📥</div><div class="fl">Ingresar compra</div><div class="fs">¿Compraste algo nuevo?</div></div>
     <div class="fab" onclick="goTo('scanner');setTimeout(()=>scAccion('transfer'),400)"><div class="fi">🔄</div><div class="fl">Mover entre locales</div><div class="fs">Traslado de productos</div></div>
   </div>
 
@@ -1517,41 +1530,6 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
 </div>
 
 <!-- ════════════════════════════ NUEVA COMPRA ════════════════════════════ -->
-<div class="screen" id="screen-nueva-compra">
-  <div class="ptitle">Registrar compra</div>
-  <div class="psub">¿Compraste algo para tu negocio? Registralo acá</div>
-
-  <div class="card">
-    <div class="mono-lbl">¿Dónde compraste?</div>
-    <div class="opt sel" id="nc-jp" onclick="selOrigen('jp')"><div class="oico">🇯🇵</div><div class="oinfo"><div class="oname">Amazon Japón</div><div class="osub">Importación directa · cobro en CLP</div></div><div class="ochk">✓</div></div>
-    <div class="opt" id="nc-local" onclick="selOrigen('local')" style="margin-bottom:0;"><div class="oico">🏪</div><div class="oinfo"><div class="oname">Proveedor local</div><div class="osub">Santiago · pago directo en pesos</div></div><div class="ochk"></div></div>
-  </div>
-
-  <div class="card">
-    <div class="mono-lbl">Detalles de la compra</div>
-    <div class="field"><label>¿Cómo la llamarías?</label><input type="text" id="nc-desc" placeholder="Ej: Zapatillas verano, Ropa nueva..."></div>
-    <div class="frow">
-      <div class="field"><label>Total pagado (CLP)</label><div class="fwrap"><span class="fpfx">$</span><input id="nc-total" class="pfx" type="number" inputmode="decimal" placeholder="170018" oninput="calcCostoUnit()"></div></div>
-      <div class="field"><label>Cantidad de productos</label><input id="nc-uds" type="number" inputmode="numeric" placeholder="10" oninput="calcCostoUnit()"></div>
-    </div>
-    <div class="field"><label>Costo por producto (se calcula solo)</label><div class="fwrap"><span class="fpfx">$</span><input id="nc-costo-unit" class="pfx" type="number" placeholder="—" style="color:var(--green);font-weight:600;" readonly></div></div>
-    <div class="field"><label>¿A qué local llega?</label>
-      <select id="nc-destino"></select>
-    </div>
-    <div class="field"><label>Fecha en que llegó</label><input type="date" id="nc-fecha"></div>
-  </div>
-
-  <div class="card">
-    <div class="mono-lbl">¿Qué compraste?</div>
-    <div id="nc-prods"></div>
-    <div class="opt" style="border-style:dashed;justify-content:center;gap:8px;color:var(--muted);margin-bottom:0;" onclick="addProdLote()"><span style="font-size:19px;">+</span><span style="font-size:12px;font-weight:600;">+ Agregar producto</span></div>
-  </div>
-
-  <button class="btn" id="btn-guardar-compra" onclick="guardarCompra()">Guardar compra →</button>
-  <button class="btn sec" onclick="goTo('compras')" style="margin-top:8px;">← Cancelar</button>
-  <div class="spacer"></div>
-</div>
-
 <!-- ════════════════════════════ HISTORIAL ════════════════════════════ -->
 <div class="screen" id="screen-historial">
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
@@ -2775,7 +2753,7 @@ async function crearVendedor() {
 // ══════════════════════════════════════════════════════
 //  NAVEGACIÓN
 // ══════════════════════════════════════════════════════
-const ALL_SCREENS = ['dashboard','inventario','venta','compras','nueva-compra','historial','analisis','locales','config','notifs','skus','scanner','carga-masiva'];
+const ALL_SCREENS = ['dashboard','inventario','venta','compras','historial','analisis','locales','config','notifs','skus','scanner','carga-masiva'];
 const PANTALLAS_SOLO_DUENO = ['dashboard','historial','analisis','skus','compras','config','locales','notifs','carga-masiva'];
 
 function aplicarRol() {
@@ -2900,10 +2878,10 @@ function goTo(id) {
   const screenTitles = {
     dashboard: null, // en dashboard se oculta, solo se muestra el logo
     inventario: 'Inventario', venta: 'Nueva venta', compras: 'Compras',
-    'nueva-compra': 'Registrar compra', historial: 'Ventas',
+    historial: 'Ventas',
     analisis: 'Análisis', locales: 'Locales', config: 'Configuración',
     notifs: 'Alertas', skus: 'Productos y Etiquetas', scanner: 'Escáner',
-    'carga-masiva': 'Agregar stock'
+    'carga-masiva': 'Ingresar compra'
   };
   const titleEl = document.getElementById('topbar-screen-title');
   if(titleEl) {
@@ -2926,17 +2904,6 @@ function goTo(id) {
   if(id === 'venta')      ventaGoTo1();
   if(id === 'scanner')    scInit();
   if(id === 'compras')    renderCompras();
-  if(id === 'nueva-compra') {
-    const fechaEl = document.getElementById('nc-fecha');
-    if(fechaEl && !fechaEl.value) fechaEl.value = new Date().toISOString().slice(0,10);
-    const destSel = document.getElementById('nc-destino');
-    if(destSel && _localesDB.length > 0) {
-      destSel.innerHTML = _localesDB
-        .filter(l => l.activo !== false)
-        .map(l => `<option value="${l.id}">${esc(l.nombre)}</option>`)
-        .join('');
-    }
-  }
   if(id === 'notifs')     { renderNotificaciones(); clearNotifs(); }
   if(id === 'locales')    renderLocales();
   if(id === 'config')     _renderCanalList('config-canales-list');
@@ -4460,6 +4427,30 @@ function updateInventarioStock() { renderInventario(); }
 function abrirCargaMasiva() {
   _cmLote = [];
   cmRenderLote();
+  // Reset detalles opcionales
+  const desc = document.getElementById('cm-desc');
+  const total = document.getElementById('cm-total');
+  const fecha = document.getElementById('cm-fecha');
+  const panel = document.getElementById('cm-detalles-panel');
+  const toggle = document.getElementById('cm-detalles-toggle');
+  const icon = document.getElementById('cm-detalles-icon');
+  if(desc) desc.value = '';
+  if(total) total.value = '';
+  if(fecha) fecha.value = new Date().toISOString().slice(0,10);
+  if(panel) panel.style.display = 'none';
+  if(toggle) { toggle.style.background = 'var(--sf2)'; toggle.style.borderColor = 'var(--bd)'; }
+  if(icon) icon.textContent = 'descripción · total · fecha  ›';
+}
+
+function cmToggleDetalles() {
+  const panel = document.getElementById('cm-detalles-panel');
+  const icon  = document.getElementById('cm-detalles-icon');
+  const toggle = document.getElementById('cm-detalles-toggle');
+  const abierto = panel.style.display !== 'none';
+  panel.style.display   = abierto ? 'none' : 'block';
+  toggle.style.background  = abierto ? 'var(--sf2)' : 'var(--sf)';
+  toggle.style.borderColor = abierto ? 'var(--bd)' : 'var(--bd2)';
+  if(icon) icon.textContent = abierto ? 'descripción · total · fecha  ›' : 'cerrar  ‹';
 }
 
 function cmRenderLote() {
@@ -4986,14 +4977,48 @@ async function cmConfirmar() {
     const b1 = document.getElementById('cm-confirm-top');
     const b2 = document.getElementById('cm-confirm-bottom');
     if (b1) { b1.disabled = false; b1.textContent = 'Confirmar'; b1.style.opacity = '1'; }
-    if (b2) { b2.disabled = false; b2.textContent = 'Confirmar carga →'; }
-  } else {
-    const total = _cmLote.length;
-    toast(`${total} producto${total !== 1 ? 's' : ''} ingresado${total !== 1 ? 's' : ''} al inventario`);
-    _cmLote = [];
-    await cargarInventario();
-    goTo('inventario');
+    if (b2) { b2.disabled = false; b2.textContent = 'Confirmar →'; }
+    return;
   }
+
+  // Guardar en tabla compras si hay detalles opcionales o descripción
+  const cmDescVal  = document.getElementById('cm-desc')?.value?.trim();
+  const cmTotalVal = parseFloat(document.getElementById('cm-total')?.value) || 0;
+  const cmFechaVal = document.getElementById('cm-fecha')?.value || new Date().toISOString().slice(0,10);
+  const variantesIngresadas = [];
+
+  if (cmDescVal || cmTotalVal > 0) {
+    const { data: compraRec, error: eCom } = await sb.from('compras').insert({
+      notas: cmDescVal || null,
+      total_pagado_clp: cmTotalVal || null,
+      fecha: cmFechaVal,
+      local_id: localId,
+      usuario_id: _currentUser?.id || null,
+    }).select('id').single();
+
+    if (!eCom && compraRec?.id) {
+      // Registrar detalle de compras (solo variantes existentes que se pudieron mapear)
+      for (const linea of _cmLote) {
+        if (linea.tipo === 'existente' && linea.varId) {
+          await sb.from('detalle_compras').insert({
+            compra_id: compraRec.id,
+            variante_id: linea.varId,
+            cantidad: linea.qty,
+            costo_unitario: linea.costo || 0,
+          });
+        }
+      }
+    }
+  }
+
+  const total = _cmLote.length;
+  const toastMsg = cmDescVal || cmTotalVal > 0
+    ? `${total} producto${total !== 1 ? 's' : ''} ingresados · compra registrada ✓`
+    : `${total} producto${total !== 1 ? 's' : ''} ingresado${total !== 1 ? 's' : ''} al inventario ✓`;
+  toast(toastMsg);
+  _cmLote = [];
+  await cargarInventario();
+  goTo('compras');
 }
 
 function invAbrirSheet() {
@@ -5051,7 +5076,7 @@ function invAbrirProducto(nombreEnc) {
     </div>
     <div style="margin-bottom:18px;">${vpHtml}</div>
     <div style="display:flex;gap:8px;">
-      <button class="btn sec" onclick="goTo('nueva-compra');invCerrarSheet();" style="flex:1;font-size:12px;">Registrar compra</button>
+      <button class="btn sec" onclick="goTo('carga-masiva');invCerrarSheet();" style="flex:1;font-size:12px;">Ingresar compra</button>
       ${esDueno ? `<button class="btn sec" onclick="invMostrarEditPrecio('${encodeURIComponent(nombre)}')" style="flex:1;font-size:12px;">✏️ Editar precio</button>` : ''}
     </div>`;
 
@@ -5791,52 +5816,6 @@ function resetVenta() {
   ventaRenderInventario();
   ventaSetPaso(1);
   setTimeout(() => { const i=document.getElementById('venta-scan-input'); if(i) i.focus(); }, 150);
-}
-
-// ══════════════════════════════════════════════════════
-//  NUEVA COMPRA
-// ══════════════════════════════════════════════════════
-function calcCostoUnit() {
-  const total = parseFloat(document.getElementById('nc-total').value) || 0;
-  const uds   = parseInt(document.getElementById('nc-uds').value)     || 0;
-  const el    = document.getElementById('nc-costo-unit');
-  if(total > 0 && uds > 0) {
-    el.value = Math.round(total/uds);
-    el.style.color = 'var(--green)';
-  } else {
-    el.value = '';
-    el.style.color = 'var(--muted)';
-  }
-}
-
-function selOrigen(tipo) {
-  const jp    = document.getElementById('nc-jp');
-  const local = document.getElementById('nc-local');
-  if(tipo === 'jp') {
-    jp.classList.add('sel');    local.classList.remove('sel');
-    jp.querySelector('.ochk').textContent    = '✓';
-    local.querySelector('.ochk').textContent = '';
-  } else {
-    local.classList.add('sel'); jp.classList.remove('sel');
-    local.querySelector('.ochk').textContent = '✓';
-    jp.querySelector('.ochk').textContent    = '';
-  }
-}
-
-let loteCount = 0;
-function addProdLote() {
-  loteCount++;
-  const div = document.createElement('div');
-  div.style.cssText = 'background:var(--sf2);border:1px solid var(--bd);border-radius:9px;padding:11px;margin-bottom:8px;position:relative;';
-  div.innerHTML = `
-    <button onclick="this.closest('div').remove()" style="position:absolute;top:8px;right:8px;background:var(--sf);border:1px solid var(--bd);border-radius:6px;color:var(--muted);font-size:11px;padding:2px 7px;cursor:pointer;">✕</button>
-    <div class="frow" style="margin-bottom:8px;">
-      <div class="field" style="margin:0;"><label>Producto</label><input type="text" placeholder="Ej: BAPE Boston Bag"></div>
-      <div class="field" style="margin:0;"><label>Cantidad</label><input type="number" value="1" min="1"></div>
-    </div>
-    <div class="field" style="margin:0;"><label>Tallas / Colores (opcional)</label><input type="text" placeholder="Ej: 40, 41, 42 o Único"></div>
-  `;
-  document.getElementById('nc-prods').appendChild(div);
 }
 
 function renderGastos(body, setBody) {
@@ -7263,97 +7242,6 @@ async function cancelarTransferencia(id) {
 }
 
 // ══════════════════════════════════════════════════════
-//  GUARDAR COMPRA — registrar lote en Supabase
-// ══════════════════════════════════════════════════════
-async function guardarCompra() {
-  const desc   = document.getElementById('nc-desc')?.value?.trim();
-  const total  = parseFloat(document.getElementById('nc-total')?.value) || 0;
-  const uds    = parseInt(document.getElementById('nc-uds')?.value)     || 0;
-  const costoUnit = parseFloat(document.getElementById('nc-costo-unit')?.value) || 0;
-  const fecha  = document.getElementById('nc-fecha')?.value || new Date().toISOString().slice(0,10);
-  const origen = document.getElementById('nc-jp')?.classList.contains('sel') ? 'Amazon JP' : 'Local';
-
-  if(!desc) { toast('Ingresa una descripción del lote.','err'); return; }
-  if(total <= 0) { toast('Ingresa el total pagado.','err'); return; }
-  if(uds  <= 0) { toast('Ingresa la cantidad de unidades.','err'); return; }
-
-  // Leer productos del lote antes de guardar
-  const prodRows = [...document.querySelectorAll('#nc-prods > div')];
-  const loteProds = prodRows.map(row => {
-    const inputs = row.querySelectorAll('input');
-    return {
-      nombre:   (inputs[0]?.value || '').trim(),
-      cantidad: parseInt(inputs[1]?.value) || 1,
-      tallas:   (inputs[2]?.value || '').trim()
-    };
-  }).filter(p => p.nombre);
-
-  // Armar notas con productos si los hay
-  let notasCompletas = desc;
-  if(loteProds.length > 0) {
-    const resumen = loteProds.map(p => `${p.nombre}${p.tallas ? ' ('+p.tallas+')' : ''} ×${p.cantidad}`).join(', ');
-    notasCompletas = `${desc} | Productos: ${resumen}`;
-  }
-
-  const btn = document.getElementById('btn-guardar-compra');
-  if(btn){ btn.textContent = '⏳ Guardando…'; btn.disabled = true; }
-
-  try {
-    const { data: compraData, error } = await sb
-      .from('compras')
-      .insert({ notas: notasCompletas, total_pagado_clp: total, origen, fecha, local_id: _currentUser?.local_id || 1 })
-      .select('id')
-      .single();
-
-    if(error) throw error;
-    const compraId = compraData?.id;
-
-    // Procesar cada producto: actualizar stock y registrar detalle
-    let stockActualizados = 0;
-    for(const prod of loteProds) {
-      const match = skuDB.find(s =>
-        s.nombre.toLowerCase() === prod.nombre.toLowerCase() ||
-        (prod.tallas && s.variante && s.variante.toLowerCase() === prod.tallas.toLowerCase() && s.nombre.toLowerCase() === prod.nombre.toLowerCase())
-      );
-      if(match) {
-        const nuevoStock = match.stock + prod.cantidad;
-        const upd = { stock_actual: nuevoStock };
-        if(costoUnit > 0) upd.costo_ultima_compra = costoUnit;
-        await sb.from('variantes').update(upd).eq('id', match.id);
-        match.stock = nuevoStock;
-        if(costoUnit > 0) match.costo = costoUnit;
-        if(compraId) {
-          await sb.from('detalle_compras').insert({
-            compra_id: compraId, variante_id: match.id,
-            cantidad: prod.cantidad, costo_unitario: costoUnit || 0
-          });
-        }
-        stockActualizados++;
-      }
-    }
-
-    const stockMsg = stockActualizados > 0 ? ` · ${stockActualizados} producto${stockActualizados!==1?'s':''} en stock` : '';
-    toast(`Compra registrada — ${uds} ud. por $${fmt(total)}${stockMsg} ✓`, 'ok');
-
-    // Limpiar formulario
-    document.getElementById('nc-desc').value  = '';
-    document.getElementById('nc-total').value = '';
-    document.getElementById('nc-uds').value   = '';
-    document.getElementById('nc-costo-unit').value = '';
-    document.getElementById('nc-prods').innerHTML  = '';
-    document.getElementById('nc-fecha').value = new Date().toISOString().slice(0,10);
-    loteCount = 0;
-    renderInventario(); updateInventarioStock();
-    setTimeout(() => goTo('compras'), 800);
-  } catch(e) {
-    console.error('Error guardando compra:', e);
-    toast('Error al guardar. Verifica la conexión.','err');
-  } finally {
-    if(btn){ btn.textContent = 'Guardar compra →'; btn.disabled = false; }
-  }
-}
-
-// ══════════════════════════════════════════════════════
 //  COMPRAS — historial de lotes
 // ══════════════════════════════════════════════════════
 async function renderCompras() {
@@ -7373,7 +7261,7 @@ async function renderCompras() {
         <div style="font-size:12px;color:var(--muted);margin-bottom:22px;line-height:1.7;max-width:240px;margin-inline:auto;">
           Registra tus compras para saber cuánto te costó el stock y cuánto ganas.
         </div>
-        <button class="btn" style="width:auto;padding:13px 28px;font-size:13px;margin:0;" onclick="goTo('nueva-compra')">+ Registrar compra →</button>
+        <button class="btn" style="width:auto;padding:13px 28px;font-size:13px;margin:0;" onclick="goTo('carga-masiva')">+ Ingresar compra →</button>
       </div>`;
       return;
     }
@@ -8411,13 +8299,6 @@ async function cargarDatos() {
 }
 
 (async function init() {
-  // Fecha dinámica en nueva compra
-  const fechaEl = document.getElementById('nc-fecha');
-  if(fechaEl) {
-    const d = new Date();
-    fechaEl.value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  }
-
   // Verificar sesión antes de cargar datos
   const autenticado = await initAuth();
   if(!autenticado) return; // se muestra el login, detenemos init
