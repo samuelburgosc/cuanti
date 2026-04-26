@@ -1056,6 +1056,20 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
 .urgency-cta.blue{border-color:rgba(37,99,235,.25);color:var(--blue);background:rgba(37,99,235,.04);}
 .urgency-cta.green{border-color:rgba(30,158,99,.25);color:var(--green);background:rgba(30,158,99,.04);}
 .urgency-cta.accent{border-color:var(--accent);color:var(--text);background:var(--accent);}
+/* Insight hero — acción principal del dashboard */
+.insight-hero{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:14px 16px;margin-bottom:8px;cursor:pointer;transition:border-color .15s;}
+.insight-hero:active{opacity:.85;}
+.insight-hero-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;}
+.insight-hero-body{flex:1;min-width:0;}
+.insight-hero-text{font-size:14px;font-weight:600;line-height:1.4;color:var(--text);margin-bottom:3px;}
+.insight-hero-sub{font-size:11px;color:var(--muted);line-height:1.4;}
+.insight-hero-cta{width:100%;background:var(--text);border:none;border-radius:10px;padding:11px;font-family:'Archivo',sans-serif;font-weight:700;font-size:13px;color:var(--bg);cursor:pointer;}
+.insight-hero-cta.red{background:var(--red);}
+.insight-hero-cta.orange{background:var(--orange);}
+/* Hint de guía contextual */
+.ctx-hint{display:flex;align-items:center;gap:10px;background:rgba(215,240,46,.12);border:1px solid rgba(215,240,46,.4);border-radius:10px;padding:10px 13px;margin-bottom:12px;cursor:pointer;}
+.ctx-hint-text{font-size:12px;font-weight:600;color:var(--text);flex:1;}
+.ctx-hint-sub{font-size:11px;color:var(--muted);margin-top:1px;}
 /* Scrollbar */
 .main{scrollbar-width:thin;scrollbar-color:var(--bd2) transparent;}
 .main::-webkit-scrollbar{width:3px;}
@@ -1251,7 +1265,9 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
 
   <!-- ACCIONES UNIFICADAS -->
   <div id="dash-acciones-section">
-    <div class="sec-hdr" style="margin-bottom:8px;"></div>
+    <div class="sec-hdr" style="margin-bottom:10px;">
+      <div class="sec-title" id="dash-acciones-title">Qué hacer ahora</div>
+    </div>
     <div id="dash-acciones" style="margin-bottom:28px;"></div>
   </div>
 
@@ -1298,6 +1314,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
     <div class="chip urgent-orange" onclick="filterChip(this,'bajo')">🟡 Bajo stock</div>
   </div>
 
+  <div id="inv-costo-hint" style="display:none;"></div>
   <div id="inv-list"></div>
   <div id="inv-empty" class="empty" style="display:none;"></div>
   <div class="spacer"></div>
@@ -3034,6 +3051,201 @@ function calcGastosMes() {
     .reduce((s, g) => s + g.monto, 0);
 }
 
+// ══════════════════════════════════════════════════════
+//  BLOQUE "QUÉ HACER AHORA" — P0 a P5
+// ══════════════════════════════════════════════════════
+function calcQHA() {
+  const hace30 = new Date();
+  hace30.setDate(hace30.getDate() - 30);
+  const hace30ISO = hace30.toISOString();
+  const localId = localFiltro();
+
+  const skus = localId ? skuDB.filter(s => s.local_id === localId) : skuDB;
+  const v30 = ventasDB.filter(v =>
+    !v.nombre.startsWith('↩️') &&
+    v.fecha_raw && v.fecha_raw >= hace30ISO &&
+    (!localId || v.local_id === localId)
+  );
+  const skuConVentas30d  = new Set(v30.map(v => v.sku));
+  const skuConVentasEver = new Set(
+    ventasDB.filter(v => !v.nombre.startsWith('↩️')).map(v => v.sku)
+  );
+
+  // ── P1: sin stock con ventas recientes ──
+  const p1 = skus.filter(s => s.stock === 0 && skuConVentas30d.has(s.sku));
+  if (p1.length > 0) {
+    const mejor = p1.sort((a, b) => {
+      const tA = Math.max(0, ...v30.filter(v => v.sku === a.sku).map(v => new Date(v.fecha_raw).getTime()));
+      const tB = Math.max(0, ...v30.filter(v => v.sku === b.sku).map(v => new Date(v.fecha_raw).getTime()));
+      return tB - tA;
+    })[0];
+    const vv = v30.filter(v => v.sku === mejor.sku);
+    const tasa = vv.length / 4;
+    const ganProm = vv.length > 0 ? vv.reduce((s, v) => s + v.gan / Math.max(1, v.cantidad), 0) / vv.length : 0;
+    return {
+      prioridad: 'P1',
+      varianteId: mejor.id,
+      nombre: mejor.nombre,
+      talla_color: mejor.variante,
+      perdida_estimada: ganProm > 0 ? Math.round((tasa * ganProm) / 1000) * 1000 : 0,
+      cantidad_sugerida: Math.max(1, Math.ceil(tasa * 3)),
+    };
+  }
+
+  // ── P2: stock bajo ──
+  const p2 = skus.filter(s => s.stock > 0 && s.stock <= (s.stock_minimo || 2));
+  if (p2.length > 0) {
+    const mejor = p2.sort((a, b) => (a.stock / (a.stock_minimo || 2)) - (b.stock / (b.stock_minimo || 2)))[0];
+    const vv = v30.filter(v => v.sku === mejor.sku);
+    const tasaDia = vv.length / 30;
+    const diasR = tasaDia > 0 ? Math.max(1, Math.floor(mejor.stock / tasaDia)) : null;
+    const ganProm = vv.length > 0 ? vv.reduce((s, v) => s + v.gan / Math.max(1, v.cantidad), 0) / vv.length : 0;
+    const tasa = vv.length / 4;
+    return {
+      prioridad: 'P2',
+      varianteId: mejor.id,
+      nombre: mejor.nombre,
+      talla_color: mejor.variante,
+      stock_actual: mejor.stock,
+      dias_restantes: diasR,
+      perdida_estimada: ganProm > 0 ? Math.round((tasa * ganProm) / 1000) * 1000 : 0,
+      cantidad_sugerida: Math.max(1, Math.ceil(tasa * 3) - mejor.stock),
+      tasa_semanal: tasa,
+    };
+  }
+
+  // ── P3: producto sin costo con ventas alguna vez ──
+  const prodsSinCosto = [...new Set(
+    skus.filter(s => (!s.costo || s.costo === 0) && skuConVentasEver.has(s.sku))
+        .map(s => s.producto_id)
+  )].filter(Boolean);
+  if (prodsSinCosto.length > 0) return { prioridad: 'P3', count: prodsSinCosto.length };
+
+  // ── P4: capital parado ──
+  const p4 = skus.filter(s =>
+    s.stock > 0 && s.costo > 0 &&
+    !skuConVentas30d.has(s.sku) &&
+    s.stock * s.costo >= 10000
+  );
+  if (p4.length > 0) {
+    const totalCap = p4.reduce((sum, s) => sum + s.stock * s.costo, 0);
+    const top = p4.sort((a, b) => (b.stock * b.costo) - (a.stock * a.costo))[0];
+    const vTop = ventasDB.filter(v => v.sku === top.sku && v.fecha_raw);
+    const ultFecha = vTop.length > 0 ? new Date(Math.max(...vTop.map(v => new Date(v.fecha_raw)))) : null;
+    const dias = ultFecha ? Math.round((new Date() - ultFecha) / 86400000) : 999;
+    return { prioridad: 'P4', nombre: top.nombre, capital_total: totalCap, dias_sin_venta: dias };
+  }
+
+  // ── P5: oportunidad de canal ──
+  const porCanal = {};
+  v30.forEach(v => {
+    if (!porCanal[v.canal]) porCanal[v.canal] = { gan: 0, cnt: 0 };
+    porCanal[v.canal].gan += v.gan;
+    porCanal[v.canal].cnt++;
+  });
+  const canales = Object.entries(porCanal)
+    .filter(([_, d]) => d.cnt >= 3)
+    .map(([canal, d]) => ({ canal, prom: Math.round(d.gan / d.cnt) }))
+    .sort((a, b) => b.prom - a.prom);
+
+  if (canales.length >= 2 && (canales[0].prom - canales[1].prom) >= 1000) {
+    return {
+      prioridad: 'P5',
+      canal_mejor: canales[0].canal,
+      canal_segundo: canales[1].canal,
+      diferencia: canales[0].prom - canales[1].prom,
+    };
+  }
+
+  // ── P0: todo en orden ──
+  return {
+    prioridad: 'P0',
+    canal_mejor: canales.length >= 2 ? canales[0].canal : null,
+    canal_segundo: canales.length >= 2 ? canales[1].canal : null,
+  };
+}
+
+function renderQHA(state) {
+  const wrap    = document.getElementById('dash-acciones');
+  const section = document.getElementById('dash-acciones-section');
+  if (!wrap || !section) return;
+  section.style.display = '';
+
+  const { prioridad } = state;
+  const talla = t => (t && t !== '—') ? ` ${t}` : '';
+  const btnS  = (color, lbl, fn) =>
+    `<button onclick="${fn}" style="display:inline-block;background:${color};color:${color==='var(--accent)'?'var(--text)':'#fff'};border:none;border-radius:9px;padding:9px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Archivo',sans-serif;">${lbl}</button>`;
+  const lnkS  = (lbl, fn) =>
+    `<span onclick="${fn}" style="font-size:12px;font-weight:700;color:var(--text);text-decoration:underline;text-underline-offset:2px;cursor:pointer;">${lbl}</span>`;
+  const hdr   = (color) =>
+    `<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:${color};margin-bottom:6px;">Qué hacer ahora</div>`;
+  const stat  = (val, color) =>
+    `<div style="font-family:'Archivo Black',sans-serif;font-size:32px;color:${color};line-height:1;">${val}</div>`;
+  const ctx   = (txt) =>
+    `<div style="font-size:13px;font-weight:600;margin-top:2px;margin-bottom:6px;">${txt}</div>`;
+  const sub   = (txt) =>
+    txt ? `<div style="font-size:11px;color:var(--muted);margin-bottom:8px;">${txt}</div>` : '';
+  const sug   = (color, txt) =>
+    `<div style="font-size:11px;font-weight:700;color:${color};background:${color}1a;padding:7px 10px;border-radius:8px;margin-bottom:12px;">💡 ${txt}</div>`;
+
+  if (prioridad === 'P1') {
+    const nom = `${state.nombre}${talla(state.talla_color)}`;
+    const perd = state.perdida_estimada > 0
+      ? ` Sin stock, podrías perder ~$${fmt(state.perdida_estimada)} esta semana.` : '';
+    wrap.innerHTML = `<div style="border-left:3px solid var(--red);padding:12px 0 12px 14px;">
+      ${hdr('var(--red)')}${stat('Sin stock','var(--red)')}${ctx(`${nom} se agotó`)}
+      ${sub(`Tenías ventas regulares.${perd}`)}
+      ${sug('var(--red)',`Repone ${state.cantidad_sugerida} unidades para cubrir 2–3 semanas`)}
+      ${btnS('var(--red)','Agregar stock ahora →',`abrirAddStockQHA(${state.varianteId})`)}
+    </div>`;
+
+  } else if (prioridad === 'P2') {
+    const nom  = `${state.nombre}${talla(state.talla_color)}`;
+    const dias = state.dias_restantes
+      ? ` — se acaba en ${state.dias_restantes} día${state.dias_restantes!==1?'s':''}` : '';
+    const perd = state.perdida_estimada > 0
+      ? `Podrías perder ~$${fmt(state.perdida_estimada)} en ventas esta semana.` : '';
+    wrap.innerHTML = `<div style="border-left:3px solid var(--orange);padding:12px 0 12px 14px;">
+      ${hdr('var(--orange)')}${stat(`${state.stock_actual} unidades`,'var(--orange)')}${ctx(`${nom}${dias}`)}
+      ${sub(perd)}
+      ${sug('var(--orange)',`Repone ${state.cantidad_sugerida} unidades para cubrir 2–3 semanas`)}
+      ${btnS('var(--orange)','Agregar stock ahora →',`abrirAddStockQHA(${state.varianteId})`)}
+    </div>`;
+
+  } else if (prioridad === 'P3') {
+    wrap.innerHTML = `<div style="border-left:3px solid var(--orange);padding:12px 0 12px 14px;">
+      ${hdr('var(--muted)')}${stat(`${state.count} productos`,'var(--text)')}${ctx('sin costo registrado')}
+      ${sub('No sabes si estás ganando plata en esos productos. Agrega el costo y Cuanti calcula tu ganancia real.')}
+      ${btnS('var(--accent)','Completar ahora →',"goTo('inventario')")}
+    </div>`;
+
+  } else if (prioridad === 'P4') {
+    const diasStr = state.dias_sin_venta > 365 ? 'más de 1 año' : `${state.dias_sin_venta} días`;
+    wrap.innerHTML = `<div style="border-left:3px solid var(--bd2);padding:12px 0 12px 14px;">
+      ${hdr('var(--muted)')}${stat(`$${fmt(state.capital_total)} parados`,'var(--text)')}${ctx(`${state.nombre} — ${diasStr} sin venderse`)}
+      ${sub('Estás dejando plata parada. Considera bajar el precio para moverlo.')}
+      ${lnkS('Revisar precios →',"goTo('inventario')")}
+    </div>`;
+
+  } else if (prioridad === 'P5') {
+    wrap.innerHTML = `<div style="border-left:3px solid var(--bd2);padding:12px 0 12px 14px;">
+      ${hdr('var(--muted)')}${stat(`$${fmt(state.diferencia)} más`,'var(--text)')}${ctx(`por venta en ${state.canal_mejor} vs ${state.canal_segundo}`)}
+      ${sub('Prioriza ese canal para ganar más sin vender más.')}
+      ${lnkS('Ver análisis →',"goTo('analisis')")}
+    </div>`;
+
+  } else { // P0
+    const micro = state.canal_mejor && state.canal_segundo
+      ? `${state.canal_mejor} te deja más ganancia que ${state.canal_segundo}. Si priorizas ese canal, puedes ganar más sin vender más. <span onclick="goTo('analisis')" style="font-weight:700;text-decoration:underline;cursor:pointer;">Ver análisis →</span>`
+      : 'Sigue registrando ventas — con más datos Cuanti puede decirte qué productos empujar y cuándo reponer.';
+    wrap.innerHTML = `<div style="padding:12px 0;">
+      ${hdr('var(--muted)')}${stat('Todo en orden 👌','var(--text)')}
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;">No hay nada urgente ahora.</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px;">${micro}</div>
+    </div>`;
+  }
+}
+
 function renderDashboard() {
   const mesesNom   = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   const mesesCortos= ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
@@ -3142,139 +3354,9 @@ function renderDashboard() {
       statChip('Mejor canal', canalStr, 'analisis');
   }
 
-  // ── Acciones: urgencia diferenciada con CTA ──
-  const accionesWrap    = document.getElementById('dash-acciones');
-  const accionesSection = document.getElementById('dash-acciones-section');
-  if (accionesWrap) {
-    const items = [];
+  // ── Bloque "Qué hacer ahora" ──
+  renderQHA(calcQHA());
 
-    // 1. Agotados (crítico) → CTA "Comprar"
-    skuDB.filter(s => s.stock === 0).slice(0,2).forEach(s => {
-      items.push({
-        urgency: 'red',
-        icon: '🔴',
-        text: `<b>${s.nombre}</b> se agotó`,
-        sub: (s.variante && s.variante !== '—' ? s.variante + ' · ' : '') + 'Sin stock · Estás perdiendo ventas',
-        cta: 'Comprar', ctaDest: 'compras'
-      });
-    });
-
-    // 2. Bajo stock → CTA "Ver stock"
-    skuDB.filter(s => s.stock > 0 && s.stock <= 2).slice(0,2).forEach(s => {
-      items.push({
-        urgency: 'orange',
-        icon: '🟡',
-        text: `<b>${s.nombre}</b> — solo ${s.stock} unidad${s.stock>1?'es':''}`,
-        sub: (s.variante && s.variante !== '—' ? s.variante + ' · ' : '') + '¿Vas a reponer?',
-        cta: 'Ver stock', ctaDest: 'inventario'
-      });
-    });
-
-    // 3. Capital parado
-    const hace30 = new Date(); hace30.setDate(hace30.getDate() - 30);
-    const nombresRecientes = new Set(
-      ventasDB.filter(v => {
-        if (v.fecha_raw) return new Date(v.fecha_raw) >= hace30;
-        if(v.fecha.startsWith('Hoy') || v.fecha.startsWith('Ayer')) return true;
-        const m = v.fecha.match(/^(\d{2})\/(\d{2})/);
-        if(!m) return false;
-        const d = new Date(new Date().getFullYear(), parseInt(m[2])-1, parseInt(m[1]));
-        return d >= hace30;
-      }).map(v => v.nombre)
-    );
-    const parados = skuDB.filter(s => s.stock > 2 && !nombresRecientes.has(s.nombre));
-    if (parados.length > 0) {
-      const p = parados.sort((a,b) => (b.precio*b.stock)-(a.precio*a.stock))[0];
-      items.push({
-        urgency: 'blue',
-        icon: '💰',
-        text: `<b>${p.nombre}</b> lleva 30 días sin venderse`,
-        sub: `$${fmt(p.precio*p.stock)} parados en stock (${p.stock} uds.)`,
-        cta: 'Ver', ctaDest: 'inventario'
-      });
-    }
-
-    // 4. Canal más rentable
-    const porCanalGan = {}, porCanalCnt = {};
-    ventasMes.forEach(v => {
-      if(!porCanalGan[v.canal]) { porCanalGan[v.canal]=0; porCanalCnt[v.canal]=0; }
-      porCanalGan[v.canal] += v.gan; porCanalCnt[v.canal]++;
-    });
-    const canalesMes = Object.keys(porCanalGan);
-    if(canalesMes.length >= 2) {
-      const mejor    = canalesMes.sort((a,b) => (porCanalGan[b]/porCanalCnt[b]) - (porCanalGan[a]/porCanalCnt[a]))[0];
-      const ganProm  = Math.round(porCanalGan[mejor] / porCanalCnt[mejor]);
-      items.push({
-        urgency: 'green',
-        icon: '📈',
-        text: `Por <b>${mejor}</b> ganas más plata por venta`,
-        sub: `Promedio $${fmt(ganProm)} de ganancia · ${porCanalCnt[mejor]} ventas`,
-        cta: 'Analizar', ctaDest: 'analisis'
-      });
-    }
-
-    // 5. Producto estrella del mes
-    const porProd = {};
-    ventasMes.forEach(v => {
-      if(!porProd[v.nombre]) porProd[v.nombre] = { gan:0, ing:0, cnt:0 };
-      porProd[v.nombre].gan += v.gan; porProd[v.nombre].ing += v.precio; porProd[v.nombre].cnt++;
-    });
-    const prodsArr = Object.entries(porProd).sort((a,b)=>b[1].gan-a[1].gan);
-    if (prodsArr.length > 0) {
-      const [nom, d] = prodsArr[0];
-      const mrg = d.ing > 0 ? Math.round((d.gan/d.ing)*100) : 0;
-      if (mrg > 35 && d.cnt >= 2) {
-        items.push({
-          urgency: 'accent',
-          icon: '⭐',
-          text: `<b>${nom}</b> te deja más plata`,
-          sub: `${mrg}% de ganancia sobre lo que cobras · ${d.cnt} ventas`,
-          cta: 'Ver análisis', ctaDest: 'analisis'
-        });
-      }
-    }
-
-    // 6. Traspasos pendientes de confirmar (urgente)
-    const miLocalIdDash = _currentUser?.rol === 'Dueño' ? null : _currentUser?.local_id;
-    const transEntrantes = _transDB.filter(t =>
-      t.estado === 'pendiente' &&
-      (miLocalIdDash === null ? true : t.local_destino_id === miLocalIdDash)
-    );
-    if (transEntrantes.length > 0) {
-      items.push({
-        urgency: 'accent',
-        icon: '🔄',
-        text: `<b>${transEntrantes.length} traspaso${transEntrantes.length !== 1 ? 's' : ''}</b> pendiente${transEntrantes.length !== 1 ? 's' : ''} de confirmar`,
-        sub: 'Toca para ver y confirmar',
-        cta: 'Ver traspasos', ctaDest: 'locales'
-      });
-    }
-
-    // Ordenar: urgente (red) primero, luego orange, luego el resto
-    const orden = { red:0, orange:1, accent:2, green:3, blue:4 };
-    items.sort((a,b) => (orden[a.urgency]??9) - (orden[b.urgency]??9));
-
-    if (items.length === 0) {
-      accionesSection.style.display = 'none';
-    } else {
-      accionesSection.style.display = '';
-      const visibles = items.slice(0, 3);
-      const restantes = items.length - visibles.length;
-      accionesWrap.innerHTML = visibles.map(it => {
-        const u = it.urgency || 'blue';
-        return `<div class="urgency-item ${u}">
-          <div style="font-size:17px;flex-shrink:0;">${it.icon}</div>
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:13px;line-height:1.4;color:var(--text);">${it.text}</div>
-            ${it.sub ? `<div style="font-size:11px;color:var(--muted);margin-top:2px;">${it.sub}</div>` : ''}
-          </div>
-          <button onclick="event.stopPropagation();goTo('${it.ctaDest}')" class="urgency-cta ${u}">${it.cta}</button>
-        </div>`;
-      }).join('') + (restantes > 0
-        ? `<div style="text-align:center;padding:6px 0 2px;"><span style="font-size:11px;color:var(--muted);cursor:pointer;" onclick="goTo('analisis')">y ${restantes} alerta${restantes!==1?'s':''} más → ver análisis</span></div>`
-        : '');
-    }
-  }
 
   // ── Última actividad: agrupada por día con totales ──
   const wrap = document.getElementById('dash-last-sales');
@@ -4428,7 +4510,7 @@ function renderInventario() {
         <div class="pprice" style="text-align:right;">
           <div class="psell">$${fmt(g.precio)}</div>
           <div style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:${stockColor};margin-top:3px;">${stockLabel}${transitoBadge}</div>
-          ${ganUnit !== null ? `<div class="pmargin" style="margin-top:2px;color:${ganUnit<0?'var(--red)':''};">${ganUnit>=0?'↑':'↓'}$${fmt(Math.abs(ganUnit))}</div>` : ''}
+          ${ganUnit !== null ? `<div class="pmargin" style="margin-top:2px;color:${ganUnit<0?'var(--red)':''};">${ganUnit>=0?'↑':'↓'}$${fmt(Math.abs(ganUnit))}</div>` : (esDueno && g.precio > 0 ? `<div class="pmargin" style="margin-top:2px;color:var(--muted2);font-size:10px;">sin costo ›</div>` : '')}
         </div>
       </div>
       ${vpHtml ? `<div class="vrow">${vpHtml}</div>` : ''}
@@ -4437,6 +4519,28 @@ function renderInventario() {
   });
 
   list.innerHTML = html;
+
+  // Hint contextual: productos sin costo registrado
+  const costoHintEl = document.getElementById('inv-costo-hint');
+  if (costoHintEl) {
+    const sinCosto = skuDB.filter(s => !s.costo || s.costo === 0);
+    if (sinCosto.length > 0 && skuDB.length > 0) {
+      const cuantos = sinCosto.length === 1
+        ? `"${sinCosto[0].nombre}" no tiene costo registrado`
+        : `${sinCosto.length} productos sin costo registrado`;
+      costoHintEl.style.display = '';
+      costoHintEl.innerHTML = `<div class="ctx-hint" onclick="invAbrirProducto('${encodeURIComponent(sinCosto[0].nombre)}')">
+        <div style="font-size:18px;flex-shrink:0;">💡</div>
+        <div>
+          <div class="ctx-hint-text">${cuantos}</div>
+          <div class="ctx-hint-sub">Agrega el costo para ver cuánto ganas realmente</div>
+        </div>
+        <div style="font-size:14px;color:var(--muted2);">›</div>
+      </div>`;
+    } else {
+      costoHintEl.style.display = 'none';
+    }
+  }
 
   // Subtítulo dinámico
   const totalUds = skuDB.reduce((s,v)=>s+v.stock,0);
