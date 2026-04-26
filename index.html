@@ -1353,13 +1353,6 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
 <!-- ════════════════════════════ NUEVA VENTA ════════════════════════════ -->
 <div class="screen" id="screen-venta">
 
-  <!-- indicador de pasos -->
-  <div class="steps" id="venta-steps">
-    <div class="sdot on" id="sd1">1</div><div class="sline" id="sl1"></div>
-    <div class="sdot" id="sd2">2</div><div class="sline" id="sl2"></div>
-    <div class="sdot" id="sd3">3</div>
-  </div>
-
   <!-- ── PASO 1: BUSCAR PRODUCTO ── -->
   <div id="vs1">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
@@ -1371,6 +1364,11 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
       <div onclick="goTo('scanner')" style="flex-shrink:0;width:50px;height:50px;background:var(--sf);border:2px solid var(--bd);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;transition:border-color .15s;" onmouseenter="this.style.borderColor='var(--text)'" onmouseleave="this.style.borderColor='var(--bd)'">📷</div>
     </div>
     <div id="venta-resultados" style="font-size:11px;color:var(--muted);margin-bottom:8px;min-height:16px;"></div>
+    <div id="venta-recientes-wrap" style="display:none;margin-bottom:14px;">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted2);margin-bottom:8px;">Recientes</div>
+      <div id="venta-recientes-lista"></div>
+      <div style="height:1px;background:var(--bd);margin:12px 0 10px;"></div>
+    </div>
     <div id="venta-inv-lista"></div>
   </div>
 
@@ -1406,6 +1404,19 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
     </div>
 
     <div id="v-com-note" style="display:none;font-size:11px;color:var(--muted);text-align:center;margin-top:-12px;margin-bottom:14px;"></div>
+    <!-- Aviso sin precio -->
+    <div id="v-sin-precio-aviso" style="display:none;background:rgba(216,75,75,.08);border:1px solid rgba(216,75,75,.2);border-radius:10px;padding:10px 12px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-size:12px;color:var(--red);font-weight:600;">Sin precio — no puedes registrar esta venta</span>
+      <span onclick="goTo('inventario')" style="font-size:11px;font-weight:700;color:var(--red);text-decoration:underline;cursor:pointer;white-space:nowrap;margin-left:8px;">Agregar precio →</span>
+    </div>
+    <!-- Aviso sin costo -->
+    <div id="v-sin-costo-aviso" style="display:none;background:rgba(228,106,46,.07);border:1px solid rgba(228,106,46,.2);border-radius:10px;padding:10px 12px;margin-bottom:12px;">
+      <span style="font-size:12px;color:var(--orange);">Sin costo registrado — la ganancia puede no ser exacta</span>
+    </div>
+    <!-- Aviso sobre-stock -->
+    <div id="v-sobre-stock-aviso" style="display:none;background:rgba(228,106,46,.07);border:1px solid rgba(228,106,46,.2);border-radius:10px;padding:10px 12px;margin-bottom:12px;">
+      <span id="v-sobre-stock-txt" style="font-size:12px;color:var(--orange);"></span>
+    </div>
     <button class="btn" id="venta-confirmar-btn" onclick="ventaConfirmar()">Registrar venta →</button>
 
     <!-- ── DETALLES OPCIONALES (colapsable) ── -->
@@ -5382,6 +5393,20 @@ function selChip(el) {
   el.closest('.chips').querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
   el.classList.add('on');
 }
+function getVentasRecientes(limit = 5) {
+  const seen = new Set();
+  const res  = [];
+  const lid  = localFiltro();
+  for (const v of ventasDB) {
+    if (res.length >= limit) break;
+    if (v.nombre.startsWith('↩️') || seen.has(v.sku)) continue;
+    const s = skuDB.find(sk => sk.sku === v.sku && (!lid || sk.local_id === lid));
+    if (!s) continue;
+    seen.add(v.sku);
+    res.push(s);
+  }
+  return res;
+}
 
 // ══════════════════════════════════════════════════════
 //  FLUJO DE VENTA — 3 pasos
@@ -5430,6 +5455,40 @@ function ventaRenderInventario(filter='') {
   const res   = document.getElementById('venta-resultados');
   if(!lista) return;
   const q = filter.toLowerCase();
+
+  // Recientes: solo cuando no hay filtro activo
+  const recientesWrap  = document.getElementById('venta-recientes-wrap');
+  const recientesLista = document.getElementById('venta-recientes-lista');
+  if (recientesWrap && recientesLista) {
+    if (!q) {
+      const recientes = getVentasRecientes(5);
+      if (recientes.length > 0) {
+        recientesWrap.style.display = '';
+        recientesLista.innerHTML = recientes.map(s => {
+          const noStock  = s.stock <= 0;
+          const sinPrecio = !s.precio || s.precio === 0;
+          const enc = safeEncode(s);
+          const sc = s.stock <= 1 ? 'var(--red)' : s.stock <= 3 ? 'var(--orange)' : 'var(--green)';
+          return `<div class="vprod-item" onclick="ventaSelProductEncoded('${enc}')" style="opacity:${sinPrecio?'.5':'1'};">
+            <div class="vprod-icon">${s.icon}</div>
+            <div class="vprod-info">
+              <div class="vprod-name">${s.nombre}</div>
+              <div class="vprod-sub">${s.variante && s.variante!=='—' ? s.variante : ''}${noStock?' · <span style="color:var(--red)">Sin stock</span>':''}</div>
+            </div>
+            <div class="vprod-right">
+              <div class="vprod-price">${s.precio?'$'+fmt(s.precio):'Sin precio'}</div>
+              <div class="vprod-stock" style="color:${noStock?'var(--red)':sc};">${noStock?'Sin stock':s.stock+' ud.'}</div>
+            </div>
+          </div>`;
+        }).join('');
+      } else {
+        recientesWrap.style.display = 'none';
+      }
+    } else {
+      recientesWrap.style.display = 'none';
+    }
+  }
+
   let items = q
     ? skuDB.filter(s =>
         s.nombre.toLowerCase().includes(q) ||
@@ -5527,6 +5586,22 @@ function ventaSelProduct(s) {
   document.querySelectorAll('#pago-grid .pill').forEach(p => p.classList.remove('sel'));
   const transfBtn = document.getElementById('vp-transf');
   if(transfBtn) transfBtn.classList.add('sel');
+
+  // Sin precio: bloquear CTA
+  const sinPrecio = !fresh.precio || fresh.precio === 0;
+  const sinCosto  = !fresh.costo  || fresh.costo  === 0;
+
+  const sinPrecioEl  = document.getElementById('v-sin-precio-aviso');
+  const sinCostoEl   = document.getElementById('v-sin-costo-aviso');
+  const confirmarBtn = document.getElementById('venta-confirmar-btn');
+
+  if (sinPrecioEl) sinPrecioEl.style.display = sinPrecio ? '' : 'none';
+  if (sinCostoEl)  sinCostoEl.style.display  = sinCosto && !sinPrecio ? '' : 'none';
+  if (confirmarBtn) {
+    confirmarBtn.disabled = sinPrecio;
+    confirmarBtn.style.opacity = sinPrecio ? '0.4' : '1';
+    confirmarBtn.style.cursor  = sinPrecio ? 'not-allowed' : 'pointer';
+  }
 
   recalcVenta();
   ventaSetPaso(2);
@@ -5713,6 +5788,18 @@ function recalcVenta() {
       comNoteEl.style.display = 'none';
     }
   }
+
+  // Warning sobre-stock
+  const sobreStockEl  = document.getElementById('v-sobre-stock-aviso');
+  const sobreStockTxt = document.getElementById('v-sobre-stock-txt');
+  if (sobreStockEl && ventaState.sku) {
+    const liveStock = skuDB.find(i => i.sku === ventaState.sku.sku)?.stock ?? 0;
+    const sobreStock = cant > liveStock && liveStock >= 0;
+    sobreStockEl.style.display = sobreStock ? '' : 'none';
+    if (sobreStockTxt && sobreStock) {
+      sobreStockTxt.textContent = `Estás vendiendo más stock del que tienes registrado (${liveStock} ud. disponibles)`;
+    }
+  }
 }
 
 // Confirmar venta
@@ -5756,7 +5843,8 @@ async function ventaConfirmar() {
 
   const liveItem  = skuDB.find(i => i.sku === s.sku);
   const liveStock = liveItem ? liveItem.stock : 0;
-  if(cant > liveStock) { toast(`Solo quedan ${liveStock} unidad${liveStock!==1?'es':''} disponibles.`,'err'); return; }
+  // No bloquear — se permite vender aunque el stock sea menor (puede ser error de conteo)
+  // El warning visual ya está visible en recalcVenta()
 
   const com  = calcComisionMonto(precioFinal, cant, canal);
   const neto = precioFinal * cant;
