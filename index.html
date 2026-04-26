@@ -1225,6 +1225,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
     <div class="hero-amt" id="dash-hero-gan">$—</div>
     <div id="dash-hero-firsttime-sub" style="display:none;font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5;">Aquí verás cuánto ganas en tiempo real cada vez que registres una venta.</div>
     <div id="dash-hero-gastos-sub" style="display:none;font-size:11px;color:var(--muted);margin-top:4px;"></div>
+    <div id="dash-hero-sinconfirmar" style="display:none;font-size:11px;color:var(--orange);margin-top:4px;">sin confirmar — hay productos sin costo</div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
       <div id="dash-hero-trend" style="font-size:13px;"></div>
       <div style="display:flex;align-items:center;gap:8px;">
@@ -3310,9 +3311,12 @@ function renderDashboard() {
   const gastosMes    = calcGastosMes();
   const gananciaReal = ganMes - gastosMes;
 
-  set('dash-hero-gan', (gananciaReal < 0 ? '−' : '') + '$' + fmt(Math.abs(gananciaReal)));
+  const _tieneSinCosto = ventasMes.some(v => !v.costo || v.costo === 0);
+  set('dash-hero-gan', (gananciaReal < 0 ? '−' : '') + '$' + fmt(Math.abs(gananciaReal)) + (_tieneSinCosto ? '?' : ''));
   const heroGanEl = document.getElementById('dash-hero-gan');
   if(heroGanEl) heroGanEl.style.color = gananciaReal < 0 ? 'var(--red)' : (_esPrimerVez ? 'var(--muted2)' : 'var(--text)');
+  const sinConfEl = document.getElementById('dash-hero-sinconfirmar');
+  if (sinConfEl) sinConfEl.style.display = _tieneSinCosto && !_esPrimerVez ? '' : 'none';
   set('dash-hero-mes', mesActual);
 
   const lbl = document.getElementById('dash-hero-lbl');
@@ -3731,10 +3735,7 @@ async function quickSell(varianteId) {
   const ganStr   = gan >= 0 ? `+$${fmt(gan)}` : `−$${fmt(Math.abs(gan))}`;
   toastConDeshacer(`${nomCorto} × 1 — ${ganStr}`, async () => {
     await anularUltimaVenta();
-    renderQHA(calcQHA());
-    renderQuickSellStrip();
-    _renderDashActividad();
-    _refreshDashMetrics();
+    // anularUltimaVenta() llama renderDashboard() + renderHistorial() internamente
   });
 }
 
@@ -3744,12 +3745,16 @@ function _refreshDashMetrics() {
   const ganMes    = ventasMes.reduce((s, v) => s + v.gan, 0);
   const gastosMes = calcGastosMes();
   const gananciaR = ganMes - gastosMes;
+  const tieneSinCosto = ventasMes.some(v => !v.costo || v.costo === 0);
 
   const heroEl = document.getElementById('dash-hero-gan');
   if (heroEl) {
-    heroEl.textContent = (gananciaR < 0 ? '−' : '') + '$' + fmt(Math.abs(gananciaR));
+    heroEl.textContent = (gananciaR < 0 ? '−' : '') + '$' + fmt(Math.abs(gananciaR)) + (tieneSinCosto ? '?' : '');
     heroEl.style.color = gananciaR < 0 ? 'var(--red)' : 'var(--text)';
   }
+  const sinConfEl = document.getElementById('dash-hero-sinconfirmar');
+  if (sinConfEl) sinConfEl.style.display = tieneSinCosto ? '' : 'none';
+
   const gastosSubEl = document.getElementById('dash-hero-gastos-sub');
   if (gastosSubEl) {
     if (gastosMes > 0) {
@@ -5471,23 +5476,26 @@ async function guardarAddStockQHA() {
 
   if (skuItem) skuItem.stock = nuevoStock;
 
-  sb.from('compras').insert({
-    fecha: todayStr(),
-    origen: 'reposicion_rapida',
-    local_destino_id: _currentUser?.local_id || 1,
-    usuario_id: _currentUser?.id || null,
-    total_pagado_clp: null,
-    notas: 'Reposición rápida desde QHA',
-  }).select('id').single().then(({ data: compra }) => {
-    if (compra?.id) {
-      sb.from('detalle_compras').insert({
-        compra_id: compra.id,
-        variante_id: ctx.varianteId,
-        cantidad: cant,
-        costo_unitario: skuItem?.costo || null,
-      });
-    }
-  });
+  const _localIdComp = _currentUser?.local_id;
+  if (_localIdComp) {
+    sb.from('compras').insert({
+      fecha: todayStr(),
+      origen: 'reposicion_rapida',
+      local_destino_id: _localIdComp,
+      usuario_id: _currentUser?.id || null,
+      total_pagado_clp: null,
+      notas: 'Reposición rápida desde QHA',
+    }).select('id').single().then(({ data: compra }) => {
+      if (compra?.id) {
+        sb.from('detalle_compras').insert({
+          compra_id: compra.id,
+          variante_id: ctx.varianteId,
+          cantidad: cant,
+          costo_unitario: skuItem?.costo || null,
+        });
+      }
+    });
+  }
 
   invCerrarSheet();
   renderQHA(calcQHA());
