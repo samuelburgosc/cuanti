@@ -2112,17 +2112,24 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
         onkeydown="if(event.key==='Enter')document.getElementById('qp-precio').focus()">
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;">
       <div class="field">
         <label>Precio de venta</label>
         <div class="fwrap"><span class="fpfx">$</span><input id="qp-precio" class="pfx" type="number" inputmode="numeric" placeholder="0"
+          oninput="qpActualizarGanancia()"
           onkeydown="if(event.key==='Enter')document.getElementById('qp-costo').focus()"></div>
       </div>
       <div class="field">
         <label>Costo unitario</label>
         <div class="fwrap"><span class="fpfx">$</span><input id="qp-costo" class="pfx" type="number" inputmode="numeric" placeholder="0"
+          oninput="qpActualizarGanancia()"
           onkeydown="if(event.key==='Enter')document.getElementById('qp-stock').focus()"></div>
       </div>
+    </div>
+
+    <!-- preview de ganancia en tiempo real -->
+    <div id="qp-ganancia-preview" style="display:none;border-radius:10px;padding:10px 13px;margin-bottom:12px;transition:background .2s;">
+      <div id="qp-gan-text" style="font-size:12px;font-weight:600;"></div>
     </div>
 
     <div class="field" style="margin-bottom:20px;">
@@ -2465,6 +2472,34 @@ function agregarCanalConfig() {
 }
 
 // ── QUICK PRODUCT ADD ──────────────────────────────────────────
+function qpActualizarGanancia() {
+  const precio = parseInt(document.getElementById('qp-precio')?.value) || 0;
+  const costo  = parseInt(document.getElementById('qp-costo')?.value)  || 0;
+  const prev   = document.getElementById('qp-ganancia-preview');
+  const txt    = document.getElementById('qp-gan-text');
+  if (!prev || !txt) return;
+
+  if (precio <= 0 || costo <= 0) { prev.style.display = 'none'; return; }
+
+  const gan  = precio - costo;
+  const pct  = Math.round((gan / precio) * 100);
+  prev.style.display = '';
+
+  if (gan <= 0) {
+    prev.style.background = 'rgba(216,75,75,.1)';
+    txt.style.color = 'var(--red)';
+    txt.textContent = `Ojo — estás vendiendo a pérdida. El precio debería ser mayor a $${fmt(costo)}.`;
+  } else if (pct < 20) {
+    prev.style.background = 'rgba(228,106,46,.1)';
+    txt.style.color = 'var(--orange)';
+    txt.textContent = `Te quedan $${fmt(gan)} por venta (${pct}%). Margen bajo — considera subir el precio.`;
+  } else {
+    prev.style.background = 'rgba(30,158,99,.1)';
+    txt.style.color = 'var(--green)';
+    txt.textContent = `Te quedan $${fmt(gan)} por venta (${pct}%). Buen margen.`;
+  }
+}
+
 function abrirQuickProdSheet() {
   ['qp-nombre','qp-precio','qp-costo','qp-stock'].forEach(id => {
     const el = document.getElementById(id);
@@ -2472,6 +2507,8 @@ function abrirQuickProdSheet() {
   });
   const errEl = document.getElementById('qp-error');
   if (errEl) errEl.style.display = 'none';
+  const prev = document.getElementById('qp-ganancia-preview');
+  if (prev) prev.style.display = 'none';
   const bd = document.getElementById('qprod-sheet-bd');
   const sh = document.getElementById('qprod-sheet');
   if (bd) { bd.style.display = 'block'; requestAnimationFrame(() => bd.classList.add('open')); }
@@ -2545,7 +2582,8 @@ async function guardarQuickProd() {
 
   await cargarInventario();
   cerrarQuickProd();
-  toast(`¡${nombre} creado!`, 'ok');
+  const esPrimerProd = skuDB.length === 1;
+  toast(esPrimerProd ? `¡${nombre} listo! Ahora registra tu primera venta` : `¡${nombre} creado!`, 'ok');
   renderDashboard();
   renderInventario();
 }
@@ -5733,9 +5771,16 @@ async function ventaConfirmar() {
   // Insight post-venta
   const margenPct = precio > 0 ? Math.round((gan / (precio * cant)) * 100) : 0;
   const insightEl = document.getElementById('vc-insight');
+  const esPrimeraVenta = ventasDB.filter(v => !v.nombre.startsWith('↩️')).length === 1;
   if(insightEl) {
     let html = '';
-    if(nuevoStock === 0) {
+    if(esPrimeraVenta && gan > 0) {
+      html = `<div style="background:var(--accent);border-radius:12px;padding:16px 14px;margin-bottom:16px;text-align:center;">
+        <div style="font-size:28px;margin-bottom:6px;">🎉</div>
+        <div style="font-family:'Archivo Black',sans-serif;font-size:15px;color:var(--text);margin-bottom:4px;">¡Primera venta registrada!</div>
+        <div style="font-size:12px;color:rgba(23,23,23,.7);line-height:1.6;">Ganaste $${fmt(gan)} en tu primer registro.<br>Ya puedes ver cuánto llevas este mes en Resumen.</div>
+      </div>`;
+    } else if(nuevoStock === 0) {
       html = `<div style="background:var(--rdim);border:1px solid rgba(216,75,75,.25);border-radius:12px;padding:13px 14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;text-align:left;">
         <span style="font-size:20px;flex-shrink:0;">🔴</span>
         <div><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--red);">Se te agotó este producto</div>
