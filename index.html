@@ -5367,6 +5367,110 @@ function invCerrarSheet() {
   }, 300);
 }
 
+// ── Agregar stock rápido desde QHA ──
+function abrirAddStockQHA(varianteId) {
+  const s = skuDB.find(sk => sk.id === varianteId);
+  if (!s) return;
+
+  const hace30 = new Date(); hace30.setDate(hace30.getDate() - 30);
+  const vv = ventasDB.filter(v => v.sku === s.sku && v.fecha_raw && new Date(v.fecha_raw) >= hace30);
+  const tasa = vv.length / 4;
+
+  const sugerida = tasa > 0
+    ? Math.max(1, Math.ceil(tasa * 3) - s.stock)
+    : 5;
+
+  const varStr = s.variante && s.variante !== '—' ? ` · ${s.variante}` : '';
+
+  window._qhaStockCtx = { varianteId, stockActual: s.stock, tasa };
+
+  document.getElementById('inv-sheet-body').innerHTML = `
+    <div style="padding:4px 0 8px;">
+      <div style="width:36px;height:4px;background:var(--bd2);border-radius:2px;margin:0 auto 20px;"></div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:4px;">Agregar stock</div>
+      <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:17px;letter-spacing:-.3px;margin-bottom:2px;">${s.nombre}${varStr}</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:20px;">Stock actual: <strong style="color:var(--text);">${s.stock} unidades</strong></div>
+
+      <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px;">Cantidad a agregar</div>
+      <div style="display:flex;align-items:center;gap:0;border:1px solid var(--bd2);border-radius:12px;overflow:hidden;margin-bottom:10px;">
+        <button onclick="window._qhaStockDec()" style="width:48px;height:48px;background:var(--sf2);border:none;font-size:20px;cursor:pointer;color:var(--text);flex-shrink:0;">−</button>
+        <input id="qha-cant" type="number" inputmode="numeric" min="1" value="${sugerida}" oninput="window._qhaStockCalc()" style="flex:1;border:none;text-align:center;font-family:'Archivo Black',sans-serif;font-size:22px;color:var(--text);outline:none;padding:4px 0;background:var(--sf);">
+        <button onclick="window._qhaStockInc()" style="width:48px;height:48px;background:var(--sf2);border:none;font-size:20px;cursor:pointer;color:var(--text);flex-shrink:0;">+</button>
+      </div>
+      <div id="qha-estimado" style="font-size:12px;color:var(--muted);margin-bottom:20px;min-height:18px;"></div>
+
+      <button onclick="guardarAddStockQHA()" style="width:100%;background:var(--accent);border:none;border-radius:12px;padding:14px;font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;color:var(--text);cursor:pointer;margin-bottom:10px;">Guardar</button>
+      <div onclick="invCerrarSheet()" style="text-align:center;font-size:13px;color:var(--muted);cursor:pointer;padding:6px;">Cancelar</div>
+    </div>`;
+
+  window._qhaStockDec = () => {
+    const el = document.getElementById('qha-cant');
+    if (el) { el.value = Math.max(1, (parseInt(el.value) || 1) - 1); window._qhaStockCalc(); }
+  };
+  window._qhaStockInc = () => {
+    const el = document.getElementById('qha-cant');
+    if (el) { el.value = (parseInt(el.value) || 0) + 1; window._qhaStockCalc(); }
+  };
+  window._qhaStockCalc = () => {
+    const ctx = window._qhaStockCtx;
+    if (!ctx) return;
+    const cant = parseInt(document.getElementById('qha-cant')?.value) || 0;
+    const el   = document.getElementById('qha-estimado');
+    if (!el) return;
+    if (ctx.tasa > 0) {
+      const semanas = Math.floor((ctx.stockActual + cant) / ctx.tasa);
+      el.textContent = semanas > 0 ? `Con esto te duran ~${semanas} semana${semanas!==1?'s':''}` : 'Cantidad muy baja para el ritmo de ventas';
+    } else {
+      el.textContent = `Quedarás con ${ctx.stockActual + cant} unidades`;
+    }
+  };
+
+  window._qhaStockCalc();
+  invAbrirSheet();
+}
+
+async function guardarAddStockQHA() {
+  const ctx  = window._qhaStockCtx;
+  if (!ctx) return;
+  const cant = parseInt(document.getElementById('qha-cant')?.value) || 0;
+  if (cant <= 0) { toast('Ingresa una cantidad mayor a 0', 'err'); return; }
+
+  const skuItem   = skuDB.find(s => s.id === ctx.varianteId);
+  const nuevoStock = (skuItem?.stock || 0) + cant;
+
+  const { error: eStock } = await sb
+    .from('variantes')
+    .update({ stock_actual: nuevoStock })
+    .eq('id', ctx.varianteId);
+
+  if (eStock) { toast('Error al actualizar stock. Intenta de nuevo.', 'err'); return; }
+
+  if (skuItem) skuItem.stock = nuevoStock;
+
+  sb.from('compras').insert({
+    fecha: todayStr(),
+    origen: 'reposicion_rapida',
+    local_destino_id: _currentUser?.local_id || 1,
+    usuario_id: _currentUser?.id || null,
+    total_pagado_clp: null,
+    notas: 'Reposición rápida desde QHA',
+  }).select('id').single().then(({ data: compra }) => {
+    if (compra?.id) {
+      sb.from('detalle_compras').insert({
+        compra_id: compra.id,
+        variante_id: ctx.varianteId,
+        cantidad: cant,
+        costo_unitario: skuItem?.costo || null,
+      });
+    }
+  });
+
+  invCerrarSheet();
+  renderQHA(calcQHA());
+  renderQuickSellStrip();
+  toast(`Stock actualizado — ${skuItem?.nombre || 'producto'} ahora tiene ${nuevoStock} unidades`, 'ok');
+}
+
 // Abrir detalle de producto (desde tap en pcard)
 function invAbrirProducto(nombreEnc) {
   const nombre = decodeURIComponent(nombreEnc);
