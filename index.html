@@ -1271,6 +1271,14 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
     <div id="dash-acciones" style="margin-bottom:28px;"></div>
   </div>
 
+  <!-- QUICK-SELL STRIP -->
+  <div id="dash-qs-wrap" style="display:none;margin-bottom:24px;">
+    <div class="sec-hdr" style="margin-bottom:10px;">
+      <div class="sec-title">Vender rápido</div>
+    </div>
+    <div id="dash-qs-strip" style="display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:none;"></div>
+  </div>
+
   <!-- ACTIVIDAD RECIENTE -->
   <div id="dash-actividad-wrap">
     <div class="sec-hdr" style="margin-bottom:12px;">
@@ -3620,6 +3628,156 @@ function renderDashboard() {
     if (_mesSub)   _mesSub.style.display   = '';
     if (_heroEl)   { _heroEl.style.cursor = 'pointer'; _heroEl.onclick = ()=>goTo('analisis'); }
   }
+
+  renderQuickSellStrip();
+}
+
+function renderQuickSellStrip() {
+  const wrap  = document.getElementById('dash-qs-wrap');
+  const strip = document.getElementById('dash-qs-strip');
+  if (!wrap || !strip) return;
+
+  const lid  = localFiltro();
+  const seen = new Set();
+  const items = [];
+
+  for (const v of ventasDB) {
+    if (items.length >= 5) break;
+    if (v.nombre.startsWith('↩️') || seen.has(v.sku)) continue;
+    const s = skuDB.find(sk => sk.sku === v.sku && (!lid || sk.local_id === lid));
+    if (!s || s.stock <= 0 || !s.precio || s.precio === 0) continue;
+    seen.add(v.sku);
+    items.push(s);
+  }
+
+  if (items.length === 0) { wrap.style.display = 'none'; return; }
+  wrap.style.display = '';
+
+  strip.innerHTML = items.map(s => {
+    const varLabel = s.variante && s.variante !== '—' ? s.variante : '';
+    const nom = s.nombre.length > 9 ? s.nombre.slice(0, 8) + '…' : s.nombre;
+    return `<div id="qs-item-${s.id}" style="flex-shrink:0;width:82px;background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:10px 6px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;transition:border-color .15s;" onmouseenter="this.style.borderColor='var(--bd2)'" onmouseleave="this.style.borderColor='var(--bd)'">
+      <div style="width:36px;height:36px;background:var(--sf2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--muted);">${s.icon}</div>
+      <div style="font-size:10px;font-weight:600;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70px;color:var(--text);">${nom}</div>
+      ${varLabel?`<div style="font-size:9px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70px;">${varLabel}</div>`:''}
+      <button id="qs-btn-${s.id}" onclick="quickSell(${s.id})" style="margin-top:2px;width:28px;height:28px;background:var(--accent);border:none;border-radius:50%;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text);line-height:1;">+</button>
+    </div>`;
+  }).join('');
+}
+
+async function quickSell(varianteId) {
+  const s = skuDB.find(sk => sk.id === varianteId);
+  if (!s || !s.precio) { toast('Agrega un precio para vender rápido', 'warn'); return; }
+
+  const btn = document.getElementById('qs-btn-' + varianteId);
+  if (btn) { btn.innerHTML = '✓'; btn.style.background = 'var(--green)'; btn.disabled = true; }
+
+  const ventaId = await registrarVentaDB(varianteId, s.precio, s.costo || 0, 'Presencial', null, null, 1);
+
+  if (!ventaId) {
+    if (btn) { btn.innerHTML = '+'; btn.style.background = 'var(--accent)'; btn.disabled = false; }
+    toast('Error al guardar. Intenta de nuevo.', 'err');
+    return;
+  }
+
+  const skuItem = skuDB.find(sk => sk.id === varianteId);
+  if (skuItem) skuItem.stock = Math.max(0, skuItem.stock - 1);
+
+  const com = calcComisionMonto(s.precio, 1, 'Presencial');
+  const gan = s.precio - (s.costo || 0) - com;
+  ventasDB.unshift({
+    id: ventaId, venta_id: ventaId,
+    sku: s.sku, nombre: s.nombre, variante: s.variante, icon: s.icon,
+    cantidad: 1, precio: s.precio, costo: s.costo || 0, com, gan,
+    canal: 'Presencial', pago: null, envio: null,
+    fecha: `Hoy · ${nowHHMM()}`, fecha_raw: new Date().toISOString(),
+    local_id: _currentUser?.local_id,
+    _qs_nueva: true,
+  });
+
+  renderQHA(calcQHA());
+  renderQuickSellStrip();
+  _renderDashActividad(true);
+  _refreshDashMetrics();
+
+  setTimeout(() => {
+    const b = document.getElementById('qs-btn-' + varianteId);
+    if (b) { b.innerHTML = '+'; b.style.background = 'var(--accent)'; b.disabled = false; }
+  }, 1500);
+
+  const nomCorto = `${s.nombre}${s.variante && s.variante !== '—' ? ' · ' + s.variante : ''}`;
+  const ganStr   = gan >= 0 ? `+$${fmt(gan)}` : `−$${fmt(Math.abs(gan))}`;
+  toastConDeshacer(`${nomCorto} × 1 — ${ganStr}`, async () => {
+    await anularUltimaVenta();
+    renderQHA(calcQHA());
+    renderQuickSellStrip();
+    _renderDashActividad();
+    _refreshDashMetrics();
+  });
+}
+
+function _refreshDashMetrics() {
+  const ventasMes = ventasDB.filter(v => esVentaMes(v) && !v.nombre.startsWith('↩️'));
+  const ganMes    = ventasMes.reduce((s, v) => s + v.gan, 0);
+  const gastosMes = calcGastosMes();
+  const gananciaR = ganMes - gastosMes;
+
+  const heroEl = document.getElementById('dash-hero-gan');
+  if (heroEl) {
+    heroEl.textContent = (gananciaR < 0 ? '−' : '') + '$' + fmt(Math.abs(gananciaR));
+    heroEl.style.color = gananciaR < 0 ? 'var(--red)' : 'var(--text)';
+  }
+  const gastosSubEl = document.getElementById('dash-hero-gastos-sub');
+  if (gastosSubEl) {
+    if (gastosMes > 0) {
+      gastosSubEl.style.display = '';
+      gastosSubEl.textContent   = `Ventas $${fmt(ganMes)} — Gastos $${fmt(gastosMes)}`;
+    } else {
+      gastosSubEl.style.display = 'none';
+    }
+  }
+}
+
+function _renderDashActividad(markNewFirst = false) {
+  const wrap = document.getElementById('dash-last-sales');
+  if (!wrap) return;
+
+  const ventasReales = ventasDB.filter(v => !v.nombre.startsWith('↩️'));
+  if (ventasReales.length === 0) return;
+
+  const ultimas = ventasReales.slice(0, 8);
+  const grupos  = {};
+  const orden   = [];
+  ultimas.forEach(v => {
+    const dia = v.fecha.split(' · ')[0];
+    if (!grupos[dia]) { grupos[dia] = { items: [], gan: 0 }; orden.push(dia); }
+    grupos[dia].items.push(v);
+    grupos[dia].gan += v.gan;
+  });
+
+  wrap.innerHTML = orden.map(dia => {
+    const g = grupos[dia];
+    const esCurr = dia === 'Hoy';
+    return `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:10px 0 6px;">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:${esCurr?'var(--text)':'var(--muted)'};">${dia}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:${g.gan>=0?'var(--green)':'var(--red)'};font-weight:600;">${g.gan>=0?'+':'−'}$${fmt(Math.abs(g.gan))}</div>
+      </div>
+      ${g.items.map((v, idx) => {
+        const isNew = markNewFirst && dia === 'Hoy' && idx === 0 && v._qs_nueva;
+        return `<div style="display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--bd);cursor:pointer;" onclick="goTo('historial')">
+          <div style="width:32px;height:32px;background:var(--sf2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--muted);flex-shrink:0;">${v.icon}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${v.nombre}${isNew?'<span style="margin-left:6px;font-size:9px;font-weight:700;background:var(--accent);color:var(--text);padding:2px 6px;border-radius:4px;letter-spacing:.3px;">nueva</span>':''}</div>
+            <div style="font-size:10px;color:var(--muted);">${v.fecha.split(' · ').slice(1).join(' · ')} · ${v.canal||'—'}</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div style="font-size:11px;color:${v.gan>=0?'var(--green)':'var(--red)'};font-family:'DM Mono',monospace;font-weight:600;">${v.gan>=0?'+':'−'}$${fmt(Math.abs(v.gan))}</div>
+            <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;">$${fmt(v.precio)}</div>
+          </div>
+        </div>`;
+      }).join('')}`;
+  }).join('') + `<div style="padding:12px 0;text-align:center;"><span style="font-size:11px;color:var(--muted);cursor:pointer;" onclick="goTo('historial')">Ver todas las ventas →</span></div>`;
 }
 
 // ══════════════════════════════════════════════════════
@@ -5388,6 +5546,43 @@ function toast(msg, tipo='ok') {
   t.style.transform = 'translateX(-50%) translateY(0)';
   clearTimeout(t._timer);
   t._timer = setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(10px)'; }, 2800);
+}
+function toastConDeshacer(msg, onDeshacer, duracion = 2500) {
+  const prev = document.getElementById('_toast_undo');
+  if (prev) prev.remove();
+
+  const t = document.createElement('div');
+  t.id = '_toast_undo';
+  t.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--sf);border:1px solid var(--bd2);border-radius:12px;padding:10px 14px;z-index:9999;opacity:0;transition:all .25s;max-width:340px;width:calc(100% - 32px);box-shadow:0 8px 24px rgba(0,0,0,.35);display:flex;align-items:center;gap:10px;';
+
+  const msgEl = document.createElement('span');
+  msgEl.style.cssText = 'flex:1;font-size:13px;font-weight:600;color:var(--text);';
+  msgEl.textContent   = msg;
+
+  const deshEl = document.createElement('span');
+  deshEl.style.cssText = 'font-size:12px;font-weight:700;color:var(--blue);cursor:pointer;white-space:nowrap;flex-shrink:0;';
+  deshEl.textContent   = 'Deshacer';
+
+  const xEl = document.createElement('span');
+  xEl.style.cssText = 'font-size:13px;color:var(--muted2);cursor:pointer;flex-shrink:0;line-height:1;';
+  xEl.textContent   = '✕';
+
+  t.appendChild(msgEl);
+  t.appendChild(deshEl);
+  t.appendChild(xEl);
+  document.body.appendChild(t);
+
+  requestAnimationFrame(() => { t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)'; });
+
+  const cerrar = () => { t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(10px)'; setTimeout(()=>t.remove(), 280); };
+  const timer  = setTimeout(cerrar, duracion);
+
+  xEl.addEventListener('click',    () => { clearTimeout(timer); cerrar(); });
+  deshEl.addEventListener('click', () => {
+    clearTimeout(timer);
+    cerrar();
+    if (onDeshacer) onDeshacer();
+  });
 }
 function selChip(el) {
   el.closest('.chips').querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
