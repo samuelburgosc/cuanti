@@ -1372,6 +1372,9 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
       <div onclick="goTo('scanner')" style="flex-shrink:0;width:50px;height:50px;background:var(--sf);border:2px solid var(--bd);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;transition:border-color .15s;" onmouseenter="this.style.borderColor='var(--text)'" onmouseleave="this.style.borderColor='var(--bd)'">📷</div>
     </div>
     <div id="venta-resultados" style="font-size:11px;color:var(--muted);margin-bottom:8px;min-height:16px;"></div>
+    <div id="venta-hint-primero" style="display:none;background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.2);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--blue);">
+      👆 Busca el producto por nombre o escanea el código de barras. Canal y método de pago son opcionales.
+    </div>
     <div id="venta-recientes-wrap" style="display:none;margin-bottom:14px;">
       <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted2);margin-bottom:8px;">Recientes</div>
       <div id="venta-recientes-lista"></div>
@@ -1655,6 +1658,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
     <div class="pb"    data-tab="stock"    onclick="renderAnalisis('stock',this)">Stock</div>
     <div class="pb"    data-tab="gastos"   onclick="renderAnalisis('gastos',this)">Gastos</div>
   </div>
+  <div id="analisis-hint-datos" style="display:none;background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.2);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--blue);"></div>
   <div id="analisis-body"></div>
   <div class="spacer"></div>
 </div>
@@ -3404,16 +3408,13 @@ function renderDashboard() {
       // Si tieneProductos, el setup card ya muestra el CTA — no duplicar
       wrap.innerHTML = tieneProductos ? `
         <div style="padding:12px 0 16px;text-align:center;">
-          <div style="font-size:12px;color:var(--muted);line-height:1.6;">
-            Aún no hay ventas registradas. Cuando hagas tu primera, aparece acá.
-          </div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.6;">Aún no hay ventas registradas. Cuando hagas tu primera, aparece acá.</div>
         </div>` : `
         <div style="padding:28px 0 16px;text-align:center;">
-          <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;margin-bottom:8px;letter-spacing:-.2px;">Empieza acá</div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.6;max-width:260px;margin-inline:auto;">
-            Agrega tu primer producto al inventario y empieza a registrar ventas.
-          </div>
-          <button class="btn" style="width:auto;padding:13px 28px;font-size:13px;margin:0;" onclick="goTo('skus')">+ Agregar producto →</button>
+          <div style="font-size:32px;margin-bottom:10px;">👋</div>
+          <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:17px;margin-bottom:8px;letter-spacing:-.3px;">¡Bienvenido a Cuanti!</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;max-width:260px;margin-inline:auto;">Para empezar, agrega tu primer producto y registra una venta. Cuanti hará el resto.</div>
+          <button class="btn" style="width:auto;padding:13px 28px;font-size:13px;margin:0;" onclick="abrirQuickProdSheet()">Agregar producto →</button>
         </div>`;
     } else {
       // Agrupar las últimas 8 ventas por día
@@ -3871,7 +3872,7 @@ function renderHistorial(filtro) {
     const sinVentasGlobal = ventasDB.filter(v => !v.nombre.startsWith('↩️')).length === 0;
     const msgs = {
       todo:   sinVentasGlobal
-                ? { icon:'🧾', title:'Todavía no tienes ventas', sub:'Aquí verás cada venta que registres, cuánto ganaste y por qué canal. Empieza ahora.', cta:'Registrar primera venta →', dest:'venta' }
+                ? { icon:'🧾', title:'Todavía no hay ventas', sub:'Cuando registres una venta, aparecerá aquí con su ganancia calculada.', cta:'Registrar venta →', dest:'venta' }
                 : { icon:'🔍', title:'Sin resultados', sub:'Prueba con otro término de búsqueda.', cta:null },
       hoy:    { icon:'🌅', title:'Sin ventas hoy todavía', sub:'Registra una venta y acá verás cuánto ganaste.', cta:'Registrar venta →', dest:'venta' },
       semana: { icon:'📅', title:'Sin ventas este mes', sub:'Cuando registres ventas del mes aparecerán acá.', cta:'Registrar venta →', dest:'venta' },
@@ -4720,7 +4721,7 @@ function renderInventario() {
         <div style="font-size:18px;flex-shrink:0;">💡</div>
         <div>
           <div class="ctx-hint-text">${cuantos}</div>
-          <div class="ctx-hint-sub">Agrega el costo para ver cuánto ganas realmente</div>
+          <div class="ctx-hint-sub">Sin eso, la ganancia puede estar inflada.</div>
         </div>
         <div style="font-size:14px;color:var(--muted2);">›</div>
       </div>`;
@@ -4744,8 +4745,8 @@ function renderInventario() {
         empty.innerHTML = `
           <div class="empty-icon">📦</div>
           <div class="empty-title">Todavía no tienes productos</div>
-          <div class="empty-sub" style="margin-bottom:16px;">Crea tu primer producto para empezar a registrar ventas y controlar tu stock.</div>
-          <button class="btn" style="width:auto;padding:10px 24px;font-size:13px;margin:0;" onclick="goTo('skus')">+ Crear primer producto →</button>`;
+          <div class="empty-sub" style="margin-bottom:16px;">Agrega los productos que vendes con su precio y costo. Así Cuanti puede calcular cuánto ganas.</div>
+          <button class="btn" style="width:auto;padding:10px 24px;font-size:13px;margin:0;" onclick="abrirQuickProdSheet()">Nuevo producto →</button>`;
       } else if (q2) {
         empty.innerHTML = `<div class="empty-icon">🔍</div><div class="empty-title">Sin resultados</div><div class="empty-sub">No hay productos que coincidan con "${esc(q2)}"</div>`;
       } else {
@@ -5773,6 +5774,13 @@ function ventaRenderInventario(filter='') {
   if(!lista) return;
   const q = filter.toLowerCase();
 
+  // Hint primera vez
+  const hintNvEl = document.getElementById('venta-hint-primero');
+  if (hintNvEl) {
+    const sinVentas = ventasDB.filter(v => !v.nombre.startsWith('↩️')).length === 0;
+    hintNvEl.style.display = (!q && sinVentas) ? '' : 'none';
+  }
+
   // Recientes: solo cuando no hay filtro activo
   const recientesWrap  = document.getElementById('venta-recientes-wrap');
   const recientesLista = document.getElementById('venta-recientes-lista');
@@ -6525,6 +6533,30 @@ function renderAnalisis(tab, btn) {
   }
 
   if (_analisisTab === 'gastos') { renderGastos(body, setBody); return; }
+
+  // Empty state análisis — sin ventas
+  const _ventasRealesAnalisis = ventasDB.filter(v => !v.nombre.startsWith('↩️'));
+  if (_ventasRealesAnalisis.length === 0) {
+    setBody(`<div style="padding:56px 16px 24px;text-align:center;">
+      <div style="font-size:44px;margin-bottom:14px;">📊</div>
+      <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:17px;margin-bottom:8px;letter-spacing:-.3px;">Aún no hay suficiente información</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:22px;line-height:1.7;max-width:260px;margin-inline:auto;">El análisis aparece cuando tienes ventas registradas. Registra la primera para ver cómo va tu negocio.</div>
+      <button class="btn" style="width:auto;padding:13px 28px;font-size:13px;margin:0;" onclick="goTo('venta')">Registrar venta →</button>
+    </div>`);
+    return;
+  }
+
+  // Hint: pocos datos
+  const _hintAnalisisEl = document.getElementById('analisis-hint-datos');
+  if (_hintAnalisisEl) {
+    const _primeraFecha = _ventasRealesAnalisis
+      .filter(v => v.fecha_raw)
+      .reduce((m, v) => v.fecha_raw < m ? v.fecha_raw : m, new Date().toISOString());
+    const _diasDesde = Math.round((new Date() - new Date(_primeraFecha)) / 86400000);
+    const _pocosData = _ventasRealesAnalisis.length < 10 || _diasDesde < 14;
+    _hintAnalisisEl.style.display = _pocosData ? '' : 'none';
+    if (_pocosData) _hintAnalisisEl.textContent = '📈 Con más ventas, aquí vas a ver cuáles productos te dejan más ganancia y cuáles conviene dejar de vender.';
+  }
 
   const now   = new Date();
   const todayD = now.getDate();
