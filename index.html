@@ -2847,18 +2847,18 @@ function abrirMas() {
   if(!sh || !menu) return;
 
   const items = [
-    { icon:'🧾', label:'Compras',       sub:'Registra lo que compraste',       dest:'compras',     solo:true  },
-    { icon:'💸', label:'Gastos',        sub:'Arriendos, transporte y más',      dest:'analisis',    solo:false },
-    { icon:'👥', label:'Clientes',      sub:'Tu base de compradores',           dest:'clientes',    solo:false },
-    { icon:'🔄', label:'Transferencias',sub:'Mover stock entre locales',        dest:'locales',     solo:true  },
-    { icon:'📊', label:'Exportar datos',sub:'Descarga tus ventas e inventario', dest:'config',      solo:true  },
-    { icon:'⚙️', label:'Configuración', sub:'Perfil, equipo y ajustes',         dest:'config',      solo:false },
+    { icon:'🧾', label:'Compras',       sub:'Registra lo que compraste',       fn:'goTo("compras")',                                    solo:true  },
+    { icon:'💸', label:'Gastos',        sub:'Arriendos, transporte y más',      fn:'goToGastosTab()',                                    solo:false },
+    { icon:'👥', label:'Clientes',      sub:'Tu base de compradores',           fn:'goToClientesTab()',                                  solo:false },
+    { icon:'🔄', label:'Transferencias',sub:'Mover stock entre locales',        fn:'goTo("scanner");setTimeout(()=>scAccion("transfer"),400)', solo:true },
+    { icon:'📊', label:'Exportar datos',sub:'Descarga tus ventas e inventario', fn:'goTo("config")',                                     solo:true  },
+    { icon:'⚙️', label:'Configuración', sub:'Perfil, equipo y ajustes',         fn:'goTo("config")',                                     solo:false },
   ];
 
   menu.innerHTML = items
     .filter(it => !it.solo || esDueno)
     .map(it => `
-    <div onclick="cerrarMas();goTo('${it.dest}')" style="display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--sf3);cursor:pointer;" onmousedown="this.style.opacity='.6'" onmouseup="this.style.opacity='1'">
+    <div onclick="cerrarMas();${it.fn}" style="display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--sf3);cursor:pointer;" onmousedown="this.style.opacity='.6'" onmouseup="this.style.opacity='1'">
       <div style="width:40px;height:40px;background:var(--sf2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">${it.icon}</div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:13px;font-weight:600;margin-bottom:1px;">${it.label}</div>
@@ -2883,6 +2883,16 @@ function cerrarMas() {
   }, 300);
   // Des-resaltar nav-mas
   document.getElementById('nav-mas')?.classList.remove('on');
+}
+
+function goToGastosTab() {
+  _analisisTab = 'gastos';
+  goTo('analisis');
+}
+
+function goToClientesTab() {
+  goTo('historial');
+  setTimeout(() => histSelTab('clientes'), 80);
 }
 
 let _prevScreen = 'dashboard';
