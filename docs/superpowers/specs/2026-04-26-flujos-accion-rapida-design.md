@@ -41,7 +41,9 @@ Filtro: variante.activa = true AND variante.stock_actual > 0 AND productos.preci
 
 `precio_base` del producto, no `precio_unitario` de ventas pasadas — para reflejar el precio actual y no un precio histórico que puede haber cambiado.
 
-Solo mostrar variantes que tengan stock disponible y precio cargado. Si un producto se agota, sale del strip automáticamente en la próxima carga del dashboard.
+**El strip muestra variantes individuales, no productos.** Si Jordan 1 Retro tiene talla 40 y talla 42, ambas aparecen como items separados en el strip. El usuario puede vender T40 o T42 de forma independiente. El nombre en el strip muestra: `{producto.nombre}` + `{variante.talla_color}` si existe.
+
+Solo mostrar variantes que tengan stock disponible y precio cargado. Si una variante se agota, sale del strip automáticamente en la próxima carga del dashboard.
 
 ### Comportamiento al tocar "+"
 
@@ -70,7 +72,7 @@ Solo mostrar variantes que tengan stock disponible y precio cargado. Si un produ
   detalle_ventas: {
     variante_id: variante.id,
     cantidad: 1,
-    precio_unitario: variante.precio_base,    // último precio válido del producto
+    precio_unitario: producto.precio_base,    // precio del producto, no de la variante — variantes no tienen precio propio
     costo_unitario: variante.costo_ultima_compra  // null si no tiene costo
   }
 }
@@ -153,8 +155,8 @@ Un toque en cualquier parte fuera del panel = volver a búsqueda.
 |-----------|---------------|
 | Sin precio (precio = 0 o NULL) | Mostrar producto seleccionable. Panel aparece, pero botón "Registrar venta" está deshabilitado (gris). Aparece link "Agregar precio →" que navega a edición del producto. |
 | Sin costo (costo = 0 o NULL) | Permitir venta normalmente. Mostrar hint amarillo inline: "Sin costo registrado — la ganancia puede no ser exacta". No bloquear el CTA. |
-| Stock = 0 | Mostrar producto en lista con badge "Sin stock". Permitir seleccionarlo. No bloquear CTA — el usuario puede vender aunque no haya stock registrado (e.g., error de conteo). |
-| Cantidad > stock | Permitir. Mostrar aviso suave: "Solo tienes {stock} unidades registradas" |
+| Stock = 0 | Mostrar variante en lista con badge "Sin stock". Permitir seleccionarla. No bloquear CTA — el usuario puede vender aunque no haya stock registrado (puede ser error de conteo). Mostrar advertencia en el panel: `"Estás vendiendo más stock del que tienes registrado"` en naranja. |
+| Cantidad > stock | Permitir. Mostrar aviso naranja en el panel: `"Estás vendiendo más stock del que tienes registrado"`. El stock puede quedar en negativo — registrar igual y dejar que el usuario corrija el inventario. |
 
 ### Datos que se registran
 
@@ -245,6 +247,14 @@ El texto se actualiza en tiempo real conforme el usuario cambia la cantidad.
 
 ### Datos que se registran
 
+La prioridad del flujo rápido es actualizar el stock. El registro de compra es secundario y no debe bloquear la acción.
+
+**Operación mínima obligatoria:**
+```sql
+UPDATE variantes SET stock_actual = stock_actual + :cantidad WHERE id = :variante_id
+```
+
+**Registro de compra (best-effort, no bloquea si falla):**
 ```javascript
 {
   compra: {
@@ -252,20 +262,21 @@ El texto se actualiza en tiempo real conforme el usuario cambia la cantidad.
     origen: 'reposicion_rapida',
     local_destino_id: local_activo.id,
     usuario_id: usuario_activo.id,
-    total_pagado_clp: null,   // no se captura en flujo rápido
+    total_pagado_clp: null,
     proveedor: null,
-    referencia: null
+    referencia: null,
+    notas: 'Reposición rápida desde dashboard'
   },
   detalle_compras: {
     compra_id: compra.id,
     variante_id: variante.id,
     cantidad: cantidad_ingresada,
-    costo_unitario: variante.costo_ultima_compra  // mantiene el último costo conocido
+    costo_unitario: variante.costo_ultima_compra
   }
 }
 ```
 
-Después de insertar: `UPDATE variantes SET stock_actual = stock_actual + cantidad WHERE id = variante.id`
+Si el insert de compra falla, el stock ya fue actualizado — no revertir. El usuario verá el stock correcto aunque no quede historial de esa reposición.
 
 ### Lo que NO incluye este flujo
 
@@ -346,9 +357,19 @@ Subtexto debajo del formulario: `"Puedes agregar fotos y tallas después desde e
 
 ### Post-guardar
 
-- Redirigir a la ficha del producto creado en Stock
-- Si no tiene costo → el dashboard evalúa P3 en la próxima carga (o inmediatamente si el producto tiene ventas existentes, lo cual no aplica para uno nuevo)
-- Toast: `"Producto creado. Ahora puedes registrar ventas."`
+En vez de redirigir al inventario, mostrar una pantalla de confirmación con acciones siguientes:
+
+```
+✓ Producto creado
+
+[Registrar venta]       ← CTA amarillo (navega a Nueva Venta con este producto pre-seleccionado)
+[Agregar stock]         ← CTA secundario (abre bottom sheet de stock para este producto)
+[Ver en inventario]     ← link, no botón
+```
+
+El usuario que acaba de crear un producto lo más probable es que quiera vender o reponer stock — llevarlos al inventario no tiene sentido en ese momento.
+
+Si el producto fue creado sin costo → el dashboard evaluará P3 en su próxima carga.
 
 ---
 
@@ -362,6 +383,15 @@ Cuando se registra una venta (rápida o normal) sin costo conocido:
 - En el historial, esa venta muestra ganancia con `"?"` o badge naranja
 
 Esta marca desaparece automáticamente cuando el usuario agrega un costo al producto. Los datos históricos no se recalculan retroactivamente — solo las ventas futuras usarán el nuevo costo.
+
+### Impacto en insights del sistema
+
+Las ventas con `costo_unitario = null` **no se usan** para calcular:
+- Qué canal deja más ganancia (P5 del bloque QHA)
+- Qué producto es más rentable
+- Cualquier comparación de margen entre productos o canales
+
+Si el porcentaje de ventas sin costo es alto (> 30% de las ventas del período), los insights de canal y rentabilidad se muestran con advertencia: `"Algunos productos no tienen costo registrado — el análisis puede no ser preciso"`. Umbral exacto a definir en la implementación del bloque QHA.
 
 ---
 
@@ -405,7 +435,23 @@ Esta marca desaparece automáticamente cuando el usuario agrega un costo al prod
 
 ---
 
-## 9. Fuera de scope en esta versión
+## 9. Orden de implementación
+
+Los flujos se implementan en este orden. Cada uno es funcional e independiente — no hay dependencias duras entre ellos.
+
+| Orden | Flujo | Razón |
+|-------|-------|-------|
+| 1 | Nueva venta simplificada | Es el flujo más usado. Simplificar la pantalla actual genera valor inmediato. |
+| 2 | Quick-sell en dashboard | Depende de que haya ventas registradas — va después de arreglar Nueva Venta. |
+| 3 | Agregar stock rápido desde QHA | Depende del bloque QHA. Se implementa cuando QHA esté listo. |
+| 4 | Crear producto simple | Mejora el flujo actual, sin dependencias. |
+| 5 | Actualización inmediata de dashboard/QHA | Es la capa de integración — une todos los flujos anteriores con el sistema de decisiones. |
+
+El bloque QHA (spec: 2026-04-26-sistema-guia-dashboard-design.md) se implementa en paralelo o antes de los flujos 3 y 5.
+
+---
+
+## 10. Fuera de scope en esta versión
 
 - Selección de canal/pago/envío en venta rápida (solo flujo completo)
 - Cambio de precio al momento de vender (precio fijo del producto)
