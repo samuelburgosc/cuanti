@@ -2159,19 +2159,13 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
         <label>Costo unitario</label>
         <div class="fwrap"><span class="fpfx">$</span><input id="qp-costo" class="pfx" type="number" inputmode="numeric" placeholder="0"
           oninput="qpActualizarGanancia()"
-          onkeydown="if(event.key==='Enter')document.getElementById('qp-stock').focus()"></div>
+          onkeydown="if(event.key==='Enter')guardarQuickProd()"></div>
       </div>
     </div>
 
     <!-- preview de ganancia en tiempo real -->
     <div id="qp-ganancia-preview" style="display:none;border-radius:10px;padding:10px 13px;margin-bottom:12px;transition:background .2s;">
       <div id="qp-gan-text" style="font-size:12px;font-weight:600;"></div>
-    </div>
-
-    <div class="field" style="margin-bottom:20px;">
-      <label>Stock inicial (unidades)</label>
-      <input id="qp-stock" type="number" inputmode="numeric" placeholder="0" min="0"
-        onkeydown="if(event.key==='Enter')guardarQuickProd()">
     </div>
 
     <div id="qp-error" style="display:none;color:var(--red);font-size:12px;margin-bottom:10px;"></div>
@@ -2537,7 +2531,7 @@ function qpActualizarGanancia() {
 }
 
 function abrirQuickProdSheet() {
-  ['qp-nombre','qp-precio','qp-costo','qp-stock'].forEach(id => {
+  ['qp-nombre','qp-precio','qp-costo'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -2563,7 +2557,7 @@ async function guardarQuickProd() {
   const nombre = (document.getElementById('qp-nombre')?.value || '').trim();
   const precio = parseInt(document.getElementById('qp-precio')?.value) || 0;
   const costo  = parseInt(document.getElementById('qp-costo')?.value) || 0;
-  const stock  = parseInt(document.getElementById('qp-stock')?.value) || 0;
+  const stock  = 0;
 
   const errEl = document.getElementById('qp-error');
   if (!nombre) {
@@ -2617,9 +2611,33 @@ async function guardarQuickProd() {
   }
 
   await cargarInventario();
-  cerrarQuickProd();
-  const esPrimerProd = skuDB.length === 1;
-  toast(esPrimerProd ? `¡${nombre} listo! Ahora registra tu primera venta` : `¡${nombre} creado!`, 'ok');
+  const nuevaVariante = skuDB.find(s => s.producto_id === prod.id);
+  const varianteId    = nuevaVariante?.id;
+
+  const sheetBody = document.getElementById('qprod-sheet-body') || document.querySelector('#qprod-sheet > div');
+  if (sheetBody && varianteId) {
+    sheetBody.innerHTML = `
+      <div style="padding:24px 0 8px;text-align:center;">
+        <div style="font-size:32px;margin-bottom:10px;">✓</div>
+        <div style="font-family:'Archivo Black',sans-serif;font-size:19px;letter-spacing:-.3px;margin-bottom:6px;">${nombre}</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:28px;">Producto creado</div>
+        <button onclick="cerrarQuickProd();goTo('venta');ventaSelProductById(${varianteId});"
+          style="width:100%;background:var(--accent);border:none;border-radius:12px;padding:14px;font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;color:var(--text);cursor:pointer;margin-bottom:10px;">
+          Registrar venta
+        </button>
+        <button onclick="cerrarQuickProd();abrirAddStockQHA(${varianteId});"
+          style="width:100%;background:var(--sf);border:1px solid var(--bd2);border-radius:12px;padding:13px;font-family:'Archivo',sans-serif;font-weight:700;font-size:13px;color:var(--text);cursor:pointer;margin-bottom:14px;">
+          Agregar stock
+        </button>
+        <div onclick="cerrarQuickProd();goTo('inventario');" style="font-size:12px;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:2px;">
+          Ver en inventario
+        </div>
+      </div>`;
+    if (btn) { btn.textContent = 'Crear producto →'; btn.disabled = false; }
+  } else {
+    cerrarQuickProd();
+    toast(`${nombre} creado`, 'ok');
+  }
   renderDashboard();
   renderInventario();
 }
@@ -5843,6 +5861,10 @@ function ventaRenderInventario(filter='') {
 function ventaSelProductEncoded(enc) {
   const s = safeDecode(enc);
   if(s) ventaSelProduct(s);
+}
+function ventaSelProductById(varianteId) {
+  const s = skuDB.find(sk => sk.id === varianteId);
+  if (s) ventaSelProduct(s);
 }
 
 // Búsqueda en tiempo real
