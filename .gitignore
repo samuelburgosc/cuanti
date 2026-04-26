@@ -25,3 +25,6 @@ Thumbs.db
 # Archivos sensibles del proyecto
 supabase cuanti.txt
 index_backup.html
+
+# Documentación interna (no va a GitHub)
+documentacion cuanti.md

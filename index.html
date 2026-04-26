@@ -1158,6 +1158,12 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
     <button id="login-btn" class="btn" onclick="loginSubmit()" style="font-size:15px;padding:16px;margin-top:0;">
       Entrar →
     </button>
+    <div style="text-align:center;margin-top:16px;">
+      <span id="forgot-link" onclick="loginOlvide()" style="font-size:12px;color:var(--muted);cursor:pointer;text-decoration:underline;">¿Olvidaste tu contraseña?</span>
+    </div>
+    <div id="forgot-ok" style="display:none;font-size:12px;color:var(--green);text-align:center;margin-top:12px;line-height:1.5;">
+      Te enviamos un email para restablecer tu contraseña. Revisa tu bandeja.
+    </div>
   </div>
 </div>
 
@@ -1278,7 +1284,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
       <div class="inv-act-btn" onclick="goTo('skus')"><div class="inv-act-icon">📦</div><div class="inv-act-lbl">+ Producto</div></div>
       <div class="inv-act-btn" onclick="goTo('compras')"><div class="inv-act-icon">🧾</div><div class="inv-act-lbl">+ Compra</div></div>
-      <div class="inv-act-btn" onclick="goTo('carga-masiva')"><div class="inv-act-icon">📥</div><div class="inv-act-lbl">Carga masiva</div></div>
+      <div class="inv-act-btn" onclick="goTo('carga-masiva')"><div class="inv-act-icon">📥</div><div class="inv-act-lbl">+ Stock masivo</div></div>
     </div>
   </div>
 
@@ -1301,7 +1307,7 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
 <div class="screen" id="screen-carga-masiva">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
     <button onclick="goTo('inventario')" style="background:none;border:none;font-size:22px;color:var(--text);cursor:pointer;padding:0;line-height:1;">←</button>
-    <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:18px;letter-spacing:-.3px;">Carga masiva</div>
+    <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:18px;letter-spacing:-.3px;">Agregar stock</div>
     <button id="cm-confirm-top" onclick="cmConfirmar()" disabled style="background:var(--accent);border:none;border-radius:9px;padding:8px 14px;font-family:'Archivo',sans-serif;font-weight:700;font-size:13px;color:var(--text);cursor:pointer;opacity:.35;">Confirmar</button>
   </div>
 
@@ -1363,68 +1369,6 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
       </div>
     </div>
 
-    <!-- descuento (toggle opcional) -->
-    <div style="margin-bottom:18px;">
-      <div id="v-desc-toggle" onclick="ventaToggleDescuento()"
-        style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--sf2);border:1px dashed var(--bd2);border-radius:10px;cursor:pointer;">
-        <span style="font-size:12px;color:var(--muted);">Aplicar descuento</span>
-        <span id="v-desc-toggle-icon" style="font-size:18px;color:var(--muted);font-weight:700;line-height:1;">＋</span>
-      </div>
-      <div id="v-desc-panel" style="display:none;margin-top:8px;">
-        <div style="display:flex;gap:8px;align-items:flex-end;">
-          <div class="field" style="flex:1;margin-bottom:0;">
-            <label>Descuento</label>
-            <input id="v-desc-valor" type="number" min="0" placeholder="0" inputmode="decimal" oninput="recalcVenta()">
-          </div>
-          <div style="display:flex;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:1px;">
-            <div id="v-desc-pct-btn" onclick="ventaSelDescTipo('porcentaje')"
-              style="padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;background:var(--accent);color:var(--text);">%</div>
-            <div id="v-desc-monto-btn" onclick="ventaSelDescTipo('monto')"
-              style="padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted);">$</div>
-          </div>
-        </div>
-        <div id="v-desc-error" style="display:none;font-size:11px;color:var(--red);margin-top:6px;padding:0 4px;"></div>
-      </div>
-    </div>
-
-    <!-- canal -->
-    <div style="margin-bottom:18px;">
-      <div class="mono-lbl" style="margin-bottom:9px;">Canal</div>
-      <div class="pill-group" id="canal-grid"></div>
-    </div>
-
-    <!-- método de pago -->
-    <div style="margin-bottom:20px;">
-      <div class="mono-lbl" style="margin-bottom:9px;">Método de pago</div>
-      <div class="pill-group" id="pago-grid">
-        <div class="pill sel" id="vp-transf"  onclick="selPagoV(this,'Transferencia')">Transferencia</div>
-        <div class="pill"     id="vp-efec"    onclick="selPagoV(this,'Efectivo')">Efectivo</div>
-        <div class="pill"     id="vp-tdeb"    onclick="selPagoV(this,'Tarjeta débito')">T. Débito</div>
-        <div class="pill"     id="vp-tcre"    onclick="selPagoV(this,'Tarjeta crédito')">T. Crédito</div>
-      </div>
-    </div>
-
-    <!-- cliente (toggle opcional) -->
-    <div style="margin-bottom:18px;">
-      <div id="v-cliente-toggle" onclick="ventaToggleCliente()"
-        style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--sf2);border:1px dashed var(--bd2);border-radius:10px;cursor:pointer;">
-        <span style="font-size:12px;color:var(--muted);">¿Quién compra? (opcional)</span>
-        <span id="v-cliente-toggle-icon" style="font-size:18px;color:var(--muted);font-weight:700;line-height:1;">＋</span>
-      </div>
-      <div id="v-cliente-panel" style="display:none;margin-top:8px;">
-        <div class="field" style="margin-bottom:0;position:relative;">
-          <label>Nombre o teléfono</label>
-          <input id="v-cliente-input" type="text" placeholder="Buscar cliente existente..."
-            autocomplete="off" oninput="ventaBuscarCliente(this.value)">
-        </div>
-        <div id="v-cliente-sugerencias" style="background:var(--sf);border:1px solid var(--bd);border-radius:10px;margin-top:4px;display:none;"></div>
-        <div id="v-cliente-seleccionado" style="display:none;margin-top:6px;padding:8px 10px;background:var(--gdim);border:1px solid rgba(30,158,99,.2);border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
-          <span id="v-cliente-sel-nombre" style="font-size:13px;font-weight:600;color:var(--green);"></span>
-          <span onclick="ventaLimpiarCliente()" style="font-size:11px;color:var(--muted);cursor:pointer;">✕</span>
-        </div>
-      </div>
-    </div>
-
     <!-- ganancia preview -->
     <div id="v-gan-preview" style="background:var(--gdim);border:1px solid rgba(30,158,99,.2);border-radius:12px;padding:13px 16px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;">
       <span style="font-size:13px;color:var(--muted);">Ganancia estimada</span>
@@ -1433,7 +1377,79 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
 
     <div id="v-com-note" style="display:none;font-size:11px;color:var(--muted);text-align:center;margin-top:-12px;margin-bottom:14px;"></div>
     <button class="btn" id="venta-confirmar-btn" onclick="ventaConfirmar()">Registrar venta →</button>
-    <button class="btn sec" onclick="ventaVolver()" style="margin-top:8px;">← Cambiar producto</button>
+
+    <!-- ── DETALLES OPCIONALES (colapsable) ── -->
+    <div id="v-detalles-toggle" onclick="ventaToggleDetalles()"
+      style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;cursor:pointer;margin-top:10px;">
+      <span style="font-size:12px;font-weight:600;color:var(--muted);">Agregar detalles</span>
+      <span id="v-detalles-icon" style="font-size:11px;color:var(--muted2);">canal · pago · cliente · descuento  ›</span>
+    </div>
+    <div id="v-detalles-panel" style="display:none;padding-top:14px;">
+
+      <!-- canal -->
+      <div style="margin-bottom:16px;">
+        <div class="mono-lbl" style="margin-bottom:8px;">¿Dónde vendiste?</div>
+        <div class="pill-group" id="canal-grid"></div>
+      </div>
+
+      <!-- método de pago -->
+      <div style="margin-bottom:16px;">
+        <div class="mono-lbl" style="margin-bottom:8px;">¿Cómo te pagaron?</div>
+        <div class="pill-group" id="pago-grid">
+          <div class="pill sel" id="vp-transf"  onclick="selPagoV(this,'Transferencia')">Transferencia</div>
+          <div class="pill"     id="vp-efec"    onclick="selPagoV(this,'Efectivo')">Efectivo</div>
+          <div class="pill"     id="vp-tdeb"    onclick="selPagoV(this,'Tarjeta débito')">T. Débito</div>
+          <div class="pill"     id="vp-tcre"    onclick="selPagoV(this,'Tarjeta crédito')">T. Crédito</div>
+        </div>
+      </div>
+
+      <!-- descuento -->
+      <div style="margin-bottom:16px;">
+        <div id="v-desc-toggle" onclick="ventaToggleDescuento()"
+          style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--sf2);border:1px dashed var(--bd2);border-radius:10px;cursor:pointer;">
+          <span style="font-size:12px;color:var(--muted);">Aplicar descuento</span>
+          <span id="v-desc-toggle-icon" style="font-size:18px;color:var(--muted);font-weight:700;line-height:1;">＋</span>
+        </div>
+        <div id="v-desc-panel" style="display:none;margin-top:8px;">
+          <div style="display:flex;gap:8px;align-items:flex-end;">
+            <div class="field" style="flex:1;margin-bottom:0;">
+              <label>Descuento</label>
+              <input id="v-desc-valor" type="number" min="0" placeholder="0" inputmode="decimal" oninput="recalcVenta()">
+            </div>
+            <div style="display:flex;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:1px;">
+              <div id="v-desc-pct-btn" onclick="ventaSelDescTipo('porcentaje')"
+                style="padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;background:var(--accent);color:var(--text);">%</div>
+              <div id="v-desc-monto-btn" onclick="ventaSelDescTipo('monto')"
+                style="padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted);">$</div>
+            </div>
+          </div>
+          <div id="v-desc-error" style="display:none;font-size:11px;color:var(--red);margin-top:6px;padding:0 4px;"></div>
+        </div>
+      </div>
+
+      <!-- cliente -->
+      <div style="margin-bottom:8px;">
+        <div id="v-cliente-toggle" onclick="ventaToggleCliente()"
+          style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--sf2);border:1px dashed var(--bd2);border-radius:10px;cursor:pointer;">
+          <span style="font-size:12px;color:var(--muted);">¿Quién compra? (opcional)</span>
+          <span id="v-cliente-toggle-icon" style="font-size:18px;color:var(--muted);font-weight:700;line-height:1;">＋</span>
+        </div>
+        <div id="v-cliente-panel" style="display:none;margin-top:8px;">
+          <div class="field" style="margin-bottom:0;position:relative;">
+            <label>Nombre o teléfono</label>
+            <input id="v-cliente-input" type="text" placeholder="Buscar cliente existente..."
+              autocomplete="off" oninput="ventaBuscarCliente(this.value)">
+          </div>
+          <div id="v-cliente-sugerencias" style="background:var(--sf);border:1px solid var(--bd);border-radius:10px;margin-top:4px;display:none;"></div>
+          <div id="v-cliente-seleccionado" style="display:none;margin-top:6px;padding:8px 10px;background:var(--gdim);border:1px solid rgba(30,158,99,.2);border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+            <span id="v-cliente-sel-nombre" style="font-size:13px;font-weight:600;color:var(--green);"></span>
+            <span onclick="ventaLimpiarCliente()" style="font-size:11px;color:var(--muted);cursor:pointer;">✕</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn sec" onclick="ventaVolver()" style="margin-top:10px;">← Cambiar producto</button>
   </div>
 
   <!-- ── PASO 3: RESULTADO ── -->
@@ -2068,16 +2084,27 @@ body{background:var(--bg);color:var(--text);font-family:'Archivo',sans-serif;lin
 
 <!-- ── BOTTOM NAV ── -->
 <div class="bottom-nav">
-  <div class="ni on" id="nav-dashboard"  onclick="goTo('dashboard')"  role="button" tabindex="0" aria-label="Inicio"> <div class="nico2">🏠</div><div class="nlbl">Hoy</div></div>
-  <div class="ni"    id="nav-inventario" onclick="goTo('inventario')" role="button" tabindex="0" aria-label="Productos"><div class="nico2">📦</div><div class="nlbl">Productos</div></div>
+  <div class="ni on" id="nav-dashboard"  onclick="goTo('dashboard')"  role="button" tabindex="0" aria-label="Inicio">   <div class="nico2">🏠</div><div class="nlbl">Inicio</div></div>
+  <div class="ni"    id="nav-inventario" onclick="goTo('inventario')" role="button" tabindex="0" aria-label="Stock">     <div class="nico2">📦</div><div class="nlbl">Stock</div></div>
   <div class="nav-fab-wrap" id="nav-fab-venta" onclick="goTo('venta')" role="button" tabindex="0" aria-label="Nueva venta">
     <div class="nav-fab" id="nav-fab-icon">+</div>
     <div class="nav-fab-lbl">Vender</div>
   </div>
-  <div class="ni"    id="nav-analisis"   onclick="goTo('analisis')"   role="button" tabindex="0" aria-label="Análisis">  <div class="nico2">📊</div><div class="nlbl">Análisis</div></div>
+  <div class="ni"    id="nav-analisis"   onclick="goTo('analisis')"   role="button" tabindex="0" aria-label="Resumen">   <div class="nico2">📊</div><div class="nlbl">Resumen</div></div>
+  <div class="ni"    id="nav-mas"        onclick="abrirMas()"          role="button" tabindex="0" aria-label="Más">       <div class="nico2">☰</div><div class="nlbl">Más</div></div>
 </div>
 
 </div><!-- end device -->
+
+<!-- ── BOTTOM SHEET "MÁS" ── -->
+<div class="sheet-bd" id="mas-sheet-bd" onclick="cerrarMas()" style="display:none;"></div>
+<div class="sheet" id="mas-sheet" style="display:none;">
+  <div class="sheet-handle" onclick="cerrarMas()"></div>
+  <div style="padding:0 18px 8px;">
+    <div style="font-family:'Archivo Black',sans-serif;font-size:16px;letter-spacing:-.2px;margin-bottom:18px;">Más opciones</div>
+    <div id="mas-menu"></div>
+  </div>
+</div>
 
 <!-- ── BOTTOM SHEET INVENTARIO ── -->
 <div class="sheet-bd" id="inv-sheet-bd" onclick="invCerrarSheet()"></div>
@@ -2635,6 +2662,23 @@ async function loginSubmit() {
   }
 }
 
+async function loginOlvide() {
+  const email = (document.getElementById('login-email')?.value || '').trim();
+  const errEl = document.getElementById('login-error');
+  const okEl  = document.getElementById('forgot-ok');
+  if (!email) {
+    if(errEl) { errEl.textContent = 'Primero escribe tu email arriba.'; errEl.style.display = 'block'; }
+    return;
+  }
+  if(errEl) errEl.style.display = 'none';
+  await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://cuanti-two.vercel.app'
+  });
+  if(okEl) okEl.style.display = 'block';
+  const link = document.getElementById('forgot-link');
+  if(link) link.style.display = 'none';
+}
+
 async function logout() {
   await sb.auth.signOut();
   _currentUser = null;
@@ -2738,8 +2782,8 @@ function aplicarRol() {
   if(!_currentUser) return;
   const esDueno = _currentUser.rol === 'Dueño';
 
-  // Nav: Dueño ve todo, Vendedor ve solo Stock + Vender
-  const navDash    = document.getElementById('nav-dashboard');
+  // Nav: Dueño ve todo, Vendedor ve solo Stock + Vender + Más (limitado)
+  const navDash      = document.getElementById('nav-dashboard');
   const navAnalisis  = document.getElementById('nav-analisis');
   const navHistorial = document.getElementById('nav-historial');
   const navInv       = document.getElementById('nav-inventario');
@@ -2747,10 +2791,10 @@ function aplicarRol() {
   if(navAnalisis)   navAnalisis.style.display   = esDueno ? '' : 'none';
   if(navHistorial)  navHistorial.style.display  = esDueno ? '' : 'none';
 
-  // Para Vendedor: centrar los ítems visibles (Stock + FAB)
+  // Para Vendedor: centrar los ítems visibles (Stock + FAB + Más)
   const bottomNav = document.querySelector('.bottom-nav');
   if(bottomNav) bottomNav.style.justifyContent = esDueno ? '' : 'center';
-  if(navInv)    navInv.style.flex = esDueno ? '1' : '0 0 auto';
+  if(navInv)    navInv.style.flex    = esDueno ? '1' : '0 0 auto';
   if(navInv)    navInv.style.padding = esDueno ? '' : '8px 32px';
 
   // Botón salir en topbar: visible solo para vendedor
@@ -2777,6 +2821,52 @@ function aplicarRol() {
     configRolEl.textContent = esDue ? 'Dueño' : 'Vendedor';
     configRolEl.className = esDue ? 'role owner' : 'role seller';
   }
+}
+
+function abrirMas() {
+  const esDueno = _currentUser?.rol === 'Dueño';
+  const bd = document.getElementById('mas-sheet-bd');
+  const sh = document.getElementById('mas-sheet');
+  const menu = document.getElementById('mas-menu');
+  if(!sh || !menu) return;
+
+  const items = [
+    { icon:'🧾', label:'Compras',       sub:'Registra lo que compraste',       dest:'compras',     solo:true  },
+    { icon:'💸', label:'Gastos',        sub:'Arriendos, transporte y más',      dest:'analisis',    solo:false },
+    { icon:'👥', label:'Clientes',      sub:'Tu base de compradores',           dest:'clientes',    solo:false },
+    { icon:'🔄', label:'Transferencias',sub:'Mover stock entre locales',        dest:'locales',     solo:true  },
+    { icon:'📊', label:'Exportar datos',sub:'Descarga tus ventas e inventario', dest:'config',      solo:true  },
+    { icon:'⚙️', label:'Configuración', sub:'Perfil, equipo y ajustes',         dest:'config',      solo:false },
+  ];
+
+  menu.innerHTML = items
+    .filter(it => !it.solo || esDueno)
+    .map(it => `
+    <div onclick="cerrarMas();goTo('${it.dest}')" style="display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--sf3);cursor:pointer;" onmousedown="this.style.opacity='.6'" onmouseup="this.style.opacity='1'">
+      <div style="width:40px;height:40px;background:var(--sf2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">${it.icon}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:1px;">${it.label}</div>
+        <div style="font-size:11px;color:var(--muted);">${it.sub}</div>
+      </div>
+      <div style="font-size:14px;color:var(--muted2);">›</div>
+    </div>`).join('');
+
+  bd.style.display = 'block';
+  sh.style.display = 'block';
+  requestAnimationFrame(() => { sh.classList.add('open'); bd.style.opacity='1'; });
+}
+
+function cerrarMas() {
+  const bd = document.getElementById('mas-sheet-bd');
+  const sh = document.getElementById('mas-sheet');
+  if(!sh) return;
+  sh.classList.remove('open');
+  setTimeout(() => {
+    if(sh) sh.style.display = 'none';
+    if(bd) bd.style.display = 'none';
+  }, 300);
+  // Des-resaltar nav-mas
+  document.getElementById('nav-mas')?.classList.remove('on');
 }
 
 function goTo(id) {
@@ -2813,7 +2903,7 @@ function goTo(id) {
     'nueva-compra': 'Registrar compra', historial: 'Ventas',
     analisis: 'Análisis', locales: 'Locales', config: 'Configuración',
     notifs: 'Alertas', skus: 'Productos y Etiquetas', scanner: 'Escáner',
-    'carga-masiva': 'Carga masiva'
+    'carga-masiva': 'Agregar stock'
   };
   const titleEl = document.getElementById('topbar-screen-title');
   if(titleEl) {
@@ -3028,7 +3118,7 @@ function renderDashboard() {
 
     strip.innerHTML =
       statChip('Hoy', ganHoyStr, 'historial') +
-      statChip('Margen', margenStr, 'analisis') +
+      statChip('Te queda', margenStr, 'analisis') +
       statChip('Mejor canal', canalStr, 'analisis');
   }
 
@@ -3124,46 +3214,7 @@ function renderDashboard() {
       }
     }
 
-    // 6. Proyección del mes
-    // Proyecta ganancia bruta de ventas (sin gastos, que no son lineales),
-    // luego resta los gastos ya incurridos este mes.
-    const diaActual   = hoy.getDate();
-    const diasEnMesP  = new Date(hoy.getFullYear(), hoy.getMonth()+1, 0).getDate();
-    if (ventasMes.length >= 3 && diaActual >= 5 && ganMes > 0) {
-      const proyeccionVentas = Math.round((ganMes / diaActual) * diasEnMesP);
-      const proyeccion       = proyeccionVentas - gastosMes;
-      const diasRestantes    = diasEnMesP - diaActual;
-      const promDiario       = Math.round(ganMes / diaActual);
-      items.push({
-        urgency: 'blue',
-        icon: '📅',
-        text: `Al ritmo de hoy, terminarás el mes con <b>$${fmt(proyeccion)}</b>`,
-        sub: `Quedan ${diasRestantes} días · Promedio $${fmt(promDiario)}/día en ventas`,
-        cta: 'Ver mes', ctaDest: 'analisis'
-      });
-    }
-
-    // 7. Margen promedio del mes
-    const ingMes = ventasMes.reduce((s,v) => s + v.precio, 0);
-    if (ventasMes.length >= 3 && ingMes > 0) {
-      const margenProm = Math.round((ganMes / ingMes) * 100);
-      if (margenProm > 0) {
-        const margenMsg = margenProm >= 40
-          ? `Buen margen — de cada $100 que cobras, te quedan $${margenProm}`
-          : margenProm >= 20
-            ? `De cada $100 que cobras, te quedan $${margenProm}`
-            : `Margen bajo — de cada $100 que cobras, te quedan $${margenProm}`;
-        items.push({
-          urgency: margenProm >= 40 ? 'green' : margenProm >= 20 ? 'blue' : 'orange',
-          icon: margenProm >= 40 ? '💚' : margenProm >= 20 ? '📊' : '⚠️',
-          text: margenMsg,
-          sub: `${ventasMes.length} ventas · $${fmt(ingMes)} facturado`,
-          cta: 'Analizar', ctaDest: 'analisis'
-        });
-      }
-    }
-
-    // 8. Traspasos pendientes de confirmar
+    // 6. Traspasos pendientes de confirmar (urgente)
     const miLocalIdDash = _currentUser?.rol === 'Dueño' ? null : _currentUser?.local_id;
     const transEntrantes = _transDB.filter(t =>
       t.estado === 'pendiente' &&
@@ -3179,11 +3230,15 @@ function renderDashboard() {
       });
     }
 
+    // Ordenar: urgente (red) primero, luego orange, luego el resto
+    const orden = { red:0, orange:1, accent:2, green:3, blue:4 };
+    items.sort((a,b) => (orden[a.urgency]??9) - (orden[b.urgency]??9));
+
     if (items.length === 0) {
       accionesSection.style.display = 'none';
     } else {
       accionesSection.style.display = '';
-      const visibles = items.slice(0, 2);
+      const visibles = items.slice(0, 3);
       const restantes = items.length - visibles.length;
       accionesWrap.innerHTML = visibles.map(it => {
         const u = it.urgency || 'blue';
@@ -5325,6 +5380,17 @@ function selPagoV(el, nombre) {
   ventaState.pago = nombre;
 }
 
+function ventaToggleDetalles() {
+  const panel = document.getElementById('v-detalles-panel');
+  const icon  = document.getElementById('v-detalles-icon');
+  const toggle = document.getElementById('v-detalles-toggle');
+  const abierto = panel.style.display !== 'none';
+  panel.style.display  = abierto ? 'none' : 'block';
+  toggle.style.background = abierto ? 'var(--sf2)' : 'var(--sf)';
+  toggle.style.borderColor = abierto ? 'var(--bd)' : 'var(--bd2)';
+  if(icon) icon.textContent = abierto ? 'canal · pago · cliente · descuento  ›' : 'cerrar  ‹';
+}
+
 function ventaToggleDescuento() {
   const panel  = document.getElementById('v-desc-panel');
   const icon   = document.getElementById('v-desc-toggle-icon');
@@ -6146,8 +6212,8 @@ function renderAnalisis(tab, btn) {
         <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:32px;letter-spacing:-.5px;font-variant-numeric:tabular-nums;color:${gan>=0?'var(--text)':'var(--red)'};">${gan>=0?'+':'−'}$${fmt(Math.abs(gan))}</div>
         <div style="display:flex;gap:16px;margin-top:10px;">
           <div style="font-size:11px;color:var(--muted);">${hoy.length} venta${hoy.length!==1?'s':''}</div>
-          <div style="font-size:11px;color:var(--muted);">${margenPct}% margen</div>
-          <div style="font-size:11px;color:var(--muted);">$${fmt(ticket)} ticket prom.</div>
+          <div style="font-size:11px;color:var(--muted);">te queda ${margenPct}%</div>
+          <div style="font-size:11px;color:var(--muted);">$${fmt(ticket)} venta prom.</div>
         </div>
       </div>
 
@@ -6260,8 +6326,8 @@ function renderAnalisis(tab, btn) {
       <div class="sgrid" style="margin-bottom:12px;">
         <div class="scard a"><span class="si">💰</span><div class="sv" style="color:${totalSem<0?'var(--red)':'var(--text)'};">${totalSem<0?'−':''}$${fmt(Math.abs(totalSem))}</div><div class="sl">Ganancia semana</div></div>
         <div class="scard"><span class="si">🛍️</span><div class="sv">${nVentas}</div><div class="sl">Ventas</div></div>
-        <div class="scard g"><span class="si">🎯</span><div class="sv">${margen}%</div><div class="sl">Margen</div></div>
-        <div class="scard b"><span class="si">🎟️</span><div class="sv">$${fmt(ticket)}</div><div class="sl">Ticket prom.</div></div>
+        <div class="scard g"><span class="si">🎯</span><div class="sv">${margen}%</div><div class="sl">Te queda</div></div>
+        <div class="scard b"><span class="si">🎟️</span><div class="sv">$${fmt(ticket)}</div><div class="sl">Venta prom.</div></div>
       </div>
       <div class="chart-box">
         <div class="chart-hdr">
@@ -6330,8 +6396,8 @@ function renderAnalisis(tab, btn) {
       <div class="sgrid" style="margin-bottom:12px;">
         <div class="scard a"><span class="si">💰</span><div class="sv" style="color:${gan<0?'var(--red)':'var(--text)'};">${gan<0?'−':''}$${fmt(Math.abs(gan))}</div><div class="sl">Ganancia ${mesLabel}</div></div>
         <div class="scard"><span class="si">🛍️</span><div class="sv">${nV}</div><div class="sl">Ventas del mes</div></div>
-        <div class="scard g"><span class="si">🎯</span><div class="sv">${margen}%</div><div class="sl">Margen</div></div>
-        <div class="scard b"><span class="si">🎟️</span><div class="sv">$${fmt(ticket)}</div><div class="sl">Ticket prom.</div></div>
+        <div class="scard g"><span class="si">🎯</span><div class="sv">${margen}%</div><div class="sl">Te queda</div></div>
+        <div class="scard b"><span class="si">🎟️</span><div class="sv">$${fmt(ticket)}</div><div class="sl">Venta prom.</div></div>
       </div>
 
       <!-- Gráfico por semana -->
@@ -6453,7 +6519,7 @@ function renderAnalisis(tab, btn) {
         <div class="scard a"><span class="si">💰</span><div class="sv" style="font-size:14px;color:${totalAcum<0?'var(--red)':'var(--text)'};">${totalAcum<0?'−':''}$${fmt(Math.abs(totalAcum))}</div><div class="sl">${tieneGastos?'Ganancia real total':'Ganancia total'}</div></div>
         <div class="scard"><span class="si">🛍️</span><div class="sv">${ventas.length}</div><div class="sl">Ventas totales</div></div>
         <div class="scard g"><span class="si">📅</span><div class="sv">${mesesOrden.length}</div><div class="sl">Meses activo</div></div>
-        <div class="scard b"><span class="si">🎟️</span><div class="sv" style="font-size:14px;">$${fmt(ventas.length>0?Math.round(ingTotal/ventas.length):0)}</div><div class="sl">Ticket prom.</div></div>
+        <div class="scard b"><span class="si">🎟️</span><div class="sv" style="font-size:14px;">$${fmt(ventas.length>0?Math.round(ingTotal/ventas.length):0)}</div><div class="sl">Venta prom.</div></div>
       </div>
 
       <!-- Gráfico mes a mes (ganancia real) -->
@@ -6560,7 +6626,7 @@ function renderAnalisis(tab, btn) {
       <div class="sgrid" style="margin-bottom:12px;">
         <div class="scard a"><span class="si">💎</span><div class="sv" style="font-size:14px;">$${fmt(ganPotencial)}</div><div class="sl">Ganancia potencial</div></div>
         <div class="scard b"><span class="si">📦</span><div class="sv">$${fmt(totalCosto)}</div><div class="sl">Capital invertido</div></div>
-        <div class="scard g"><span class="si">📈</span><div class="sv">${roiProm}%</div><div class="sl">% margen en stock</div></div>
+        <div class="scard g"><span class="si">📈</span><div class="sv">${roiProm}%</div><div class="sl">% que te deja</div></div>
         <div class="scard r"><span class="si">⚠️</span><div class="sv">${agotados.length+bajos.length}</div><div class="sl">Productos críticos</div></div>
       </div>
 
@@ -6597,7 +6663,7 @@ function renderAnalisis(tab, btn) {
       <!-- Mayor valor inmovilizado -->
       <div class="chart-box">
         <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;margin-bottom:3px;">Plata parada — vender primero</div>
-        <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">Productos con más capital inmovilizado</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">Productos con más plata parada</div>
         ${topValor.map((s,i)=>{
           const val = s.precio*s.stock;
           const ganPot = s.costo > 0 ? (s.precio - s.costo) * s.stock : null;
@@ -6793,7 +6859,7 @@ function renderLocales() {
         <div class="loc-kpi-hdr">${esc(sl.loc.nombre)}</div>
         <div class="loc-kpi-row"><span class="loc-kpi-lbl">Ganancia</span><span class="loc-kpi-val" style="color:${ganColor};">${sl.gan<0?'−':''}$${fmt(Math.abs(sl.gan))}</span></div>
         <div class="loc-kpi-row"><span class="loc-kpi-lbl">Ventas</span><span class="loc-kpi-val">${sl.n}</span></div>
-        <div class="loc-kpi-row"><span class="loc-kpi-lbl">Ticket prom.</span><span class="loc-kpi-val">$${fmt(sl.ticket)}</span></div>
+        <div class="loc-kpi-row"><span class="loc-kpi-lbl">Venta prom.</span><span class="loc-kpi-val">$${fmt(sl.ticket)}</span></div>
         <div class="loc-kpi-row"><span class="loc-kpi-lbl">Margen</span><span class="loc-kpi-val">${sl.margen}%</span></div>
       </div>`;
     });
