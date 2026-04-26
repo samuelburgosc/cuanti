@@ -3122,7 +3122,8 @@ function calcQHA() {
     })[0];
     const vv = v30.filter(v => v.sku === mejor.sku);
     const tasa = vv.length / 4;
-    const ganProm = vv.length > 0 ? vv.reduce((s, v) => s + v.gan / Math.max(1, v.cantidad), 0) / vv.length : 0;
+    const vvConCosto = vv.filter(v => v.costo > 0);
+    const ganProm = vvConCosto.length > 0 ? vvConCosto.reduce((s, v) => s + v.gan / Math.max(1, v.cantidad), 0) / vvConCosto.length : 0;
     return {
       prioridad: 'P1',
       varianteId: mejor.id,
@@ -3140,7 +3141,8 @@ function calcQHA() {
     const vv = v30.filter(v => v.sku === mejor.sku);
     const tasaDia = vv.length / 30;
     const diasR = tasaDia > 0 ? Math.max(1, Math.floor(mejor.stock / tasaDia)) : null;
-    const ganProm = vv.length > 0 ? vv.reduce((s, v) => s + v.gan / Math.max(1, v.cantidad), 0) / vv.length : 0;
+    const vvConCosto = vv.filter(v => v.costo > 0);
+    const ganProm = vvConCosto.length > 0 ? vvConCosto.reduce((s, v) => s + v.gan / Math.max(1, v.cantidad), 0) / vvConCosto.length : 0;
     const tasa = vv.length / 4;
     return {
       prioridad: 'P2',
@@ -3177,9 +3179,10 @@ function calcQHA() {
     return { prioridad: 'P4', nombre: top.nombre, capital_total: totalCap, dias_sin_venta: dias };
   }
 
-  // ── P5: oportunidad de canal ──
+  // ── P5: oportunidad de canal — solo ventas con costo registrado ──
   const porCanal = {};
   v30.forEach(v => {
+    if (!v.costo || v.costo === 0) return;
     if (!porCanal[v.canal]) porCanal[v.canal] = { gan: 0, cnt: 0 };
     porCanal[v.canal].gan += v.gan;
     porCanal[v.canal].cnt++;
@@ -3736,7 +3739,8 @@ async function quickSell(varianteId) {
 }
 
 function _refreshDashMetrics() {
-  const ventasMes = ventasDB.filter(v => esVentaMes(v) && !v.nombre.startsWith('↩️'));
+  const lid = localFiltro();
+  const ventasMes = ventasDB.filter(v => esVentaMes(v) && !v.nombre.startsWith('↩️') && (!lid || v.local_id === lid));
   const ganMes    = ventasMes.reduce((s, v) => s + v.gan, 0);
   const gastosMes = calcGastosMes();
   const gananciaR = ganMes - gastosMes;
@@ -3761,7 +3765,8 @@ function _renderDashActividad(markNewFirst = false) {
   const wrap = document.getElementById('dash-last-sales');
   if (!wrap) return;
 
-  const ventasReales = ventasDB.filter(v => !v.nombre.startsWith('↩️'));
+  const lid = localFiltro();
+  const ventasReales = ventasDB.filter(v => !v.nombre.startsWith('↩️') && (!lid || v.local_id === lid));
   if (ventasReales.length === 0) return;
 
   const ultimas = ventasReales.slice(0, 8);
